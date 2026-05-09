@@ -13,17 +13,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,20 +52,13 @@ fun MiniAppScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val store = remember { VariableStore(miniApp.variables) }
+    val backingMap = remember { mutableStateMapOf<String, String>() }
+    val store = remember { VariableStore(miniApp.variables, backingMap) }
     val formulaEngine = remember { FormulaEngine(miniApp.formulas) }
     var currentScreenId by remember { mutableStateOf(miniApp.screens.firstOrNull()?.id ?: "") }
     var isLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val themeColor = parseColor(miniApp.theme.primary)
-
-    // Bridge shared VariableStore changes to Compose recomposition
-    @Suppress("UNUSED_VARIABLE")
-    var storeRevision by remember { mutableIntStateOf(0) }
-    DisposableEffect(store) {
-        store.onChange = { storeRevision++ }
-        onDispose { store.onChange = null }
-    }
 
     val dispatcher = remember {
         ActionDispatcher(
@@ -142,17 +134,15 @@ fun MiniAppScreen(
             }
         }
 
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .weight(1f),
-            contentPadding = PaddingValues(16.dp),
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(
-                items = currentScreen.body,
-                key = { it.hashCode() }
-            ) { widget ->
+            currentScreen.body.forEach { widget ->
                 RenderWidget(
                     widget = widget,
                     store = store,

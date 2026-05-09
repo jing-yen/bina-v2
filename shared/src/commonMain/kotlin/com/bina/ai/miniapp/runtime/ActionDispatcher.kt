@@ -37,7 +37,7 @@ class ActionDispatcher(
     }
 
     private suspend fun handleAsk(prompt: String) {
-        if (prompt.isBlank()) return
+        if (prompt.isBlank() || store.isTrue("is_loading")) return
 
         val blocked = miniApp.safety.blockedKeywords.any { kw ->
             prompt.contains(kw, ignoreCase = true)
@@ -76,6 +76,8 @@ class ActionDispatcher(
     }
 
     private suspend fun handleVisionAsk(prompt: String) {
+        if (store.isTrue("is_loading")) return
+
         val photoPath = store["photo_path"]
         if (photoPath.isBlank()) {
             store["ai_response"] = "Please take a photo first."
@@ -92,17 +94,9 @@ class ActionDispatcher(
             return
         }
 
-        // Gemma 4 vision via Kotlin LiteRT-LM API has a known SDK limitation
-        // (missing SetOverwritePromptTemplate in JNI). Fall back to text-only
-        // inference with the prompt, noting that a photo was captured.
-        val textPrompt = "A farmer has taken a photo of their crop leaf and asks: $prompt " +
-            "Provide a general diagnostic guide covering the most common leaf diseases " +
-            "(bacterial blight, brown spot, leaf blast, tungro), their visual symptoms, " +
-            "likely causes, and recommended treatments."
-
         try {
             val sb = StringBuilder()
-            engine.generate(textPrompt, miniApp.model.systemPrompt)
+            engine.generateWithImage(prompt, photoPath, miniApp.model.systemPrompt)
                 .onEach { chunk ->
                     sb.append(chunk)
                     store["ai_response"] = sb.toString()

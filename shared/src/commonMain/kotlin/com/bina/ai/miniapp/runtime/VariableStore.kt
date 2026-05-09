@@ -2,9 +2,10 @@ package com.bina.ai.miniapp.runtime
 
 import com.bina.ai.miniapp.model.VariableDef
 
-class VariableStore(defs: Map<String, VariableDef>) {
-
-    private val state = mutableMapOf<String, String>()
+class VariableStore(
+    defs: Map<String, VariableDef>,
+    private val state: MutableMap<String, String> = mutableMapOf()
+) {
 
     var onChange: (() -> Unit)? = null
 

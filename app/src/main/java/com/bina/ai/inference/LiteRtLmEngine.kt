@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 class LiteRtLmEngine(private val context: Context) : InferenceEngine {
@@ -38,16 +41,33 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                 val config = EngineConfig(
                     modelPath = modelPath,
                     backend = Backend.CPU(),
+                    visionBackend = Backend.GPU(),
+                    maxNumImages = 1,
                     cacheDir = context.cacheDir.path
                 )
                 engine = Engine(config)
                 engine!!.initialize()
                 isReady = true
-                Log.d(TAG, "Engine initialized successfully")
+                Log.d(TAG, "Engine initialized with GPU vision backend")
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize engine", e)
-                engine = null
-                isReady = false
+                Log.w(TAG, "GPU vision backend failed, retrying with CPU: ${e.message}")
+                try {
+                    val cpuConfig = EngineConfig(
+                        modelPath = modelPath,
+                        backend = Backend.CPU(),
+                        visionBackend = Backend.CPU(),
+                        maxNumImages = 1,
+                        cacheDir = context.cacheDir.path
+                    )
+                    engine = Engine(cpuConfig)
+                    engine!!.initialize()
+                    isReady = true
+                    Log.d(TAG, "Engine initialized with CPU vision backend")
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Failed to initialize engine", e2)
+                    engine = null
+                    isReady = false
+                }
             }
         }
     }
@@ -85,7 +105,23 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
             Log.d(TAG, "Vision: loading image from $imagePath (${imageFile.length()} bytes)")
             val conversation = createConversation(eng, systemPrompt)
             try {
-                val imageBytes = imageFile.readBytes()
+                val originalBitmap = BitmapFactory.decodeFile(imagePath)
+                if (originalBitmap == null) {
+                    emit("Error: Could not decode image at $imagePath")
+                    return@flow
+                }
+                val maxDim = 448
+                val scale = minOf(maxDim.toFloat() / originalBitmap.width, maxDim.toFloat() / originalBitmap.height, 1f)
+                val bitmap = if (scale < 1f) {
+                    val w = (originalBitmap.width * scale).toInt()
+                    val h = (originalBitmap.height * scale).toInt()
+                    Bitmap.createScaledBitmap(originalBitmap, w, h, true).also { originalBitmap.recycle() }
+                } else originalBitmap
+                val pngStream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, pngStream)
+                val imageBytes = pngStream.toByteArray()
+                bitmap.recycle()
+                Log.d(TAG, "Vision: converted to PNG (${imageBytes.size} bytes)")
                 val contents = Contents.of(
                     Content.ImageBytes(imageBytes),
                     Content.Text(prompt)
