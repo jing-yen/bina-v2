@@ -18,6 +18,7 @@ data class MiniApp(
     val emergency: Boolean = false,
     val dialect: String = "",
     val tags: List<String> = emptyList(),
+    val features: List<Feature> = emptyList(),
     val author: Author = Author(),
     val model: ModelConfig = ModelConfig(),
     val theme: ThemeConfig = ThemeConfig(),
@@ -111,4 +112,15 @@ data class GridButton(
     val label: String,
     val action: String,
     val color: String = ""
+)
+
+@Serializable
+data class Feature(
+    val id: String,
+    val name: String,
+    val description: String = "",
+    val icon: String = "",
+    val recommended: Boolean = false,
+    @SerialName("size_kb") val sizeKb: Float = 0f,
+    val requires: List<String> = emptyList()
 )
