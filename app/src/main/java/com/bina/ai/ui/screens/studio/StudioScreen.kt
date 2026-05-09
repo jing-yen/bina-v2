@@ -610,74 +610,186 @@ private fun generateYaml(
             files.joinToString("\n# ") { "${it.name} (${it.size})" } + "\n"
     } else ""
 
-    val bodyWidgets = buildString {
-        appendLine("      - text_input:")
-        appendLine("          bind: user_text")
-        appendLine("          hint: \"Ask anything...\"")
+    val screens = buildString {
+        // ── Home screen ──
+        appendLine("  - id: home")
+        appendLine("    title: \"${name.ifEmpty { "My Recipe" }}\"")
+        appendLine("    body:")
+        appendLine("      - text_label:")
+        appendLine("          text: \"What would you like to do?\"")
+        appendLine("          style: subheading")
 
-        if (hasVoice) {
+        if (hasCamera || hasCalculator || hasLocation) {
             appendLine()
-            appendLine("      - voice_input:")
-            appendLine("          bind: user_text")
-            appendLine("          label: \"Voice Input\"")
-        }
-
-        if (hasCamera) {
-            appendLine()
-            appendLine("      - camera_input:")
-            appendLine("          bind: photo_path")
-            appendLine("          label: \"Take Photo\"")
-            appendLine("          preview: true")
+            appendLine("      - macro_grid:")
+            appendLine("          columns: 2")
+            appendLine("          buttons:")
+            if (hasCamera) {
+                appendLine("            - { label: \"📷 Camera\", action: \"go:camera\" }")
+            }
+            if (hasCalculator) {
+                appendLine("            - { label: \"🔢 Calculator\", action: \"go:calculator\" }")
+            }
+            if (hasLocation) {
+                appendLine("            - { label: \"📍 Nearby\", action: \"go:nearby\" }")
+            }
+            appendLine("            - { label: \"💬 Ask AI\", action: \"go:chat\" }")
         }
 
         appendLine()
-        appendLine("      - action_button:")
-        if (hasCamera) {
-            appendLine("          label: \"Ask with Photo\"")
-            appendLine("          action: \"vision_ask:{{user_text}}\"")
+        if (hasVoice) {
+            appendLine("      - voice_input:")
+            appendLine("          bind: user_text")
+            appendLine("          hint: \"Ask anything...\"")
         } else {
-            appendLine("          label: \"Ask\"")
-            appendLine("          action: \"ask:{{user_text}}\"")
+            appendLine("      - text_input:")
+            appendLine("          bind: user_text")
+            appendLine("          hint: \"Ask anything...\"")
         }
+        appendLine()
+        appendLine("      - action_button:")
+        appendLine("          label: \"Ask\"")
+        appendLine("          action: \"ask:{{user_text}}\"")
         appendLine("          style: primary")
-
         appendLine()
         appendLine("      - markdown_output:")
         appendLine("          source: ai_response")
         appendLine("          streaming: true")
         appendLine("          empty_text: \"Responses will appear here...\"")
 
-        if (hasLocation) {
+        // ── Chat screen (when multi-screen) ──
+        if (hasCamera || hasCalculator || hasLocation) {
+            appendLine()
+            appendLine("  - id: chat")
+            appendLine("    title: \"Ask AI\"")
+            appendLine("    body:")
+            appendLine("      - text_label:")
+            appendLine("          text: \"Ask anything\"")
+            appendLine("          style: subheading")
+            appendLine()
+            if (hasVoice) {
+                appendLine("      - voice_input:")
+                appendLine("          bind: user_text")
+                appendLine("          hint: \"Type or speak your question...\"")
+            } else {
+                appendLine("      - text_input:")
+                appendLine("          bind: user_text")
+                appendLine("          hint: \"Type your question...\"")
+            }
             appendLine()
             appendLine("      - action_button:")
-            appendLine("          label: \"Get My Location\"")
-            appendLine("          action: \"geolocate\"")
-            appendLine("          style: secondary")
+            appendLine("          label: \"Ask\"")
+            appendLine("          action: \"ask:{{user_text}}\"")
+            appendLine("          style: primary")
+            appendLine()
+            appendLine("      - markdown_output:")
+            appendLine("          source: ai_response")
+            appendLine("          streaming: true")
+            appendLine("          empty_text: \"Responses will appear here...\"")
         }
 
+        // ── Camera screen ──
+        if (hasCamera) {
+            appendLine()
+            appendLine("  - id: camera")
+            appendLine("    title: \"Camera\"")
+            appendLine("    body:")
+            appendLine("      - text_label:")
+            appendLine("          text: \"Take a photo for AI analysis\"")
+            appendLine("          style: body")
+            appendLine()
+            appendLine("      - camera_input:")
+            appendLine("          bind: photo_path")
+            appendLine("          label: \"Take Photo\"")
+            appendLine("          preview: true")
+            appendLine()
+            appendLine("      - text_input:")
+            appendLine("          bind: user_text")
+            appendLine("          hint: \"Describe what you see (optional)\"")
+            appendLine("          label: \"Additional info\"")
+            appendLine()
+            appendLine("      - action_button:")
+            appendLine("          label: \"Analyse Photo\"")
+            appendLine("          action: \"vision_ask:Analyse this image. {{user_text}}\"")
+            appendLine("          style: primary")
+            appendLine()
+            appendLine("      - markdown_output:")
+            appendLine("          source: ai_response")
+            appendLine("          streaming: true")
+        }
+
+        // ── Calculator screen ──
         if (hasCalculator) {
+            appendLine()
+            appendLine("  - id: calculator")
+            appendLine("    title: \"Calculator\"")
+            appendLine("    body:")
+            appendLine("      - text_label:")
+            appendLine("          text: \"Quick calculation\"")
+            appendLine("          style: subheading")
             appendLine()
             appendLine("      - text_input:")
             appendLine("          bind: calc_a")
-            appendLine("          hint: \"Value A\"")
+            appendLine("          hint: \"e.g., 1000\"")
             appendLine("          label: \"Value A\"")
             appendLine("          input_type: number")
             appendLine()
             appendLine("      - text_input:")
             appendLine("          bind: calc_b")
-            appendLine("          hint: \"Value B\"")
+            appendLine("          hint: \"e.g., 500\"")
             appendLine("          label: \"Value B\"")
             appendLine("          input_type: number")
+            appendLine()
+            appendLine("      - slider:")
+            appendLine("          bind: calc_rate")
+            appendLine("          min: 0")
+            appendLine("          max: 100")
+            appendLine("          step: 1")
+            appendLine("          label: \"Rate %\"")
+            appendLine("          left_label: \"0%\"")
+            appendLine("          right_label: \"100%\"")
             appendLine()
             appendLine("      - action_button:")
             appendLine("          label: \"Calculate\"")
             appendLine("          action: \"formula:calc\"")
-            appendLine("          style: secondary")
+            appendLine("          style: primary")
             appendLine()
             appendLine("      - metric_card:")
             appendLine("          source: calc_result")
             appendLine("          label: \"Result\"")
             appendLine("          format: decimal_2")
+            appendLine()
+            appendLine("      - action_button:")
+            appendLine("          label: \"Ask AI about this result\"")
+            appendLine("          action: \"ask:I calculated {{calc_a}} and {{calc_b}} with rate {{calc_rate}}%. Result: {{calc_result}}. Give advice.\"")
+            appendLine("          style: secondary")
+        }
+
+        // ── Nearby screen ──
+        if (hasLocation) {
+            appendLine()
+            appendLine("  - id: nearby")
+            appendLine("    title: \"Nearby\"")
+            appendLine("    body:")
+            appendLine("      - text_label:")
+            appendLine("          text: \"Find places near you\"")
+            appendLine("          style: subheading")
+            appendLine()
+            appendLine("      - action_button:")
+            appendLine("          label: \"Get My Location\"")
+            appendLine("          action: \"geolocate\"")
+            appendLine("          style: primary")
+            appendLine()
+            appendLine("      - geo_display:")
+            appendLine("          data: places")
+            appendLine("          limit: 5")
+            appendLine("          show_distance: true")
+            appendLine("          empty_text: \"Tap above to find nearby places\"")
+            appendLine()
+            appendLine("      - action_button:")
+            appendLine("          label: \"Ask for directions\"")
+            appendLine("          action: \"ask:How do I get to the nearest location from my coordinates {{user_location}}?\"")
+            appendLine("          style: secondary")
         }
     }
 
@@ -688,6 +800,7 @@ private fun generateYaml(
         if (hasCalculator) {
             appendLine("  calc_a:       { type: number, default: \"0\" }")
             appendLine("  calc_b:       { type: number, default: \"0\" }")
+            appendLine("  calc_rate:    { type: number, default: \"10\" }")
             appendLine("  calc_result:  { type: number, default: \"0\" }")
         }
     }
@@ -696,8 +809,20 @@ private fun generateYaml(
         """
 formulas:
   calc:
-    expression: "{{calc_a}} + {{calc_b}}"
+    expression: "({{calc_a}} + {{calc_b}}) * {{calc_rate}} / 100"
     output: calc_result
+"""
+    } else ""
+
+    val data = if (hasLocation) {
+        """
+data:
+  places:
+    type: points
+    items:
+      - { name: "Sample Location 1", lat: 3.139, lng: 101.687, info: "Edit in YAML" }
+      - { name: "Sample Location 2", lat: 3.145, lng: 101.710, info: "Edit in YAML" }
+      - { name: "Sample Location 3", lat: 3.120, lng: 101.660, info: "Edit in YAML" }
 """
     } else ""
 
@@ -737,11 +862,8 @@ theme:
 variables:
 $variables
 screens:
-  - id: home
-    title: "${name.ifEmpty { "My Recipe" }}"
-    body:
-$bodyWidgets
-$formulas
+$screens
+$formulas$data
 safety:
   blocked_keywords:
 $blockedYaml
