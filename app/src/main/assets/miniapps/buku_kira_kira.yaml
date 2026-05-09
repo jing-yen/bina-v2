@@ -36,7 +36,7 @@ model:
     max_tokens: 384
 
 theme:
-  primary: "#047857"
+  primary: "#0EA5E9"
   secondary: "#34D399"
   text_size: standard
 
@@ -131,3 +131,9 @@ safety:
   disclaimer: "AI advice lang ito. Para sa BIR/tax, kumonsulta sa propesyonal."
 
 permissions: []
+
+features:
+  - { id: camera_scanner,  name: "Receipt Scanner",  icon: camera,        recommended: true,  size_kb: 0.4, requires: [permission:camera],     description: "Snap receipts and extract amounts" }
+  - { id: voice_assistant, name: "Voice Assistant",  icon: mic,           recommended: true,  size_kb: 0.3, requires: [permission:microphone], description: "Speak entries instead of typing" }
+  - { id: offline_storage, name: "Offline Storage",  icon: storage,       recommended: true,  size_kb: 0.3, requires: [],                       description: "Keeps daily ledger between sessions" }
+  - { id: smart_notif,     name: "Smart Notifications", icon: notifications, recommended: false, size_kb: 0.1, requires: [service:smart_notifications], description: "Daily-close reminders" }
