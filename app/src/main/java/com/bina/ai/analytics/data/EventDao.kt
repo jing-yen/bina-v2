@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.Flow
  * Data access for the event_log table.
  *
  * All read methods return Flow so collectors auto-update when the table changes.
- * Insert uses a non-suspend method (Room KSP workaround for Kotlin 2.2.21).
+ * Insert is non-suspend due to a Room+KSP+Kotlin 2.2.21 compat issue
+ * ("unexpected jvm signature V"). Callers must dispatch to Dispatchers.IO.
  */
 @Dao
 interface EventDao {
