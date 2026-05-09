@@ -7,7 +7,7 @@
 
 ## Goal
 
-Build the Architect-mode **Analytics tab** as a fully functional, top-tier UI surfacing real on-device data about recipes the Architect has authored. No mock data, no backend.
+Build the Architect-mode **Analytics tab** as a fully functional, top-tier UI surfacing real on-device data: device-wide recipe usage (launches and AI questions across **all** recipes the user has interacted with) plus authoring stats specific to recipes the user has published via Studio. No mock data, no backend.
 
 ## Motivation
 
@@ -18,8 +18,9 @@ Instead: real local-device metrics about the Architect's authoring activity and 
 ## Scope
 
 ### In scope
-- Architect-mode-only screen (Builder mode does not see Analytics).
-- Activity tracking: recipe launches, AI questions asked.
+- Architect-mode-only screen (Builder mode does not see Analytics; the figma's Builder nav is `Hub | My Pocket | Offline Sync`).
+- **Usage tracking across all recipes the user interacts with** (bundled + authored): recipe launches and AI questions asked, identified by `recipe_id`.
+- **Authoring stats** specific to recipes published via Studio (filesDir-derived): count, knowledge base size, last-published timestamp.
 - Display layer: hero card, 2×2 metric grid, daily activity chart, recipe leaderboard, achievement card, empty state.
 - Live updates: when a tracked event fires, the screen reflects it without manual refresh (Room `Flow` integration).
 - Time-range selection: 7d / 30d / All time, in-memory only (no persistence across sessions).
@@ -27,7 +28,7 @@ Instead: real local-device metrics about the Architect's authoring activity and 
 ### Out of scope
 - Backend / Firebase / cloud sync. Will not be added.
 - Global metrics that require multiple users (download counts, average ratings, regional distribution).
-- Tracking events for *bundled* recipes in `assets/miniapps/` — only recipes in `filesDir/miniapps/` (Studio output) count toward Architect metrics.
+- A separate Builder-mode analytics screen. Builder's "personal space" is the My Pocket tab (Jingyen's territory); Builder usage stats are not duplicated there in this iteration.
 - Drill-down navigation from metric cards or leaderboard rows. Tap feedback (ripple, scale) is implemented; navigation targets are deferred.
 - Persisting time-range selection across sessions.
 - Schema migrations. `fallbackToDestructiveMigration()` is acceptable for hackathon timeframe.
@@ -38,41 +39,41 @@ Instead: real local-device metrics about the Architect's authoring activity and 
 
 1. **Header strip** — "Analytics" title and subtitle. Right side: a sliding **time-range pill** (`7d` / `30d` / `All`) with a frosted indicator that animates between segments.
 
-2. **Hero card** — full-width, taller than the rest. Displays "Total Launches" as the headline number, animating from 0 to target in ~600 ms when the screen mounts or the time range changes. A thin sparkline below the number shows the trend across the selected window, drawn line-by-line on entry. A delta badge (`+24%`) on the right shows change vs the immediately preceding period of equal length, with an arrow icon and color-shift (green / red / neutral).
+2. **Hero card** — full-width, taller than the rest. Displays "Total Launches" as the headline number (count of `LAUNCH` events across **all** recipes in the selected window), animating from 0 to target in ~600 ms when the screen mounts or the time range changes. A thin sparkline below the number shows the trend across the selected window, drawn line-by-line on entry. A delta badge (`+24%`) on the right shows change vs the immediately preceding period of equal length, with an arrow icon and color-shift (green / red / neutral).
 
 3. **Metric grid (2×2)** — four glass cards, stagger-fading in with ~80 ms delay between them:
 
-   | Card | Source |
-   |---|---|
-   | Recipes Published | count of `*.yaml` files in `filesDir/miniapps/` |
-   | Questions Asked | total `ASK` events in window where `recipe_id IN (authoredIds)` |
-   | Active Days | distinct calendar days (device local TZ) within window where the user had at least one `LAUNCH` or `ASK` event against an authored recipe |
-   | Knowledge | sum of file sizes in `filesDir/knowledge/`, formatted MB/KB |
+   | Card | Source | Scope |
+   |---|---|---|
+   | Recipes Published | count of `*.yaml` files in `filesDir/miniapps/` | Authored only |
+   | Questions Asked | total `ASK` events in the selected window | All recipes |
+   | Active Days | distinct calendar days (device local TZ) within window with at least one `LAUNCH` or `ASK` event | All recipes |
+   | Knowledge | sum of file sizes across `filesDir/knowledge/`, formatted MB/KB | Authored only |
 
-   Each card has a colored icon chip, an animated number, and a tiny trend indicator. Tap → ripple + scale-down feedback. No drill-down navigation in v1.
+   The grid mixes authoring stats (Recipes Published, Knowledge) with usage stats (Questions Asked, Active Days). Each card has a colored icon chip, an animated number, and a tiny trend indicator. Tap → ripple + scale-down feedback. No drill-down navigation in v1.
 
-4. **Activity chart** — daily stacked bar chart of `LAUNCH` and `ASK` events over the selected window. Bars rise from 0 on entry (staggered left-to-right). Tap a bar → tooltip with exact counts. Drawn directly with Compose `Canvas` for full motion control; brand gradient fills (Bina deep blue + green).
+4. **Activity chart** — daily stacked bar chart of `LAUNCH` and `ASK` events (across all recipes) over the selected window. Bars rise from 0 on entry (staggered left-to-right). Tap a bar → tooltip with exact counts. Drawn directly with Compose `Canvas` for full motion control; brand gradient fills (Bina deep blue + green).
 
-5. **Recipe leaderboard ("My Most-Used Recipes")** — sortable list of authored recipes, each row showing rank badge, recipe icon, name, launch count, ask count, and a tiny inline sparkline. Tap row → ripple + scale feedback. No drill-down in v1.
+5. **Recipe leaderboard ("Most-Used Recipes")** — sortable list of every recipe the user has interacted with at least once in the selected window (bundled and authored alike), each row showing rank badge, recipe icon, name, launch count, ask count, and a tiny inline sparkline. A subtle badge on each row indicates `Authored` vs `Bundled` so the user can tell which recipes they made themselves. Tap row → ripple + scale feedback. No drill-down in v1.
 
 6. **Achievement card** at the bottom — gold-gradient pinned card showing the most recently unlocked achievement, with sparkle animation on the icon. Locked achievements are tappable below it (greyed out, with progress indicators).
 
    Achievement triggers (all derivable from local state):
-   - **First Author** — first recipe published via Studio
-   - **Curious** — 10 questions asked across authored recipes
-   - **Streak** — 3+ consecutive active days
-   - **Knowledge Architect** — 5+ files uploaded across all recipes' knowledge bases
+   - **First Author** — first recipe published via Studio (uses authored recipes only)
+   - **Curious** — 10 questions asked across all recipes
+   - **Streak** — 3+ consecutive active days (any recipe activity counts)
+   - **Knowledge Architect** — 5+ files uploaded across authored recipes' knowledge bases
 
 ### Empty state
 
-For fresh devices with no recipes published:
+For fresh devices with **zero activity** (no events in `event_log` AND no authored recipes):
 
 - A friendly Compose-drawn illustration (geometric shapes, brand colors).
-- Headline: "No recipes yet."
-- Body: "Publish your first recipe in Studio to see analytics."
-- CTA button: "Open Studio" → navigates to the Studio tab.
+- Headline: "No activity yet."
+- Body: "Open a recipe from the Hub or publish your own in Studio to start seeing analytics."
+- Two CTA buttons: "Open Hub" → Hub tab; "Open Studio" → Studio tab.
 
-This replaces the entire screen body until the first recipe is published.
+This replaces the entire screen body. Once any event is logged or any recipe is authored, the screen swaps to the populated layout. (On a fresh install, opening Farm Buddy once is enough to populate the screen.)
 
 ### Polish details
 
@@ -104,26 +105,30 @@ CREATE INDEX idx_event_log_ts_recipe ON event_log(timestamp_ms, recipe_id);
 
 `fallbackToDestructiveMigration()` is set on the database builder. Schema changes wipe the local DB.
 
-### Identifying authored recipes
+### Identifying authored vs bundled recipes
 
-No `is_user_authored` column. The set of authored recipe IDs is derived at query time by listing `filesDir/miniapps/*.yaml` and parsing the `id:` field from each. This means:
+No `is_user_authored` column on `event_log`. Logging is unfiltered (every launch/ask is recorded). The set of *authored* recipe IDs is derived at query time by listing `filesDir/miniapps/*.yaml` and parsing the `id:` field from each.
 
-- Deleting a YAML from `filesDir` removes the recipe from analytics on next refresh.
-- Bundled `assets/miniapps/` recipes are automatically excluded.
-- Logging is unfiltered; filtering happens in queries via `recipe_id IN (:authoredIds)`.
+Two query patterns:
+- **Usage queries** (hero card, Questions Asked, Active Days, chart, leaderboard) — *no filter on `recipe_id`*; counts span all recipes.
+- **Authoring queries** (Recipes Published, Knowledge, "First Author" / "Knowledge Architect" achievements) — operate on the authored set, computed by listing `filesDir`.
+
+This separation means:
+- Deleting a YAML from `filesDir` removes the recipe from authoring stats on next refresh, but its historical events stay in the DB (and still count toward usage queries / leaderboard).
+- The leaderboard tags each row `Authored` or `Bundled` based on whether the recipe ID is in the current authored set.
 
 ### Repository facade
 
 `AnalyticsRepository` exposes coroutine `Flow` APIs:
 
-| Function | Returns | Purpose |
-|---|---|---|
-| `observeMetrics(window: TimeWindow)` | `Flow<MetricsSnapshot>` | hero + 2×2 metrics |
-| `observeChartData(window: TimeWindow)` | `Flow<List<DailyBucket>>` | bar chart data |
-| `observeLeaderboard(window: TimeWindow)` | `Flow<List<RecipeStats>>` | leaderboard rows |
-| `observeAchievements()` | `Flow<List<Achievement>>` | achievement state |
+| Function | Returns | Purpose | Scope |
+|---|---|---|---|
+| `observeMetrics(window: TimeWindow)` | `Flow<MetricsSnapshot>` | hero + 2×2 metrics | Mixed (snapshot includes both usage + authoring fields) |
+| `observeChartData(window: TimeWindow)` | `Flow<List<DailyBucket>>` | bar chart data | All recipes |
+| `observeLeaderboard(window: TimeWindow)` | `Flow<List<RecipeStats>>` | leaderboard rows (with `isAuthored` flag per row) | All recipes |
+| `observeAchievements()` | `Flow<List<Achievement>>` | achievement state | Mixed (per-achievement) |
 
-Room's built-in Flow integration ensures all `observe*` Flows emit a new value whenever `event_log` is mutated.
+Room's built-in Flow integration ensures all `observe*` Flows emit a new value whenever `event_log` is mutated. Authoring data (filesDir-derived) is recomputed on each emission by combining the Room flow with a lightweight directory scan.
 
 ### ViewModel
 
@@ -295,11 +300,12 @@ Suggested message:
 
 | Risk | Mitigation |
 |---|---|
-| User has no published recipes → screen looks empty | Empty state with "Publish your first recipe in Studio" CTA + animated illustration |
+| Fresh install → screen has no data | Empty state with dual CTAs (Hub + Studio) + illustration. Opening Farm Buddy once populates the screen. |
 | Inference is slow on emulator (~2 min) → asks accumulate slowly during testing | Acceptable; events are still logged correctly. Test on real device for snappier demo data. |
 | Custom Canvas chart code is buggy or visually off | Fallback option: drop in Vico (`com.patrykandpatrick.vico:compose-m3`) — well-documented, ~5 lines of usage. |
 | Room schema changes during development wipe local data | `fallbackToDestructiveMigration()` is enabled; testing data is cheap to regenerate. |
 | Jingyen pushes conflicting changes to `ActionDispatcher` | Coordinate via the suggested message; the change is small enough to merge by hand if needed. |
+| Leaderboard mixes authored and bundled recipes confusingly | Per-row `Authored` / `Bundled` badge makes the distinction explicit. |
 
 ## Open questions
 
