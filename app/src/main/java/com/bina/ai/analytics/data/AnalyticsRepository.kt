@@ -109,8 +109,8 @@ class AnalyticsRepository(
                     ),
                     Achievement(
                         id = AchievementId.CURIOUS,
-                        title = "Curious",
-                        description = "Ask 10 questions across any recipes",
+                        title = "Test Driver",
+                        description = "Ask 10 questions to validate your recipes",
                         emoji = "💬",
                         unlocked = totalAsks >= 10,
                         progress = (totalAsks / 10f).coerceIn(0f, 1f)
