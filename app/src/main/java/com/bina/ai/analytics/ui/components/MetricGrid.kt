@@ -27,9 +27,12 @@ import com.bina.ai.ui.theme.BinaGreen
 import com.bina.ai.ui.theme.BinaPrimary
 import kotlinx.coroutines.delay
 
+enum class MetricKind { RECIPES, QUESTIONS, ACTIVE_DAYS, KNOWLEDGE }
+
 @Composable
 fun MetricGrid(
     metrics: MetricsSnapshot,
+    onTap: (MetricKind) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var visibleCount by remember { mutableStateOf(0) }
@@ -44,7 +47,8 @@ fun MetricGrid(
                     label = "Recipes Published",
                     value = metrics.recipesPublished,
                     icon = Icons.Filled.AccountTree,
-                    accentColor = BinaPrimary
+                    accentColor = BinaPrimary,
+                    onClick = { onTap(MetricKind.RECIPES) }
                 )
             }
             StaggeredCard(visibleAt = 1, current = visibleCount, modifier = Modifier.weight(1f)) {
@@ -52,7 +56,8 @@ fun MetricGrid(
                     label = "Questions Asked",
                     value = metrics.questionsAsked,
                     icon = Icons.Filled.QuestionAnswer,
-                    accentColor = BinaGreen
+                    accentColor = BinaGreen,
+                    onClick = { onTap(MetricKind.QUESTIONS) }
                 )
             }
         }
@@ -62,17 +67,23 @@ fun MetricGrid(
                     label = "Active Days",
                     value = metrics.activeDays,
                     icon = Icons.Filled.CalendarMonth,
-                    accentColor = BinaBlue
+                    accentColor = BinaBlue,
+                    onClick = { onTap(MetricKind.ACTIVE_DAYS) }
                 )
             }
             StaggeredCard(visibleAt = 3, current = visibleCount, modifier = Modifier.weight(1f)) {
                 MetricCard(
                     label = "Knowledge",
-                    value = (metrics.knowledgeBytes / 1024).toInt(),  // KB
+                    value = (metrics.knowledgeBytes / 1024).toInt(),
                     icon = Icons.Filled.MenuBook,
                     accentColor = BinaAmber,
+                    onClick = { onTap(MetricKind.KNOWLEDGE) },
                     formatter = { kb ->
-                        if (kb >= 1024) "%.1f MB".format(kb / 1024f) else "$kb KB"
+                        when {
+                            kb <= 0 -> "—"
+                            kb >= 1024 -> "%.1f MB".format(kb / 1024f)
+                            else -> "$kb KB"
+                        }
                     }
                 )
             }

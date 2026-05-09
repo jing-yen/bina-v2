@@ -1,6 +1,7 @@
 package com.bina.ai.analytics.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,12 +32,14 @@ fun MetricCard(
     icon: ImageVector,
     accentColor: Color,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
     formatter: (Int) -> String = { it.toString() }
 ) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
             .background(Color.White.copy(alpha = 0.9f))
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .padding(16.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {

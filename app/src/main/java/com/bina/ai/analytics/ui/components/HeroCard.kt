@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.analytics.ui.model.MetricsSnapshot
+import com.bina.ai.analytics.ui.model.TimeWindow
+import com.bina.ai.analytics.ui.util.plural
 import com.bina.ai.ui.theme.BinaGreen
 import com.bina.ai.ui.theme.BinaPrimary
 import com.bina.ai.ui.theme.BinaRed
@@ -38,6 +40,7 @@ import kotlin.math.roundToInt
 fun HeroCard(
     metrics: MetricsSnapshot,
     sparklineValues: List<Int>,
+    window: TimeWindow,
     modifier: Modifier = Modifier
 ) {
     val deltaPct = if (metrics.totalLaunchesPrevious > 0) {
@@ -85,6 +88,24 @@ fun HeroCard(
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    val prevLabel = when (window) {
+                        TimeWindow.LAST_7D -> "vs prev 7d"
+                        TimeWindow.LAST_30D -> "vs prev 30d"
+                        TimeWindow.ALL_TIME -> "all time"
+                    }
+                    val comparison = if (window == TimeWindow.ALL_TIME) {
+                        "${metrics.totalLaunches} ${plural(metrics.totalLaunches, "launch", "launches")} all time"
+                    } else {
+                        val n = metrics.totalLaunchesPrevious
+                        "$prevLabel: $n ${plural(n, "launch", "launches")}"
+                    }
+                    Text(
+                        comparison,
+                        fontSize = 11.sp,
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontWeight = FontWeight.Medium
                     )
                 }
                 Row(
