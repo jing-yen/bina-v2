@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,6 +35,7 @@ fun TimeRangePill(
     val options = TimeWindow.entries
     val pillWidth = 64.dp
     val pillHeight = 32.dp
+    val haptics = LocalHapticFeedback.current
 
     Box(
         modifier = modifier
@@ -67,7 +70,12 @@ fun TimeRangePill(
                     modifier = Modifier
                         .width(pillWidth)
                         .fillMaxHeight()
-                        .clickable { onSelect(window) },
+                        .clickable {
+                            if (window != selected) {
+                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                onSelect(window)
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
