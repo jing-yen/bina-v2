@@ -9,13 +9,13 @@ import kotlinx.coroutines.flow.Flow
  * Data access for the event_log table.
  *
  * All read methods return Flow so collectors auto-update when the table changes.
- * All write methods are suspend and must be called from a coroutine.
+ * Insert uses a non-suspend method (Room KSP workaround for Kotlin 2.2.21).
  */
 @Dao
 interface EventDao {
 
     @Insert
-    suspend fun insert(event: EventEntity)
+    fun insert(event: EventEntity)
 
     /** Total events of a given type within an inclusive timestamp window. */
     @Query("""
