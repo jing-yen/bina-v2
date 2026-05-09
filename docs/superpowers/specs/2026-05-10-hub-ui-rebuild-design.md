@@ -8,6 +8,8 @@
 
 Rebuild the Hub screen and add a real install flow. Tap a recipe → bottom-sheet preview → full-screen feature configurator → install to MyPocket → launch from MyPocket. Layout is "Spotify-Hybrid" — featured carousel, category chips, horizontal section rails. Architect mode gets persona-specific surfaces (header copy, pinned authored rail, Publish FAB, Yours badge). Persistence via DataStore. No fake metrics anywhere.
 
+**Customization is one-shot:** feature toggles are chosen exactly once, in the Hub Configurator before install. MyPocket is purely a launchpad — no re-configure, no settings. Users who want to change their feature set must uninstall and re-install (uninstall itself is parked for v1).
+
 ## Goals
 
 - Replace the bare `HubScreen` with a polished, persona-aware browse experience using the extended `MiniApp` schema (`cover_image`, `featured`, `emergency`, `dialect`, `tags`).
@@ -32,9 +34,9 @@ Rebuild the Hub screen and add a real install flow. Tap a recipe → bottom-shee
 Four surfaces in this spec:
 
 1. **Hub** — featured carousel, category chips, horizontal rails of recipe cards, mode-aware header. Architect-only Publish FAB.
-2. **Recipe Detail Sheet** — modal bottom sheet over Hub. Cover hero, real stats (Recipe Size, Available Features, Dialect), description, tag list, feature preview. Adaptive primary CTA: "Configure & Install" / "Open" + "Customize".
-3. **Configurator Screen** — full-screen feature toggle list. Header shows live Total Download Size and Active Features count. Per-feature: icon, name, description, recommended pill, size delta, switch. Greyed when capability not satisfied. Bottom CTA: "Install to Pocket" (or "Save Changes").
-4. **MyPocket (minimum touch)** — filtered to installed recipes only. Adds a "Customize" entry per row routing to Configurator. Layout/aesthetics stay JY's.
+2. **Recipe Detail Sheet** — modal bottom sheet over Hub. Cover hero, real stats (Recipe Size, Available Features, Dialect), description, tag list, feature preview. Adaptive primary CTA: "Configure & Install" when not installed, "Open" when installed.
+3. **Configurator Screen** — full-screen feature toggle list. Header shows live Total Download Size and Active Features count. Per-feature: icon, name, description, recommended pill, size delta, switch. Greyed when capability not satisfied. Bottom CTA: "Install to Pocket". Reachable only from Hub's detail sheet for not-yet-installed recipes.
+4. **MyPocket (minimum touch)** — filtered to installed recipes only. Tap a row to launch. No customize, no settings — MyPocket is a pure launchpad. Layout/aesthetics stay JY's.
 
 ```
 Hub  ──tap card──►  RecipeDetailSheet (modal over Hub)
@@ -53,7 +55,6 @@ Hub  ──tap card──►  RecipeDetailSheet (modal over Hub)
                                             MyPocket (filtered to installed)
                                                         │
                                                   tap row ──► launch (MiniAppView)
-                                                  Customize ──► ConfiguratorScreen (re-customize)
 ```
 
 ## Architecture
@@ -91,7 +92,7 @@ app/src/main/java/com/bina/ai/ui/screens/
 │       └── FeatureToggleCard.kt       # per-feature row
 │
 └── pocket/
-    └── MyPocketScreen.kt              # MINIMUM touch: filter to installed + Customize entry
+    └── MyPocketScreen.kt              # MINIMUM touch: filter to installed
 
 app/src/main/java/com/bina/ai/install/
 ├── InstallStore.kt                    # DataStore-backed install records
@@ -307,16 +308,16 @@ Modal bottom sheet shown over Hub. Structure:
 
 Adaptive CTA:
 
-| Install state | Primary | Secondary |
-|---|---|---|
-| Not installed | Configure & Install | — |
-| Installed | Open | Customize |
+| Install state | Primary |
+|---|---|
+| Not installed | Configure & Install |
+| Installed | Open |
 
-"Open" → `MiniAppView`. "Customize" → `ConfiguratorScreen` pre-populated with current toggles. "Configure & Install" → `ConfiguratorScreen` with toggles initialized from `recommended && available`.
+"Open" → `MiniAppView`. "Configure & Install" → `ConfiguratorScreen` with toggles initialized from `recommended && available`. There is no re-customize path — once installed, the feature set is locked.
 
 ## ConfiguratorScreen
 
-Full-screen, navigated from detail sheet (or from MyPocket "Customize"). Layout:
+Full-screen, navigated from Hub's detail sheet for not-yet-installed recipes. Single entry point. Layout:
 
 1. **TopAppBar**: back arrow + recipe name + subtitle "Choose features you need"
 2. **Header card**: Total Download Size (live, computed) · Active Features `N/M` (where M includes greyed)
@@ -327,7 +328,7 @@ Full-screen, navigated from detail sheet (or from MyPocket "Customize"). Layout:
    - `+X.X KB`
    - Material `Switch` (right side)
    - Whole row alpha 0.4 if not toggleable; switch disabled
-4. **Fixed bottom**: primary button ("Install to Pocket" or "Save Changes") + helper text
+4. **Fixed bottom**: primary button "Install to Pocket" + helper text
 
 ### State
 
@@ -336,7 +337,6 @@ data class ConfiguratorState(
     val miniApp: MiniApp,
     val toggles: Map<String, Boolean>,           // featureId → on/off (transient)
     val availability: Map<String, Boolean>,       // featureId → can be toggled
-    val isAlreadyInstalled: Boolean,
 )
 
 val totalSizeKb: Float get() =
@@ -350,8 +350,9 @@ val totalCount: Int get() = miniApp.features.size
 
 ### Initialization
 
-- **First time configuring** (not installed): `toggles[id] = feature.recommended && availability[id]`. Recommended-but-unavailable features start OFF.
-- **Re-customize** (already installed): `toggles[id] = id in installRecord.enabledFeatureIds`.
+`toggles[id] = feature.recommended && availability[id]`. Recommended-but-unavailable features start OFF. There's no re-customize branch — Configurator is only entered for not-yet-installed recipes.
+
+If the user navigates to Configurator for a recipe that became installed in another flow (e.g., through Studio auto-install while the user was on Configurator), commit silently skips and shows a snackbar "Already installed — opening MyPocket."
 
 ### Install commit
 
@@ -366,10 +367,7 @@ fun onInstallClick() = viewModelScope.launch {
 }
 ```
 
-Screen reacts:
-
-- **Fresh install**: `popBackStack(Hub)` + snackbar `"[Name] installed to your Pocket"` with `View` action → MyPocket
-- **Re-customize**: stay on screen, snackbar "Settings updated"
+Screen reacts: `popBackStack(Hub)` + snackbar `"[Name] installed to your Pocket"` with `View` action → MyPocket.
 
 ### Cancel / back
 
@@ -388,7 +386,7 @@ In scope:
 
 - Add `installStore: InstallStore` constructor parameter to `MyPocketScreen`.
 - Filter `miniAppRepository.loadAll()` to `recipeId in installs.keys` (collected from `installStore.installs` directly via `collectAsStateWithLifecycle()`).
-- Add a "Customize" entry per row → `Screen.Configurator.createRoute(id)`.
+- Tap a row → launch (existing behavior, unchanged).
 
 Out of scope (left to JY):
 
@@ -399,7 +397,7 @@ Out of scope (left to JY):
 - Uninstall UI
 - Card layout polish
 
-The "Customize" entry can be a trailing icon button or merged into JY's existing card UI — minimum change to enable the flow.
+MyPocket is purely a launchpad in v1 — no customize, no settings. If users want to change feature toggles, they uninstall and re-install (uninstall itself parked for v1).
 
 ## Studio change (one line)
 
@@ -483,7 +481,7 @@ No custom physics. Building blocks already in the project.
 In scope:
 - Unit: `InstallStore` install/uninstall/observe round-trip with fake DataStore
 - Unit: `ConfiguratorViewModel.totalSizeKb` and `activeCount` math
-- Unit: `ConfiguratorViewModel` initialization (fresh vs re-customize)
+- Unit: `ConfiguratorViewModel` initialization (recommended-and-available toggles on, others off)
 - Unit: `HubViewModel.computeRails()` with 0/1/3/7 recipes, with/without authored
 - Parse: extend existing bundled-YAML decode test to verify `features:` block round-trips
 
@@ -498,7 +496,7 @@ For PR description / handoff message to Jingyen:
 
 - **Schema:** added `features: List<Feature>` to `MiniApp` (default-safe, your `generateYaml()` keeps working). Bundled YAMLs updated with `features:` blocks.
 - **Studio:** `onPublished` signature changes from `() -> Unit` to `(recipeId: String) -> Unit`. Need to call `onPublished(newId)` after publish completes.
-- **MyPocket:** I touched MyPocket only for wiring (filter to installed, add Customize entry). Layout, header, sort, empty state, Yours badge, uninstall — all yours when you're ready.
+- **MyPocket:** I touched MyPocket only for one-line wiring (added `installStore` param + filter to installed). No customize entry — feature toggles are one-shot at install time. Layout, header, sort, empty state, Yours badge, uninstall — all yours when you're ready.
 
 ## Implementation order
 
@@ -509,7 +507,7 @@ For PR description / handoff message to Jingyen:
 5. Cover primitive: `RecipeCover` + Coil dependency
 6. Hub UI: `HubViewModel`, `HubScreen`, all card/rail/chip components
 7. NavGraph wiring: `Screen.Configurator` route, plumb `InstallStore` to Hub + MyPocket, update Studio callback
-8. MyPocket minimum touch: filter + Customize entry
+8. MyPocket minimum touch: filter to installed only
 9. Manual smoke test of the full flow end-to-end on emulator
 
 ## Bundled YAML diffs needed
