@@ -14,7 +14,8 @@ class ActionDispatcher(
     private val formulaEngine: FormulaEngine,
     private val locationProvider: LocationProvider? = null,
     private val inferenceEngine: InferenceEngine? = null,
-    private val onNavigate: (String) -> Unit
+    private val onNavigate: (String) -> Unit,
+    private val onAskLogged: () -> Unit = {}
 ) {
 
     suspend fun dispatch(action: String) {
@@ -47,6 +48,9 @@ class ActionDispatcher(
                 .ifEmpty { "This request has been blocked for safety." }
             return
         }
+
+        // Safety passed — log this as a real ask event
+        onAskLogged()
 
         store["ai_response"] = ""
         store["is_loading"] = "true"
