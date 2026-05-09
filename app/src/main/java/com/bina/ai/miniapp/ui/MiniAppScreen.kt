@@ -81,6 +81,10 @@ fun MiniAppScreen(
                 } else {
                     currentScreenId = screenId
                 }
+            },
+            onAskLogged = {
+                // Fire-and-forget: launch a child coroutine on the screen's scope
+                scope.launch { eventTracker.logAsk(miniApp.id) }
             }
         )
     }
