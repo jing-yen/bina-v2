@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bina.ai.analytics.tracking.EventTracker
 import com.bina.ai.inference.InferenceEngine
 import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.miniapp.runtime.ActionDispatcher
@@ -49,6 +51,7 @@ import kotlinx.coroutines.launch
 fun MiniAppScreen(
     miniApp: MiniApp,
     inferenceEngine: InferenceEngine? = null,
+    eventTracker: EventTracker,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -59,6 +62,11 @@ fun MiniAppScreen(
     var isLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val themeColor = parseColor(miniApp.theme.primary)
+
+    // Log launch event once per screen entry (re-fires if miniApp.id changes)
+    LaunchedEffect(miniApp.id) {
+        eventTracker.logLaunch(miniApp.id)
+    }
 
     val dispatcher = remember {
         ActionDispatcher(

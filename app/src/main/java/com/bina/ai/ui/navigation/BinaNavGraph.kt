@@ -9,6 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.bina.ai.analytics.tracking.EventTracker
 import com.bina.ai.inference.InferenceEngine
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.ui.MiniAppScreen
@@ -23,7 +24,8 @@ fun BinaNavGraph(
     navController: NavHostController,
     userMode: UserMode,
     miniAppRepository: MiniAppRepository,
-    inferenceEngine: InferenceEngine? = null
+    inferenceEngine: InferenceEngine? = null,
+    eventTracker: EventTracker
 ) {
     NavHost(
         navController = navController,
@@ -78,6 +80,7 @@ fun BinaNavGraph(
                 MiniAppScreen(
                     miniApp = miniApp,
                     inferenceEngine = inferenceEngine,
+                    eventTracker = eventTracker,
                     onBack = { navController.popBackStack() }
                 )
             }
