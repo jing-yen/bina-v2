@@ -56,7 +56,12 @@ fun BinaNavGraph(
         }
 
         composable(Screen.Studio.route) {
-            StudioScreen()
+            StudioScreen(onPublished = {
+                miniAppRepository.invalidateCache()
+                navController.navigate(Screen.Hub.route) {
+                    popUpTo(Screen.Hub.route) { inclusive = true }
+                }
+            })
         }
 
         composable(Screen.Analytics.route) {

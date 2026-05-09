@@ -42,9 +42,19 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val miniAppRepository = MiniAppRepository {
-            val files = applicationContext.assets.list("miniapps") ?: emptyArray()
-            files.filter { it.endsWith(".yaml") || it.endsWith(".yml") }
+            val assetFiles = applicationContext.assets.list("miniapps") ?: emptyArray()
+            val fromAssets = assetFiles.filter { it.endsWith(".yaml") || it.endsWith(".yml") }
                 .map { it to applicationContext.assets.open("miniapps/$it").bufferedReader().readText() }
+
+            val userDir = java.io.File(applicationContext.filesDir, "miniapps")
+            val fromUser = if (userDir.isDirectory) {
+                userDir.listFiles()
+                    ?.filter { it.extension in listOf("yaml", "yml") }
+                    ?.map { it.name to it.readText() }
+                    ?: emptyList()
+            } else emptyList()
+
+            fromAssets + fromUser
         }
 
         inferenceEngine = LiteRtLmEngine(applicationContext)
