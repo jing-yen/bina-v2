@@ -63,6 +63,11 @@ class MainActivity : ComponentActivity() {
         // Analytics infrastructure
         val analyticsDb = com.bina.ai.analytics.data.AnalyticsDatabase.get(applicationContext)
         val eventTracker = com.bina.ai.analytics.tracking.EventTracker(analyticsDb.eventDao())
+        val analyticsRepository = com.bina.ai.analytics.data.AnalyticsRepository(
+            dao = analyticsDb.eventDao(),
+            miniAppRepository = miniAppRepository,
+            filesDir = applicationContext.filesDir
+        )
 
         setContent {
             BinaTheme {
@@ -111,7 +116,8 @@ class MainActivity : ComponentActivity() {
                             userMode = userMode,
                             miniAppRepository = miniAppRepository,
                             inferenceEngine = inferenceEngine,
-                            eventTracker = eventTracker
+                            eventTracker = eventTracker,
+                            analyticsRepository = analyticsRepository
                         )
                     }
 
