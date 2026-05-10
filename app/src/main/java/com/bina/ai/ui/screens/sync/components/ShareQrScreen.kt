@@ -1,0 +1,117 @@
+package com.bina.ai.ui.screens.sync.components
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bina.ai.install.InstallStore
+import com.bina.ai.miniapp.MiniAppRepository
+import com.bina.ai.sync.RecipeImporter
+import com.bina.ai.ui.screens.sync.SyncViewModel
+import com.bina.ai.ui.theme.BinaGrayText
+import com.bina.ai.ui.theme.BinaPrimary
+import com.google.zxing.BarcodeFormat
+import com.journeyapps.barcodescanner.BarcodeEncoder
+
+@Composable
+fun ShareQrScreen(
+    miniAppRepository: MiniAppRepository,
+    installStore: InstallStore,
+    recipeId: String,
+    onDone: () -> Unit
+) {
+    val context = LocalContext.current
+    val clipboard = LocalClipboardManager.current
+    val factory = remember(miniAppRepository, installStore) {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                val importer = RecipeImporter(filesDir = context.filesDir, miniAppRepository = miniAppRepository)
+                return SyncViewModel(miniAppRepository, installStore, importer) as T
+            }
+        }
+    }
+    val vm: SyncViewModel = viewModel(factory = factory)
+    val recipe = remember(recipeId) { miniAppRepository.getById(recipeId) }
+
+    val encodeResult = remember(recipe) {
+        recipe?.let { vm.encodeRecipeAsQr(it) }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        if (recipe == null) {
+            Text("Recipe not found", color = BinaGrayText)
+        } else {
+            Text(recipe.icon.ifBlank { "📦" }, fontSize = 36.sp)
+            Text(recipe.name, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = BinaPrimary)
+            recipe.author.name.takeIf { it.isNotBlank() }?.let {
+                Text("by $it", fontSize = 12.sp, color = BinaGrayText)
+            }
+            Spacer(Modifier.height(8.dp))
+
+            val payload = encodeResult?.getOrNull()
+            val error = encodeResult?.exceptionOrNull()?.message
+
+            if (payload != null) {
+                val bitmap = remember(payload) {
+                    BarcodeEncoder().encodeBitmap(payload, BarcodeFormat.QR_CODE, 1024, 1024)
+                }
+                Box(
+                    modifier = Modifier
+                        .size(320.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color.White)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(bitmap = bitmap.asImageBitmap(), contentDescription = "QR for ${recipe.name}", modifier = Modifier.fillMaxSize())
+                }
+                Text(
+                    "Have the other phone open Sync → Scan to Receive.",
+                    fontSize = 12.sp, color = BinaGrayText
+                )
+            } else if (error != null) {
+                Text(error, fontSize = 12.sp, color = BinaPrimary)
+                Button(onClick = {
+                    val maybeYaml = runCatching {
+                        com.charleskorn.kaml.Yaml(configuration = com.charleskorn.kaml.YamlConfiguration(strictMode = false))
+                            .encodeToString(com.bina.ai.miniapp.model.MiniApp.serializer(), recipe)
+                    }.getOrNull()
+                    if (maybeYaml != null) clipboard.setText(AnnotatedString(maybeYaml))
+                }, colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)) {
+                    Text("Copy YAML to clipboard")
+                }
+            }
+
+            Spacer(Modifier.weight(1f))
+            Button(
+                onClick = onDone,
+                colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Done")
+            }
+        }
+    }
+}
