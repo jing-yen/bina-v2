@@ -12,3 +12,7 @@ local.properties
 
 # Local tool config — not shared
 .claude/
+
+# Web frontend
+web/node_modules/
+web/dist/
