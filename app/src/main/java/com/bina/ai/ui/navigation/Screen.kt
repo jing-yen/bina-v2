@@ -2,7 +2,6 @@ package com.bina.ai.ui.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BarChart
-import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.CellTower
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Storefront
@@ -16,7 +15,6 @@ sealed class Screen(
     data object Hub : Screen("hub", "Hub", Icons.Outlined.Storefront)
     data object MyPocket : Screen("pocket", "My Pocket", Icons.Outlined.Inventory2)
     data object OfflineSync : Screen("sync", "Offline Sync", Icons.Outlined.CellTower)
-    data object Studio : Screen("studio", "Studio", Icons.Outlined.Build)
     data object Analytics : Screen("analytics", "Analytics", Icons.Outlined.BarChart)
 
     data object MiniAppView : Screen("miniapp/{miniAppId}", "MiniApp", Icons.Outlined.Storefront) {
@@ -28,7 +26,6 @@ sealed class Screen(
     }
 
     companion object {
-        fun builderTabs() = listOf(Hub, MyPocket, OfflineSync)
-        fun architectTabs() = listOf(Hub, Studio, Analytics)
+        fun tabs() = listOf(Hub, MyPocket, OfflineSync, Analytics)
     }
 }

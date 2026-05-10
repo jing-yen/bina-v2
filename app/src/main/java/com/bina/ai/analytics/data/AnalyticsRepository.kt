@@ -6,32 +6,27 @@ import com.bina.ai.analytics.ui.model.DailyBucket
 import com.bina.ai.analytics.ui.model.MetricsSnapshot
 import com.bina.ai.analytics.ui.model.RecipeStats
 import com.bina.ai.analytics.ui.model.TimeWindow
+import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import java.io.File
 import java.util.Calendar
 import java.util.TimeZone
 
 /**
- * Combines the Room event_log Flows with filesystem-derived authoring stats.
+ * Builder-side analytics: combines the Room event_log Flows with installed-recipe state
+ * from [InstallStore]. All metrics describe the user's own recipe usage on this device.
  *
- * - Usage queries (launches, asks, active days, chart, leaderboard) span ALL recipes.
- * - Authoring queries (recipesPublished, knowledgeBytes) are scoped to filesDir.
- *
- * The `miniAppRepository` is used to resolve display names and icons for the leaderboard.
+ * `miniAppRepository` resolves display names and icons for the leaderboard.
  */
 class AnalyticsRepository(
     private val dao: EventDao,
     private val miniAppRepository: MiniAppRepository,
-    private val filesDir: File
+    private val installStore: InstallStore
 ) {
-
-    private val miniappsDir = File(filesDir, "miniapps")
-    private val knowledgeDir = File(filesDir, "knowledge")
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeMetrics(window: Flow<TimeWindow>): Flow<MetricsSnapshot> =
@@ -44,15 +39,20 @@ class AnalyticsRepository(
                 dao.observeCountSince("LAUNCH", sinceMs),
                 dao.observeCountSince("LAUNCH", previousSinceMs),
                 dao.observeCountSince("ASK", sinceMs),
-                dao.observeActiveDaysSince(sinceMs)
-            ) { launches, prevLaunches, asks, activeDays ->
+                dao.observeActiveDaysSince(sinceMs),
+                combine(
+                    dao.observeEventsSince(sinceMs),
+                    installStore.installs
+                ) { events, installs -> events to installs }
+            ) { launches, prevLaunches, asks, activeDays, eventsAndInstalls ->
+                val (events, installs) = eventsAndInstalls
                 MetricsSnapshot(
                     totalLaunches = launches,
                     totalLaunchesPrevious = (prevLaunches - launches).coerceAtLeast(0),
-                    recipesPublished = scanAuthoredRecipeIds().size,
+                    recipesInstalled = installs.size,
                     questionsAsked = asks,
                     activeDays = activeDays,
-                    knowledgeBytes = scanKnowledgeBytes()
+                    currentStreak = computeCurrentStreak(events, now)
                 )
             }
         }
@@ -70,7 +70,6 @@ class AnalyticsRepository(
     fun observeLeaderboard(window: Flow<TimeWindow>): Flow<List<RecipeStats>> =
         window.flatMapLatest { tw ->
             dao.observeCountsByRecipe(tw.sinceMs()).map { rows ->
-                val authoredIds = scanAuthoredRecipeIds()
                 rows.groupBy { it.recipeId }.map { (recipeId, eventRows) ->
                     val launches = eventRows.firstOrNull { it.eventType == "LAUNCH" }?.cnt ?: 0
                     val asks = eventRows.firstOrNull { it.eventType == "ASK" }?.cnt ?: 0
@@ -80,8 +79,7 @@ class AnalyticsRepository(
                         displayName = app?.name ?: recipeId,
                         icon = app?.icon ?: "📦",
                         launches = launches,
-                        asks = asks,
-                        isAuthored = recipeId in authoredIds
+                        asks = asks
                     )
                 }.sortedByDescending { it.total }
             }
@@ -92,25 +90,26 @@ class AnalyticsRepository(
         window.flatMapLatest { tw ->
             combine(
                 dao.observeCountSince("ASK", 0L),                    // all-time asks
-                dao.observeEventsSince(tw.sinceMs())                 // recent events for streak calc
-            ) { totalAsks, recentEvents ->
-                val authored = scanAuthoredRecipeIds()
-                val knowledgeFiles = scanKnowledgeFileCount()
+                dao.observeEventsSince(tw.sinceMs()),                // recent events for streak + distinct
+                installStore.installs
+            ) { totalAsks, recentEvents, installs ->
                 val streak = computeMaxConsecutiveActiveDays(recentEvents, System.currentTimeMillis())
+                val distinctRecipes = recentEvents.map { it.recipeId }.toSet().size
+                val installedCount = installs.size
 
                 listOf(
                     Achievement(
-                        id = AchievementId.FIRST_AUTHOR,
-                        title = "First Author",
-                        description = "Publish your first recipe in Studio",
-                        emoji = "📜",
-                        unlocked = authored.isNotEmpty(),
-                        progress = if (authored.isNotEmpty()) 1f else 0f
+                        id = AchievementId.COLLECTOR,
+                        title = "Recipe Collector",
+                        description = "Install 3 recipes from the Hub",
+                        emoji = "📦",
+                        unlocked = installedCount >= 3,
+                        progress = (installedCount / 3f).coerceIn(0f, 1f)
                     ),
                     Achievement(
                         id = AchievementId.CURIOUS,
                         title = "Test Driver",
-                        description = "Ask 10 questions to validate your recipes",
+                        description = "Ask 10 questions across your recipes",
                         emoji = "💬",
                         unlocked = totalAsks >= 10,
                         progress = (totalAsks / 10f).coerceIn(0f, 1f)
@@ -124,59 +123,27 @@ class AnalyticsRepository(
                         progress = (streak / 3f).coerceIn(0f, 1f)
                     ),
                     Achievement(
-                        id = AchievementId.KNOWLEDGE_ARCHITECT,
-                        title = "Knowledge Architect",
-                        description = "Upload 5 files across your recipes",
-                        emoji = "📚",
-                        unlocked = knowledgeFiles >= 5,
-                        progress = (knowledgeFiles / 5f).coerceIn(0f, 1f)
+                        id = AchievementId.EXPLORER,
+                        title = "Explorer",
+                        description = "Use 3 different recipes",
+                        emoji = "🧭",
+                        unlocked = distinctRecipes >= 3,
+                        progress = (distinctRecipes / 3f).coerceIn(0f, 1f)
                     )
                 )
             }
         }
 
-    /** True when the user has zero events AND zero authored recipes. */
+    /** True when the user has zero events. */
     fun observeIsEmpty(): Flow<Boolean> =
         combine(
             dao.observeCountSince("LAUNCH", 0L),
             dao.observeCountSince("ASK", 0L)
         ) { launches, asks ->
-            launches == 0 && asks == 0 && scanAuthoredRecipeIds().isEmpty()
+            launches == 0 && asks == 0
         }
 
     // ---- helpers ----------------------------------------------------------
-
-    private fun scanAuthoredRecipeIds(): Set<String> {
-        if (!miniappsDir.isDirectory) return emptySet()
-        return miniappsDir.listFiles()
-            ?.filter { it.isFile && (it.extension == "yaml" || it.extension == "yml") }
-            ?.mapNotNull { extractIdFromYaml(it) }
-            ?.toSet()
-            ?: emptySet()
-    }
-
-    private fun extractIdFromYaml(file: File): String? = runCatching {
-        file.useLines { lines ->
-            lines
-                .firstOrNull { it.trimStart().startsWith("id:") }
-                ?.substringAfter(":")
-                ?.trim()
-                ?.trim('"', '\'')
-                ?.takeIf { it.isNotEmpty() }
-        }
-    }.getOrNull()
-
-    private fun scanKnowledgeBytes(): Long {
-        if (!knowledgeDir.isDirectory) return 0L
-        return knowledgeDir.walkTopDown()
-            .filter { it.isFile }
-            .sumOf { it.length() }
-    }
-
-    private fun scanKnowledgeFileCount(): Int {
-        if (!knowledgeDir.isDirectory) return 0
-        return knowledgeDir.walkTopDown().count { it.isFile }
-    }
 
     private fun previousWindowStart(window: TimeWindow, now: Long): Long {
         val span = now - window.sinceMs(now)
@@ -217,14 +184,7 @@ class AnalyticsRepository(
 
     private fun computeMaxConsecutiveActiveDays(events: List<EventEntity>, now: Long): Int {
         if (events.isEmpty()) return 0
-        val tz = TimeZone.getDefault()
-        val daysWithActivity = events.map { ev ->
-            Calendar.getInstance(tz).apply {
-                timeInMillis = ev.timestampMs
-                set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-            }.timeInMillis
-        }.toSortedSet()
+        val daysWithActivity = activeDayStarts(events)
 
         var maxRun = 0
         var run = 0
@@ -235,5 +195,36 @@ class AnalyticsRepository(
             prev = day
         }
         return maxRun
+    }
+
+    /** Streak counted backward from today (or yesterday if today has no activity). */
+    private fun computeCurrentStreak(events: List<EventEntity>, now: Long): Int {
+        if (events.isEmpty()) return 0
+        val days = activeDayStarts(events)
+        val tz = TimeZone.getDefault()
+        val cal = Calendar.getInstance(tz).apply {
+            timeInMillis = now
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        }
+        val today = cal.timeInMillis
+        var cursor = if (today in days) today else today - 86_400_000L
+        var streak = 0
+        while (cursor in days) {
+            streak++
+            cursor -= 86_400_000L
+        }
+        return streak
+    }
+
+    private fun activeDayStarts(events: List<EventEntity>): Set<Long> {
+        val tz = TimeZone.getDefault()
+        return events.map { ev ->
+            Calendar.getInstance(tz).apply {
+                timeInMillis = ev.timestampMs
+                set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+        }.toSortedSet()
     }
 }

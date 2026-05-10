@@ -30,7 +30,6 @@ import com.bina.ai.ui.theme.BinaPrimary
 fun RecipeListItem(
     miniApp: MiniApp,
     isInstalled: Boolean,
-    isAuthored: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -50,16 +49,6 @@ fun RecipeListItem(
                 Text(miniApp.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary, maxLines = 1)
                 if (miniApp.author.verified) {
                     Text("✓", fontSize = 12.sp, color = BinaGreen)
-                }
-                if (isAuthored) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(BinaPrimary.copy(alpha = 0.10f))
-                            .padding(horizontal = 4.dp, vertical = 1.dp)
-                    ) {
-                        Text("Yours", fontSize = 8.sp, color = BinaPrimary, fontWeight = FontWeight.SemiBold)
-                    }
                 }
             }
             if (miniApp.description.isNotBlank()) {

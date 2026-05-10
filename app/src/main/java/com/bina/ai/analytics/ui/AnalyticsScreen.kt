@@ -38,7 +38,6 @@ import com.bina.ai.analytics.viewmodel.AnalyticsViewModel
 fun AnalyticsScreen(
     repository: AnalyticsRepository,
     onOpenHub: () -> Unit,
-    onOpenStudio: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val factory = remember(repository) {
@@ -67,7 +66,7 @@ fun AnalyticsScreen(
                     selectedWindow = window,
                     onSelectWindow = viewModel::setWindow
                 )
-                EmptyState(onOpenHub = onOpenHub, onOpenStudio = onOpenStudio)
+                EmptyState(onOpenHub = onOpenHub)
             }
         }
         is AnalyticsUiState.Loaded -> {

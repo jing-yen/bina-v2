@@ -17,10 +17,10 @@ sealed interface AnalyticsUiState {
 data class MetricsSnapshot(
     val totalLaunches: Int,
     val totalLaunchesPrevious: Int,   // for delta calculation
-    val recipesPublished: Int,
+    val recipesInstalled: Int,
     val questionsAsked: Int,
     val activeDays: Int,
-    val knowledgeBytes: Long
+    val currentStreak: Int
 )
 
 /** One day's worth of stacked-bar data for the activity chart. */
@@ -38,8 +38,7 @@ data class RecipeStats(
     val displayName: String,   // resolved from MiniAppRepository, fallback to id
     val icon: String,          // emoji from recipe, fallback "📦"
     val launches: Int,
-    val asks: Int,
-    val isAuthored: Boolean
+    val asks: Int
 ) {
     val total: Int get() = launches + asks
 }
@@ -54,4 +53,4 @@ data class Achievement(
     val progress: Float       // 0f..1f for progress bars on locked items
 )
 
-enum class AchievementId { FIRST_AUTHOR, CURIOUS, STREAK, KNOWLEDGE_ARCHITECT }
+enum class AchievementId { COLLECTOR, CURIOUS, STREAK, EXPLORER }

@@ -27,7 +27,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.ui.navigation.Screen
-import com.bina.ai.ui.navigation.UserMode
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaNavActive
 import com.bina.ai.ui.theme.BinaNavSurface
@@ -35,16 +34,11 @@ import com.bina.ai.ui.theme.BinaPrimary
 
 @Composable
 fun BinaBottomNav(
-    userMode: UserMode,
     currentRoute: String?,
     onTabClick: (Screen) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val tabs = if (userMode == UserMode.BUILDER) {
-        Screen.builderTabs()
-    } else {
-        Screen.architectTabs()
-    }
+    val tabs = Screen.tabs()
 
     Box(
         modifier = modifier

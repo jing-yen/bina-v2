@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -14,7 +13,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,7 +31,6 @@ import com.bina.ai.ui.theme.BinaSecondary
 @Composable
 fun EmptyState(
     onOpenHub: () -> Unit,
-    onOpenStudio: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -78,27 +75,19 @@ fun EmptyState(
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "Open a recipe from the Hub or publish your own in Studio to start seeing analytics.",
+            "Open a recipe from the Hub to start seeing analytics.",
             fontSize = 13.sp,
             color = BinaGrayText,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Spacer(Modifier.height(24.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(
-                onClick = onOpenHub,
-                shape = RoundedCornerShape(14.dp)
-            ) {
-                Text("Open Hub", fontWeight = FontWeight.SemiBold)
-            }
-            Button(
-                onClick = onOpenStudio,
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)
-            ) {
-                Text("Open Studio", fontWeight = FontWeight.SemiBold)
-            }
+        Button(
+            onClick = onOpenHub,
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)
+        ) {
+            Text("Open Hub", fontWeight = FontWeight.SemiBold)
         }
     }
 }
