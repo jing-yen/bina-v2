@@ -25,7 +25,7 @@ import java.util.UUID
 /** UUID of the (single) characteristic we expose. Same for every Bina session. */
 private val CHARACTERISTIC_UUID: UUID = UUID.fromString("00001234-0000-1000-8000-00805F9B34FB")
 private val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-private const val DEFAULT_CHUNK_SIZE = 20  // safe default before MTU negotiation
+private const val DEFAULT_CHUNK_SIZE = 244  // assumes MTU 247 (default after receiver requestMtu(247))
 private const val TAG = "BleSender"
 
 sealed interface SenderState {
@@ -63,6 +63,7 @@ class BleSender(
     val state: StateFlow<SenderState> = _state.asStateFlow()
 
     fun start(): Boolean {
+        if (_state.value != SenderState.Idle) return true  // already started
         if (advertiser == null) {
             _state.value = SenderState.Failed("This device can't advertise over BLE")
             return false
@@ -146,7 +147,7 @@ class BleSender(
                     gattServer?.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, 0, value)
                 }
                 if (value.contentEquals(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)) {
-                    sendPayload(device)
+                    Thread { sendPayload(device) }.start()
                 }
             }
         }

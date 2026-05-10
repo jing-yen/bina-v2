@@ -119,7 +119,10 @@ class SyncViewModel(
 
     fun dismissPreview() { _incoming.value = IncomingState.Idle }
 
-    fun dismissPairing() { _pairing.value = null }
+    fun dismissPairing() {
+        _pairing.value = null
+        _transfer.value = TransferState.Idle
+    }
 
     fun onTransferConnecting() {
         _transfer.value = TransferState.Connecting

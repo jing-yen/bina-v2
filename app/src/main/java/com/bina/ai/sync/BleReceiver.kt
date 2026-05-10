@@ -58,6 +58,7 @@ class BleReceiver(
 
     private var gatt: BluetoothGatt? = null
     private val buffer = mutableListOf<Byte>()
+    @Volatile private var done = false
     private val handler = Handler(Looper.getMainLooper())
 
     private val _state = MutableStateFlow<ReceiverState>(ReceiverState.Idle)
@@ -122,6 +123,7 @@ class BleReceiver(
                 if (_state.value is ReceiverState.Receiving) {
                     _state.value = ReceiverState.Failed("Connection dropped mid-transfer")
                 }
+                runCatching { g.close() }
             }
         }
 
@@ -146,8 +148,10 @@ class BleReceiver(
         }
 
         override fun onCharacteristicChanged(g: BluetoothGatt, c: BluetoothGattCharacteristic) {
+            if (done) return
             buffer.addAll(c.value.toList())
             if (buffer.size >= expectedSize) {
+                done = true
                 _state.value = ReceiverState.Done(buffer.toByteArray())
                 runCatching { g.disconnect() }
             } else {
