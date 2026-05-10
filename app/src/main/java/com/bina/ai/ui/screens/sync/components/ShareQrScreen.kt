@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,8 +37,38 @@ fun ShareQrScreen(
     val clipboard = LocalClipboardManager.current
     val recipe = remember(recipeId) { miniAppRepository.getById(recipeId) }
 
-    val encodeResult = remember(recipe) {
-        recipe?.let { vm.encodeRecipeAsQr(it) }
+    val context = LocalContext.current
+    val yamlText = remember(recipe) {
+        recipe?.let { miniAppRepository.getYamlById(it.id) }
+    }
+    val sender = remember(recipe, yamlText) {
+        if (recipe == null || yamlText == null) null
+        else com.bina.ai.sync.BleSender(
+            context = context,
+            serviceUuid = java.util.UUID.randomUUID(),
+            payloadBytes = yamlText.toByteArray(Charsets.UTF_8)
+        )
+    }
+    val pairingPayload = remember(recipe, sender, yamlText) {
+        if (recipe == null || sender == null || yamlText == null) null
+        else com.bina.ai.sync.BlePairingPayload.encode(
+            com.bina.ai.sync.BlePairingPayload.Offer(
+                serviceUuid = sender.serviceUuid,
+                recipeId = recipe.id,
+                sizeBytes = yamlText.toByteArray(Charsets.UTF_8).size.toLong(),
+                recipeName = recipe.name,
+                authorName = recipe.author.name
+            )
+        )
+    }
+
+    LaunchedEffect(sender) {
+        if (sender != null && com.bina.ai.sync.BlePermissions.hasSenderPermissions(context)) {
+            sender.start()
+        }
+    }
+    DisposableEffect(sender) {
+        onDispose { sender?.stop() }
     }
 
     Column(
@@ -55,16 +86,13 @@ fun ShareQrScreen(
             }
             Spacer(Modifier.height(8.dp))
 
-            val payload = encodeResult?.getOrNull()
-            val error = encodeResult?.exceptionOrNull()?.message
-
-            if (payload != null) {
-                val bitmap = remember(payload) {
+            if (pairingPayload != null) {
+                val bitmap = remember(pairingPayload) {
                     val hints = mapOf(
                         com.google.zxing.EncodeHintType.ERROR_CORRECTION to com.google.zxing.qrcode.decoder.ErrorCorrectionLevel.L,
                         com.google.zxing.EncodeHintType.MARGIN to 2
                     )
-                    BarcodeEncoder().encodeBitmap(payload, BarcodeFormat.QR_CODE, 2048, 2048, hints)
+                    BarcodeEncoder().encodeBitmap(pairingPayload, BarcodeFormat.QR_CODE, 2048, 2048, hints)
                 }
                 Box(
                     modifier = Modifier
@@ -75,17 +103,19 @@ fun ShareQrScreen(
                         .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(bitmap = bitmap.asImageBitmap(), contentDescription = "QR for ${recipe.name}", modifier = Modifier.fillMaxSize())
+                    Image(bitmap = bitmap.asImageBitmap(), contentDescription = "Pairing QR for ${recipe.name}", modifier = Modifier.fillMaxSize())
                 }
                 Text(
-                    "Have the other phone open Sync → Scan to Receive.\nSize: ${payload.length} chars",
+                    "Have the other phone open Sync → Scan to Receive.\nKeep this screen open until they connect.",
                     fontSize = 12.sp, color = BinaGrayText
                 )
-            } else if (error != null) {
-                Text(error, fontSize = 12.sp, color = BinaRed)
+            } else {
+                Text(
+                    "Bluetooth permission needed to share via QR. Or copy YAML below.",
+                    fontSize = 12.sp, color = BinaRed
+                )
                 Button(onClick = {
-                    val maybeYaml = miniAppRepository.getYamlById(recipe.id)
-                    if (maybeYaml != null) clipboard.setText(AnnotatedString(maybeYaml))
+                    if (yamlText != null) clipboard.setText(AnnotatedString(yamlText))
                 }, colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)) {
                     Text("Copy YAML to clipboard")
                 }
