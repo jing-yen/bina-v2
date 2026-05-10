@@ -131,10 +131,15 @@ fun HubScreen(
         }
 
         sheetRecipe?.let { recipe ->
+            val baseSizeKb = remember(recipe.id) {
+                runCatching {
+                    context.assets.openFd("miniapps/${recipe.id}.yaml").use { it.length / 1024f }
+                }.getOrDefault(1.0f)
+            }
             RecipeDetailSheet(
                 miniApp = recipe,
                 isInstalled = recipe.id in (state as? HubUiState.Loaded)?.installedIds.orEmpty(),
-                sizeKb = 1.2f,
+                sizeKb = baseSizeKb,
                 onConfigureInstall = {
                     sheetRecipe = null
                     onConfigureRecipe(recipe.id)
