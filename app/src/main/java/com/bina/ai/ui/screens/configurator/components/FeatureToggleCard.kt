@@ -52,10 +52,10 @@ fun FeatureToggleCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .alpha(rowAlpha)
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
-            .padding(14.dp)
-            .alpha(rowAlpha),
+            .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {

@@ -71,6 +71,7 @@ fun ConfiguratorScreen(
         EmptyFeaturesScaffold(
             recipe = recipe,
             installStore = installStore,
+            capabilityChecker = capabilityChecker,
             onInstalled = onInstalled,
             onBack = onBack,
             modifier = modifier
@@ -205,26 +206,37 @@ private fun UnavailableScaffold(onBack: () -> Unit, modifier: Modifier = Modifie
 private fun EmptyFeaturesScaffold(
     recipe: MiniApp,
     installStore: InstallStore,
+    capabilityChecker: CapabilityChecker,
     onInstalled: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val factory = remember(recipe, installStore) {
+    val factory = remember(recipe, installStore, capabilityChecker) {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
                 ConfiguratorViewModel(
-                    initialState = ConfiguratorState.initial(recipe, CapabilityChecker.forTest(emptyMap())),
+                    initialState = ConfiguratorState.initial(recipe, capabilityChecker),
                     baseSizeKb = 0f,
                     installStore = installStore
                 ) as T
         }
     }
     val vm: ConfiguratorViewModel = viewModel(key = recipe.id + "_empty", factory = factory)
+    val snackHost = remember { SnackbarHostState() }
 
     LaunchedEffect(vm) {
         vm.events.collect { event ->
-            if (event is ConfiguratorEvent.Installed) onInstalled(event.recipeName)
+            when (event) {
+                is ConfiguratorEvent.Installed -> onInstalled(event.recipeName)
+                is ConfiguratorEvent.AlreadyInstalled -> {
+                    snackHost.showSnackbar("Already installed — opening MyPocket.")
+                    onInstalled(recipe.name)
+                }
+                is ConfiguratorEvent.Failed -> {
+                    snackHost.showSnackbar("Couldn't save install: ${event.message}")
+                }
+            }
         }
     }
 
@@ -239,7 +251,8 @@ private fun EmptyFeaturesScaffold(
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackHost) }
     ) { padding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp),
