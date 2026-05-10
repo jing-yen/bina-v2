@@ -73,11 +73,15 @@ dependencies {
     // Offline Sync — QR encode/decode
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
+    // Offline Sync — YAML parsing for RecipeImporter
+    implementation("com.charleskorn.kaml:kaml:0.67.0")
+
     // Unit tests
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("com.charleskorn.kaml:kaml:0.67.0")
     testImplementation("androidx.datastore:datastore-preferences-core:1.1.1")
+    testImplementation("org.robolectric:robolectric:4.12.2")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
