@@ -5,6 +5,16 @@ icon: "🌾"
 version: "1.0.0"
 category: Agriculture
 
+cover_image: ""
+featured: true
+emergency: false
+dialect: "Bahasa Malaysia"
+tags:
+  - farming
+  - crops
+  - profit
+  - southeast-asia
+
 author:
   name: Universiti Putra Malaysia
   organisation: AgriTech Faculty

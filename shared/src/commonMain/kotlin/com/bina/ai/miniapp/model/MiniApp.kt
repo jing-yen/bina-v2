@@ -11,6 +11,13 @@ data class MiniApp(
     val icon: String = "",
     val version: String = "1.0.0",
     val category: String = "",
+    // Hub-facing metadata. All optional with safe defaults so old YAMLs keep parsing
+    // and Studio's generateYaml() can adopt these fields incrementally.
+    @SerialName("cover_image") val coverImage: String = "",
+    val featured: Boolean = false,
+    val emergency: Boolean = false,
+    val dialect: String = "",
+    val tags: List<String> = emptyList(),
     val author: Author = Author(),
     val model: ModelConfig = ModelConfig(),
     val theme: ThemeConfig = ThemeConfig(),

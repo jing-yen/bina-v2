@@ -60,6 +60,15 @@ class MainActivity : ComponentActivity() {
         inferenceEngine = LiteRtLmEngine(applicationContext)
         lifecycleScope.launch { inferenceEngine.initialize() }
 
+        // Analytics infrastructure
+        val analyticsDb = com.bina.ai.analytics.data.AnalyticsDatabase.get(applicationContext)
+        val eventTracker = com.bina.ai.analytics.tracking.EventTracker(analyticsDb.eventDao())
+        val analyticsRepository = com.bina.ai.analytics.data.AnalyticsRepository(
+            dao = analyticsDb.eventDao(),
+            miniAppRepository = miniAppRepository,
+            filesDir = applicationContext.filesDir
+        )
+
         setContent {
             BinaTheme {
                 var userMode by remember { mutableStateOf(UserMode.BUILDER) }
@@ -106,7 +115,9 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             userMode = userMode,
                             miniAppRepository = miniAppRepository,
-                            inferenceEngine = inferenceEngine
+                            inferenceEngine = inferenceEngine,
+                            eventTracker = eventTracker,
+                            analyticsRepository = analyticsRepository
                         )
                     }
 

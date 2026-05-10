@@ -1,0 +1,94 @@
+id: bidan_pintar
+name: Bidan Pintar
+description: "Rural midwife assistant. Prenatal care guidance and emergency protocols, fully offline."
+icon: "👩‍⚕️"
+version: "1.0.0"
+category: Health
+
+cover_image: ""
+featured: true
+emergency: false
+dialect: "Bahasa Indonesia"
+tags:
+  - prenatal
+  - maternal-health
+  - rural
+  - emergency-protocols
+
+author:
+  name: Ministry of Health Indonesia
+  organisation: Public Health Outreach
+  verified: true
+
+model:
+  model_id: gemma-4-e2b-it
+  backend: cpu
+  system_prompt: |
+    You are Bidan Pintar, an assistant for community midwives serving rural
+    villages. Provide clear, practical, evidence-based guidance on prenatal
+    visits, danger signs, and emergency referrals.
+    Always use simple language. Never substitute for a doctor.
+    If symptoms suggest emergency (heavy bleeding, severe headache,
+    convulsions, no fetal movement), immediately advise referral to the
+    nearest puskesmas or hospital.
+  sampler:
+    temperature: 0.25
+    top_k: 40
+    top_p: 0.9
+    max_tokens: 512
+
+theme:
+  primary: "#BE185D"
+  secondary: "#F472B6"
+  text_size: standard
+
+localisation:
+  default_language: id
+  labels:
+    en:
+      chat_placeholder: "Ask Bidan Pintar..."
+    id:
+      chat_placeholder: "Tanya Bidan Pintar..."
+
+variables:
+  user_text:    { type: string, default: "" }
+  ai_response:  { type: string, default: "" }
+
+screens:
+  - id: home
+    title: Bidan Pintar
+    body:
+      - text_label:
+          text: "Apa yang ingin Anda tanyakan?"
+          style: subheading
+
+      - macro_grid:
+          columns: 2
+          buttons:
+            - { label: "Tanda Bahaya", action: "ask:Apa saja tanda bahaya pada kehamilan trimester ketiga?" }
+            - { label: "Jadwal ANC", action: "ask:Berapa kali ibu hamil harus periksa ANC?" }
+            - { label: "Persiapan Rujukan", action: "ask:Bagaimana cara rujukan darurat ke rumah sakit?" }
+            - { label: "Nutrisi Ibu Hamil", action: "ask:Makanan apa yang penting untuk ibu hamil?" }
+
+      - text_input:
+          bind: user_text
+          hint: "Tulis pertanyaan Anda..."
+
+      - action_button:
+          label: "Tanya Bidan Pintar"
+          action: "ask:{{user_text}}"
+          style: primary
+
+      - markdown_output:
+          source: ai_response
+          empty_text: "Jawaban akan muncul di sini..."
+          streaming: true
+
+safety:
+  blocked_keywords:
+    - obat aborsi
+    - induksi tanpa bidan
+  escalation_message: "Mohon segera rujuk ke puskesmas atau bidan setempat. Jangan tangani sendiri."
+  disclaimer: "Panduan dari AI. Bukan pengganti pemeriksaan medis langsung."
+
+permissions: []

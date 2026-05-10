@@ -9,10 +9,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.bina.ai.analytics.tracking.EventTracker
 import com.bina.ai.inference.InferenceEngine
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.ui.MiniAppScreen
-import com.bina.ai.ui.screens.analytics.AnalyticsScreen
+import com.bina.ai.analytics.ui.AnalyticsScreen
 import com.bina.ai.ui.screens.hub.HubScreen
 import com.bina.ai.ui.screens.pocket.MyPocketScreen
 import com.bina.ai.ui.screens.studio.StudioScreen
@@ -23,7 +24,9 @@ fun BinaNavGraph(
     navController: NavHostController,
     userMode: UserMode,
     miniAppRepository: MiniAppRepository,
-    inferenceEngine: InferenceEngine? = null
+    inferenceEngine: InferenceEngine? = null,
+    eventTracker: EventTracker,
+    analyticsRepository: com.bina.ai.analytics.data.AnalyticsRepository
 ) {
     NavHost(
         navController = navController,
@@ -65,7 +68,21 @@ fun BinaNavGraph(
         }
 
         composable(Screen.Analytics.route) {
-            AnalyticsScreen()
+            AnalyticsScreen(
+                repository = analyticsRepository,
+                onOpenHub = {
+                    navController.navigate(Screen.Hub.route) {
+                        popUpTo(Screen.Hub.route) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+                onOpenStudio = {
+                    navController.navigate(Screen.Studio.route) {
+                        popUpTo(Screen.Hub.route) { saveState = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
 
         composable(
@@ -78,6 +95,7 @@ fun BinaNavGraph(
                 MiniAppScreen(
                     miniApp = miniApp,
                     inferenceEngine = inferenceEngine,
+                    eventTracker = eventTracker,
                     onBack = { navController.popBackStack() }
                 )
             }
