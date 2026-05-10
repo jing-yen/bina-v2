@@ -23,7 +23,6 @@ fun CategoryRail(
     title: String,
     recipes: List<MiniApp>,
     installedIds: Set<String>,
-    authoredIds: Set<String>,
     onRecipeClick: (MiniApp) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -43,7 +42,6 @@ fun CategoryRail(
                 RecipeCard(
                     miniApp = recipe,
                     isInstalled = recipe.id in installedIds,
-                    isAuthored = recipe.id in authoredIds,
                     onClick = { onRecipeClick(recipe) }
                 )
             }

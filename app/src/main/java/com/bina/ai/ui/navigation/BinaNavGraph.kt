@@ -4,7 +4,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -20,13 +19,11 @@ import com.bina.ai.miniapp.ui.MiniAppScreen
 import com.bina.ai.analytics.ui.AnalyticsScreen
 import com.bina.ai.ui.screens.hub.HubScreen
 import com.bina.ai.ui.screens.pocket.MyPocketScreen
-import com.bina.ai.ui.screens.studio.StudioScreen
 import com.bina.ai.ui.screens.sync.OfflineSyncScreen
 
 @Composable
 fun BinaNavGraph(
     navController: NavHostController,
-    userMode: UserMode,
     miniAppRepository: MiniAppRepository,
     installStore: InstallStore,
     capabilityChecker: CapabilityChecker,
@@ -34,8 +31,6 @@ fun BinaNavGraph(
     eventTracker: EventTracker,
     analyticsRepository: com.bina.ai.analytics.data.AnalyticsRepository
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
     NavHost(
         navController = navController,
         startDestination = Screen.Hub.route,
@@ -48,15 +43,11 @@ fun BinaNavGraph(
             HubScreen(
                 miniAppRepository = miniAppRepository,
                 installStore = installStore,
-                userMode = userMode,
                 onConfigureRecipe = { id ->
                     navController.navigate(Screen.Configurator.createRoute(id))
                 },
                 onOpenRecipe = { id ->
                     navController.navigate(Screen.MiniAppView.createRoute(id))
-                },
-                onOpenStudio = {
-                    navController.navigate(Screen.Studio.route)
                 }
             )
         }
@@ -75,27 +66,12 @@ fun BinaNavGraph(
             OfflineSyncScreen()
         }
 
-        composable(Screen.Studio.route) {
-            StudioScreen(onPublished = {
-                miniAppRepository.invalidateCache()
-                // TODO: when JY's StudioScreen passes the new recipe ID, auto-install here.
-                // installStore.install(InstallRecord(recipeId = newRecipeId, ..., enabledFeatureIds = ...))
-                navController.navigate(Screen.Hub.route) { popUpTo(Screen.Hub.route) { inclusive = true } }
-            })
-        }
-
         composable(Screen.Analytics.route) {
             AnalyticsScreen(
                 repository = analyticsRepository,
                 onOpenHub = {
                     navController.navigate(Screen.Hub.route) {
                         popUpTo(Screen.Hub.route) { inclusive = false }
-                        launchSingleTop = true
-                    }
-                },
-                onOpenStudio = {
-                    navController.navigate(Screen.Studio.route) {
-                        popUpTo(Screen.Hub.route) { saveState = true }
                         launchSingleTop = true
                     }
                 }

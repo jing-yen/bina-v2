@@ -25,12 +25,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
-import com.bina.ai.ui.navigation.UserMode
 import com.bina.ai.ui.screens.hub.components.CategoryChips
 import com.bina.ai.ui.screens.hub.components.CategoryRail
 import com.bina.ai.ui.screens.hub.components.FeaturedCarousel
 import com.bina.ai.ui.screens.hub.components.HubHeader
-import com.bina.ai.ui.screens.hub.components.PublishFab
 import com.bina.ai.ui.screens.hub.components.RecipeListItem
 import com.bina.ai.ui.screens.hub.model.HubUiState
 import com.bina.ai.ui.screens.recipe_detail.RecipeDetailSheet
@@ -40,21 +38,19 @@ import com.bina.ai.ui.theme.BinaGrayText
 fun HubScreen(
     miniAppRepository: MiniAppRepository,
     installStore: InstallStore,
-    userMode: UserMode,
     onConfigureRecipe: (recipeId: String) -> Unit,
     onOpenRecipe: (recipeId: String) -> Unit,
-    onOpenStudio: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val factory = remember(miniAppRepository, installStore, userMode) {
+    val factory = remember(miniAppRepository, installStore) {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
-                HubViewModel(miniAppRepository, installStore, userMode, context.filesDir) as T
+                HubViewModel(miniAppRepository, installStore) as T
         }
     }
-    val vm: HubViewModel = viewModel(key = "hub-${userMode.name}", factory = factory)
+    val vm: HubViewModel = viewModel(factory = factory)
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     var sheetRecipe by remember { mutableStateOf<MiniApp?>(null) }
@@ -63,7 +59,7 @@ fun HubScreen(
         when (val s = state) {
             HubUiState.Loading -> {
                 Column(modifier = Modifier.fillMaxSize()) {
-                    HubHeader(mode = userMode)
+                    HubHeader()
                 }
             }
             is HubUiState.Loaded -> {
@@ -72,7 +68,7 @@ fun HubScreen(
                     contentPadding = PaddingValues(bottom = 96.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    item { HubHeader(mode = s.mode) }
+                    item { HubHeader() }
                     if (s.featured.isNotEmpty()) {
                         item {
                             FeaturedCarousel(
@@ -94,7 +90,6 @@ fun HubScreen(
                                 title = rail.title,
                                 recipes = rail.recipes,
                                 installedIds = s.installedIds,
-                                authoredIds = s.authoredIds,
                                 onRecipeClick = { sheetRecipe = it }
                             )
                         }
@@ -110,22 +105,12 @@ fun HubScreen(
                                     RecipeListItem(
                                         miniApp = recipe,
                                         isInstalled = recipe.id in s.installedIds,
-                                        isAuthored = recipe.id in s.authoredIds,
                                         onClick = { sheetRecipe = recipe }
                                     )
                                 }
                             }
                         }
                     }
-                }
-
-                if (s.mode == UserMode.ARCHITECT) {
-                    PublishFab(
-                        onClick = onOpenStudio,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(16.dp)
-                    )
                 }
             }
         }

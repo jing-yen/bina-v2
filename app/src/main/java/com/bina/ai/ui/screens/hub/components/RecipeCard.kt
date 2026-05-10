@@ -31,7 +31,6 @@ import com.bina.ai.ui.theme.BinaRed
 fun RecipeCard(
     miniApp: MiniApp,
     isInstalled: Boolean,
-    isAuthored: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -57,13 +56,12 @@ fun RecipeCard(
                     Text("EMERGENCY", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
-            Column(
-                modifier = Modifier.align(Alignment.TopEnd).padding(6.dp),
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                if (miniApp.author.verified) BadgePill("✓ Verified")
-                if (isAuthored) BadgePill("Yours")
+            if (miniApp.author.verified) {
+                Box(
+                    modifier = Modifier.align(Alignment.TopEnd).padding(6.dp)
+                ) {
+                    BadgePill("✓ Verified")
+                }
             }
         }
         Column {

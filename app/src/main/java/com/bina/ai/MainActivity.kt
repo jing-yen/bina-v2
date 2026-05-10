@@ -11,9 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -29,7 +27,6 @@ import com.bina.ai.ui.components.BinaBottomNav
 import com.bina.ai.ui.components.BinaTopBar
 import com.bina.ai.ui.navigation.BinaNavGraph
 import com.bina.ai.ui.navigation.Screen
-import com.bina.ai.ui.navigation.UserMode
 import com.bina.ai.ui.theme.BinaScreenMid
 import com.bina.ai.ui.theme.BinaScreenStart
 import com.bina.ai.ui.theme.BinaTheme
@@ -75,7 +72,6 @@ class MainActivity : ComponentActivity() {
             BinaTheme {
                 val installStore = remember { InstallStore.create(applicationContext) }
                 val capabilityChecker = remember { CapabilityChecker.create(applicationContext) }
-                var userMode by remember { mutableStateOf(UserMode.BUILDER) }
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -83,7 +79,6 @@ class MainActivity : ComponentActivity() {
                     Screen.Hub.route,
                     Screen.MyPocket.route,
                     Screen.OfflineSync.route,
-                    Screen.Studio.route,
                     Screen.Analytics.route
                 )
 
@@ -102,22 +97,12 @@ class MainActivity : ComponentActivity() {
                         .statusBarsPadding()
                 ) {
                     if (showShell) {
-                        BinaTopBar(
-                            userMode = userMode,
-                            onToggleMode = {
-                                userMode = if (userMode == UserMode.BUILDER)
-                                    UserMode.ARCHITECT else UserMode.BUILDER
-                                navController.navigate(Screen.Hub.route) {
-                                    popUpTo(0) { inclusive = true }
-                                }
-                            }
-                        )
+                        BinaTopBar()
                     }
 
                     Box(modifier = Modifier.weight(1f)) {
                         BinaNavGraph(
                             navController = navController,
-                            userMode = userMode,
                             miniAppRepository = miniAppRepository,
                             installStore = installStore,
                             capabilityChecker = capabilityChecker,
@@ -129,7 +114,6 @@ class MainActivity : ComponentActivity() {
 
                     if (showShell) {
                         BinaBottomNav(
-                            userMode = userMode,
                             currentRoute = currentRoute,
                             onTabClick = { screen ->
                                 navController.navigate(screen.route) {
