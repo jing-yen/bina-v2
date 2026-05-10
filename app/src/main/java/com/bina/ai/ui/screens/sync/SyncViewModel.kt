@@ -14,8 +14,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-/** Cap on encoded QR payload size — single QR at error correction M. */
-const val MAX_QR_PAYLOAD_CHARS = 2300
+/**
+ * Cap on encoded QR payload size — QR version 40 alphanumeric at error-correction
+ * level L holds 4296 chars. We give a small headroom for the magic prefix.
+ */
+const val MAX_QR_PAYLOAD_CHARS = 4200
 
 sealed interface IncomingState {
     data object Idle : IncomingState
