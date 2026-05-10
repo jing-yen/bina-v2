@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 import com.bina.ai.analytics.ui.model.RecipeStats
 import com.bina.ai.ui.theme.BinaAmber
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaGreen
 import com.bina.ai.ui.theme.BinaPrimary
 
 @Composable
@@ -83,10 +82,7 @@ private fun LeaderboardRow(rank: Int, row: RecipeStats) {
         }
         Text(row.icon, fontSize = 22.sp)
         Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(row.displayName, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
-                AuthoredBadge(authored = row.isAuthored)
-            }
+            Text(row.displayName, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
             Text(
                 "${row.launches} launches · ${row.asks} asks",
                 fontSize = 11.sp,
@@ -99,19 +95,6 @@ private fun LeaderboardRow(rank: Int, row: RecipeStats) {
             fontWeight = FontWeight.Bold,
             color = BinaPrimary
         )
-    }
-}
-
-@Composable
-private fun AuthoredBadge(authored: Boolean) {
-    val (label, color) = if (authored) "Authored" to BinaGreen else "Bundled" to BinaGrayText
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(color.copy(alpha = 0.15f))
-            .padding(horizontal = 6.dp, vertical = 2.dp)
-    ) {
-        Text(label, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = color)
     }
 }
 

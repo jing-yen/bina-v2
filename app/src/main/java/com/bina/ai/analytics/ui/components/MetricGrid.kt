@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,7 +27,7 @@ import com.bina.ai.ui.theme.BinaGreen
 import com.bina.ai.ui.theme.BinaPrimary
 import kotlinx.coroutines.delay
 
-enum class MetricKind { RECIPES, QUESTIONS, ACTIVE_DAYS, KNOWLEDGE }
+enum class MetricKind { INSTALLED, QUESTIONS, ACTIVE_DAYS, STREAK }
 
 @Composable
 fun MetricGrid(
@@ -44,11 +44,11 @@ fun MetricGrid(
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
             StaggeredCard(visibleAt = 0, current = visibleCount, modifier = Modifier.weight(1f)) {
                 MetricCard(
-                    label = "Recipes Published",
-                    value = metrics.recipesPublished,
-                    icon = Icons.Filled.AccountTree,
+                    label = "Recipes Installed",
+                    value = metrics.recipesInstalled,
+                    icon = Icons.Filled.Inventory2,
                     accentColor = BinaPrimary,
-                    onClick = { onTap(MetricKind.RECIPES) }
+                    onClick = { onTap(MetricKind.INSTALLED) }
                 )
             }
             StaggeredCard(visibleAt = 1, current = visibleCount, modifier = Modifier.weight(1f)) {
@@ -73,16 +73,16 @@ fun MetricGrid(
             }
             StaggeredCard(visibleAt = 3, current = visibleCount, modifier = Modifier.weight(1f)) {
                 MetricCard(
-                    label = "Knowledge",
-                    value = (metrics.knowledgeBytes / 1024).toInt(),
-                    icon = Icons.Filled.MenuBook,
+                    label = "Streak",
+                    value = metrics.currentStreak,
+                    icon = Icons.Filled.LocalFireDepartment,
                     accentColor = BinaAmber,
-                    onClick = { onTap(MetricKind.KNOWLEDGE) },
-                    formatter = { kb ->
+                    onClick = { onTap(MetricKind.STREAK) },
+                    formatter = { days ->
                         when {
-                            kb <= 0 -> "—"
-                            kb >= 1024 -> "%.1f MB".format(kb / 1024f)
-                            else -> "$kb KB"
+                            days <= 0 -> "0"
+                            days == 1 -> "1 day"
+                            else -> "$days days"
                         }
                     }
                 )

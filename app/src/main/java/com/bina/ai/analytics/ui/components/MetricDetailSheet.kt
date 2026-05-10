@@ -56,10 +56,10 @@ fun MetricDetailSheet(
                 .padding(bottom = 32.dp)
         ) {
             when (kind) {
-                MetricKind.RECIPES -> RecipesDetail(leaderboard)
+                MetricKind.INSTALLED -> InstalledRecipesDetail(metrics, leaderboard)
                 MetricKind.QUESTIONS -> QuestionsDetail(metrics, leaderboard)
                 MetricKind.ACTIVE_DAYS -> ActiveDaysDetail(metrics, chart)
-                MetricKind.KNOWLEDGE -> KnowledgeDetail(metrics)
+                MetricKind.STREAK -> StreakDetail(metrics, chart)
             }
         }
     }
@@ -68,17 +68,22 @@ fun MetricDetailSheet(
 // ------- per-kind sections ------------------------------------------------
 
 @Composable
-private fun RecipesDetail(leaderboard: List<RecipeStats>) {
-    val authored = leaderboard.filter { it.isAuthored }
+private fun InstalledRecipesDetail(metrics: MetricsSnapshot, leaderboard: List<RecipeStats>) {
+    val installed = metrics.recipesInstalled
     SheetHeader(
-        title = "Recipes Published",
-        subtitle = "${authored.size} ${plural(authored.size, "recipe", "recipes")} authored on this device"
+        title = "Recipes Installed",
+        subtitle = "$installed ${plural(installed, "recipe", "recipes")} in your Pocket"
     )
-    if (authored.isEmpty()) {
-        SheetHint("Open Studio to publish your first recipe. Authored recipes appear here with their launch counts.")
+    val used = leaderboard.filter { it.total > 0 }
+    if (installed == 0) {
+        SheetHint("Browse the Hub to install recipes. They'll appear in MyPocket and here.")
+    } else if (used.isEmpty()) {
+        SheetHint("You haven't used any installed recipes in this period yet. Open one from MyPocket.")
     } else {
+        Text("Most-used in this period", fontSize = 11.sp, color = BinaGrayText, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(8.dp))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            authored.forEach { row ->
+            used.forEach { row ->
                 ListLine(
                     leading = row.icon,
                     primary = row.displayName,
@@ -140,22 +145,31 @@ private fun ActiveDaysDetail(metrics: MetricsSnapshot, chart: List<DailyBucket>)
 }
 
 @Composable
-private fun KnowledgeDetail(metrics: MetricsSnapshot) {
-    val bytes = metrics.knowledgeBytes
-    val formatted = when {
-        bytes <= 0 -> "Empty"
-        bytes >= 1024L * 1024L -> "%.1f MB".format(bytes / 1024f / 1024f)
-        bytes >= 1024L -> "${bytes / 1024L} KB"
-        else -> "$bytes B"
+private fun StreakDetail(metrics: MetricsSnapshot, chart: List<DailyBucket>) {
+    val streak = metrics.currentStreak
+    val subtitle = when (streak) {
+        0 -> "No active streak right now"
+        1 -> "1 day in a row"
+        else -> "$streak days in a row"
     }
-    SheetHeader(
-        title = "Knowledge",
-        subtitle = formatted
-    )
-    if (bytes <= 0) {
-        SheetHint("Upload files to a recipe in Studio to build its knowledge base. Total size will appear here.")
+    SheetHeader(title = "Streak", subtitle = subtitle)
+    val recent = chart.filter { it.total > 0 }.sortedByDescending { it.dayStartMs }.take(7)
+    if (recent.isEmpty()) {
+        SheetHint("Open or ask a recipe today to start a streak. Consecutive active days build it up.")
     } else {
-        SheetHint("On-device knowledge is bundled into each recipe and never leaves your device.")
+        val df = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
+        Text("Recent active days", fontSize = 11.sp, color = BinaGrayText, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(8.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            recent.forEach { b ->
+                ListLine(
+                    leading = "🔥",
+                    primary = df.format(Date(b.dayStartMs)),
+                    secondary = "${b.launches} ${plural(b.launches, "launch", "launches")} · " +
+                        "${b.asks} ${plural(b.asks, "ask", "asks")}"
+                )
+            }
+        }
     }
 }
 

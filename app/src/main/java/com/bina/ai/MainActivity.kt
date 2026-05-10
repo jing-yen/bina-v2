@@ -59,18 +59,19 @@ class MainActivity : ComponentActivity() {
         inferenceEngine = LiteRtLmEngine(applicationContext)
         lifecycleScope.launch { inferenceEngine.initialize() }
 
+        val installStore = InstallStore.create(applicationContext)
+
         // Analytics infrastructure
         val analyticsDb = com.bina.ai.analytics.data.AnalyticsDatabase.get(applicationContext)
         val eventTracker = com.bina.ai.analytics.tracking.EventTracker(analyticsDb.eventDao())
         val analyticsRepository = com.bina.ai.analytics.data.AnalyticsRepository(
             dao = analyticsDb.eventDao(),
             miniAppRepository = miniAppRepository,
-            filesDir = applicationContext.filesDir
+            installStore = installStore
         )
 
         setContent {
             BinaTheme {
-                val installStore = remember { InstallStore.create(applicationContext) }
                 val capabilityChecker = remember { CapabilityChecker.create(applicationContext) }
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
