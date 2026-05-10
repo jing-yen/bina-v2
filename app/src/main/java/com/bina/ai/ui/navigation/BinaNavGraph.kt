@@ -63,7 +63,39 @@ fun BinaNavGraph(
         }
 
         composable(Screen.OfflineSync.route) {
-            OfflineSyncScreen()
+            OfflineSyncScreen(
+                miniAppRepository = miniAppRepository,
+                installStore = installStore,
+                onScan = { navController.navigate(Screen.SyncScan.route) },
+                onShare = { recipeId -> navController.navigate(Screen.SyncShare.createRoute(recipeId)) },
+                onConfigureRecipe = { id -> navController.navigate(Screen.Configurator.createRoute(id)) }
+            )
+        }
+
+        composable(Screen.SyncScan.route) {
+            com.bina.ai.ui.screens.sync.components.ScanQrScreen(
+                miniAppRepository = miniAppRepository,
+                installStore = installStore,
+                onImported = { id ->
+                    navController.navigate(Screen.Configurator.createRoute(id)) {
+                        popUpTo(Screen.OfflineSync.route)
+                    }
+                },
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Screen.SyncShare.route,
+            arguments = listOf(navArgument("miniAppId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val recipeId = backStackEntry.arguments?.getString("miniAppId") ?: return@composable
+            com.bina.ai.ui.screens.sync.components.ShareQrScreen(
+                miniAppRepository = miniAppRepository,
+                installStore = installStore,
+                recipeId = recipeId,
+                onDone = { navController.popBackStack() }
+            )
         }
 
         composable(Screen.Analytics.route) {
