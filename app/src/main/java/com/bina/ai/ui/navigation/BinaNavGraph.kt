@@ -62,8 +62,45 @@ fun BinaNavGraph(
             )
         }
 
-        composable(Screen.OfflineSync.route) {
-            OfflineSyncScreen()
+        composable(Screen.OfflineSync.route) { backStackEntry ->
+            val vm = com.bina.ai.ui.screens.sync.rememberSyncViewModel(
+                miniAppRepository, installStore, owner = backStackEntry
+            )
+            OfflineSyncScreen(
+                vm = vm,
+                installStore = installStore,
+                onScan = { navController.navigate(Screen.SyncScan.route) },
+                onShare = { recipeId -> navController.navigate(Screen.SyncShare.createRoute(recipeId)) },
+                onConfigureRecipe = { id -> navController.navigate(Screen.Configurator.createRoute(id)) }
+            )
+        }
+
+        composable(Screen.SyncScan.route) {
+            val parentEntry = remember(it) { navController.getBackStackEntry(Screen.OfflineSync.route) }
+            val vm = com.bina.ai.ui.screens.sync.rememberSyncViewModel(
+                miniAppRepository, installStore, owner = parentEntry
+            )
+            com.bina.ai.ui.screens.sync.components.ScanQrScreen(
+                vm = vm,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Screen.SyncShare.route,
+            arguments = listOf(navArgument("miniAppId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val recipeId = backStackEntry.arguments?.getString("miniAppId") ?: return@composable
+            val parentEntry = remember(backStackEntry) { navController.getBackStackEntry(Screen.OfflineSync.route) }
+            val vm = com.bina.ai.ui.screens.sync.rememberSyncViewModel(
+                miniAppRepository, installStore, owner = parentEntry
+            )
+            com.bina.ai.ui.screens.sync.components.ShareQrScreen(
+                vm = vm,
+                miniAppRepository = miniAppRepository,
+                recipeId = recipeId,
+                onDone = { navController.popBackStack() }
+            )
         }
 
         composable(Screen.Analytics.route) {

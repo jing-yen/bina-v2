@@ -13,27 +13,43 @@ class MiniAppRepository(
     )
 
     private var cached: List<MiniApp>? = null
+    private var rawYamls: Map<String, String> = emptyMap()
 
     fun loadAll(): List<MiniApp> {
         cached?.let { return it }
-        val apps = mutableListOf<MiniApp>()
+        // LinkedHashMap preserves insertion order; later writes for the same id
+        // overwrite earlier ones. Caller in MainActivity yields assets first,
+        // filesDir second — so user-imported recipes win over bundled ones with
+        // the same id, which prevents duplicate-key crashes in LazyColumn.
+        val byId = linkedMapOf<String, MiniApp>()
+        val yamls = mutableMapOf<String, String>()
         for ((filename, text) in loadYamlFiles()) {
             try {
                 val app = yaml.decodeFromString(MiniApp.serializer(), text)
-                apps.add(app)
+                byId[app.id] = app
+                yamls[app.id] = text
                 Logger.d(TAG, "Loaded miniapp: ${app.id} (${app.name}) with ${app.screens.size} screens")
             } catch (e: Exception) {
                 Logger.e(TAG, "Failed to parse $filename", e)
             }
         }
+        val apps = byId.values.toList()
         cached = apps
+        rawYamls = yamls
         return apps
     }
 
     fun getById(id: String): MiniApp? = loadAll().find { it.id == id }
 
+    /** Returns the raw YAML text the recipe was loaded from, or null if id is unknown. */
+    fun getYamlById(id: String): String? {
+        loadAll()
+        return rawYamls[id]
+    }
+
     fun invalidateCache() {
         cached = null
+        rawYamls = emptyMap()
     }
 
     companion object {

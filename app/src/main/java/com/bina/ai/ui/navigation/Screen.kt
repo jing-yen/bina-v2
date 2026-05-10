@@ -25,6 +25,12 @@ sealed class Screen(
         fun createRoute(miniAppId: String) = "configurator/$miniAppId"
     }
 
+    data object SyncScan : Screen("sync/scan", "Scan", Icons.Outlined.CellTower)
+
+    data object SyncShare : Screen("sync/share/{miniAppId}", "Share", Icons.Outlined.CellTower) {
+        fun createRoute(miniAppId: String) = "sync/share/$miniAppId"
+    }
+
     companion object {
         fun tabs() = listOf(Hub, MyPocket, OfflineSync, Analytics)
     }
