@@ -22,12 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bina.ai.install.InstallStore
-import com.bina.ai.miniapp.MiniAppRepository
-import com.bina.ai.sync.RecipeImporter
 import com.bina.ai.ui.screens.sync.IncomingState
 import com.bina.ai.ui.screens.sync.SyncViewModel
 import com.bina.ai.ui.theme.BinaGrayText
@@ -39,22 +34,10 @@ import com.journeyapps.barcodescanner.CompoundBarcodeView
 
 @Composable
 fun ScanQrScreen(
-    miniAppRepository: MiniAppRepository,
-    installStore: InstallStore,
-    onImported: (String) -> Unit,
+    vm: SyncViewModel,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val factory = remember(miniAppRepository, installStore) {
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                val importer = RecipeImporter(filesDir = context.filesDir, miniAppRepository = miniAppRepository)
-                return SyncViewModel(miniAppRepository, installStore, importer) as T
-            }
-        }
-    }
-    val vm: SyncViewModel = viewModel(factory = factory)
     val incoming by vm.incoming.collectAsStateWithLifecycle()
 
     var hasPermission by remember {

@@ -14,16 +14,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
-import com.bina.ai.sync.RecipeImporter
 import com.bina.ai.ui.screens.sync.SyncViewModel
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaPrimary
@@ -32,23 +27,12 @@ import com.journeyapps.barcodescanner.BarcodeEncoder
 
 @Composable
 fun ShareQrScreen(
+    vm: SyncViewModel,
     miniAppRepository: MiniAppRepository,
-    installStore: InstallStore,
     recipeId: String,
     onDone: () -> Unit
 ) {
-    val context = LocalContext.current
     val clipboard = LocalClipboardManager.current
-    val factory = remember(miniAppRepository, installStore) {
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                val importer = RecipeImporter(filesDir = context.filesDir, miniAppRepository = miniAppRepository)
-                return SyncViewModel(miniAppRepository, installStore, importer) as T
-            }
-        }
-    }
-    val vm: SyncViewModel = viewModel(factory = factory)
     val recipe = remember(recipeId) { miniAppRepository.getById(recipeId) }
 
     val encodeResult = remember(recipe) {

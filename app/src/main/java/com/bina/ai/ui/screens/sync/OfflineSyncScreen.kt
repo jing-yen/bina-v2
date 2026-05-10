@@ -7,16 +7,11 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bina.ai.install.InstallStore
-import com.bina.ai.miniapp.MiniAppRepository
-import com.bina.ai.sync.RecipeImporter
 import com.bina.ai.ui.screens.recipe_detail.RecipeDetailSheet
 import com.bina.ai.ui.screens.sync.components.ShareRecipePickerSheet
 import com.bina.ai.ui.screens.sync.components.SyncActionCard
@@ -26,23 +21,12 @@ import com.bina.ai.ui.theme.BinaPrimary
 
 @Composable
 fun OfflineSyncScreen(
-    miniAppRepository: MiniAppRepository,
+    vm: SyncViewModel,
     installStore: InstallStore,
     onScan: () -> Unit,
     onShare: (String) -> Unit,
     onConfigureRecipe: (String) -> Unit
 ) {
-    val context = LocalContext.current
-    val factory = remember(miniAppRepository, installStore) {
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                val importer = RecipeImporter(filesDir = context.filesDir, miniAppRepository = miniAppRepository)
-                return SyncViewModel(miniAppRepository, installStore, importer) as T
-            }
-        }
-    }
-    val vm: SyncViewModel = viewModel(factory = factory)
     val installed by vm.installedRecipesForShare.collectAsStateWithLifecycle()
     val incoming by vm.incoming.collectAsStateWithLifecycle()
     val installedIds by installStore.installs.collectAsStateWithLifecycle(initialValue = emptyMap())

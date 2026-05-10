@@ -62,9 +62,12 @@ fun BinaNavGraph(
             )
         }
 
-        composable(Screen.OfflineSync.route) {
+        composable(Screen.OfflineSync.route) { backStackEntry ->
+            val vm = com.bina.ai.ui.screens.sync.rememberSyncViewModel(
+                miniAppRepository, installStore, owner = backStackEntry
+            )
             OfflineSyncScreen(
-                miniAppRepository = miniAppRepository,
+                vm = vm,
                 installStore = installStore,
                 onScan = { navController.navigate(Screen.SyncScan.route) },
                 onShare = { recipeId -> navController.navigate(Screen.SyncShare.createRoute(recipeId)) },
@@ -73,14 +76,12 @@ fun BinaNavGraph(
         }
 
         composable(Screen.SyncScan.route) {
+            val parentEntry = remember(it) { navController.getBackStackEntry(Screen.OfflineSync.route) }
+            val vm = com.bina.ai.ui.screens.sync.rememberSyncViewModel(
+                miniAppRepository, installStore, owner = parentEntry
+            )
             com.bina.ai.ui.screens.sync.components.ScanQrScreen(
-                miniAppRepository = miniAppRepository,
-                installStore = installStore,
-                onImported = { id ->
-                    navController.navigate(Screen.Configurator.createRoute(id)) {
-                        popUpTo(Screen.OfflineSync.route)
-                    }
-                },
+                vm = vm,
                 onBack = { navController.popBackStack() }
             )
         }
@@ -90,9 +91,13 @@ fun BinaNavGraph(
             arguments = listOf(navArgument("miniAppId") { type = NavType.StringType })
         ) { backStackEntry ->
             val recipeId = backStackEntry.arguments?.getString("miniAppId") ?: return@composable
+            val parentEntry = remember(backStackEntry) { navController.getBackStackEntry(Screen.OfflineSync.route) }
+            val vm = com.bina.ai.ui.screens.sync.rememberSyncViewModel(
+                miniAppRepository, installStore, owner = parentEntry
+            )
             com.bina.ai.ui.screens.sync.components.ShareQrScreen(
+                vm = vm,
                 miniAppRepository = miniAppRepository,
-                installStore = installStore,
                 recipeId = recipeId,
                 onDone = { navController.popBackStack() }
             )
