@@ -3,6 +3,7 @@ package com.bina.ai.ui.screens.sync
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
+import com.bina.ai.sync.BlePairingPayload
 import com.bina.ai.sync.RecipeImporter
 import com.bina.ai.sync.RecipePayload
 import kotlinx.coroutines.Dispatchers
@@ -79,5 +80,20 @@ class SyncViewModelTest {
         vm.handlePastedYaml(sampleYaml)
         vm.dismissPreview()
         assertEquals(IncomingState.Idle, vm.incoming.value)
+    }
+
+    @Test fun `handleScannedQr with BINA-BT pairing payload sets pairing offer`() = runTest {
+        val vm = newVm()
+        val offer = BlePairingPayload.Offer(
+            serviceUuid = java.util.UUID.randomUUID(),
+            recipeId = "t1",
+            sizeBytes = 100,
+            recipeName = "Test",
+            authorName = "Test Author"
+        )
+        vm.handleScannedQr(BlePairingPayload.encode(offer))
+        val pairing = vm.pairing.value
+        org.junit.Assert.assertNotNull(pairing)
+        org.junit.Assert.assertEquals("t1", pairing!!.recipeId)
     }
 }

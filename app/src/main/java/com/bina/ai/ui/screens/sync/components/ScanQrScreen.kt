@@ -13,6 +13,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -40,6 +41,43 @@ fun ScanQrScreen(
 ) {
     val context = LocalContext.current
     val incoming by vm.incoming.collectAsStateWithLifecycle()
+    val pairing by vm.pairing.collectAsStateWithLifecycle()
+    val transferState by vm.transfer.collectAsStateWithLifecycle()
+    var receiver by remember { mutableStateOf<com.bina.ai.sync.BleReceiver?>(null) }
+    val coroutineScope = rememberCoroutineScope()
+
+    fun startTransfer(offer: com.bina.ai.sync.BlePairingPayload.Offer) {
+        if (!com.bina.ai.sync.BlePermissions.hasReceiverPermissions(context)) {
+            vm.onTransferFailed("Bluetooth permission required")
+            return
+        }
+        vm.onTransferConnecting()
+        val r = com.bina.ai.sync.BleReceiver(context, offer.serviceUuid, offer.sizeBytes)
+        receiver = r
+        coroutineScope.launch {
+            r.state.collect { s ->
+                when (s) {
+                    is com.bina.ai.sync.ReceiverState.Done -> {
+                        vm.onTransferComplete(s.payload)
+                        r.stop()
+                        receiver = null
+                    }
+                    is com.bina.ai.sync.ReceiverState.Failed -> {
+                        vm.onTransferFailed(s.message)
+                    }
+                    is com.bina.ai.sync.ReceiverState.Receiving -> {
+                        vm.onTransferProgress(s.pct)
+                    }
+                    else -> { /* Scanning, Connecting, Idle — Connecting state is set above */ }
+                }
+            }
+        }
+        r.start()
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { receiver?.stop() }
+    }
 
     var hasPermission by remember {
         mutableStateOf(
@@ -51,6 +89,15 @@ fun ScanQrScreen(
     }
     LaunchedEffect(Unit) {
         if (!hasPermission) launcher.launch(Manifest.permission.CAMERA)
+    }
+
+    val blePermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { /* if any denied, the receiver flow will surface its own error */ }
+    LaunchedEffect(Unit) {
+        if (!com.bina.ai.sync.BlePermissions.hasReceiverPermissions(context)) {
+            blePermLauncher.launch(com.bina.ai.sync.BlePermissions.RECEIVER_PERMISSIONS)
+        }
     }
 
     var showPaste by remember { mutableStateOf(false) }
@@ -160,6 +207,20 @@ fun ScanQrScreen(
                 }
             }
         }
+    }
+
+    pairing?.let { offer ->
+        ReceivePairingSheet(
+            offer = offer,
+            transferState = transferState,
+            onConnect = { startTransfer(offer) },
+            onCancel = {
+                receiver?.stop()
+                receiver = null
+                vm.dismissPairing()
+            },
+            onRetry = { startTransfer(offer) }
+        )
     }
 
     if (showPaste) {
