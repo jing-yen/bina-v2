@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.bina.ai.install.model.InstallRecord
+import com.bina.ai.platform.Logger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.builtins.MapSerializer
@@ -52,10 +53,16 @@ class InstallStore(private val dataStore: DataStore<Preferences>) {
 
     private fun decode(raw: String?): Map<String, InstallRecord> {
         if (raw.isNullOrBlank()) return emptyMap()
-        return runCatching { json.decodeFromString(mapSerializer, raw) }.getOrElse { emptyMap() }
+        return runCatching { json.decodeFromString(mapSerializer, raw) }.getOrElse { e ->
+            // Corrupt or schema-incompatible blob — start over rather than crash.
+            // Surface it in logcat so we don't lose installs silently in the wild.
+            Logger.w(TAG, "Failed to decode installs JSON; treating as empty. Cause: ${e.message}")
+            emptyMap()
+        }
     }
 
     companion object {
+        private const val TAG = "InstallStore"
         private val INSTALLS_KEY = stringPreferencesKey("installs_json")
 
         private val Context.binaInstallsDataStore by preferencesDataStore("bina_installs")
