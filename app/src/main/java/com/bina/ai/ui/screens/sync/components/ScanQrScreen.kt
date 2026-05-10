@@ -91,6 +91,15 @@ fun ScanQrScreen(
         if (!hasPermission) launcher.launch(Manifest.permission.CAMERA)
     }
 
+    val blePermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { /* if any denied, the receiver flow will surface its own error */ }
+    LaunchedEffect(Unit) {
+        if (!com.bina.ai.sync.BlePermissions.hasReceiverPermissions(context)) {
+            blePermLauncher.launch(com.bina.ai.sync.BlePermissions.RECEIVER_PERMISSIONS)
+        }
+    }
+
     var showPaste by remember { mutableStateOf(false) }
 
     // Once VM is in Ready or just transitioned via an install, navigate up to Configurator.

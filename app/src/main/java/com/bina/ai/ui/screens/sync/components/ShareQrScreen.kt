@@ -1,5 +1,7 @@
 package com.bina.ai.ui.screens.sync.components
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -67,6 +69,20 @@ fun ShareQrScreen(
             sender.start()
         }
     }
+
+    val blePermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        if (results.values.all { it } && sender != null) {
+            sender.start()
+        }
+    }
+    LaunchedEffect(Unit) {
+        if (!com.bina.ai.sync.BlePermissions.hasSenderPermissions(context)) {
+            blePermLauncher.launch(com.bina.ai.sync.BlePermissions.SENDER_PERMISSIONS)
+        }
+    }
+
     DisposableEffect(sender) {
         onDispose { sender?.stop() }
     }
