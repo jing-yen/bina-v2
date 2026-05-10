@@ -79,10 +79,7 @@ fun ShareQrScreen(
             } else if (error != null) {
                 Text(error, fontSize = 12.sp, color = BinaRed)
                 Button(onClick = {
-                    val maybeYaml = runCatching {
-                        com.charleskorn.kaml.Yaml(configuration = com.charleskorn.kaml.YamlConfiguration(strictMode = false))
-                            .encodeToString(com.bina.ai.miniapp.model.MiniApp.serializer(), recipe)
-                    }.getOrNull()
+                    val maybeYaml = miniAppRepository.getYamlById(recipe.id)
                     if (maybeYaml != null) clipboard.setText(AnnotatedString(maybeYaml))
                 }, colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)) {
                     Text("Copy YAML to clipboard")

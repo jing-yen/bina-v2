@@ -7,8 +7,6 @@ import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.sync.RecipeImporter
 import com.bina.ai.sync.RecipePayload
-import com.charleskorn.kaml.Yaml
-import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -35,8 +33,6 @@ class SyncViewModel(
     private val installStore: InstallStore,
     private val recipeImporter: RecipeImporter
 ) : ViewModel() {
-
-    private val yaml = Yaml(configuration = YamlConfiguration(strictMode = false))
 
     val installedRecipesForShare: StateFlow<List<MiniApp>> = installStore.installs
         .map { installs -> miniAppRepository.loadAll().filter { it.id in installs.keys } }
@@ -82,11 +78,14 @@ class SyncViewModel(
     fun dismissPreview() { _incoming.value = IncomingState.Idle }
 
     /**
-     * Re-serializes a `MiniApp` to YAML and encodes for QR transport.
+     * Encodes the recipe's source YAML for QR transport. Uses the raw YAML the
+     * repository loaded — the kaml MiniApp serializer is decode-only because
+     * `WidgetSerializer.serialize` is intentionally unimplemented.
      * Fails if the encoded payload exceeds [MAX_QR_PAYLOAD_CHARS].
      */
     fun encodeRecipeAsQr(miniApp: MiniApp): Result<String> = runCatching {
-        val yamlText = yaml.encodeToString(MiniApp.serializer(), miniApp)
+        val yamlText = miniAppRepository.getYamlById(miniApp.id)
+            ?: error("Recipe YAML not found for id: ${miniApp.id}")
         val payload = RecipePayload.encode(yamlText)
         require(payload.length <= MAX_QR_PAYLOAD_CHARS) {
             "Recipe too large for QR (${payload.length} chars, max $MAX_QR_PAYLOAD_CHARS)"
