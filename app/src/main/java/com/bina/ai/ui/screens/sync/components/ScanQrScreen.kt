@@ -31,6 +31,7 @@ import com.bina.ai.ui.theme.BinaRed
 import com.journeyapps.barcodescanner.BarcodeCallback
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.CompoundBarcodeView
+import com.journeyapps.barcodescanner.DefaultDecoderFactory
 
 @Composable
 fun ScanQrScreen(
@@ -100,6 +101,14 @@ fun ScanQrScreen(
                     factory = { ctx ->
                         CompoundBarcodeView(ctx).also { bv ->
                             barcodeViewRef.value = bv
+                            // Lock decoder to QR_CODE only — faster + more reliable than
+                            // the default multi-format scan.
+                            bv.barcodeView.decoderFactory =
+                                DefaultDecoderFactory(listOf(com.google.zxing.BarcodeFormat.QR_CODE))
+                            // Default framing rect is a small square in the middle —
+                            // dense QRs often don't fit. Set a generous size so the
+                            // whole camera frame is decoded.
+                            bv.barcodeView.setFramingRectSize(com.journeyapps.barcodescanner.Size(1600, 1600))
                             bv.decodeContinuous(object : BarcodeCallback {
                                 override fun barcodeResult(result: BarcodeResult) {
                                     bv.pause()

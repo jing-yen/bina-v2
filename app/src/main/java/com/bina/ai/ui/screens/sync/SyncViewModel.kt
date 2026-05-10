@@ -53,14 +53,23 @@ class SyncViewModel(
         decodeYaml(yamlText)
     }
 
+    /**
+     * Handles paste-sheet input. Accepts either a raw YAML or a `BINA2:`-prefixed
+     * payload (e.g., the text someone copied from a generic QR scanner app).
+     */
     fun handlePastedYaml(text: String) {
+        val trimmed = text.trim()
+        if (trimmed.startsWith("BINA2:") || trimmed.startsWith("BINA1:")) {
+            handleScannedQr(trimmed)
+            return
+        }
         _incoming.value = IncomingState.Decoding
-        decodeYaml(text)
+        decodeYaml(trimmed)
     }
 
     private fun decodeYaml(text: String) {
         val miniApp = recipeImporter.parse(text).getOrElse {
-            _incoming.value = IncomingState.Error("Recipe file is corrupted")
+            _incoming.value = IncomingState.Error("Recipe file is corrupted: ${it.message ?: "parse failed"}")
             return
         }
         _incoming.value = IncomingState.Ready(
