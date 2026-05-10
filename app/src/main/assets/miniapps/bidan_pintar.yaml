@@ -92,3 +92,9 @@ safety:
   disclaimer: "Panduan dari AI. Bukan pengganti pemeriksaan medis langsung."
 
 permissions: []
+
+features:
+  - { id: voice_assistant,     name: "Voice Assistant",  icon: mic,        recommended: true,  size_kb: 0.3, requires: [permission:microphone], description: "Allows midwives to speak case details" }
+  - { id: offline_storage,     name: "Offline Storage",  icon: storage,    recommended: true,  size_kb: 0.3, requires: [],                       description: "Stores patient history offline" }
+  - { id: emergency_protocol,  name: "Emergency Protocol", icon: warning,  recommended: true,  size_kb: 0.2, requires: [],                       description: "Always-on referral guidance for danger signs" }
+  - { id: smart_notif,         name: "Smart Notifications", icon: notifications, recommended: false, size_kb: 0.1, requires: [service:smart_notifications], description: "Reminders for follow-up visits" }

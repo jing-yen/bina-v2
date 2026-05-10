@@ -23,6 +23,10 @@ sealed class Screen(
         fun createRoute(miniAppId: String) = "miniapp/$miniAppId"
     }
 
+    data object Configurator : Screen("configurator/{miniAppId}", "Configurator", Icons.Outlined.Storefront) {
+        fun createRoute(miniAppId: String) = "configurator/$miniAppId"
+    }
+
     companion object {
         fun builderTabs() = listOf(Hub, MyPocket, OfflineSync)
         fun architectTabs() = listOf(Hub, Studio, Analytics)

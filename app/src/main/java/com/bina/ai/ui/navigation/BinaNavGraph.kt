@@ -4,6 +4,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,6 +13,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.bina.ai.analytics.tracking.EventTracker
 import com.bina.ai.inference.InferenceEngine
+import com.bina.ai.install.CapabilityChecker
+import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.ui.MiniAppScreen
 import com.bina.ai.analytics.ui.AnalyticsScreen
@@ -24,10 +28,14 @@ fun BinaNavGraph(
     navController: NavHostController,
     userMode: UserMode,
     miniAppRepository: MiniAppRepository,
+    installStore: InstallStore,
+    capabilityChecker: CapabilityChecker,
     inferenceEngine: InferenceEngine? = null,
     eventTracker: EventTracker,
     analyticsRepository: com.bina.ai.analytics.data.AnalyticsRepository
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     NavHost(
         navController = navController,
         startDestination = Screen.Hub.route,
@@ -39,8 +47,16 @@ fun BinaNavGraph(
         composable(Screen.Hub.route) {
             HubScreen(
                 miniAppRepository = miniAppRepository,
-                onMiniAppClick = { miniAppId ->
-                    navController.navigate(Screen.MiniAppView.createRoute(miniAppId))
+                installStore = installStore,
+                userMode = userMode,
+                onConfigureRecipe = { id ->
+                    navController.navigate(Screen.Configurator.createRoute(id))
+                },
+                onOpenRecipe = { id ->
+                    navController.navigate(Screen.MiniAppView.createRoute(id))
+                },
+                onOpenStudio = {
+                    navController.navigate(Screen.Studio.route)
                 }
             )
         }
@@ -48,6 +64,7 @@ fun BinaNavGraph(
         composable(Screen.MyPocket.route) {
             MyPocketScreen(
                 miniAppRepository = miniAppRepository,
+                installStore = installStore,
                 onMiniAppClick = { miniAppId ->
                     navController.navigate(Screen.MiniAppView.createRoute(miniAppId))
                 }
@@ -61,9 +78,9 @@ fun BinaNavGraph(
         composable(Screen.Studio.route) {
             StudioScreen(onPublished = {
                 miniAppRepository.invalidateCache()
-                navController.navigate(Screen.Hub.route) {
-                    popUpTo(Screen.Hub.route) { inclusive = true }
-                }
+                // TODO: when JY's StudioScreen passes the new recipe ID, auto-install here.
+                // installStore.install(InstallRecord(recipeId = newRecipeId, ..., enabledFeatureIds = ...))
+                navController.navigate(Screen.Hub.route) { popUpTo(Screen.Hub.route) { inclusive = true } }
             })
         }
 
@@ -99,6 +116,35 @@ fun BinaNavGraph(
                     onBack = { navController.popBackStack() }
                 )
             }
+        }
+
+        composable(
+            route = Screen.Configurator.route,
+            arguments = listOf(navArgument("miniAppId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val miniAppId = backStackEntry.arguments?.getString("miniAppId") ?: return@composable
+            val context = LocalContext.current
+            val recipe = remember(miniAppId) { miniAppRepository.getById(miniAppId) }
+            val baseSizeKb = remember(recipe) {
+                if (recipe != null) {
+                    try {
+                        context.assets.openFd("miniapps/${recipe.id}.yaml").use { it.length / 1024f }
+                    } catch (e: Exception) {
+                        1.0f
+                    }
+                } else 0f
+            }
+            com.bina.ai.ui.screens.configurator.ConfiguratorScreen(
+                miniAppId = miniAppId,
+                miniAppRepository = miniAppRepository,
+                installStore = installStore,
+                capabilityChecker = capabilityChecker,
+                baseSizeKb = baseSizeKb,
+                onInstalled = { _ ->
+                    navController.navigate(Screen.Hub.route) { popUpTo(Screen.Hub.route) { inclusive = true } }
+                },
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

@@ -24,8 +24,11 @@ import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bina.ai.install.InstallStore
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -41,9 +44,13 @@ import com.bina.ai.ui.theme.BinaPrimary
 @Composable
 fun MyPocketScreen(
     miniAppRepository: MiniAppRepository,
+    installStore: InstallStore,
     onMiniAppClick: (String) -> Unit = {}
 ) {
-    val miniApps = remember { miniAppRepository.loadAll() }
+    val installs by installStore.installs.collectAsStateWithLifecycle(initialValue = emptyMap())
+    val miniApps = remember(installs) {
+        miniAppRepository.loadAll().filter { it.id in installs.keys }
+    }
     val totalScreens = miniApps.sumOf { it.screens.size }
     val totalWidgets = miniApps.sumOf { app -> app.screens.sumOf { it.body.size } }
 

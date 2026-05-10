@@ -1,147 +1,165 @@
 package com.bina.ai.ui.screens.hub
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModelProvider
+import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.navigation.UserMode
+import com.bina.ai.ui.screens.hub.components.CategoryChips
+import com.bina.ai.ui.screens.hub.components.CategoryRail
+import com.bina.ai.ui.screens.hub.components.FeaturedCarousel
+import com.bina.ai.ui.screens.hub.components.HubHeader
+import com.bina.ai.ui.screens.hub.components.PublishFab
+import com.bina.ai.ui.screens.hub.components.RecipeListItem
+import com.bina.ai.ui.screens.hub.model.HubUiState
+import com.bina.ai.ui.screens.recipe_detail.RecipeDetailSheet
 import com.bina.ai.ui.theme.BinaGrayText
 
 @Composable
 fun HubScreen(
     miniAppRepository: MiniAppRepository,
-    onMiniAppClick: (String) -> Unit = {}
+    installStore: InstallStore,
+    userMode: UserMode,
+    onConfigureRecipe: (recipeId: String) -> Unit,
+    onOpenRecipe: (recipeId: String) -> Unit,
+    onOpenStudio: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val miniApps = remember { miniAppRepository.loadAll() }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item {
-            Text(
-                "Discover AI Recipes",
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
-                color = BinaPrimary,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+    val context = LocalContext.current
+    val factory = remember(miniAppRepository, installStore, userMode) {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
+                HubViewModel(miniAppRepository, installStore, userMode, context.filesDir) as T
         }
+    }
+    val vm: HubViewModel = viewModel(key = "hub-${userMode.name}", factory = factory)
+    val state by vm.uiState.collectAsStateWithLifecycle()
 
-        if (miniApps.isEmpty()) {
-            item {
-                Box(
-                    Modifier.fillMaxWidth().padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No miniapps found", color = BinaGrayText)
+    var sheetRecipe by remember { mutableStateOf<MiniApp?>(null) }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        when (val s = state) {
+            HubUiState.Loading -> {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    HubHeader(mode = userMode)
                 }
             }
-        }
-
-        items(miniApps, key = { it.id }) { app ->
-            MiniAppCard(app, onClick = { onMiniAppClick(app.id) })
-        }
-    }
-}
-
-@Composable
-private fun MiniAppCard(app: MiniApp, onClick: () -> Unit) {
-    val themeColor = try {
-        Color(android.graphics.Color.parseColor(app.theme.primary))
-    } catch (_: Exception) {
-        BinaPrimary
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color.White.copy(alpha = 0.9f))
-            .clickable(onClick = onClick)
-            .padding(16.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(themeColor.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(app.icon, fontSize = 28.sp)
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    app.name,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
-                    color = Color(0xFF1A1A2E)
-                )
-                Text(
-                    app.description,
-                    fontSize = 13.sp,
-                    color = BinaGrayText,
-                    maxLines = 2
-                )
-                Spacer(Modifier.height(4.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CategoryBadge(app.category, themeColor)
-                    if (app.author.verified) {
-                        Text("✓ Verified", fontSize = 11.sp, color = themeColor)
+            is HubUiState.Loaded -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 96.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item { HubHeader(mode = s.mode) }
+                    if (s.featured.isNotEmpty()) {
+                        item {
+                            FeaturedCarousel(
+                                recipes = s.featured,
+                                onRecipeClick = { sheetRecipe = it }
+                            )
+                        }
+                    }
+                    item {
+                        CategoryChips(
+                            categories = s.categories,
+                            selected = s.selectedCategory,
+                            onSelect = vm::selectCategory
+                        )
+                    }
+                    if (s.selectedCategory == "All") {
+                        items(s.rails, key = { it.title }) { rail ->
+                            CategoryRail(
+                                title = rail.title,
+                                recipes = rail.recipes,
+                                installedIds = s.installedIds,
+                                authoredIds = s.authoredIds,
+                                onRecipeClick = { sheetRecipe = it }
+                            )
+                        }
+                        if (s.rails.isEmpty()) {
+                            item { EmptyHub("No recipes available.") }
+                        }
+                    } else {
+                        if (s.allRecipes.isEmpty()) {
+                            item { EmptyHub("No recipes in this category.") }
+                        } else {
+                            items(s.allRecipes, key = { it.id }) { recipe ->
+                                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                    RecipeListItem(
+                                        miniApp = recipe,
+                                        isInstalled = recipe.id in s.installedIds,
+                                        isAuthored = recipe.id in s.authoredIds,
+                                        onClick = { sheetRecipe = recipe }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
-                Text(
-                    "${app.screens.size} screens · ${countWidgets(app)} widgets",
-                    fontSize = 11.sp,
-                    color = BinaGrayText,
-                    modifier = Modifier.padding(top = 2.dp)
-                )
+
+                if (s.mode == UserMode.ARCHITECT) {
+                    PublishFab(
+                        onClick = onOpenStudio,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp)
+                    )
+                }
             }
+        }
+
+        sheetRecipe?.let { recipe ->
+            val baseSizeKb = remember(recipe.id) {
+                runCatching {
+                    context.assets.openFd("miniapps/${recipe.id}.yaml").use { it.length / 1024f }
+                }.getOrDefault(1.0f)
+            }
+            RecipeDetailSheet(
+                miniApp = recipe,
+                isInstalled = recipe.id in (state as? HubUiState.Loaded)?.installedIds.orEmpty(),
+                sizeKb = baseSizeKb,
+                onConfigureInstall = {
+                    sheetRecipe = null
+                    onConfigureRecipe(recipe.id)
+                },
+                onOpen = {
+                    sheetRecipe = null
+                    onOpenRecipe(recipe.id)
+                },
+                onDismiss = { sheetRecipe = null }
+            )
         }
     }
 }
 
 @Composable
-private fun CategoryBadge(category: String, color: Color) {
+private fun EmptyHub(message: String) {
     Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(color.copy(alpha = 0.12f))
-            .padding(horizontal = 8.dp, vertical = 2.dp)
+        modifier = Modifier.fillMaxWidth().padding(32.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Text(category, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = color)
+        Text(message, color = BinaGrayText)
     }
 }
-
-private fun countWidgets(app: MiniApp): Int =
-    app.screens.sumOf { it.body.size }

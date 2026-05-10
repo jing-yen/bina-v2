@@ -207,3 +207,12 @@ safety:
 permissions:
   - camera
   - location
+
+features:
+  - { id: camera_scanner,  name: "Camera Scanner",   icon: camera,        recommended: true,  size_kb: 0.4, requires: [permission:camera],            description: "Allows the AI to see crop diseases" }
+  - { id: voice_assistant, name: "Voice Assistant",  icon: mic,           recommended: true,  size_kb: 0.3, requires: [permission:microphone],        description: "Allows you to speak your questions" }
+  - { id: gps_tracker,     name: "GPS Tracker",      icon: gps_fixed,     recommended: true,  size_kb: 0.2, requires: [permission:location],          description: "Saves the location of inspected fields" }
+  - { id: offline_storage, name: "Offline Storage",  icon: storage,       recommended: true,  size_kb: 0.3, requires: [],                              description: "Stores history for later review" }
+  - { id: sms_dispatcher,  name: "SMS Dispatcher",   icon: sms,           recommended: false, size_kb: 0.2, requires: [service:sms_dispatch],          description: "Texts the nearest agro shop" }
+  - { id: p2p_sharing,     name: "P2P Recipe Share", icon: share,         recommended: false, size_kb: 0.2, requires: [service:p2p],                   description: "Shares recipe with neighbours" }
+  - { id: smart_notif,     name: "Smart Notifications", icon: notifications, recommended: false, size_kb: 0.1, requires: [service:smart_notifications], description: "Alerts for important updates" }
