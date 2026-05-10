@@ -68,11 +68,13 @@ dependencies {
     // Hub UI rebuild
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
     // Unit tests
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("com.charleskorn.kaml:kaml:0.67.0")
+    testImplementation("androidx.datastore:datastore-preferences-core:1.1.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
