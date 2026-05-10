@@ -109,6 +109,16 @@ fun ScanQrScreen(
                             // dense QRs often don't fit. Set a generous size so the
                             // whole camera frame is decoded.
                             bv.barcodeView.setFramingRectSize(com.journeyapps.barcodescanner.Size(1600, 1600))
+                            // Tune the camera HAL for barcode scanning: continuous
+                            // autofocus + barcode scene mode = much better focus on
+                            // close-up dense QR codes. Without these, the default
+                            // single-shot autofocus often gives up on dense codes.
+                            bv.barcodeView.cameraSettings = bv.barcodeView.cameraSettings.apply {
+                                isAutoFocusEnabled = true
+                                isContinuousFocusEnabled = true
+                                isBarcodeSceneModeEnabled = true
+                                isMeteringEnabled = true
+                            }
                             bv.decodeContinuous(object : BarcodeCallback {
                                 override fun barcodeResult(result: BarcodeResult) {
                                     bv.pause()
