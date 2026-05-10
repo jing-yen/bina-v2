@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
+import com.bina.ai.sync.BlePairingPayload
 import com.bina.ai.sync.RecipeImporter
 import com.bina.ai.sync.RecipePayload
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +32,13 @@ sealed interface IncomingState {
     data class Error(val message: String) : IncomingState
 }
 
+sealed interface TransferState {
+    data object Idle : TransferState
+    data object Connecting : TransferState
+    data class InProgress(val pct: Int) : TransferState
+    data class Failed(val message: String) : TransferState
+}
+
 class SyncViewModel(
     private val miniAppRepository: MiniAppRepository,
     private val installStore: InstallStore,
@@ -44,13 +52,35 @@ class SyncViewModel(
     private val _incoming = MutableStateFlow<IncomingState>(IncomingState.Idle)
     val incoming: StateFlow<IncomingState> = _incoming.asStateFlow()
 
+    private val _pairing = MutableStateFlow<BlePairingPayload.Offer?>(null)
+    val pairing: StateFlow<BlePairingPayload.Offer?> = _pairing.asStateFlow()
+
+    private val _transfer = MutableStateFlow<TransferState>(TransferState.Idle)
+    val transfer: StateFlow<TransferState> = _transfer.asStateFlow()
+
     fun handleScannedQr(raw: String) {
-        _incoming.value = IncomingState.Decoding
-        val yamlText = RecipePayload.decode(raw).getOrElse {
-            _incoming.value = IncomingState.Error(it.message ?: "QR data is corrupted")
-            return
+        val trimmed = raw.trim()
+        when {
+            trimmed.startsWith("BINA-BT:") -> {
+                val offer = BlePairingPayload.decode(trimmed).getOrElse {
+                    _incoming.value = IncomingState.Error(it.message ?: "Pairing data is corrupted")
+                    return
+                }
+                _pairing.value = offer
+            }
+            trimmed.startsWith("BINA2:") || trimmed.startsWith("BINA1:") -> {
+                // Direct-encode QR (paste fallback). Decode then parse via existing path.
+                _incoming.value = IncomingState.Decoding
+                val yamlText = RecipePayload.decode(trimmed).getOrElse {
+                    _incoming.value = IncomingState.Error(it.message ?: "QR data is corrupted")
+                    return
+                }
+                decodeYaml(yamlText)
+            }
+            else -> {
+                _incoming.value = IncomingState.Error("Not a Bina QR")
+            }
         }
-        decodeYaml(yamlText)
     }
 
     /**
@@ -88,6 +118,26 @@ class SyncViewModel(
     }
 
     fun dismissPreview() { _incoming.value = IncomingState.Idle }
+
+    fun dismissPairing() { _pairing.value = null }
+
+    fun onTransferConnecting() {
+        _transfer.value = TransferState.Connecting
+    }
+
+    fun onTransferProgress(pct: Int) {
+        _transfer.value = TransferState.InProgress(pct)
+    }
+
+    fun onTransferFailed(message: String) {
+        _transfer.value = TransferState.Failed(message)
+    }
+
+    fun onTransferComplete(payloadBytes: ByteArray) {
+        _transfer.value = TransferState.Idle
+        _pairing.value = null
+        decodeYaml(String(payloadBytes, Charsets.UTF_8))
+    }
 
     /**
      * Encodes the recipe's source YAML for QR transport. Uses the raw YAML the
