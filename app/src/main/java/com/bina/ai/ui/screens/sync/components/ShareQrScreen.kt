@@ -22,6 +22,7 @@ import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.ui.screens.sync.SyncViewModel
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaRed
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
 
@@ -76,7 +77,7 @@ fun ShareQrScreen(
                     fontSize = 12.sp, color = BinaGrayText
                 )
             } else if (error != null) {
-                Text(error, fontSize = 12.sp, color = BinaPrimary)
+                Text(error, fontSize = 12.sp, color = BinaRed)
                 Button(onClick = {
                     val maybeYaml = runCatching {
                         com.charleskorn.kaml.Yaml(configuration = com.charleskorn.kaml.YamlConfiguration(strictMode = false))

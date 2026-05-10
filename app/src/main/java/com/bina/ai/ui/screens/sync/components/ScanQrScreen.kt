@@ -95,21 +95,26 @@ fun ScanQrScreen(
                 }
             }
             else -> {
+                val barcodeViewRef = remember { mutableStateOf<CompoundBarcodeView?>(null) }
                 AndroidView(
                     factory = { ctx ->
-                        CompoundBarcodeView(ctx).apply {
-                            decodeContinuous(object : BarcodeCallback {
+                        CompoundBarcodeView(ctx).also { bv ->
+                            barcodeViewRef.value = bv
+                            bv.decodeContinuous(object : BarcodeCallback {
                                 override fun barcodeResult(result: BarcodeResult) {
-                                    pause()
+                                    bv.pause()
                                     vm.handleScannedQr(result.text)
                                 }
                                 override fun possibleResultPoints(resultPoints: MutableList<com.google.zxing.ResultPoint>) {}
                             })
-                            resume()
+                            bv.resume()
                         }
                     },
                     modifier = Modifier.fillMaxSize()
                 )
+                DisposableEffect(Unit) {
+                    onDispose { barcodeViewRef.value?.pause() }
+                }
                 // Bottom strip
                 Box(modifier = Modifier.fillMaxSize().padding(bottom = 32.dp), contentAlignment = Alignment.BottomCenter) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
