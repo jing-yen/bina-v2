@@ -22,6 +22,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bina.ai.inference.InferenceEngine
 import com.bina.ai.inference.LiteRtLmEngine
+import com.bina.ai.install.CapabilityChecker
+import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.ui.components.BinaBottomNav
 import com.bina.ai.ui.components.BinaTopBar
@@ -71,6 +73,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BinaTheme {
+                val installStore = remember { InstallStore.create(applicationContext) }
+                val capabilityChecker = remember { CapabilityChecker.create(applicationContext) }
                 var userMode by remember { mutableStateOf(UserMode.BUILDER) }
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -115,6 +119,8 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             userMode = userMode,
                             miniAppRepository = miniAppRepository,
+                            installStore = installStore,
+                            capabilityChecker = capabilityChecker,
                             inferenceEngine = inferenceEngine,
                             eventTracker = eventTracker,
                             analyticsRepository = analyticsRepository
