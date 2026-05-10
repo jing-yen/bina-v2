@@ -60,20 +60,25 @@ fun ShareQrScreen(
 
             if (payload != null) {
                 val bitmap = remember(payload) {
-                    BarcodeEncoder().encodeBitmap(payload, BarcodeFormat.QR_CODE, 1024, 1024)
+                    val hints = mapOf(
+                        com.google.zxing.EncodeHintType.ERROR_CORRECTION to com.google.zxing.qrcode.decoder.ErrorCorrectionLevel.L,
+                        com.google.zxing.EncodeHintType.MARGIN to 2
+                    )
+                    BarcodeEncoder().encodeBitmap(payload, BarcodeFormat.QR_CODE, 2048, 2048, hints)
                 }
                 Box(
                     modifier = Modifier
-                        .size(320.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
                         .clip(RoundedCornerShape(20.dp))
                         .background(Color.White)
-                        .padding(16.dp),
+                        .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(bitmap = bitmap.asImageBitmap(), contentDescription = "QR for ${recipe.name}", modifier = Modifier.fillMaxSize())
                 }
                 Text(
-                    "Have the other phone open Sync → Scan to Receive.",
+                    "Have the other phone open Sync → Scan to Receive.\nSize: ${payload.length} chars",
                     fontSize = 12.sp, color = BinaGrayText
                 )
             } else if (error != null) {
