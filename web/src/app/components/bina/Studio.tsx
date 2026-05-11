@@ -1,9 +1,10 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { useLocation } from 'react-router';
 import { toast } from 'sonner';
 import {
-  FileText, Palette, Upload,
+  FileText, Palette, Upload, Download,
   ChevronLeft, ChevronRight, ChevronDown, Eye, X, Plus, Trash2,
-  Camera, MessageSquare, Grid3X3, MapPin, Mic, Globe,
+  Camera, Mic, Globe, Home,
   Loader2, Sparkles, Search, Check,
 } from 'lucide-react';
 import { Input } from '../ui/input';
@@ -15,64 +16,14 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '../ui/dialog';
-
-// ─── Types ───
-
-type ThemeKey = 'navy' | 'forest' | 'coral' | 'amber' | 'custom';
-type LayoutKey = 'qa' | 'camera' | 'dashboard' | 'field';
-
-interface WidgetProps { [key: string]: string }
-interface WidgetConfig { type: string; props: WidgetProps }
-
-interface PackageWidget {
-  wid: string;
-  type: string;
-  optional: boolean;
-  defaultOn: boolean;
-  staticProps: WidgetProps;
-  fieldMap: Record<string, string>;
-}
-
-interface PackageField {
-  key: string;
-  label: string;
-  placeholder: string;
-  type: 'text' | 'textarea' | 'select';
-  options?: string[];
-  defaultValue: string;
-  showWhen?: { field: string; value: string };
-}
-
-interface PackageDef {
-  id: string;
-  name: string;
-  emoji: string;
-  description: string;
-  widgets: PackageWidget[];
-  fields: PackageField[];
-}
-
-interface PackageInstance {
-  packageId: string;
-  fieldValues: Record<string, string>;
-  disabledWidgets: string[];
-}
-
-interface ScreenConfig {
-  id: string;
-  title: string;
-  isHome: boolean;
-  gridColumns: number;
-  package: PackageInstance | null;
-}
-
-interface KnowledgeFile {
-  name: string;
-  size: string;
-  chunks?: number;
-  status: 'uploading' | 'processing' | 'ready';
-  summary?: string;
-}
+import type {
+  ThemeKey, ScreenConfig, WidgetConfig, KnowledgeFile, RecipeConfig,
+} from './recipes';
+import {
+  SCREEN_TEMPLATES, FORMULA_TEMPLATES, getScreenTemplate, createScreen,
+  resolveFormula, resolveScreenWidgets,
+} from './recipes';
+import { RECIPES } from './recipes';
 
 // ─── Constants ───
 
@@ -84,12 +35,6 @@ const THEMES: { key: ThemeKey; label: string; primary: string; secondary: string
   { key: 'custom', label: 'Custom', primary: '#6B21A8', secondary: '#E9D5FF' },
 ];
 
-const LAYOUTS: { key: LayoutKey; label: string; subtitle: string; icon: typeof MessageSquare }[] = [
-  { key: 'qa', label: 'Q&A', subtitle: '1 screen', icon: MessageSquare },
-  { key: 'camera', label: 'Camera', subtitle: '2 screens', icon: Camera },
-  { key: 'dashboard', label: 'Dashboard', subtitle: '3-5 screens', icon: Grid3X3 },
-  { key: 'field', label: 'Field', subtitle: '3 screens', icon: MapPin },
-];
 
 const EMOJI_ICONS = [
   '\u{1F33E}', '\u{1F3E5}', '\u{1F6A8}', '\u{1F4DA}', '\u{1F9EA}', '\u{1F4B0}',
@@ -140,211 +85,6 @@ const LANGUAGE_GROUPS = [
   ]},
 ];
 const ALL_LANGUAGES = LANGUAGE_GROUPS.flatMap(g => g.languages);
-
-// ─── Package Definitions ───
-
-const FORMULA_TEMPLATES: { label: string; expr: string }[] = [
-  { label: 'A × B', expr: '{{calc_a}} * {{calc_b}}' },
-  { label: 'A + B', expr: '{{calc_a}} + {{calc_b}}' },
-  { label: 'A − B', expr: '{{calc_a}} - {{calc_b}}' },
-  { label: 'A / B', expr: '{{calc_a}} / {{calc_b}}' },
-  { label: 'A × B × Rate%', expr: '{{calc_a}} * {{calc_b}} * {{calc_rate}} / 100' },
-  { label: '(A + B) × Rate%', expr: '({{calc_a}} + {{calc_b}}) * {{calc_rate}} / 100' },
-  { label: 'Profit: (A−B)×(1−Rate%)', expr: '({{calc_a}} - {{calc_b}}) * (1 - {{calc_rate}} / 100)' },
-  { label: 'Custom', expr: '' },
-];
-
-function resolveFormula(pkg: PackageInstance): string {
-  const tmpl = pkg.fieldValues.formula_template || 'A × B';
-  if (tmpl === 'Custom') return pkg.fieldValues.custom_formula || '{{calc_a}} * {{calc_b}}';
-  return FORMULA_TEMPLATES.find(t => t.label === tmpl)?.expr || '{{calc_a}} * {{calc_b}}';
-}
-
-const PACKAGE_DEFS: PackageDef[] = [
-  {
-    id: 'ask_ai', name: 'Ask AI', emoji: '\u{1F4AC}', description: 'Text question with AI response',
-    widgets: [
-      { wid: 'text_input', type: 'text_input', optional: false, defaultOn: true, staticProps: { bind: 'user_text' }, fieldMap: { hint: 'hint' } },
-      { wid: 'voice_input', type: 'voice_input', optional: true, defaultOn: false, staticProps: { bind: 'user_text', mode: 'tap' }, fieldMap: { hint: 'hint' } },
-      { wid: 'action_button', type: 'action_button', optional: false, defaultOn: true, staticProps: { style: 'primary' }, fieldMap: { button_label: 'label', ai_instruction: 'action' } },
-      { wid: 'markdown_output', type: 'markdown_output', optional: false, defaultOn: true, staticProps: { source: 'ai_response', streaming: 'true' }, fieldMap: {} },
-    ],
-    fields: [
-      { key: 'hint', label: 'Input hint', placeholder: 'Ask a question...', type: 'text', defaultValue: 'Ask a question...' },
-      { key: 'button_label', label: 'Button label', placeholder: 'Ask', type: 'text', defaultValue: 'Ask' },
-      { key: 'ai_instruction', label: 'AI instruction', placeholder: 'ask:{{user_text}}', type: 'textarea', defaultValue: 'ask:{{user_text}}' },
-    ],
-  },
-  {
-    id: 'voice_ask', name: 'Voice Ask', emoji: '\u{1F3A4}', description: 'Speak a question, get AI response',
-    widgets: [
-      { wid: 'voice_input', type: 'voice_input', optional: false, defaultOn: true, staticProps: { bind: 'user_text', mode: 'tap' }, fieldMap: { hint: 'hint' } },
-      { wid: 'text_input', type: 'text_input', optional: true, defaultOn: false, staticProps: { bind: 'user_text', hint: 'Or type instead...' }, fieldMap: {} },
-      { wid: 'action_button', type: 'action_button', optional: false, defaultOn: true, staticProps: { style: 'primary' }, fieldMap: { button_label: 'label', ai_instruction: 'action' } },
-      { wid: 'markdown_output', type: 'markdown_output', optional: false, defaultOn: true, staticProps: { source: 'ai_response', streaming: 'true' }, fieldMap: {} },
-    ],
-    fields: [
-      { key: 'hint', label: 'Voice hint', placeholder: 'Tap to speak...', type: 'text', defaultValue: 'Tap to speak...' },
-      { key: 'button_label', label: 'Button label', placeholder: 'Ask', type: 'text', defaultValue: 'Ask' },
-      { key: 'ai_instruction', label: 'AI instruction', placeholder: 'ask:{{user_text}}', type: 'textarea', defaultValue: 'ask:{{user_text}}' },
-    ],
-  },
-  {
-    id: 'camera_analysis', name: 'Camera Analysis', emoji: '\u{1F4F7}', description: 'Take photo, get AI analysis',
-    widgets: [
-      { wid: 'camera_input', type: 'camera_input', optional: false, defaultOn: true, staticProps: { bind: 'photo_path', preview: 'true' }, fieldMap: { camera_label: 'label' } },
-      { wid: 'text_input', type: 'text_input', optional: true, defaultOn: true, staticProps: { bind: 'user_text', hint: 'Add context (optional)' }, fieldMap: {} },
-      { wid: 'action_button', type: 'action_button', optional: false, defaultOn: true, staticProps: { style: 'primary' }, fieldMap: { button_label: 'label', ai_instruction: 'action' } },
-      { wid: 'markdown_output', type: 'markdown_output', optional: false, defaultOn: true, staticProps: { source: 'ai_response', streaming: 'true' }, fieldMap: {} },
-    ],
-    fields: [
-      { key: 'camera_label', label: 'Camera button', placeholder: 'Take Photo', type: 'text', defaultValue: 'Take Photo' },
-      { key: 'button_label', label: 'Analyse button', placeholder: 'Analyse', type: 'text', defaultValue: 'Analyse' },
-      { key: 'ai_instruction', label: 'AI instruction', placeholder: 'vision_ask:Analyse this image. {{user_text}}', type: 'textarea', defaultValue: 'vision_ask:Analyse this image. {{user_text}}' },
-    ],
-  },
-  {
-    id: 'calculator', name: 'Calculator', emoji: '\u{1F9EE}', description: 'Input fields, formula, result display',
-    widgets: [
-      { wid: 'input_a', type: 'text_input', optional: false, defaultOn: true, staticProps: { bind: 'calc_a', input_type: 'number' }, fieldMap: { field_a_label: 'label', field_a_hint: 'hint' } },
-      { wid: 'input_b', type: 'text_input', optional: true, defaultOn: true, staticProps: { bind: 'calc_b', input_type: 'number' }, fieldMap: { field_b_label: 'label', field_b_hint: 'hint' } },
-      { wid: 'slider', type: 'slider', optional: true, defaultOn: true, staticProps: { bind: 'calc_rate', step: '1', show_value: 'true' }, fieldMap: { slider_label: 'label', slider_min: 'min', slider_max: 'max' } },
-      { wid: 'action_button', type: 'action_button', optional: false, defaultOn: true, staticProps: { label: 'Calculate', action: 'formula:calc', style: 'primary' }, fieldMap: {} },
-      { wid: 'metric_card', type: 'metric_card', optional: false, defaultOn: true, staticProps: { source: 'calc_result', format: 'decimal_2' }, fieldMap: { result_label: 'label', result_prefix: 'prefix', result_suffix: 'suffix' } },
-    ],
-    fields: [
-      { key: 'field_a_label', label: 'Field A', placeholder: 'e.g. Area', type: 'text', defaultValue: 'Value A' },
-      { key: 'field_a_hint', label: 'Hint A', placeholder: 'e.g. Enter area in hectares', type: 'text', defaultValue: 'Enter value' },
-      { key: 'field_b_label', label: 'Field B', placeholder: 'e.g. Yield per ha', type: 'text', defaultValue: 'Value B' },
-      { key: 'field_b_hint', label: 'Hint B', placeholder: 'e.g. Expected kg per hectare', type: 'text', defaultValue: 'Enter value' },
-      { key: 'slider_label', label: 'Slider', placeholder: 'Rate %', type: 'text', defaultValue: 'Rate %' },
-      { key: 'slider_min', label: 'Slider min', placeholder: '0', type: 'text', defaultValue: '0' },
-      { key: 'slider_max', label: 'Slider max', placeholder: '100', type: 'text', defaultValue: '100' },
-      { key: 'formula_template', label: 'Formula', placeholder: '', type: 'select', options: FORMULA_TEMPLATES.map(t => t.label), defaultValue: 'A × B' },
-      { key: 'custom_formula', label: 'Expression', placeholder: '{{calc_a}} * {{calc_b}} * {{calc_rate}} / 100', type: 'text', defaultValue: '', showWhen: { field: 'formula_template', value: 'Custom' } },
-      { key: 'result_label', label: 'Result', placeholder: 'Total Yield', type: 'text', defaultValue: 'Result' },
-      { key: 'result_prefix', label: 'Prefix', placeholder: 'e.g. RM', type: 'text', defaultValue: '' },
-      { key: 'result_suffix', label: 'Suffix', placeholder: 'e.g. kg', type: 'text', defaultValue: '' },
-    ],
-  },
-  {
-    id: 'nearby_places', name: 'Nearby Places', emoji: '\u{1F4CD}', description: 'Find and display nearby locations',
-    widgets: [
-      { wid: 'text_label', type: 'text_label', optional: false, defaultOn: true, staticProps: { style: 'subheading' }, fieldMap: { heading: 'text' } },
-      { wid: 'action_button', type: 'action_button', optional: false, defaultOn: true, staticProps: { label: 'Get My Location', action: 'geolocate', style: 'primary' }, fieldMap: {} },
-      { wid: 'geo_display', type: 'geo_display', optional: false, defaultOn: true, staticProps: { data: 'places', limit: '5', show_distance: 'true', empty_text: 'Tap above to find nearby places' }, fieldMap: {} },
-    ],
-    fields: [
-      { key: 'heading', label: 'Heading text', placeholder: 'Find places near you', type: 'text', defaultValue: 'Find places near you' },
-    ],
-  },
-  {
-    id: 'info_display', name: 'Info Text', emoji: '\u{1F4DD}', description: 'Static text heading or paragraph',
-    widgets: [
-      { wid: 'text_label', type: 'text_label', optional: false, defaultOn: true, staticProps: {}, fieldMap: { text: 'text', style: 'style' } },
-    ],
-    fields: [
-      { key: 'text', label: 'Text', placeholder: 'Welcome', type: 'text', defaultValue: 'Welcome' },
-      { key: 'style', label: 'Style', placeholder: 'heading', type: 'select', options: ['heading', 'subheading', 'body', 'caption'], defaultValue: 'heading' },
-    ],
-  },
-];
-
-const getPackageDef = (id: string) => PACKAGE_DEFS.find(p => p.id === id);
-
-function createPackageInstance(packageId: string, fieldOverrides?: Record<string, string>): PackageInstance {
-  const def = getPackageDef(packageId);
-  const fieldValues: Record<string, string> = {};
-  def?.fields.forEach(f => { fieldValues[f.key] = fieldOverrides?.[f.key] ?? f.defaultValue; });
-  const disabledWidgets = def?.widgets.filter(w => w.optional && !w.defaultOn).map(w => w.wid) || [];
-  return { packageId, fieldValues, disabledWidgets };
-}
-
-// ─── Resolve packages to widgets ───
-
-function resolvePackageWidgets(instance: PackageInstance): WidgetConfig[] {
-  const def = getPackageDef(instance.packageId);
-  if (!def) return [];
-  return def.widgets
-    .filter(pw => !instance.disabledWidgets.includes(pw.wid))
-    .map(pw => {
-      const props = { ...pw.staticProps };
-      for (const [fieldKey, propKey] of Object.entries(pw.fieldMap)) {
-        const val = instance.fieldValues[fieldKey];
-        if (val !== undefined && val !== '') props[propKey] = val;
-      }
-      return { type: pw.type, props };
-    });
-}
-
-function resolveScreenWidgets(screen: ScreenConfig, allScreens: ScreenConfig[]): WidgetConfig[] {
-  const widgets: WidgetConfig[] = [];
-  if (screen.isHome && allScreens.filter(s => !s.isHome).length > 0) {
-    widgets.push({
-      type: 'macro_grid',
-      props: {
-        columns: String(screen.gridColumns),
-        _allScreens: JSON.stringify(allScreens.filter(s => !s.isHome).map(s => ({ id: s.id, title: s.title }))),
-      },
-    });
-  }
-  if (screen.package) {
-    widgets.push(...resolvePackageWidgets(screen.package));
-  }
-  return widgets;
-}
-
-// ─── Layout defaults ───
-
-function makeDefaults(layout: LayoutKey): ScreenConfig[] {
-  const home = (pkg?: PackageInstance): ScreenConfig => ({
-    id: 'home', title: '', isHome: true, gridColumns: 2,
-    package: pkg || null,
-  });
-  const m: Record<LayoutKey, ScreenConfig[]> = {
-    qa: [
-      { ...home(createPackageInstance('ask_ai', { hint: 'Or ask anything...', button_label: 'Ask', ai_instruction: 'ask:{{user_text}}' })) },
-    ],
-    camera: [
-      { ...home(createPackageInstance('ask_ai', { hint: 'Or ask anything...', button_label: 'Ask', ai_instruction: 'ask:{{user_text}}' })) },
-      { id: 'diagnose', title: 'Leaf Diagnosis', isHome: false, gridColumns: 2, package: createPackageInstance('camera_analysis', {
-        camera_label: 'Take Photo', button_label: 'Diagnose',
-        ai_instruction: 'vision_ask:Diagnose this crop leaf. Describe the disease, likely cause, and treatment. {{user_text}}',
-      }) },
-    ],
-    dashboard: [
-      { ...home(createPackageInstance('ask_ai', { hint: 'Or ask anything...', button_label: 'Ask Farm Buddy', ai_instruction: 'ask:{{user_text}}' })) },
-      { id: 'diagnose', title: 'Leaf Diagnosis', isHome: false, gridColumns: 2, package: createPackageInstance('camera_analysis', {
-        camera_label: 'Take Photo', button_label: 'Diagnose',
-        ai_instruction: 'vision_ask:Diagnose this crop leaf. Describe the disease, likely cause, and treatment. {{user_text}}',
-      }) },
-      { id: 'profit', title: 'Profit Calculator', isHome: false, gridColumns: 2, package: createPackageInstance('calculator', {
-        field_a_label: 'Total Revenue (RM)', field_a_hint: 'e.g. 5000',
-        field_b_label: 'Total Costs (RM)', field_b_hint: 'e.g. 2000',
-        slider_label: 'Estimated Tax', slider_min: '0', slider_max: '30',
-        formula_template: 'Profit: (A−B)×(1−Rate%)',
-        result_label: 'Net Profit', result_prefix: 'RM ',
-      }) },
-      { id: 'nearby', title: 'Nearest Agro Shop', isHome: false, gridColumns: 2, package: createPackageInstance('nearby_places', {
-        heading: 'Find fertiliser and supply shops near you',
-      }) },
-    ],
-    field: [
-      { ...home(createPackageInstance('ask_ai', { hint: 'Or ask anything...', button_label: 'Ask', ai_instruction: 'ask:{{user_text}}' })) },
-      { id: 'calculator', title: 'Profit Calculator', isHome: false, gridColumns: 2, package: createPackageInstance('calculator', {
-        field_a_label: 'Total Revenue (RM)', field_a_hint: 'e.g. 5000',
-        field_b_label: 'Total Costs (RM)', field_b_hint: 'e.g. 2000',
-        slider_label: 'Estimated Tax', slider_min: '0', slider_max: '30',
-        formula_template: 'Profit: (A−B)×(1−Rate%)',
-        result_label: 'Net Profit', result_prefix: 'RM ',
-      }) },
-      { id: 'nearby', title: 'Nearest Agro Shop', isHome: false, gridColumns: 2, package: createPackageInstance('nearby_places', {
-        heading: 'Find fertiliser and supply shops near you',
-      }) },
-    ],
-  };
-  return m[layout];
-}
 
 const STEPS = [
   { id: 1, label: 'Identity', icon: FileText },
@@ -413,28 +153,31 @@ function widgetToYaml(w: WidgetConfig, allScreens: { id: string; title: string }
 // ─── Component ───
 
 export function Studio() {
+  const location = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
 
   // Step 1
-  const [recipeName, setRecipeName] = useState('Farm Buddy');
-  const [recipeDescription, setRecipeDescription] = useState('Diagnose crops, calculate profit, find nearby agro shops.');
-  const [recipeIcon, setRecipeIcon] = useState('\u{1F33E}');
-  const [systemPrompt, setSystemPrompt] = useState('You are Farm Buddy (Pakar Tani), an agricultural education assistant\nfor Southeast Asian smallholder farmers.\nGive simple, practical, safe guidance.\nDo not claim certainty in diagnoses.\nAsk clarifying questions about crop type, symptoms, weather.\nIf the issue seems severe, advise contacting a local agriculture officer.\nNever recommend restricted or dangerous chemicals.');
-  const [blockedKeywords, setBlockedKeywords] = useState('mix pesticide, poison, kill pest with fuel, dangerous spray, drink chemical');
-  const [disclaimer, setDisclaimer] = useState('AI-generated guidance. Not a professional consultation.');
-  const [category, setCategory] = useState('Agriculture');
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['en', 'ms']);
+  const [recipeName, setRecipeName] = useState('');
+  const [recipeDescription, setRecipeDescription] = useState('');
+  const [recipeIcon, setRecipeIcon] = useState('\u{1F916}');
+  const [systemPrompt, setSystemPrompt] = useState('You are a helpful assistant.');
+  const [blockedKeywords, setBlockedKeywords] = useState('');
+  const [disclaimer, setDisclaimer] = useState('AI-generated content. Not a professional consultation.');
+  const [showDisclaimerOnStart, setShowDisclaimerOnStart] = useState(true);
+  const [category, setCategory] = useState('Education');
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['en']);
   const [langSearch, setLangSearch] = useState('');
   const [showAllLangs, setShowAllLangs] = useState(false);
 
   // Step 2
-  const [selectedTheme, setSelectedTheme] = useState<ThemeKey>('forest');
+  const [selectedTheme, setSelectedTheme] = useState<ThemeKey>('navy');
   const [customPrimary, setCustomPrimary] = useState('#6B21A8');
   const [customSecondary, setCustomSecondary] = useState('#E9D5FF');
-  const [selectedLayout, setSelectedLayout] = useState<LayoutKey>('dashboard');
-  const [screens, setScreens] = useState<ScreenConfig[]>(makeDefaults('dashboard'));
+  const [screens, setScreens] = useState<ScreenConfig[]>([
+    { id: 'main', title: '', isHome: false, gridColumns: 2, ...createScreen('ask_ai') },
+  ]);
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
-  const [showPackagePicker, setShowPackagePicker] = useState(false);
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
 
   // Step 3
   const [knowledgeFiles, setKnowledgeFiles] = useState<KnowledgeFile[]>([]);
@@ -454,28 +197,67 @@ export function Studio() {
   const previewWidgets = activeScreen ? resolveScreenWidgets(activeScreen, screens) : [];
   const screenTitle = (s: ScreenConfig) => s.title || recipeName || 'Untitled';
 
+  // ─── Load recipe from navigation state ───
+  const loadRecipe = (recipe: RecipeConfig) => {
+    setRecipeName(recipe.recipeName);
+    setRecipeDescription(recipe.recipeDescription);
+    setRecipeIcon(recipe.recipeIcon);
+    setSystemPrompt(recipe.systemPrompt);
+    setBlockedKeywords(recipe.blockedKeywords);
+    setDisclaimer(recipe.disclaimer);
+    setCategory(recipe.category);
+    setSelectedLanguages(recipe.selectedLanguages);
+    setSelectedTheme(recipe.selectedTheme);
+    setCustomPrimary(recipe.customPrimary);
+    setCustomSecondary(recipe.customSecondary);
+    setScreens(recipe.screens);
+    setKnowledgeSummary(recipe.knowledgeSummary);
+    setCurrentStep(1);
+  };
+
   // ─── Helpers ───
   const toggleLanguage = (code: string) => setSelectedLanguages(prev => prev.includes(code) ? prev.filter(c => c !== code) : [...prev, code]);
 
-  const handleLayoutChange = (key: LayoutKey) => {
-    setSelectedLayout(key);
-    setScreens(makeDefaults(key));
-    setActiveScreenIndex(0);
-  };
-
-  const addScreenWithPackage = (packageId: string) => {
-    const def = getPackageDef(packageId);
+  const addScreenFromTemplate = (templateId: string) => {
+    const def = getScreenTemplate(templateId);
     const id = `screen_${Date.now()}`;
     const title = def?.name || 'New Screen';
-    const newScreens = [...screens, { id, title, isHome: false, gridColumns: 2, package: createPackageInstance(packageId) }];
-    setScreens(newScreens);
-    setActiveScreenIndex(newScreens.length - 1);
-    setShowPackagePicker(false);
+    const newScreen: ScreenConfig = { id, title, isHome: false, gridColumns: 2, ...createScreen(templateId) };
+
+    setScreens(prev => {
+      const contentScreens = prev.filter(s => !s.isHome);
+      if (contentScreens.length >= 1 && !prev.some(s => s.isHome)) {
+        const home: ScreenConfig = { id: 'home', title: '', isHome: true, gridColumns: 2, ...createScreen('ask_ai') };
+        const backfilled = prev.map(s => {
+          if (!s.title && s.templateId) {
+            const def = getScreenTemplate(s.templateId);
+            return { ...s, title: def?.name || 'Screen' };
+          }
+          return s;
+        });
+        return [home, ...backfilled, newScreen];
+      }
+      return [...prev, newScreen];
+    });
+    setShowTemplatePicker(false);
+    setTimeout(() => {
+      setScreens(cur => {
+        setActiveScreenIndex(cur.length - 1);
+        return cur;
+      });
+    }, 0);
   };
 
   const removeScreen = (index: number) => {
-    if (screens[index]?.isHome || screens.length <= 1) return;
-    setScreens(prev => prev.filter((_, i) => i !== index));
+    setScreens(prev => {
+      if (prev[index]?.isHome || prev.length <= 1) return prev;
+      const next = prev.filter((_, i) => i !== index);
+      const contentScreens = next.filter(s => !s.isHome);
+      if (contentScreens.length <= 1) {
+        return contentScreens.length === 1 ? contentScreens : next;
+      }
+      return next;
+    });
     setActiveScreenIndex(i => i >= index ? Math.max(0, i - 1) : i);
   };
 
@@ -490,25 +272,26 @@ export function Studio() {
   const toggleHomeAsk = () => {
     setScreens(prev => prev.map((s, i) => {
       if (i !== activeScreenIndex || !s.isHome) return s;
-      return { ...s, package: s.package ? null : createPackageInstance('ask_ai') };
+      return s.templateId
+        ? { ...s, templateId: null, fieldValues: {}, disabledWidgets: [] }
+        : { ...s, ...createScreen('ask_ai') };
     }));
   };
 
-  const updatePackageField = (screenIndex: number, fieldKey: string, value: string) => {
+  const updateScreenField = (screenIndex: number, fieldKey: string, value: string) => {
     setScreens(prev => prev.map((s, si) => {
-      if (si !== screenIndex || !s.package) return s;
-      return { ...s, package: { ...s.package, fieldValues: { ...s.package.fieldValues, [fieldKey]: value } } };
+      if (si !== screenIndex || !s.templateId) return s;
+      return { ...s, fieldValues: { ...s.fieldValues, [fieldKey]: value } };
     }));
   };
 
-  const togglePackageWidget = (screenIndex: number, wid: string) => {
+  const toggleScreenWidget = (screenIndex: number, wid: string) => {
     setScreens(prev => prev.map((s, si) => {
-      if (si !== screenIndex || !s.package) return s;
-      const pkg = s.package;
-      const disabled = pkg.disabledWidgets.includes(wid)
-        ? pkg.disabledWidgets.filter(w => w !== wid)
-        : [...pkg.disabledWidgets, wid];
-      return { ...s, package: { ...pkg, disabledWidgets: disabled } };
+      if (si !== screenIndex || !s.templateId) return s;
+      const disabled = s.disabledWidgets.includes(wid)
+        ? s.disabledWidgets.filter(w => w !== wid)
+        : [...s.disabledWidgets, wid];
+      return { ...s, disabledWidgets: disabled };
     }));
   };
 
@@ -531,16 +314,16 @@ export function Studio() {
     setAiLoading(true);
     try {
       const result = await callGemini(
-        `Design a Bina.ai recipe. Name: "${recipeName}", Desc: "${recipeDescription}", Category: ${category}.\nReturn JSON (no markdown):\n{"system_prompt":"...","screens":[{"id":"home","title":"","isHome":true,"gridColumns":2,"packageId":"ask_ai","fields":{"hint":"...","ai_instruction":"ask:{{user_text}}"}},{"id":"camera","title":"Camera","isHome":false,"packageId":"camera_analysis","fields":{}}],"blocked_keywords":["kw"],"disclaimer":"..."}\nAvailable packages: ask_ai, voice_ask, camera_analysis, calculator, nearby_places, info_display\nFirst screen must be home with isHome:true. Each non-home screen has exactly one package.`, apiKey);
+        `Design a Bina.ai recipe. Name: "${recipeName}", Desc: "${recipeDescription}", Category: ${category}.\nReturn JSON (no markdown):\n{"system_prompt":"...","screens":[{"id":"home","title":"","isHome":true,"gridColumns":2,"templateId":"ask_ai","fields":{"hint":"...","ai_instruction":"ask:{{user_text}}"}},{"id":"camera","title":"Camera","isHome":false,"templateId":"camera_analysis","fields":{}}],"blocked_keywords":["kw"],"disclaimer":"..."}\nAvailable screen templates: ask_ai, voice_ask, camera_analysis, calculator, nearby_places, info_display\nFirst screen must be home with isHome:true. Each non-home screen has exactly one template.\nDo not assume any specific domain — use the recipe name and category to guide content.`, apiKey);
       const jsonMatch = result.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('Invalid response');
       const parsed = JSON.parse(jsonMatch[0]);
       if (parsed.system_prompt) setSystemPrompt(parsed.system_prompt);
       if (parsed.screens?.length > 0) {
-        const newScreens: ScreenConfig[] = parsed.screens.map((s: { id: string; title: string; isHome?: boolean; gridColumns?: number; packageId?: string; fields?: Record<string, string> }) => ({
+        const newScreens: ScreenConfig[] = parsed.screens.map((s: { id: string; title: string; isHome?: boolean; gridColumns?: number; templateId?: string; fields?: Record<string, string> }) => ({
           id: s.id, title: s.title || '', isHome: !!s.isHome,
           gridColumns: s.gridColumns || 2,
-          package: s.packageId ? createPackageInstance(s.packageId, s.fields) : null,
+          ...(s.templateId ? createScreen(s.templateId, s.fields) : { templateId: null, fieldValues: {}, disabledWidgets: [] }),
         }));
         setScreens(newScreens);
         setActiveScreenIndex(0);
@@ -604,7 +387,19 @@ export function Studio() {
     if (allTypes.includes('camera_input')) vars.push('  photo_path:   { type: string, default: "" }');
     if (hasCalc) {
       vars.push('  calc_a:       { type: number, default: "0" }', '  calc_b:       { type: number, default: "0" }', '  calc_rate:    { type: number, default: "10" }', '  calc_result:  { type: number, default: "0" }');
+      const hasC = screens.some(s => s.templateId === 'calculator' && !s.disabledWidgets.includes('input_c'));
+      const hasD = screens.some(s => s.templateId === 'calculator' && !s.disabledWidgets.includes('input_d'));
+      if (hasC) vars.push('  calc_c:       { type: number, default: "0" }');
+      if (hasD) vars.push('  calc_d:       { type: number, default: "0" }');
     }
+
+    const questionsYaml = screens.map(s => {
+      if (!s.templateId) return '';
+      if (s.templateId !== 'ask_ai' && s.templateId !== 'voice_ask') return '';
+      const qs = [s.fieldValues.q1, s.fieldValues.q2, s.fieldValues.q3, s.fieldValues.q4].filter(q => q && q.trim());
+      if (qs.length === 0) return '';
+      return `  ${s.id}:\n${qs.map(q => `    - "${q}"`).join('\n')}`;
+    }).filter(Boolean).join('\n');
 
     const nonHomeScreens = screens.filter(s => !s.isHome).map(s => ({ id: s.id, title: s.title }));
     const screensYaml = screens.map((screen, si) => {
@@ -616,8 +411,8 @@ export function Studio() {
 
     let formulas = '';
     if (hasCalc) {
-      const calcPkg = screens.find(s => s.package?.packageId === 'calculator')?.package;
-      const expr = calcPkg ? resolveFormula(calcPkg) : '{{calc_a}} * {{calc_b}}';
+      const calcScreen = screens.find(s => s.templateId === 'calculator');
+      const expr = calcScreen ? resolveFormula(calcScreen) : '{{calc_a}} * {{calc_b}}';
       formulas = `\nformulas:\n  calc:\n    expression: "${expr}"\n    output: calc_result\n`;
     }
     let data = '';
@@ -626,9 +421,71 @@ export function Studio() {
     }
     const loc = selectedLanguages.length > 0 ? `\nlocalisation:\n  supported:\n${selectedLanguages.map(l => `    - ${l}`).join('\n')}\n  default: ${selectedLanguages[0] || 'en'}\n` : '';
     const know = knowledgeSummary ? `\nknowledge:\n  always_loaded: |\n    ${knowledgeSummary.split('\n').join('\n    ')}\n  chunks: ${knowledgeFiles.filter(f => f.status === 'ready').reduce((a, f) => a + (f.chunks || 0), 0)}\n` : '';
+    const questionsBlock = questionsYaml ? `\nquestions:\n${questionsYaml}\n` : '';
+    const setupBlock = showDisclaimerOnStart && disclaimer ? `\nsetup:\n  disclaimer:\n    text: "${disclaimer}"\n    accept_label: "I Understand"\n` : '';
 
-    return `id: ${id}\nname: "${recipeName || 'My Recipe'}"\ndescription: "${recipeDescription || 'A custom AI recipe'}"\nicon: "${recipeIcon}"\nversion: "1.0.0"\ncategory: ${category}\n\nauthor:\n  name: User\n  organisation: ""\n  verified: false\n\nmodel:\n  model_id: gemma-4-e2b-it\n  backend: cpu\n${sysPrompt}\n\ntheme:\n  primary: "${activePrimary}"\n  secondary: "${activeSecondary}"\n\nvariables:\n${vars.join('\n')}\n\nscreens:\n${screensYaml}\n${formulas}${data}\nsafety:\n  blocked_keywords:\n${blockedYaml}\n  escalation_message: "This request has been blocked for safety."\n  disclaimer: "${disclaimer || 'AI-generated content.'}"\n\npermissions:\n${perms.length > 0 ? perms.join('\n') : '  []'}${loc}${know}`;
+    return `id: ${id}\nname: "${recipeName || 'My Recipe'}"\ndescription: "${recipeDescription || 'A custom AI recipe'}"\nicon: "${recipeIcon}"\nversion: "1.0.0"\ncategory: ${category}\n\nauthor:\n  name: User\n  organisation: ""\n  verified: false\n\nmodel:\n  model_id: gemma-4-e2b-it\n  backend: cpu\n${sysPrompt}\n\ntheme:\n  primary: "${activePrimary}"\n  secondary: "${activeSecondary}"\n\nvariables:\n${vars.join('\n')}\n\nscreens:\n${screensYaml}\n${formulas}${data}\nsafety:\n  blocked_keywords:\n${blockedYaml}\n  escalation_message: "This request has been blocked for safety."\n  disclaimer: "${disclaimer || 'AI-generated content.'}"\n\npermissions:\n${perms.length > 0 ? perms.join('\n') : '  []'}${loc}${know}${questionsBlock}${setupBlock}`;
   };
+
+  // ─── Download YAML ───
+  const downloadYaml = () => {
+    const yaml = generateYaml();
+    const id = recipeName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'my_recipe';
+    const blob = new Blob([yaml], { type: 'text/yaml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${id}.yaml`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // ─── localStorage persistence ───
+  const STORAGE_KEY = 'bina_studio_state';
+  const API_KEY_STORAGE = 'bina_studio_api_key';
+
+  useEffect(() => {
+    const state = (location.state as { recipe?: string } | null);
+    if (state?.recipe) {
+      const recipe = RECIPES[state.recipe];
+      if (recipe) {
+        loadRecipe(recipe);
+        return;
+      }
+    }
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const s = JSON.parse(saved);
+        if (s.recipeName !== undefined) setRecipeName(s.recipeName);
+        if (s.recipeDescription) setRecipeDescription(s.recipeDescription);
+        if (s.recipeIcon) setRecipeIcon(s.recipeIcon);
+        if (s.systemPrompt) setSystemPrompt(s.systemPrompt);
+        if (s.blockedKeywords !== undefined) setBlockedKeywords(s.blockedKeywords);
+        if (s.disclaimer) setDisclaimer(s.disclaimer);
+        if (s.showDisclaimerOnStart !== undefined) setShowDisclaimerOnStart(s.showDisclaimerOnStart);
+        if (s.category) setCategory(s.category);
+        if (s.selectedLanguages) setSelectedLanguages(s.selectedLanguages);
+        if (s.selectedTheme) setSelectedTheme(s.selectedTheme);
+        if (s.customPrimary) setCustomPrimary(s.customPrimary);
+        if (s.customSecondary) setCustomSecondary(s.customSecondary);
+        if (s.screens) setScreens(s.screens);
+        if (s.currentStep) setCurrentStep(s.currentStep);
+      } catch {}
+    }
+    const savedKey = localStorage.getItem(API_KEY_STORAGE);
+    if (savedKey) setApiKey(savedKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const state = { recipeName, recipeDescription, recipeIcon, systemPrompt, blockedKeywords, disclaimer, showDisclaimerOnStart, category, selectedLanguages, selectedTheme, customPrimary, customSecondary, screens, currentStep };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [recipeName, recipeDescription, recipeIcon, systemPrompt, blockedKeywords, disclaimer, showDisclaimerOnStart, category, selectedLanguages, selectedTheme, customPrimary, customSecondary, screens, currentStep]);
+
+  useEffect(() => {
+    if (apiKey) localStorage.setItem(API_KEY_STORAGE, apiKey);
+  }, [apiKey]);
 
   // ─── Language filter ───
   const filteredGroups = LANGUAGE_GROUPS.map(g => ({ ...g, languages: g.languages.filter(l => !langSearch || l.label.toLowerCase().includes(langSearch.toLowerCase()) || l.native.toLowerCase().includes(langSearch.toLowerCase())) })).filter(g => g.languages.length > 0);
@@ -669,16 +526,14 @@ export function Studio() {
           <p className="text-[8px] text-gray-500">{p.label || 'Result'}</p>
         </div>
       );
-      case 'geo_display': return <div key={wi} className="rounded-xl p-2 bg-white/70 flex items-center gap-2"><MapPin size={12} style={{ color: activePrimary }} /><span className="text-[9px] text-gray-400">Nearby places</span></div>;
+      case 'geo_display': return <div key={wi} className="rounded-xl p-2 bg-white/70 flex items-center gap-2"><span className="text-xs">{'\u{1F4CD}'}</span><span className="text-[9px] text-gray-400">Nearby places</span></div>;
       default: return null;
     }
   };
 
-  // ─── Package editor for a single screen ───
-  const renderPackageEditor = (screen: ScreenConfig, si: number) => {
-    const pkg = screen.package;
-    if (!pkg) return null;
-    const def = getPackageDef(pkg.packageId);
+  const renderScreenEditor = (screen: ScreenConfig, si: number) => {
+    if (!screen.templateId) return null;
+    const def = getScreenTemplate(screen.templateId);
     if (!def) return null;
 
     return (
@@ -689,46 +544,46 @@ export function Studio() {
         </div>
         <div className="px-3 py-2 space-y-2">
           {def.fields.map(f => {
-            if (f.showWhen && pkg.fieldValues[f.showWhen.field] !== f.showWhen.value) return null;
+            if (f.showWhen && screen.fieldValues[f.showWhen.field] !== f.showWhen.value) return null;
             return (
               <div key={f.key} className="flex items-center gap-2">
                 <label className="text-[10px] text-gray-400 w-20 shrink-0">{f.label}</label>
                 {f.type === 'select' ? (
-                  <select value={pkg.fieldValues[f.key] || f.defaultValue}
-                    onChange={e => updatePackageField(si, f.key, e.target.value)}
+                  <select value={screen.fieldValues[f.key] || f.defaultValue}
+                    onChange={e => updateScreenField(si, f.key, e.target.value)}
                     className="flex-1 h-6 text-[11px] text-gray-700 rounded border border-gray-200 bg-white px-1.5 outline-none">
                     {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
                 ) : f.type === 'textarea' ? (
-                  <textarea value={pkg.fieldValues[f.key] || ''} onChange={e => updatePackageField(si, f.key, e.target.value)}
+                  <textarea value={screen.fieldValues[f.key] || ''} onChange={e => updateScreenField(si, f.key, e.target.value)}
                     placeholder={f.placeholder}
                     className="flex-1 text-[11px] text-gray-700 rounded border border-gray-200 bg-white px-1.5 py-1 outline-none resize-none" rows={2} />
                 ) : (
-                  <input value={pkg.fieldValues[f.key] || ''} onChange={e => updatePackageField(si, f.key, e.target.value)}
+                  <input value={screen.fieldValues[f.key] || ''} onChange={e => updateScreenField(si, f.key, e.target.value)}
                     placeholder={f.placeholder}
                     className="flex-1 h-6 text-[11px] text-gray-700 rounded border border-gray-200 bg-white px-1.5 outline-none focus:border-blue-400" />
                 )}
               </div>
             );
           })}
-          {/* Formula preview for calculator */}
-          {pkg.packageId === 'calculator' && (
+          {screen.templateId === 'calculator' && (
             <div className="rounded bg-gray-50 px-2 py-1.5 mt-1">
               <p className="text-[9px] text-gray-400 mb-0.5">Formula preview</p>
-              <code className="text-[10px] font-mono text-gray-700">{resolveFormula(pkg)}</code>
+              <code className="text-[10px] font-mono text-gray-700">{resolveFormula(screen)}</code>
             </div>
           )}
-          {/* Widget toggles */}
           {def.widgets.some(w => w.optional) && (
             <div className="flex flex-wrap gap-1 pt-1 border-t border-gray-50">
               {def.widgets.map(pw => {
-                const disabled = pkg.disabledWidgets.includes(pw.wid);
+                const disabled = screen.disabledWidgets.includes(pw.wid);
                 const label = pw.wid === 'input_a' ? 'Field A'
                   : pw.wid === 'input_b' ? 'Field B'
+                  : pw.wid === 'input_c' ? 'Field C'
+                  : pw.wid === 'input_d' ? 'Field D'
                   : pw.type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                 if (!pw.optional) return <span key={pw.wid} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{label}</span>;
                 return (
-                  <button key={pw.wid} onClick={() => togglePackageWidget(si, pw.wid)}
+                  <button key={pw.wid} onClick={() => toggleScreenWidget(si, pw.wid)}
                     className="text-[10px] px-1.5 py-0.5 rounded border transition-all"
                     style={{
                       borderColor: disabled ? '#D1D5DB' : '#091A7A',
@@ -817,7 +672,7 @@ export function Studio() {
                 )}
                 {!showAllLangs && <div className="flex flex-wrap gap-1.5">{[{ code: 'en', label: 'English' }, { code: 'ms', label: 'Malay' }, { code: 'id', label: 'Indonesian' }, { code: 'ta', label: 'Tamil' }, { code: 'zh', label: 'Chinese' }, { code: 'tl', label: 'Filipino' }, { code: 'th', label: 'Thai' }, { code: 'vi', label: 'Vietnamese' }, { code: 'hi', label: 'Hindi' }, { code: 'bn', label: 'Bengali' }].map(l => { const sel = selectedLanguages.includes(l.code); return <button key={l.code} onClick={() => toggleLanguage(l.code)} className="px-2.5 py-1 rounded-lg border text-xs font-medium" style={{ borderColor: sel ? '#091A7A' : '#E5E7EB', background: sel ? '#091A7A' : 'white', color: sel ? 'white' : '#6B7280' }}>{l.label}</button>; })}</div>}
               </div>
-              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Recipe Name</label><Input value={recipeName} onChange={e => setRecipeName(e.target.value)} placeholder="e.g. Farm Buddy" /></div>
+              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Recipe Name</label><Input value={recipeName} onChange={e => setRecipeName(e.target.value)} placeholder="e.g. Health Assistant" /></div>
               <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Icon</label><div className="flex flex-wrap gap-2">{EMOJI_ICONS.map(e => <button key={e} onClick={() => setRecipeIcon(e)} className="w-10 h-10 rounded-lg flex items-center justify-center text-xl border-2 hover:scale-105" style={{ borderColor: recipeIcon === e ? '#091A7A' : '#E5E7EB', background: recipeIcon === e ? '#091A7A10' : 'white' }}>{e}</button>)}</div></div>
               <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Description</label><Input value={recipeDescription} onChange={e => setRecipeDescription(e.target.value)} placeholder="Short description" /></div>
               <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Category</label><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
@@ -829,7 +684,19 @@ export function Studio() {
                 <Textarea value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} placeholder="You are a helpful assistant..." rows={5} />
               </div>
               <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Blocked Keywords</label><Input value={blockedKeywords} onChange={e => setBlockedKeywords(e.target.value)} placeholder="Comma-separated" /></div>
-              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Disclaimer</label><Input value={disclaimer} onChange={e => setDisclaimer(e.target.value)} placeholder="Optional disclaimer" /></div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Disclaimer</label>
+                <Input value={disclaimer} onChange={e => setDisclaimer(e.target.value)} placeholder="Optional disclaimer" />
+                <div className="flex items-center gap-3 mt-2 rounded-lg bg-gray-50 px-3 py-2">
+                  <span className="text-xs text-gray-600 flex-1">Show disclaimer on first launch</span>
+                  <button onClick={() => setShowDisclaimerOnStart(v => !v)}
+                    className="relative w-9 h-5 rounded-full transition-colors"
+                    style={{ background: showDisclaimerOnStart ? '#091A7A' : '#D1D5DB' }}>
+                    <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
+                      style={{ left: showDisclaimerOnStart ? 18 : 2 }} />
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -845,30 +712,32 @@ export function Studio() {
                 {selectedTheme === 'custom' && <div className="flex gap-4 mt-4"><div><label className="text-xs text-gray-500 mb-1 block">Primary</label><Input value={customPrimary} onChange={e => setCustomPrimary(e.target.value)} className="w-32" /></div><div><label className="text-xs text-gray-500 mb-1 block">Secondary</label><Input value={customSecondary} onChange={e => setCustomSecondary(e.target.value)} className="w-32" /></div></div>}
               </div>
 
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-3 block">Layout Template</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {LAYOUTS.map(l => { const Icon = l.icon; return <button key={l.key} onClick={() => handleLayoutChange(l.key)} className="flex items-center gap-3 p-4 rounded-xl border-2 text-left" style={{ borderColor: selectedLayout === l.key ? '#091A7A' : '#E5E7EB', background: selectedLayout === l.key ? '#091A7A08' : 'white' }}><div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: selectedLayout === l.key ? '#091A7A' : '#F3F4F6' }}><Icon size={20} style={{ color: selectedLayout === l.key ? 'white' : '#6B7280' }} /></div><div><p className="text-sm font-semibold text-gray-900">{l.label}</p><p className="text-xs text-gray-500">{l.subtitle}</p></div></button>; })}
-                </div>
-              </div>
-
               {/* Screens */}
-              <div>
+              <div className="rounded-xl border-2 border-gray-100 bg-gray-50/50 p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <label className="text-sm font-medium text-gray-700">Screens ({screens.length})</label>
-                  <button onClick={() => setShowPackagePicker(true)} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-md" style={{ background: '#091A7A10', color: '#091A7A' }}><Plus size={14} /> Add Screen</button>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-800">Screens ({screens.length})</label>
+                    <p className="text-xs text-gray-500 mt-0.5">Configure each screen and its template</p>
+                  </div>
+                  <button onClick={() => setShowTemplatePicker(true)} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-md" style={{ background: '#091A7A10', color: '#091A7A' }}><Plus size={14} /> Add Screen</button>
                 </div>
                 <div className="space-y-2">
                   {screens.map((screen, si) => {
                     const isActive = si === activeScreenIndex;
-                    const pkgDef = screen.package ? getPackageDef(screen.package.packageId) : null;
+                    const tmpl = screen.templateId ? getScreenTemplate(screen.templateId) : null;
                     return (
-                      <div key={screen.id} className="rounded-xl border overflow-hidden" style={{ borderColor: isActive ? '#091A7A' : '#E5E7EB', boxShadow: isActive ? '0 0 0 1px #091A7A' : 'none' }}>
-                        <button onClick={() => setActiveScreenIndex(si)} className="w-full flex items-center gap-2 px-4 py-2.5 text-left" style={{ background: isActive ? '#091A7A08' : '#FAFAFA' }}>
-                          <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: isActive ? '#091A7A' : '#E5E7EB', color: isActive ? 'white' : '#9CA3AF' }}>{si + 1}</div>
-                          <span className="text-sm font-medium text-gray-900 flex-1 truncate">{screen.isHome ? (recipeName || 'Home') : screen.title}</span>
-                          {screen.isHome && <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">Home</span>}
-                          {pkgDef && !screen.isHome && <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{pkgDef.emoji} {pkgDef.name}</span>}
+                      <div key={screen.id} className={`rounded-xl border overflow-hidden ${screen.isHome ? 'bg-indigo-50/40' : 'bg-white'}`} style={{ borderColor: isActive ? '#091A7A' : screen.isHome ? '#C7D2FE' : '#E5E7EB', boxShadow: isActive ? '0 0 0 1px #091A7A' : 'none' }}>
+                        <button onClick={() => setActiveScreenIndex(si)} className="w-full flex items-center gap-2 px-4 py-2.5 text-left" style={{ background: isActive ? '#091A7A08' : screen.isHome ? '#EEF2FF' : '#FAFAFA' }}>
+                          {screen.isHome ? (
+                            <div className="w-5 h-5 rounded-md flex items-center justify-center shrink-0" style={{ background: '#091A7A' }}>
+                              <Home size={11} className="text-white" />
+                            </div>
+                          ) : (
+                            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: isActive ? '#091A7A' : '#E5E7EB', color: isActive ? 'white' : '#9CA3AF' }}>{si}</div>
+                          )}
+                          <span className="text-sm font-medium text-gray-900 flex-1 truncate">{screen.isHome ? (recipeName || 'Home') : (screen.title || tmpl?.name || 'Untitled')}</span>
+                          {screen.isHome && <span className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ background: '#091A7A20', color: '#091A7A' }}>Dashboard</span>}
+                          {tmpl && !screen.isHome && <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{tmpl.emoji} {tmpl.name}</span>}
                           <ChevronDown size={14} className="text-gray-400" style={{ transform: isActive ? 'rotate(180deg)' : 'rotate(0)' }} />
                           {!screen.isHome && screens.length > 1 && <button onClick={e => { e.stopPropagation(); removeScreen(si); }} className="text-gray-300 hover:text-red-500"><Trash2 size={13} /></button>}
                         </button>
@@ -912,15 +781,15 @@ export function Studio() {
                                 <span className="text-xs text-gray-600 flex-1">Ask AI section below grid</span>
                                 <button onClick={toggleHomeAsk}
                                   className="relative w-9 h-5 rounded-full transition-colors"
-                                  style={{ background: screen.package ? '#091A7A' : '#D1D5DB' }}>
+                                  style={{ background: screen.templateId ? '#091A7A' : '#D1D5DB' }}>
                                   <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
-                                    style={{ left: screen.package ? 18 : 2 }} />
+                                    style={{ left: screen.templateId ? 18 : 2 }} />
                                 </button>
                               </div>
                             )}
 
-                            {/* Package editor */}
-                            {renderPackageEditor(screen, si)}
+                            {/* Screen template editor */}
+                            {renderScreenEditor(screen, si)}
                           </div>
                         )}
                       </div>
@@ -959,12 +828,12 @@ export function Studio() {
                 </div>
                 <div className="px-5 py-3 grid grid-cols-3 gap-4 text-center border-b border-gray-100">
                   <div><p className="text-lg font-bold text-gray-900">{screens.length}</p><p className="text-[11px] text-gray-500">Screens</p></div>
-                  <div><p className="text-lg font-bold text-gray-900">{screens.filter(s => s.package).length}</p><p className="text-[11px] text-gray-500">Packages</p></div>
+                  <div><p className="text-lg font-bold text-gray-900">{screens.filter(s => s.templateId).length}</p><p className="text-[11px] text-gray-500">Templates</p></div>
                   <div><p className="text-lg font-bold text-gray-900">{selectedLanguages.length}</p><p className="text-[11px] text-gray-500">Languages</p></div>
                 </div>
                 <div className="px-5 py-3">
                   {screens.map(s => {
-                    const pd = s.package ? getPackageDef(s.package.packageId) : null;
+                    const pd = s.templateId ? getScreenTemplate(s.templateId) : null;
                     return (
                       <div key={s.id} className="flex items-center gap-2 py-1">
                         <span className="text-xs font-medium text-gray-700">{screenTitle(s)}</span>
@@ -976,13 +845,13 @@ export function Studio() {
                 </div>
               </div>
               {/* Formula summary for calculator */}
-              {screens.some(s => s.package?.packageId === 'calculator') && (
+              {screens.some(s => s.templateId === 'calculator') && (
                 <div className="rounded-xl border border-gray-200 bg-white p-4">
                   <p className="text-xs font-medium text-gray-500 mb-2">Calculator Formula</p>
-                  {screens.filter(s => s.package?.packageId === 'calculator').map(s => (
+                  {screens.filter(s => s.templateId === 'calculator').map(s => (
                     <div key={s.id} className="flex items-center gap-2">
                       <span className="text-xs font-medium text-gray-700">{s.title}:</span>
-                      <code className="text-xs font-mono text-gray-600 bg-gray-50 px-2 py-0.5 rounded">{resolveFormula(s.package!)}</code>
+                      <code className="text-xs font-mono text-gray-600 bg-gray-50 px-2 py-0.5 rounded">{resolveFormula(s)}</code>
                     </div>
                   ))}
                 </div>
@@ -998,7 +867,7 @@ export function Studio() {
           <div className="flex items-center gap-3">
             {currentStep === 4 && <>
               <button onClick={() => setShowYamlPreview(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"><Eye size={16} /> Preview YAML</button>
-              <button onClick={() => toast.success('Recipe published!')} className="px-5 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#10B981' }}>Publish to Hub</button>
+              <button onClick={downloadYaml} className="flex items-center gap-1.5 px-5 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#10B981' }}><Download size={16} /> Download YAML</button>
             </>}
             {currentStep < 4 && <button onClick={() => setCurrentStep(s => s + 1)} className="flex items-center gap-1 px-5 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#091A7A' }}>Next Step <ChevronRight size={16} /></button>}
           </div>
@@ -1037,6 +906,7 @@ export function Studio() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Recipe YAML</DialogTitle><DialogDescription>Generated DSL configuration</DialogDescription></DialogHeader>
           <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs leading-relaxed overflow-x-auto whitespace-pre-wrap">{generateYaml()}</pre>
+          <button onClick={downloadYaml} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#091A7A' }}><Download size={16} /> Download YAML File</button>
         </DialogContent>
       </Dialog>
 
@@ -1044,17 +914,16 @@ export function Studio() {
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Google AI Studio API Key</DialogTitle><DialogDescription>Enter your Gemini API key to enable AI features.</DialogDescription></DialogHeader>
           <Input value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="AIza..." type="password" />
-          <button onClick={() => { setShowApiKeyDialog(false); toast.success('API key saved'); }} disabled={!apiKey} className="w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: apiKey ? '#091A7A' : '#9CA3AF' }}>Save & Continue</button>
+          <button onClick={() => { setShowApiKeyDialog(false); localStorage.setItem(API_KEY_STORAGE, apiKey); toast.success('API key saved'); }} disabled={!apiKey} className="w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: apiKey ? '#091A7A' : '#9CA3AF' }}>Save & Continue</button>
         </DialogContent>
       </Dialog>
 
-      {/* Package Picker — used when adding a new screen */}
-      <Dialog open={showPackagePicker} onOpenChange={setShowPackagePicker}>
+      <Dialog open={showTemplatePicker} onOpenChange={setShowTemplatePicker}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>Add Screen</DialogTitle><DialogDescription>Choose a feature package for the new screen</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle>Add Screen</DialogTitle><DialogDescription>Choose a screen type for the new screen</DialogDescription></DialogHeader>
           <div className="grid grid-cols-2 gap-3">
-            {PACKAGE_DEFS.map(pkg => (
-              <button key={pkg.id} onClick={() => addScreenWithPackage(pkg.id)}
+            {SCREEN_TEMPLATES.map(pkg => (
+              <button key={pkg.id} onClick={() => addScreenFromTemplate(pkg.id)}
                 className="flex flex-col gap-2 p-4 rounded-xl border-2 border-gray-200 text-left hover:border-gray-300 hover:bg-gray-50 transition-all">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{pkg.emoji}</span>
