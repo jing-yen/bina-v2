@@ -23,7 +23,7 @@ export function resolveFormula(screen: ScreenConfig): string {
 
 export const SCREEN_TEMPLATES: ScreenTemplate[] = [
   {
-    id: 'ask_ai', name: 'Ask AI', emoji: '\u{1F4AC}', description: 'Multi-question flow with AI response',
+    id: 'ask_ai', name: 'Ask AI', emoji: '\u{1F4AC}', description: 'Multi-question flow or structured form with AI response',
     widgets: [
       { wid: 'text_label', type: 'text_label', optional: false, defaultOn: true, staticProps: { style: 'subheading' }, fieldMap: { heading: 'text' } },
       { wid: 'text_input', type: 'text_input', optional: false, defaultOn: true, staticProps: { bind: 'user_text' }, fieldMap: { hint: 'hint' } },
@@ -32,12 +32,26 @@ export const SCREEN_TEMPLATES: ScreenTemplate[] = [
       { wid: 'markdown_output', type: 'markdown_output', optional: false, defaultOn: true, staticProps: { source: 'ai_response', streaming: 'true' }, fieldMap: {} },
     ],
     fields: [
+      { key: 'mode', label: 'Mode', placeholder: '', type: 'select', options: ['chat', 'form'], defaultValue: 'chat' },
       { key: 'heading', label: 'Heading', placeholder: 'How can I help?', type: 'text', defaultValue: 'How can I help?' },
-      { key: 'hint', label: 'Input hint', placeholder: 'Ask a question...', type: 'text', defaultValue: 'Ask a question...' },
-      { key: 'q1', label: 'Question 1', placeholder: 'e.g. What is your name?', type: 'text', defaultValue: '' },
-      { key: 'q2', label: 'Question 2', placeholder: 'e.g. What do you need help with?', type: 'text', defaultValue: '' },
-      { key: 'q3', label: 'Question 3', placeholder: '', type: 'text', defaultValue: '' },
-      { key: 'q4', label: 'Question 4', placeholder: '', type: 'text', defaultValue: '' },
+      { key: 'hint', label: 'Input hint', placeholder: 'Ask a question...', type: 'text', defaultValue: 'Ask a question...', showWhen: { field: 'mode', value: 'chat' } },
+      { key: 'q1', label: 'Question 1', placeholder: 'e.g. What is your name?', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'chat' } },
+      { key: 'q2', label: 'Question 2', placeholder: 'e.g. What do you need help with?', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'chat' } },
+      { key: 'q3', label: 'Question 3', placeholder: '', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'chat' } },
+      { key: 'q4', label: 'Question 4', placeholder: '', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'chat' } },
+      // Form mode fields
+      { key: 'f1_label', label: 'Field 1', placeholder: 'e.g. Full Name', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'form' } },
+      { key: 'f1_type', label: 'Type 1', placeholder: '', type: 'select', options: ['text', 'number', 'dropdown', 'toggle'], defaultValue: 'text', showWhen: { field: 'mode', value: 'form' } },
+      { key: 'f1_options', label: 'Options 1', placeholder: 'opt1, opt2, opt3', type: 'text', defaultValue: '', showWhen: [{ field: 'mode', value: 'form' }, { field: 'f1_type', value: 'dropdown' }] },
+      { key: 'f2_label', label: 'Field 2', placeholder: 'e.g. Age', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'form' } },
+      { key: 'f2_type', label: 'Type 2', placeholder: '', type: 'select', options: ['text', 'number', 'dropdown', 'toggle'], defaultValue: 'text', showWhen: { field: 'mode', value: 'form' } },
+      { key: 'f2_options', label: 'Options 2', placeholder: 'opt1, opt2, opt3', type: 'text', defaultValue: '', showWhen: [{ field: 'mode', value: 'form' }, { field: 'f2_type', value: 'dropdown' }] },
+      { key: 'f3_label', label: 'Field 3', placeholder: 'e.g. Location', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'form' } },
+      { key: 'f3_type', label: 'Type 3', placeholder: '', type: 'select', options: ['text', 'number', 'dropdown', 'toggle'], defaultValue: 'text', showWhen: { field: 'mode', value: 'form' } },
+      { key: 'f3_options', label: 'Options 3', placeholder: 'opt1, opt2, opt3', type: 'text', defaultValue: '', showWhen: [{ field: 'mode', value: 'form' }, { field: 'f3_type', value: 'dropdown' }] },
+      { key: 'f4_label', label: 'Field 4', placeholder: '', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'form' } },
+      { key: 'f4_type', label: 'Type 4', placeholder: '', type: 'select', options: ['text', 'number', 'dropdown', 'toggle'], defaultValue: 'text', showWhen: { field: 'mode', value: 'form' } },
+      { key: 'f4_options', label: 'Options 4', placeholder: 'opt1, opt2, opt3', type: 'text', defaultValue: '', showWhen: [{ field: 'mode', value: 'form' }, { field: 'f4_type', value: 'dropdown' }] },
       { key: 'button_label', label: 'Button label', placeholder: 'Ask', type: 'text', defaultValue: 'Ask' },
       { key: 'ai_instruction', label: 'AI instruction', placeholder: 'ask:{{user_text}}', type: 'textarea', defaultValue: 'ask:{{user_text}}' },
     ],
@@ -128,6 +142,19 @@ export const SCREEN_TEMPLATES: ScreenTemplate[] = [
       { key: 'style', label: 'Style', placeholder: 'heading', type: 'select', options: ['heading', 'subheading', 'body', 'caption'], defaultValue: 'heading' },
     ],
   },
+  {
+    id: 'checklist', name: 'Checklist', emoji: '✅', description: 'Step-by-step workflow with progress tracking',
+    widgets: [
+      { wid: 'progress_bar', type: 'progress_bar', optional: false, defaultOn: true, staticProps: { bind: 'checklist_step' }, fieldMap: {} },
+      { wid: 'checklist_items', type: 'checklist_items', optional: false, defaultOn: true, staticProps: { bind: 'checklist_step' }, fieldMap: {} },
+      { wid: 'action_button', type: 'action_button', optional: false, defaultOn: true, staticProps: { label: 'Next Step', action: 'increment:checklist_step', style: 'primary' }, fieldMap: {} },
+      { wid: 'markdown_output', type: 'markdown_output', optional: true, defaultOn: false, staticProps: { source: 'ai_response', streaming: 'true' }, fieldMap: {} },
+    ],
+    fields: [
+      { key: 'steps', label: 'Steps (one per line)', placeholder: 'Measure pH|number\nTake photo|photo\nCheck moisture|toggle', type: 'textarea', defaultValue: 'Step 1|text\nStep 2|text\nStep 3|text' },
+      { key: 'completion_action', label: 'On completion', placeholder: '', type: 'select', options: ['none', 'ai_summary', 'show_result'], defaultValue: 'none' },
+    ],
+  },
 ];
 
 export const getScreenTemplate = (id: string) => SCREEN_TEMPLATES.find(t => t.id === id);
@@ -140,11 +167,19 @@ export function createScreen(templateId: string, fieldOverrides?: Record<string,
   return { templateId, fieldValues, disabledWidgets };
 }
 
+export function parseChecklistSteps(stepsStr: string): { label: string; type: string }[] {
+  return stepsStr.split('\n').filter(Boolean).map(line => {
+    const [label, type] = line.split('|', 2).map(s => s.trim());
+    return { label: label || 'Step', type: type || 'text' };
+  });
+}
+
 export function resolveTemplateWidgets(screen: ScreenConfig): WidgetConfig[] {
   if (!screen.templateId) return [];
   const def = getScreenTemplate(screen.templateId);
   if (!def) return [];
-  return def.widgets
+
+  let widgets = def.widgets
     .filter(pw => !screen.disabledWidgets.includes(pw.wid))
     .map(pw => {
       const props = { ...pw.staticProps };
@@ -154,6 +189,36 @@ export function resolveTemplateWidgets(screen: ScreenConfig): WidgetConfig[] {
       }
       return { type: pw.type, props };
     });
+
+  // ask_ai form mode: replace single text_input with per-field inputs
+  if (screen.templateId === 'ask_ai' && screen.fieldValues.mode === 'form') {
+    const filtered = widgets.filter(w => !(w.type === 'text_input' && w.props.bind === 'user_text'));
+    const btnIdx = filtered.findIndex(w => w.type === 'action_button');
+    const formWidgets: WidgetConfig[] = [];
+    for (let i = 1; i <= 4; i++) {
+      const label = screen.fieldValues[`f${i}_label`];
+      if (!label) continue;
+      const fType = screen.fieldValues[`f${i}_type`] || 'text';
+      formWidgets.push({
+        type: 'text_input',
+        props: { bind: `form_f${i}`, label, hint: label, input_type: fType === 'number' ? 'number' : 'text' },
+      });
+    }
+    filtered.splice(btnIdx >= 0 ? btnIdx : filtered.length, 0, ...formWidgets);
+    widgets = filtered;
+  }
+
+  // checklist: inject parsed steps into widget props
+  if (screen.templateId === 'checklist') {
+    const steps = parseChecklistSteps(screen.fieldValues.steps || '');
+    widgets = widgets.map(w => {
+      if (w.type === 'progress_bar') return { ...w, props: { ...w.props, total: String(steps.length) } };
+      if (w.type === 'checklist_items') return { ...w, props: { ...w.props, items: JSON.stringify(steps) } };
+      return w;
+    });
+  }
+
+  return widgets;
 }
 
 export function resolveScreenWidgets(screen: ScreenConfig, allScreens: ScreenConfig[]): WidgetConfig[] {
@@ -172,4 +237,3 @@ export function resolveScreenWidgets(screen: ScreenConfig, allScreens: ScreenCon
   }
   return widgets;
 }
-

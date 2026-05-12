@@ -1,0 +1,83 @@
+import type { RecipeConfig } from './types';
+import { defaultIntroPage } from './types';
+
+export const FLOOD_RESPONSE_RECIPE: RecipeConfig = {
+  recipeName: 'Flood Response',
+  recipeDescription: 'Emergency flood assessment, evacuation info & supply calculator',
+  recipeIcon: '\u{1F6A8}',
+  systemPrompt: `You are an emergency flood response assistant. Help users assess flood damage from photos, find evacuation routes and shelters, calculate emergency supply needs, and report flood conditions. Prioritise safety above all. If someone reports being trapped or in immediate danger, provide clear survival instructions and emphasise calling emergency services immediately.`,
+  blockedKeywords: '',
+  disclaimer: 'For life-threatening emergencies, call your local emergency number immediately.',
+  category: 'Emergency',
+  selectedLanguages: ['en', 'ms', 'id', 'th'],
+  selectedTheme: 'navy',
+  customPrimary: '#091A7A',
+  customSecondary: '#ADC8FF',
+  screens: [
+    {
+      id: 'home', title: '', isHome: true, gridColumns: 2,
+      templateId: 'ask_ai',
+      fieldValues: {
+        mode: 'chat', heading: 'Flood Emergency Help',
+        hint: 'Describe your situation...',
+        q1: 'Water is rising, what should I do?',
+        q2: 'Is it safe to drive through floodwater?',
+        q3: '', q4: '',
+        button_label: 'Get Help', ai_instruction: 'ask:{{user_text}}',
+      },
+      disabledWidgets: [],
+    },
+    {
+      id: 'photo_assess', title: 'Photo Assessment', isHome: false, gridColumns: 2,
+      templateId: 'camera_analysis',
+      fieldValues: {
+        camera_label: 'Take Photo of Flood',
+        button_label: 'Assess',
+        ai_instruction: 'vision_ask:Assess this flood photo. Estimate water level, identify hazards, rate danger (Low/Medium/High/Critical). Advise immediate actions. {{user_text}}',
+      },
+      disabledWidgets: [],
+    },
+    {
+      id: 'evacuation', title: 'Evacuation Points', isHome: false, gridColumns: 2,
+      templateId: 'nearby_places',
+      fieldValues: { heading: 'Nearby Shelters & Evacuation Points' },
+      disabledWidgets: [],
+    },
+    {
+      id: 'supplies', title: 'Supply Calculator', isHome: false, gridColumns: 2,
+      templateId: 'calculator',
+      fieldValues: {
+        field_a_label: 'People', field_a_hint: 'Number of people',
+        field_b_label: 'Days', field_b_hint: 'How many days of supplies',
+        field_c_label: '', field_c_hint: '', field_d_label: '', field_d_hint: '',
+        slider_label: 'Buffer %', slider_min: '0', slider_max: '50',
+        formula_template: 'A × B × Rate%', custom_formula: '',
+        result_label: 'Litres of water needed', result_prefix: '', result_suffix: ' L',
+      },
+      disabledWidgets: ['input_c', 'input_d'],
+    },
+    {
+      id: 'report', title: 'Report Flood', isHome: false, gridColumns: 2,
+      templateId: 'ask_ai',
+      fieldValues: {
+        mode: 'form', heading: 'Report Flood Conditions',
+        f1_label: 'Location', f1_type: 'text', f1_options: '',
+        f2_label: 'Water level', f2_type: 'dropdown', f2_options: 'Ankle, Knee, Waist, Chest, Above head',
+        f3_label: 'Road passable?', f3_type: 'toggle', f3_options: '',
+        f4_label: 'Notes', f4_type: 'text', f4_options: '',
+        hint: '', q1: '', q2: '', q3: '', q4: '',
+        button_label: 'Submit Report', ai_instruction: 'ask:Flood report — Location: {{form_f1}}, Water level: {{form_f2}}, Road passable: {{form_f3}}, Notes: {{form_f4}}. Summarise this report and suggest priority actions.',
+      },
+      disabledWidgets: [],
+    },
+  ],
+  knowledgeSummary: '',
+  introPage: {
+    ...defaultIntroPage('For life-threatening emergencies, call your local emergency number immediately.'),
+    enabled: true,
+    authorName: 'Bina Emergency',
+    authorOrg: 'Bina.ai',
+    authorVerified: true,
+    links: [],
+  },
+};

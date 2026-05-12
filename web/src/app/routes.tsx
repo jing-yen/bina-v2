@@ -12,6 +12,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, Component: Dashboard },
       { path: "studio", Component: Studio },
+      { path: "studio/:id", Component: Studio },
       { path: "analytics", Component: Analytics },
       { path: "sync", Component: Sync },
     ],

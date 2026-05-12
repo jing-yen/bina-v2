@@ -1,0 +1,73 @@
+import type { RecipeConfig } from './types';
+import { defaultIntroPage } from './types';
+
+export const MATERNAL_HEALTH_RECIPE: RecipeConfig = {
+  recipeName: 'Maternal Health Guide',
+  recipeDescription: 'Prenatal & postnatal guidance for mothers in rural communities',
+  recipeIcon: '\u{1F3E5}',
+  systemPrompt: `You are a friendly maternal health assistant for rural communities. Provide general health guidance about pregnancy, postnatal care, nutrition, and when to seek professional help. Always remind users that this is not a substitute for professional medical advice. Respond in simple, clear language. If the user describes emergency symptoms (heavy bleeding, seizures, high fever), immediately advise seeking emergency care.`,
+  blockedKeywords: 'abortion, terminate pregnancy, medication dosage',
+  disclaimer: 'This app provides general health information only. Always consult a healthcare professional for medical decisions.',
+  category: 'Health',
+  selectedLanguages: ['en', 'ms', 'id', 'tl'],
+  selectedTheme: 'coral',
+  customPrimary: '#DC2626',
+  customSecondary: '#FECACA',
+  screens: [
+    {
+      id: 'home', title: '', isHome: true, gridColumns: 2,
+      templateId: 'ask_ai',
+      fieldValues: {
+        mode: 'chat', heading: 'How can I help you today?',
+        hint: 'Ask about pregnancy, nutrition, baby care...',
+        q1: 'What should I eat during pregnancy?',
+        q2: 'When should I visit the clinic?',
+        q3: '', q4: '',
+        button_label: 'Ask', ai_instruction: 'ask:{{user_text}}',
+      },
+      disabledWidgets: [],
+    },
+    {
+      id: 'symptom_check', title: 'Symptom Check', isHome: false, gridColumns: 2,
+      templateId: 'ask_ai',
+      fieldValues: {
+        mode: 'form', heading: 'Symptom Checker',
+        f1_label: 'Weeks pregnant', f1_type: 'number', f1_options: '',
+        f2_label: 'Main symptom', f2_type: 'dropdown', f2_options: 'Nausea, Headache, Bleeding, Swelling, Fever, Pain, Other',
+        f3_label: 'How long?', f3_type: 'dropdown', f3_options: 'Today, 1-3 days, More than 3 days',
+        f4_label: 'Extra details', f4_type: 'text', f4_options: '',
+        hint: '', q1: '', q2: '', q3: '', q4: '',
+        button_label: 'Check', ai_instruction: 'ask:Patient is {{form_f1}} weeks pregnant with {{form_f2}} for {{form_f3}}. Details: {{form_f4}}. Assess urgency and advise.',
+      },
+      disabledWidgets: [],
+    },
+    {
+      id: 'nutrition', title: 'Nutrition Guide', isHome: false, gridColumns: 2,
+      templateId: 'ask_ai',
+      fieldValues: {
+        mode: 'chat', heading: 'Nutrition & Diet',
+        hint: 'Ask about foods, vitamins, what to avoid...',
+        q1: 'What foods are rich in iron?',
+        q2: 'What should I avoid eating?',
+        q3: '', q4: '',
+        button_label: 'Ask', ai_instruction: 'ask:Answer about maternal nutrition: {{user_text}}',
+      },
+      disabledWidgets: [],
+    },
+    {
+      id: 'emergency', title: 'Emergency Signs', isHome: false, gridColumns: 2,
+      templateId: 'info_display',
+      fieldValues: { text: 'If you experience heavy bleeding, severe headaches, blurred vision, high fever, or seizures — go to the nearest clinic immediately. Call your midwife or health worker.', style: 'body' },
+      disabledWidgets: [],
+    },
+  ],
+  knowledgeSummary: '',
+  introPage: {
+    ...defaultIntroPage('This app provides general health information only. Always consult a healthcare professional for medical decisions.'),
+    enabled: true,
+    authorName: 'Bina Health',
+    authorOrg: 'Bina.ai',
+    authorVerified: true,
+    links: [{ label: 'WHO Maternal Health', url: 'https://www.who.int/health-topics/maternal-health' }],
+  },
+};

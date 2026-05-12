@@ -1,0 +1,70 @@
+import type { RecipeConfig } from './types';
+import { defaultIntroPage } from './types';
+
+export const MARKET_PRICE_RECIPE: RecipeConfig = {
+  recipeName: 'Market Price Check',
+  recipeDescription: 'Check produce prices, calculate profit & find nearby markets',
+  recipeIcon: '\u{1F4B0}',
+  systemPrompt: `You are a helpful market price assistant for smallholder farmers and traders. Help users check current market prices for produce, calculate profit margins, find nearby markets, and grade produce quality from photos. Give practical, actionable advice. Use simple language. When discussing prices, always clarify currency and units. Encourage fair pricing and sustainable practices.`,
+  blockedKeywords: '',
+  disclaimer: 'Prices are estimates. Always verify with local market conditions.',
+  category: 'Finance',
+  selectedLanguages: ['en', 'ms', 'id', 'th', 'vi'],
+  selectedTheme: 'forest',
+  customPrimary: '#2E7D32',
+  customSecondary: '#A5D6A7',
+  screens: [
+    {
+      id: 'home', title: '', isHome: true, gridColumns: 2,
+      templateId: 'ask_ai',
+      fieldValues: {
+        mode: 'chat', heading: 'Market Price Assistant',
+        hint: 'Ask about prices, crops, selling tips...',
+        q1: 'What is the price of rice today?',
+        q2: 'Best time to sell my harvest?',
+        q3: '', q4: '',
+        button_label: 'Ask', ai_instruction: 'ask:{{user_text}}',
+      },
+      disabledWidgets: [],
+    },
+    {
+      id: 'profit_calc', title: 'Profit Calculator', isHome: false, gridColumns: 2,
+      templateId: 'calculator',
+      fieldValues: {
+        field_a_label: 'Selling price/kg', field_a_hint: 'Price per kg',
+        field_b_label: 'Cost price/kg', field_b_hint: 'Your cost per kg',
+        field_c_label: 'Quantity (kg)', field_c_hint: 'Total kg to sell',
+        field_d_label: '', field_d_hint: '',
+        slider_label: 'Tax/fee %', slider_min: '0', slider_max: '30',
+        formula_template: 'Profit: (A−B)×(1−Rate%)', custom_formula: '',
+        result_label: 'Net profit', result_prefix: '', result_suffix: '',
+      },
+      disabledWidgets: ['input_d'],
+    },
+    {
+      id: 'markets', title: 'Nearby Markets', isHome: false, gridColumns: 2,
+      templateId: 'nearby_places',
+      fieldValues: { heading: 'Find Markets Near You' },
+      disabledWidgets: [],
+    },
+    {
+      id: 'grading', title: 'Produce Grading', isHome: false, gridColumns: 2,
+      templateId: 'camera_analysis',
+      fieldValues: {
+        camera_label: 'Photo of Produce',
+        button_label: 'Grade Quality',
+        ai_instruction: 'vision_ask:Grade this produce quality (A/B/C). Identify any defects, estimate freshness, suggest best use (direct sale, processing, animal feed). {{user_text}}',
+      },
+      disabledWidgets: [],
+    },
+  ],
+  knowledgeSummary: '',
+  introPage: {
+    ...defaultIntroPage('Prices are estimates. Always verify with local market conditions.'),
+    enabled: true,
+    authorName: 'Bina Agri',
+    authorOrg: 'Bina.ai',
+    authorVerified: true,
+    links: [],
+  },
+};

@@ -12,6 +12,8 @@ export interface TemplateWidget {
   fieldMap: Record<string, string>;
 }
 
+export type ShowWhenCondition = { field: string; value: string };
+
 export interface TemplateField {
   key: string;
   label: string;
@@ -19,7 +21,7 @@ export interface TemplateField {
   type: 'text' | 'textarea' | 'select';
   options?: string[];
   defaultValue: string;
-  showWhen?: { field: string; value: string };
+  showWhen?: ShowWhenCondition | ShowWhenCondition[];
 }
 
 export interface ScreenTemplate {
@@ -31,6 +33,17 @@ export interface ScreenTemplate {
   fields: TemplateField[];
 }
 
+export interface RoutingRule {
+  value: string;
+  goto: string;
+}
+
+export interface ScreenRouting {
+  field: string;
+  rules: RoutingRule[];
+  fallback: string;
+}
+
 export interface ScreenConfig {
   id: string;
   title: string;
@@ -39,6 +52,7 @@ export interface ScreenConfig {
   templateId: string | null;
   fieldValues: Record<string, string>;
   disabledWidgets: string[];
+  routing?: ScreenRouting;
 }
 
 export interface KnowledgeFile {
@@ -47,6 +61,28 @@ export interface KnowledgeFile {
   chunks?: number;
   status: 'uploading' | 'processing' | 'ready';
   summary?: string;
+}
+
+export interface IntroPageConfig {
+  enabled: boolean;
+  disclaimer: string;
+  authorName: string;
+  authorOrg: string;
+  authorVerified: boolean;
+  links: { label: string; url: string }[];
+  acceptLabel: string;
+}
+
+export function defaultIntroPage(disclaimer?: string): IntroPageConfig {
+  return {
+    enabled: !!disclaimer,
+    disclaimer: disclaimer || 'AI-generated content. Not a professional consultation.',
+    authorName: '',
+    authorOrg: '',
+    authorVerified: false,
+    links: [],
+    acceptLabel: 'I Understand',
+  };
 }
 
 export interface RecipeConfig {
@@ -63,4 +99,33 @@ export interface RecipeConfig {
   customSecondary: string;
   screens: ScreenConfig[];
   knowledgeSummary: string;
+  introPage?: IntroPageConfig;
+}
+
+export const CURRENT_RECIPE_VERSION = 2;
+
+export interface RecipeStats {
+  downloads: string;
+  users: string;
+  rating: number;
+}
+
+export interface RecipeDocument extends RecipeConfig {
+  _version: number;
+  createdAt: Date;
+  updatedAt: Date;
+  stats: RecipeStats;
+}
+
+export interface RecipeWithId extends RecipeDocument {
+  id: string;
+}
+
+export function checkShowWhen(
+  condition: ShowWhenCondition | ShowWhenCondition[] | undefined,
+  fieldValues: Record<string, string>,
+): boolean {
+  if (!condition) return true;
+  const conditions = Array.isArray(condition) ? condition : [condition];
+  return conditions.every(c => fieldValues[c.field] === c.value);
 }

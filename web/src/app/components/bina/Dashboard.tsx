@@ -1,20 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { FileText, Users, Download, Star, Plus, ChevronRight, BadgeCheck, X } from 'lucide-react';
-
-const STATS = [
-  { label: 'Total Recipes', value: '4', icon: FileText, color: '#091A7A' },
-  { label: 'Active Users', value: '21.3K', icon: Users, color: '#3B82F6' },
-  { label: 'Downloads', value: '8.7K', icon: Download, color: '#10B981' },
-  { label: 'Avg Rating', value: '4.8', icon: Star, color: '#F59E0B' },
-];
-
-const MOCK_RECIPES = [
-  { name: 'Farm Buddy', icon: '\u{1F33E}', category: 'Agriculture', downloads: '8.7K', users: '12.4K', rating: 4.8, updated: '2 days ago', description: 'AI assistant for smallholder farmers with crop disease detection and fertiliser guidance.', screens: 5, languages: ['en', 'ms', 'id'] },
-  { name: 'Health Assistant', icon: '\u{1F3E5}', category: 'Health', downloads: '3.2K', users: '5.1K', rating: 4.6, updated: '5 days ago', description: 'Prenatal care guidance and health screening for rural communities.', screens: 3, languages: ['en', 'id', 'tl'] },
-  { name: 'Flood Triage', icon: '\u{1F6A8}', category: 'Emergency', downloads: '1.1K', users: '2.3K', rating: 4.9, updated: '1 week ago', description: 'Emergency flood response and resource allocation for disaster teams.', screens: 4, languages: ['en', 'ms', 'th'] },
-  { name: 'Math Tutor', icon: '\u{1F4DA}', category: 'Education', downloads: '950', users: '1.8K', rating: 4.5, updated: '3 days ago', description: 'Interactive math lessons with voice input for primary school students.', screens: 2, languages: ['en', 'ta'] },
-];
+import { toast } from 'sonner';
+import { FileText, Users, Download, Star, Plus, ChevronRight, BadgeCheck, X, Copy, Trash2, Loader2, Sparkles } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from '../ui/alert-dialog';
+import type { RecipeWithId } from './recipes';
+import { listRecipes, deleteRecipe, duplicateRecipe, createRecipe } from '../../lib/recipeService';
+import { RECIPES } from './recipes';
 
 const HEATMAP_REGIONS = [
   { name: 'Indonesia', x: 118.0, y: 2.5, size: 18, downloads: 3200 },
@@ -39,22 +34,77 @@ const SE_ASIA_PATHS = [
   { name: 'Brunei', d: 'M115.5,-5.4 L115.4,-5.0 L115.3,-4.3 L114.9,-4.3 L114.7,-4.0 L114.2,-4.5 L114.6,-4.9 L115.5,-5.4 Z' },
 ];
 
-interface RecipeDetail {
-  name: string;
-  icon: string;
-  category: string;
-  downloads: string;
-  users: string;
-  rating: number;
-  updated: string;
-  description: string;
-  screens: number;
-  languages: string[];
+function relativeTime(date: Date): string {
+  const now = Date.now();
+  const diff = now - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 5) return `${weeks}w ago`;
+  return date.toLocaleDateString();
 }
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const [selectedRecipe, setSelectedRecipe] = useState<RecipeDetail | null>(null);
+  const [recipes, setRecipes] = useState<RecipeWithId[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedRecipe, setSelectedRecipe] = useState<RecipeWithId | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+
+  const fetchRecipes = () => {
+    setLoading(true);
+    listRecipes()
+      .then(setRecipes)
+      .catch(() => toast.error('Failed to load recipes'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { fetchRecipes(); }, []);
+
+  const handleDelete = async () => {
+    if (!selectedRecipe) return;
+    try {
+      await deleteRecipe(selectedRecipe.id);
+      toast.success('Recipe deleted');
+      setSelectedRecipe(null);
+      setShowDeleteConfirm(false);
+      fetchRecipes();
+    } catch { toast.error('Failed to delete'); }
+  };
+
+  const handleDuplicate = async () => {
+    if (!selectedRecipe) return;
+    try {
+      await duplicateRecipe(selectedRecipe.id);
+      toast.success('Recipe duplicated');
+      fetchRecipes();
+    } catch { toast.error('Failed to duplicate'); }
+  };
+
+  const handleSeedDemo = async () => {
+    setSeeding(true);
+    try {
+      for (const recipe of Object.values(RECIPES)) {
+        await createRecipe(recipe);
+      }
+      toast.success('Demo recipe imported');
+      fetchRecipes();
+    } catch { toast.error('Failed to import'); }
+    finally { setSeeding(false); }
+  };
+
+  const stats = [
+    { label: 'Total Recipes', value: String(recipes.length), icon: FileText, color: '#091A7A' },
+    { label: 'Active Users', value: '21.3K', icon: Users, color: '#3B82F6' },
+    { label: 'Downloads', value: '8.7K', icon: Download, color: '#10B981' },
+    { label: 'Avg Rating', value: '4.8', icon: Star, color: '#F59E0B' },
+  ];
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -81,7 +131,7 @@ export function Dashboard() {
 
       {/* Stats cards */}
       <div className="grid grid-cols-4 gap-4 mb-8">
-        {STATS.map((stat) => {
+        {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <div key={stat.label} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
@@ -120,7 +170,6 @@ export function Dashboard() {
               </g>
             ))}
           </svg>
-          {/* Legend */}
           <div className="absolute bottom-3 right-3 flex items-center gap-3 bg-white/90 rounded-lg px-3 py-1.5">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-[#091A7A] opacity-30" />
@@ -143,54 +192,81 @@ export function Dashboard() {
         <div className="px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900">Your Recipes</h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-50">
-                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Recipe</th>
-                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Category</th>
-                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Downloads</th>
-                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Users</th>
-                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Rating</th>
-                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Updated</th>
-                <th className="w-10"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {MOCK_RECIPES.map((recipe) => (
-                <tr
-                  key={recipe.name}
-                  onClick={() => setSelectedRecipe(recipe)}
-                  className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors cursor-pointer"
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">{recipe.icon}</span>
-                      <span className="text-sm font-medium text-gray-900">{recipe.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">
-                      {recipe.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{recipe.downloads}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{recipe.users}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1">
-                      <Star size={14} className="text-amber-400 fill-amber-400" />
-                      <span className="text-sm font-medium text-gray-900">{recipe.rating}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{recipe.updated}</td>
-                  <td className="px-6 py-3">
-                    <ChevronRight size={16} className="text-gray-300" />
-                  </td>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 size={24} className="animate-spin text-gray-400" />
+          </div>
+        ) : recipes.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-4">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#091A7A10' }}>
+              <FileText size={28} style={{ color: '#091A7A' }} />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium text-gray-700">No recipes yet</p>
+              <p className="text-xs text-gray-500 mt-1">Create your first recipe or import the demo</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => navigate('/studio')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90"
+                style={{ background: '#091A7A' }}
+              >
+                <Plus size={16} /> Create Recipe
+              </button>
+              <button
+                onClick={handleSeedDemo}
+                disabled={seeding}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                {seeding ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                Import Demo Recipe
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-50">
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Recipe</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Category</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Screens</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Languages</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Updated</th>
+                  <th className="w-10"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {recipes.map((recipe) => (
+                  <tr
+                    key={recipe.id}
+                    onClick={() => setSelectedRecipe(recipe)}
+                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors cursor-pointer"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">{recipe.recipeIcon}</span>
+                        <span className="text-sm font-medium text-gray-900">{recipe.recipeName}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">
+                        {recipe.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{recipe.screens.length}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{recipe.selectedLanguages.length}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{relativeTime(recipe.updatedAt)}</td>
+                    <td className="px-6 py-3">
+                      <ChevronRight size={16} className="text-gray-300" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Recipe detail slide-over */}
@@ -200,9 +276,9 @@ export function Dashboard() {
           <div className="relative w-[480px] bg-white shadow-2xl overflow-y-auto animate-in slide-in-from-right">
             <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{selectedRecipe.icon}</span>
+                <span className="text-2xl">{selectedRecipe.recipeIcon}</span>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{selectedRecipe.name}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{selectedRecipe.recipeName}</h3>
                   <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{selectedRecipe.category}</span>
                 </div>
               </div>
@@ -211,21 +287,21 @@ export function Dashboard() {
               </button>
             </div>
             <div className="p-6 space-y-6">
-              <p className="text-sm text-gray-600 leading-relaxed">{selectedRecipe.description}</p>
+              <p className="text-sm text-gray-600 leading-relaxed">{selectedRecipe.recipeDescription || 'No description'}</p>
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center p-3 rounded-xl bg-gray-50">
-                  <p className="text-lg font-bold text-gray-900">{selectedRecipe.downloads}</p>
-                  <p className="text-[11px] text-gray-500">Downloads</p>
+                  <p className="text-lg font-bold text-gray-900">{selectedRecipe.screens.length}</p>
+                  <p className="text-[11px] text-gray-500">Screens</p>
                 </div>
                 <div className="text-center p-3 rounded-xl bg-gray-50">
-                  <p className="text-lg font-bold text-gray-900">{selectedRecipe.users}</p>
-                  <p className="text-[11px] text-gray-500">Active Users</p>
+                  <p className="text-lg font-bold text-gray-900">{selectedRecipe.selectedLanguages.length}</p>
+                  <p className="text-[11px] text-gray-500">Languages</p>
                 </div>
                 <div className="text-center p-3 rounded-xl bg-gray-50">
                   <div className="flex items-center justify-center gap-1">
                     <Star size={14} className="text-amber-400 fill-amber-400" />
-                    <p className="text-lg font-bold text-gray-900">{selectedRecipe.rating}</p>
+                    <p className="text-lg font-bold text-gray-900">{selectedRecipe.stats.rating || '—'}</p>
                   </div>
                   <p className="text-[11px] text-gray-500">Rating</p>
                 </div>
@@ -235,16 +311,20 @@ export function Dashboard() {
                 <h4 className="text-sm font-medium text-gray-700 mb-2">Details</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between py-2 border-b border-gray-50">
-                    <span className="text-sm text-gray-500">Screens</span>
-                    <span className="text-sm font-medium text-gray-900">{selectedRecipe.screens}</span>
+                    <span className="text-sm text-gray-500">Theme</span>
+                    <span className="text-sm font-medium text-gray-900 capitalize">{selectedRecipe.selectedTheme}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-gray-50">
                     <span className="text-sm text-gray-500">Languages</span>
-                    <span className="text-sm font-medium text-gray-900">{selectedRecipe.languages.join(', ').toUpperCase()}</span>
+                    <span className="text-sm font-medium text-gray-900">{selectedRecipe.selectedLanguages.join(', ').toUpperCase()}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-gray-50">
                     <span className="text-sm text-gray-500">Last Updated</span>
-                    <span className="text-sm font-medium text-gray-900">{selectedRecipe.updated}</span>
+                    <span className="text-sm font-medium text-gray-900">{relativeTime(selectedRecipe.updatedAt)}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-gray-50">
+                    <span className="text-sm text-gray-500">Created</span>
+                    <span className="text-sm font-medium text-gray-900">{relativeTime(selectedRecipe.createdAt)}</span>
                   </div>
                 </div>
               </div>
@@ -272,23 +352,47 @@ export function Dashboard() {
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => { const name = selectedRecipe.name; setSelectedRecipe(null); navigate('/studio', { state: { recipe: name } }); }}
+                  onClick={() => { const id = selectedRecipe.id; setSelectedRecipe(null); navigate(`/studio/${id}`); }}
                   className="flex-1 py-2.5 rounded-lg text-white text-sm font-medium"
                   style={{ background: '#091A7A' }}
                 >
                   Edit Recipe
                 </button>
                 <button
-                  onClick={() => { setSelectedRecipe(null); navigate('/analytics'); }}
-                  className="flex-1 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  onClick={handleDuplicate}
+                  className="py-2.5 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  title="Duplicate"
                 >
-                  View Analytics
+                  <Copy size={16} />
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="py-2.5 px-4 rounded-lg border border-red-200 text-sm font-medium text-red-600 hover:bg-red-50"
+                  title="Delete"
+                >
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Delete confirmation */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete recipe?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete &ldquo;{selectedRecipe?.recipeName}&rdquo;. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
