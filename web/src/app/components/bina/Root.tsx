@@ -67,6 +67,7 @@ export default function Root() {
             onClick={() => setCollapsed(c => !c)}
             className="flex items-center justify-center py-2 rounded-lg transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             style={{ color: 'rgba(255,255,255,0.5)' }}
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
           </button>

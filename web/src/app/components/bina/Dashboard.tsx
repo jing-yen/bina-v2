@@ -126,13 +126,13 @@ export function Dashboard() {
           <div className="flex items-center gap-2 mt-1.5">
             <span className="text-lg">{'\u{1F33E}'}</span>
             <span className="text-sm text-stone-600">Ministry of Agriculture, Malaysia</span>
-            <BadgeCheck size={16} className="text-blue-500" />
-            <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">Verified</span>
+            <BadgeCheck size={16} style={{ color: '#C45A3A' }} />
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ color: '#C45A3A', background: '#C45A3A10' }}>Verified</span>
           </div>
         </div>
         <button
           onClick={() => navigate('/studio')}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-medium transition-colors hover:opacity-90"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-medium shadow-card hover:shadow-interactive transition-all duration-200"
           style={{ background: '#C45A3A' }}
         >
           <Plus size={18} />
@@ -145,7 +145,7 @@ export function Dashboard() {
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
+            <div key={stat.label} className="bg-white rounded-xl border border-stone-200 p-5 shadow-card hover:shadow-interactive transition-shadow duration-200">
               <div className="flex items-center justify-between mb-3">
                 <div
                   className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -162,7 +162,7 @@ export function Dashboard() {
       </div>
 
       {/* Download heatmap */}
-      <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6 mb-8">
+      <div className="bg-white rounded-xl border border-stone-200 shadow-card p-6 mb-8">
         <h2 className="text-lg font-semibold text-stone-900 mb-1">Download Heatmap</h2>
         <p className="text-xs text-stone-500 mb-4">Where your recipes are being used across Southeast Asia</p>
         <div className="relative bg-white rounded-xl overflow-hidden" style={{ height: 260 }}>
@@ -189,7 +189,7 @@ export function Dashboard() {
               });
             })()}
           </svg>
-          <div className="absolute bottom-3 right-3 flex items-center gap-3 bg-white/90 rounded-lg px-3 py-1.5">
+          <div className="absolute bottom-3 right-3 flex items-center gap-3 rounded-lg px-3 py-1.5" style={{ background: 'rgba(250,248,245,0.92)' }}>
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-[#C45A3A] opacity-30" />
               <span className="text-[10px] text-stone-500">Low</span>
@@ -207,14 +207,24 @@ export function Dashboard() {
       </div>
 
       {/* Recipes table */}
-      <div className="bg-white rounded-xl border border-stone-200 shadow-sm">
+      <div className="bg-white rounded-xl border border-stone-200 shadow-card">
         <div className="px-6 py-4 border-b border-stone-200">
           <h2 className="text-lg font-semibold text-stone-900">Your Recipes</h2>
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 size={24} className="animate-spin text-stone-400" />
+          <div className="divide-y divide-stone-100">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="px-6 py-4 flex items-center gap-4 animate-pulse">
+                <div className="w-8 h-8 rounded-lg bg-stone-100" />
+                <div className="flex-1">
+                  <div className="h-4 w-32 bg-stone-200 rounded" />
+                  <div className="h-3 w-20 bg-stone-100 rounded mt-1.5" />
+                </div>
+                <div className="h-3 w-12 bg-stone-100 rounded" />
+                <div className="h-3 w-16 bg-stone-100 rounded" />
+              </div>
+            ))}
           </div>
         ) : recipes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
@@ -261,7 +271,7 @@ export function Dashboard() {
                   <tr
                     key={recipe.id}
                     onClick={() => setSelectedRecipe(recipe)}
-                    className="border-b border-stone-100 last:border-0 hover:bg-stone-50/50 transition-colors cursor-pointer"
+                    className="border-b border-stone-100 last:border-0 hover:bg-stone-50 transition-colors cursor-pointer group"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -278,7 +288,7 @@ export function Dashboard() {
                     <td className="px-6 py-4 text-sm text-stone-600">{recipe.selectedLanguages.length}</td>
                     <td className="px-6 py-4 text-sm text-stone-500">{relativeTime(recipe.updatedAt)}</td>
                     <td className="px-6 py-3">
-                      <ChevronRight size={16} className="text-stone-300" />
+                      <ChevronRight size={16} className="text-stone-300 group-hover:text-stone-500 transition-colors" />
                     </td>
                   </tr>
                 ))}
@@ -292,7 +302,7 @@ export function Dashboard() {
       {selectedRecipe && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-stone-900/20" onClick={() => setSelectedRecipe(null)} />
-          <div className="relative w-[480px] bg-white shadow-elevated overflow-y-auto animate-in slide-in-from-right">
+          <div className="relative w-[480px] bg-white shadow-elevated overflow-y-auto animate-in slide-in-from-right duration-300">
             <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{selectedRecipe.recipeIcon}</span>
@@ -301,7 +311,7 @@ export function Dashboard() {
                   <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">{selectedRecipe.category}</span>
                 </div>
               </div>
-              <button onClick={() => setSelectedRecipe(null)} className="text-stone-400 hover:text-stone-600">
+              <button onClick={() => setSelectedRecipe(null)} className="min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 hover:text-stone-600" aria-label="Close">
                 <X size={20} />
               </button>
             </div>
@@ -379,15 +389,17 @@ export function Dashboard() {
                 </button>
                 <button
                   onClick={handleDuplicate}
-                  className="py-2.5 px-4 rounded-lg border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50"
                   title="Duplicate"
+                  aria-label="Duplicate recipe"
                 >
                   <Copy size={16} />
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="py-2.5 px-4 rounded-lg border border-red-200 text-sm font-medium text-red-600 hover:bg-red-50"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-red-200 text-sm font-medium text-red-600 hover:bg-red-50"
                   title="Delete"
+                  aria-label="Delete recipe"
                 >
                   <Trash2 size={16} />
                 </button>

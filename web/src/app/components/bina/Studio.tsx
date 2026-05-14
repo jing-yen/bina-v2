@@ -112,10 +112,17 @@ async function callGemini(prompt: string, apiKey: string, retries = 3): Promise<
   }
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    throw new Error(res.status === 429 ? 'Rate limited — wait a moment and try again' : `Gemini API error: ${res.status}${body ? ` — ${body.slice(0, 100)}` : ''}`);
+    throw new Error(friendlyGeminiError(res.status));
   }
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+function friendlyGeminiError(status: number): string {
+  if (status === 429) return 'The AI is busy right now. Wait a moment and try again.';
+  if (status === 401 || status === 403) return 'Invalid API key. Check your Gemini API key and try again.';
+  if (status >= 500) return 'The AI service is temporarily unavailable. Try again in a few seconds.';
+  return 'Something went wrong connecting to the AI. Check your connection and try again.';
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -138,8 +145,7 @@ async function callGeminiJSON<T = any>(prompt: string, apiKey: string, schema: R
     return callGeminiJSON<T>(prompt, apiKey, schema, retries - 1);
   }
   if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(res.status === 429 ? 'Rate limited — wait a moment and try again' : `Gemini API error: ${res.status}${body ? ` — ${body.slice(0, 100)}` : ''}`);
+    throw new Error(friendlyGeminiError(res.status));
   }
   const data = await res.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -243,6 +249,13 @@ export function Studio() {
   const [pageLoading, setPageLoading] = useState(false);
   const [dirty, setDirty] = useState(false);
   const loadedRef = useRef(false);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [dirty]);
 
   // Step 1
   const [recipeName, setRecipeName] = useState('');
@@ -946,7 +959,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       setDirty(false);
       setPublishSuccess(true);
     } catch (e) {
-      toast.error(`Failed to save: ${e instanceof Error ? e.message : 'Unknown error'}`);
+      toast.error('Could not save your recipe. Check your connection and try again.');
     } finally {
       setSaving(false);
     }
@@ -1095,7 +1108,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                 ) : (
                   <input value={screen.fieldValues[f.key] || ''} onChange={e => updateScreenField(si, f.key, e.target.value)}
                     placeholder={f.placeholder}
-                    className="flex-1 h-6 text-[11px] text-stone-700 rounded border border-stone-200 bg-white px-1.5 outline-none focus:border-blue-400" />
+                    className="flex-1 h-6 text-[11px] text-stone-700 rounded border border-stone-200 bg-white px-1.5 outline-none focus:border-stone-400" />
                 )}
               </div>
             );
@@ -1129,7 +1142,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                     <input value={screen.fieldValues[`f${n}_label`] || ''}
                       onChange={e => updateScreenField(si, `f${n}_label`, e.target.value)}
                       placeholder={`Field ${n} label`}
-                      className="flex-1 h-6 text-[11px] text-stone-700 rounded border border-stone-200 bg-white px-1.5 outline-none focus:border-blue-400" />
+                      className="flex-1 h-6 text-[11px] text-stone-700 rounded border border-stone-200 bg-white px-1.5 outline-none focus:border-stone-400" />
                     <select value={screen.fieldValues[`f${n}_type`] || 'text'}
                       onChange={e => updateScreenField(si, `f${n}_type`, e.target.value)}
                       className="w-[72px] h-6 text-[10px] text-stone-600 rounded border border-stone-200 bg-white px-1 outline-none">
@@ -1158,7 +1171,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         newFV.form_field_count = String(fieldCount - 1);
                         setScreens(prev => prev.map((s, i) => i === si ? { ...s, fieldValues: newFV } : s));
                       }}
-                        className="text-stone-400 hover:text-red-500 shrink-0"><X size={10} /></button>
+                        className="text-stone-400 hover:text-red-500 shrink-0" aria-label="Remove field"><X size={10} /></button>
                     )}
                   </div>
                 ))}
@@ -1226,7 +1239,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                       onChange={e => updateScreenPrefillHint(si, key, key, e.target.value)}
                       placeholder="bind_var"
                       className="w-20 h-5 text-[10px] rounded border border-stone-200 bg-white px-1.5 outline-none font-mono" />
-                    <button onClick={() => updateScreenPrefillHint(si, key, '', '')} className="text-stone-400 hover:text-red-500"><X size={10} /></button>
+                    <button onClick={() => updateScreenPrefillHint(si, key, '', '')} className="text-stone-400 hover:text-red-500" aria-label="Remove hint"><X size={10} /></button>
                   </div>
                 ))}
                 <button onClick={() => updateScreenPrefillHint(si, '', `hint_${Date.now()}`, '')}
@@ -1261,9 +1274,10 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             <h1 className="text-2xl font-bold text-stone-900">Recipe Studio</h1>
             <p className="text-sm text-stone-500 mt-1">{recipeId ? 'Editing recipe' : 'Turn your expertise into an AI-powered tool'}</p>
           </div>
-          <div className="flex items-center gap-0.5">
-            <button onClick={undo} disabled={!canUndo} className="p-1.5 rounded-md hover:bg-stone-100 disabled:opacity-30" title="Undo (Cmd+Z)"><Undo2 size={15} className="text-stone-500" /></button>
-            <button onClick={redo} disabled={!canRedo} className="p-1.5 rounded-md hover:bg-stone-100 disabled:opacity-30" title="Redo (Cmd+Shift+Z)"><Redo2 size={15} className="text-stone-500" /></button>
+          <div className="flex items-center gap-1">
+            {dirty && <span className="text-[10px] font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full mr-1">Unsaved</span>}
+            <button onClick={undo} disabled={!canUndo} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md hover:bg-stone-100 disabled:opacity-30" title="Undo (Cmd+Z)" aria-label="Undo"><Undo2 size={16} className="text-stone-500" /></button>
+            <button onClick={redo} disabled={!canRedo} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md hover:bg-stone-100 disabled:opacity-30" title="Redo (Cmd+Shift+Z)" aria-label="Redo"><Redo2 size={16} className="text-stone-500" /></button>
           </div>
         </div>
 
@@ -1309,7 +1323,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                     <div className="relative rounded-xl overflow-hidden border border-stone-200 h-16 cursor-pointer" onClick={() => coverInputRef.current?.click()}>
                       <img src={introPage.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
                       <button onClick={e => { e.stopPropagation(); setIntroPage(p => ({ ...p, coverPhoto: undefined })); }}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-stone-900/50 flex items-center justify-center hover:bg-stone-900/70"><X size={10} className="text-white" /></button>
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-stone-900/50 flex items-center justify-center hover:bg-stone-900/70" aria-label="Remove cover photo"><X size={10} className="text-white" /></button>
                     </div>
                   ) : (
                     <button onClick={() => coverInputRef.current?.click()}
@@ -1373,7 +1387,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                   <div key={li} className="flex items-center gap-2 mb-1.5">
                     <Input value={link.label} onChange={e => setIntroPage(p => ({ ...p, links: p.links.map((l, i) => i === li ? { ...l, label: e.target.value } : l) }))} placeholder="Label" className="h-8 text-xs flex-1" />
                     <Input value={link.url} onChange={e => setIntroPage(p => ({ ...p, links: p.links.map((l, i) => i === li ? { ...l, url: e.target.value } : l) }))} placeholder="https://..." className="h-8 text-xs flex-1" />
-                    <button onClick={() => setIntroPage(p => ({ ...p, links: p.links.filter((_, i) => i !== li) }))} className="text-stone-400 hover:text-red-500"><X size={14} /></button>
+                    <button onClick={() => setIntroPage(p => ({ ...p, links: p.links.filter((_, i) => i !== li) }))} className="text-stone-400 hover:text-red-500" aria-label="Remove link"><X size={14} /></button>
                   </div>
                 ))}
               </div>
@@ -1528,12 +1542,12 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                     const tmpl = screen.templateId ? getScreenTemplate(screen.templateId) : null;
                     return (
                       <div key={screen.id} className="rounded-xl border overflow-hidden bg-white" style={{ borderColor: isActive ? '#C45A3A' : '#E7E0D8', boxShadow: isActive ? '0 0 0 1px #C45A3A' : 'none' }}>
-                        <button onClick={() => { setActiveScreenIndex(si); setPreviewIntro(false); }} className="w-full flex items-center gap-2 px-4 py-2.5 text-left" style={{ background: isActive ? '#C45A3A08' : '#FAFAFA' }}>
+                        <button onClick={() => { setActiveScreenIndex(si); setPreviewIntro(false); }} className="w-full flex items-center gap-2 px-4 py-2.5 text-left" style={{ background: isActive ? '#C45A3A08' : '#FAF8F5' }}>
                           <span className="text-sm shrink-0">{screen.screenIcon || tmpl?.emoji || '\u{1F4CB}'}</span>
                           <span className="text-sm font-medium text-stone-900 flex-1 truncate">{screen.title || tmpl?.name || 'Untitled'}</span>
                           {tmpl && <span className="text-[9px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500">{tmpl.emoji} {tmpl.name}</span>}
                           <ChevronDown size={14} className="text-stone-500" style={{ transform: isActive ? 'rotate(180deg)' : 'rotate(0)' }} />
-                          <button onClick={e => { e.stopPropagation(); duplicateScreen(si); }} className="text-stone-400 hover:text-blue-500" title="Duplicate"><Copy size={13} /></button>
+                          <button onClick={e => { e.stopPropagation(); duplicateScreen(si); }} className="text-stone-400 hover:text-stone-600" title="Duplicate"><Copy size={13} /></button>
                           {screens.filter(s => !s.isHome).length > 1 && <button onClick={e => { e.stopPropagation(); removeScreen(si); }} className="text-stone-400 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>}
                         </button>
 
@@ -1545,7 +1559,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                                 <select
                                   value={screen.screenIcon || (tmpl?.emoji || '\u{1F4CB}')}
                                   onChange={e => setScreens(prev => prev.map((s, i) => i === si ? { ...s, screenIcon: e.target.value } : s))}
-                                  className="w-10 h-8 text-center text-lg appearance-none rounded-lg border border-stone-200 bg-white cursor-pointer outline-none focus:border-blue-400">
+                                  className="w-10 h-8 text-center text-lg appearance-none rounded-lg border border-stone-200 bg-white cursor-pointer outline-none focus:border-stone-400">
                                   {['\u{1F4CB}', '\u{1F4AC}', '\u{1F4F7}', '\u{1F9EE}', '\u{1F4CD}', '\u{1F4DD}', '\u{2705}', '\u{1F4F1}',
                                     '\u{1F33E}', '\u{1F3E5}', '\u{1F6A8}', '\u{1F4DA}', '\u{1F4B0}', '\u{1F331}', '\u{2764}\u{FE0F}',
                                     '\u{1F50D}', '\u{2B50}', '\u{1F4A1}', '\u{1F3AF}', '\u{1F916}', '\u{1F30D}',
@@ -1613,7 +1627,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                                           <button onClick={() => {
                                             const rules = screen.routing!.rules.filter((_, i) => i !== ri);
                                             updateScreenRouting(si, { ...screen.routing!, rules });
-                                          }} className="text-stone-400 hover:text-red-500"><X size={12} /></button>
+                                          }} className="text-stone-400 hover:text-red-500" aria-label="Remove rule"><X size={12} /></button>
                                         </div>
                                       ))}
                                       <button onClick={() => updateScreenRouting(si, { ...screen.routing!, rules: [...screen.routing!.rules, { value: '', goto: '' }] })}
@@ -1658,11 +1672,11 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               {knowledgeFiles.length === 0 && (
                 <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-stone-300 rounded-2xl p-8 flex flex-col items-center gap-3 hover:border-stone-400 cursor-pointer transition-colors bg-stone-50/50">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-blue-50 text-base">{'\u{1F4C4}'}</div>
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-stone-100 text-base">{'\u{1F4C4}'}</div>
                     <ChevronRight size={14} className="text-stone-400" />
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-purple-50 text-base">{'\u{2728}'}</div>
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center text-base" style={{ background: '#C45A3A10' }}>{'\u{2728}'}</div>
                     <ChevronRight size={14} className="text-stone-400" />
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-green-50 text-base">{'\u{1F4F1}'}</div>
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-stone-100 text-base">{'\u{1F4F1}'}</div>
                   </div>
                   <h2 className="text-lg font-bold text-stone-900">Start with what you know</h2>
                   <p className="text-sm text-stone-500 max-w-sm mx-auto text-center">Upload your expertise — guides, manuals, protocols — and we&apos;ll turn it into an AI-powered recipe.</p>
@@ -1678,7 +1692,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               {knowledgeFiles.length === 0 && (
                 <div>
                   <p className="text-xs font-medium text-stone-500 mb-2">Or start with a demo document</p>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     {DEMO_DOCUMENTS.map(doc => (
                       <button key={doc.name} onClick={() => {
                         const words = doc.content.split(/\s+/);
@@ -1687,11 +1701,13 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         if (cur.trim()) chunks.push(cur.trim());
                         setKnowledgeFiles(prev => [...prev, { name: doc.name, size: `${(doc.content.length / 1024).toFixed(1)} KB`, status: 'ready', chunks: chunks.length, summary: doc.content.slice(0, 200) + '...' }]);
                       }}
-                        className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50 transition-all cursor-pointer">
-                        <span className="text-xl">{doc.emoji}</span>
-                        <span className="text-[10px] font-medium text-stone-700 text-center leading-tight">{doc.name}</span>
-                        <span className="text-[9px] text-stone-500">{doc.category}</span>
-                        <span className="text-[8px] text-stone-500 text-center leading-tight">{doc.author} · {doc.org}</span>
+                        className="flex items-center gap-3 p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 hover:shadow-card transition-all cursor-pointer text-left">
+                        <span className="text-2xl shrink-0">{doc.emoji}</span>
+                        <div className="min-w-0">
+                          <span className="text-xs font-medium text-stone-800 block truncate">{doc.name}</span>
+                          <span className="text-[10px] text-stone-500">{doc.category}</span>
+                          <span className="text-[10px] text-stone-400 block truncate">{doc.author} · {doc.org}</span>
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -1713,7 +1729,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         </div>
                         {f.status !== 'ready' && <Progress value={f.status === 'uploading' ? 40 : 75} className="mt-1.5 h-1.5" />}
                       </div>
-                      <button onClick={() => removeFile(i)} className="text-stone-500 hover:text-stone-600 shrink-0"><X size={16} /></button>
+                      <button onClick={() => removeFile(i)} className="text-stone-500 hover:text-stone-600 shrink-0" aria-label="Remove file"><X size={16} /></button>
                     </div>
                   ))}
                   <button onClick={() => fileInputRef.current?.click()}
@@ -1892,25 +1908,29 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             <div className="space-y-5 max-w-2xl mx-auto">
               <h2 className="text-lg font-semibold text-stone-900">Review & Publish</h2>
               <p className="text-sm text-stone-500 -mt-3">Check everything looks right before sharing with the world.</p>
-              <div className="rounded-xl border border-stone-200 bg-white overflow-hidden">
-                <div className="px-5 py-4 flex items-center gap-3 border-b border-stone-100">
-                  <span className="text-2xl">{recipeIcon}</span>
-                  <div><p className="text-sm font-semibold text-stone-900">{recipeName || 'Untitled'}</p><p className="text-xs text-stone-500">{recipeDescription || 'No description'}</p></div>
-                  <span className="ml-auto text-xs font-medium px-2.5 py-1 rounded-full bg-stone-100 text-stone-600">{category}</span>
+              <div className="rounded-xl border border-stone-200 bg-white overflow-hidden shadow-card">
+                <div className="px-5 py-4 flex items-center gap-3" style={{ background: '#C45A3A08' }}>
+                  <span className="text-3xl">{recipeIcon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-bold text-stone-900">{recipeName || 'Untitled'}</p>
+                    <p className="text-xs text-stone-500 truncate">{recipeDescription || 'No description'}</p>
+                  </div>
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full text-white shrink-0" style={{ background: '#C45A3A' }}>{category}</span>
                 </div>
-                <div className="px-5 py-3 grid grid-cols-3 gap-4 text-center border-b border-stone-100">
-                  <div><p className="text-lg font-bold text-stone-900">{screens.length}</p><p className="text-[11px] text-stone-500">Screens</p></div>
-                  <div><p className="text-lg font-bold text-stone-900">{screens.filter(s => s.templateId).length}</p><p className="text-[11px] text-stone-500">Templates</p></div>
-                  <div><p className="text-lg font-bold text-stone-900">{selectedLanguages.length}</p><p className="text-[11px] text-stone-500">Languages</p></div>
+                <div className="px-5 py-4 grid grid-cols-3 gap-4 text-center border-y border-stone-100">
+                  <div><p className="text-xl font-bold text-stone-900">{screens.length}</p><p className="text-[11px] text-stone-500">Screens</p></div>
+                  <div><p className="text-xl font-bold text-stone-900">{screens.filter(s => s.templateId).length}</p><p className="text-[11px] text-stone-500">Templates</p></div>
+                  <div><p className="text-xl font-bold text-stone-900">{selectedLanguages.length}</p><p className="text-[11px] text-stone-500">Languages</p></div>
                 </div>
-                <div className="px-5 py-3">
+                <div className="px-5 py-3 divide-y divide-stone-50">
                   {screens.map(s => {
                     const pd = s.templateId ? getScreenTemplate(s.templateId) : null;
                     return (
-                      <div key={s.id} className="flex items-center gap-2 py-1">
-                        <span className="text-xs font-medium text-stone-700">{screenTitle(s)}</span>
-                        {pd && <span className="text-[10px] text-stone-500">{pd.emoji} {pd.name}</span>}
-                        {s.isHome && screens.length > 1 && <span className="text-[10px] text-stone-500">+ Grid ({s.gridColumns} col)</span>}
+                      <div key={s.id} className="flex items-center gap-2.5 py-2">
+                        <span className="text-sm">{s.screenIcon || (pd?.emoji) || '\u{1F4CB}'}</span>
+                        <span className="text-sm font-medium text-stone-800">{screenTitle(s)}</span>
+                        {pd && <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500">{pd.name}</span>}
+                        {s.isHome && screens.length > 1 && <span className="text-[10px] text-stone-400 ml-auto">{s.gridColumns}-col grid</span>}
                       </div>
                     );
                   })}
@@ -1979,7 +1999,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
 
         {/* Bottom bar */}
         {!publishSuccess && (
-        <div className="sticky bottom-0 border-t border-stone-200 bg-white px-8 py-4 flex items-center justify-between">
+        <div className="sticky bottom-0 border-t border-stone-100 px-8 py-4 flex items-center justify-between" style={{ background: 'linear-gradient(to top, #FFFFFF 60%, rgba(255,255,255,0.95))' }}>
           <div>{currentStep > 1 && <button onClick={() => setCurrentStep(s => s - 1)} className="flex items-center gap-1 text-sm font-medium text-stone-600 hover:text-stone-900"><ChevronLeft size={16} /> Previous</button>}</div>
           <div className="flex items-center gap-3">
             {currentStep === 4 && <>
@@ -2006,7 +2026,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           {screens.length > 1 && <span className="text-[10px] text-stone-500 ml-2">{screenTitle(activeScreen)}</span>}
         </div>
         <div ref={previewContainerRef} className="flex-1 w-full flex items-center justify-center min-h-0">
-        <div className="rounded-[2.5rem] p-3 shadow-xl" style={{ background: '#292524', width: 280, transform: `scale(${phoneScale})`, transformOrigin: 'center center' }}>
+        <div className="rounded-[2.5rem] p-3 shadow-elevated" style={{ background: '#292524', width: 280, transform: `scale(${phoneScale})`, transformOrigin: 'center center' }}>
           <div className="rounded-[2rem] overflow-hidden flex flex-col" style={{ background: activeSecondary, height: 560 }}>
             <div className="flex items-center justify-between px-5 pt-3 pb-1">
               <span className="text-[10px] font-medium" style={{ color: activePrimary }}>9:41</span>
@@ -2257,7 +2277,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           <div className="grid grid-cols-2 gap-3">
             {THEMES.map(t => <button key={t.key} onClick={() => { setSelectedTheme(t.key); if (t.key !== 'custom') setShowThemePicker(false); }}
               className="flex items-center gap-3 p-3 rounded-xl border-2 text-left"
-              style={{ borderColor: selectedTheme === t.key ? '#C45A3A' : '#E7E0D8', background: selectedTheme === t.key ? '#F8FAFC' : 'white' }}>
+              style={{ borderColor: selectedTheme === t.key ? '#C45A3A' : '#E7E0D8', background: selectedTheme === t.key ? '#FAF8F5' : 'white' }}>
               <div className="flex gap-1"><div className="w-6 h-6 rounded-full" style={{ background: t.primary }} /><div className="w-6 h-6 rounded-full" style={{ background: t.secondary }} /></div>
               <span className="text-xs font-medium text-stone-700">{t.label}</span>
             </button>)}

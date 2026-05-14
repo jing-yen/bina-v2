@@ -14,7 +14,7 @@ export function TopHeader({ userMode, onToggleMode }: TopHeaderProps) {
         <div className="flex items-center gap-2">
           <motion.div
             whileTap={{ scale: 0.9 }}
-            className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg"
+            className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-interactive"
             style={{ background: '#C45A3A' }}
           >
             <span className="text-white font-bold" style={{ fontSize: '18px' }}>B</span>
@@ -28,7 +28,7 @@ export function TopHeader({ userMode, onToggleMode }: TopHeaderProps) {
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={onToggleMode}
-          className="flex items-center gap-2 px-4 py-2 rounded-full border border-stone-200/30 shadow-lg min-h-[44px]"
+          className="flex items-center gap-2 px-4 py-2 rounded-full border border-stone-200/30 shadow-interactive min-h-[44px]"
           style={{
             background: userMode === 'builder'
               ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'

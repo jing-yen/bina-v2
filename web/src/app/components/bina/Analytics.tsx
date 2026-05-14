@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, Download, Globe, Users, BarChart3, Award, Star, MessageSquare } from 'lucide-react';
+import { TrendingUp, Download, Globe, Users, BarChart3, Award, Star, MessageSquare, AlertCircle, RefreshCw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 import { fetchPlatformStats, fetchRegionCounts, type PlatformStats, type RegionCount } from '../../lib/analyticsService';
 
@@ -18,14 +18,71 @@ const FEEDBACK = [
 export function Analytics() {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [regions, setRegions] = useState<RegionCount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    fetchPlatformStats().then(setStats).catch(() => {});
-    fetchRegionCounts().then(setRegions).catch(() => {});
-  }, []);
+  const loadData = () => {
+    setLoading(true);
+    setError(false);
+    Promise.all([
+      fetchPlatformStats().then(setStats),
+      fetchRegionCounts().then(setRegions),
+    ])
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { loadData(); }, []);
 
   const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
   const totalRegionCount = regions.reduce((a, r) => a + r.count, 0) || 1;
+
+  if (error) {
+    return (
+      <div className="p-8 max-w-6xl mx-auto">
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-red-50">
+            <AlertCircle size={28} className="text-red-500" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium text-stone-700">Could not load analytics</p>
+            <p className="text-xs text-stone-500 mt-1">Check your connection and try again.</p>
+          </div>
+          <button onClick={loadData} className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#C45A3A' }}>
+            <RefreshCw size={14} /> Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="p-8 max-w-6xl mx-auto">
+        <div className="mb-8">
+          <div className="h-7 w-48 bg-stone-200 rounded animate-pulse" />
+          <div className="h-4 w-64 bg-stone-100 rounded animate-pulse mt-2" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="bg-white rounded-xl border border-stone-200 p-5 shadow-card animate-pulse">
+              <div className="w-10 h-10 rounded-lg bg-stone-100 mb-3" />
+              <div className="h-7 w-16 bg-stone-200 rounded" />
+              <div className="h-4 w-24 bg-stone-100 rounded mt-2" />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {[1, 2].map(i => (
+            <div key={i} className="bg-white rounded-xl border border-stone-200 p-6 shadow-card animate-pulse">
+              <div className="h-5 w-36 bg-stone-200 rounded mb-4" />
+              <div className="h-52 bg-stone-100 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -38,7 +95,7 @@ export function Analytics() {
       {/* Stats grid - 4 columns */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {/* Total Downloads */}
-        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-card hover:shadow-interactive transition-shadow duration-200">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#10B98115' }}>
               <Download size={20} className="text-green-600" />
@@ -48,12 +105,12 @@ export function Analytics() {
           <p className="text-sm text-stone-500 mt-1">Total Downloads</p>
           <div className="flex items-center gap-1 mt-2">
             <TrendingUp size={14} className="text-green-600" />
-            <span className="text-xs font-semibold text-green-600">Live from Firestore</span>
+            <span className="text-xs font-medium text-stone-500">All published recipes</span>
           </div>
         </div>
 
         {/* Average Rating */}
-        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-card hover:shadow-interactive transition-shadow duration-200">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#F59E0B15' }}>
               <Award size={20} className="text-amber-500" />
@@ -63,13 +120,13 @@ export function Analytics() {
           <p className="text-sm text-stone-500 mt-1">Average Rating</p>
           <div className="flex gap-0.5 mt-2">
             {[1, 2, 3, 4, 5].map(s => (
-              <Star key={s} size={14} className="text-amber-400 fill-amber-400" />
+              <Star key={s} size={14} className={s <= Math.round(stats?.avgRating || 0) ? 'text-amber-400 fill-amber-400' : 'text-stone-200'} />
             ))}
           </div>
         </div>
 
         {/* Active Users */}
-        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-card hover:shadow-interactive transition-shadow duration-200">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#C45A3A15' }}>
               <Users size={20} style={{ color: '#C45A3A' }} />
@@ -78,28 +135,27 @@ export function Analytics() {
           <p className="text-2xl font-bold text-stone-900">{stats ? formatCount(stats.uniqueDevices) : '—'}</p>
           <p className="text-sm text-stone-500 mt-1">Active Users</p>
           <div className="flex items-center gap-1 mt-2">
-            <TrendingUp size={14} className="text-green-600" />
-            <span className="text-xs font-semibold text-green-600">Unique devices</span>
+            <span className="text-xs font-medium text-stone-500">Unique devices</span>
           </div>
         </div>
 
         {/* Regions */}
-        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-card hover:shadow-interactive transition-shadow duration-200">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#3B82F615' }}>
-              <Globe size={20} className="text-blue-500" />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#C45A3A15' }}>
+              <Globe size={20} style={{ color: '#C45A3A' }} />
             </div>
           </div>
           <p className="text-2xl font-bold text-stone-900">{stats ? stats.countriesReached : '—'}</p>
           <p className="text-sm text-stone-500 mt-1">Countries Reached</p>
-          <p className="text-xs text-blue-500 mt-2">Southeast Asia focused</p>
+          <p className="text-xs text-stone-500 mt-2">Southeast Asia focused</p>
         </div>
       </div>
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Download Trends */}
-        <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-stone-900">Download Trends</h3>
             <BarChart3 size={18} className="text-stone-400" />
@@ -120,7 +176,7 @@ export function Analytics() {
         </div>
 
         {/* Regional Distribution */}
-        <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-card">
           <h3 className="text-base font-semibold text-stone-900 mb-4">Regional Distribution</h3>
           <div className="space-y-4">
             {(regions.length > 0 ? regions.slice(0, 6) : [{ countryCode: '—', count: 0 }]).map((rc) => {
@@ -148,22 +204,24 @@ export function Analytics() {
       {/* User feedback cards */}
       <div className="mb-8">
         <h3 className="text-base font-semibold text-stone-900 mb-4">User Feedback</h3>
-        <div className="bg-white rounded-xl border border-stone-200 shadow-sm divide-y divide-stone-200">
+        <div className="bg-white rounded-xl border border-stone-200 shadow-card divide-y divide-stone-100 overflow-hidden">
           {FEEDBACK.map((fb, i) => (
-            <div key={i} className="flex items-start gap-4 p-5">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: '#C45A3A' }}>
-                <MessageSquare size={14} className="text-white" />
+            <div key={i} className="flex items-start gap-4 p-5 hover:bg-stone-50/50 transition-colors">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#C45A3A15' }}>
+                <MessageSquare size={15} style={{ color: '#C45A3A' }} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-sm font-semibold text-stone-900">{fb.user}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-stone-900">{fb.user}</p>
+                    <p className="text-[11px] text-stone-400">{fb.location}</p>
+                  </div>
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map(s => (
                       <Star key={s} size={12} className={s <= fb.rating ? 'text-amber-400 fill-amber-400' : 'text-stone-200'} />
                     ))}
                   </div>
                 </div>
-                <p className="text-xs text-stone-400 mb-1">{fb.location}</p>
                 <p className="text-sm text-stone-600 leading-relaxed">{fb.text}</p>
               </div>
             </div>
@@ -172,9 +230,9 @@ export function Analytics() {
       </div>
 
       {/* Achievement badge */}
-      <div className="rounded-xl border border-amber-100 p-6 shadow-sm" style={{ background: '#FFFBEB' }}>
+      <div className="rounded-xl border p-6 shadow-card" style={{ background: '#C45A3A08', borderColor: '#C45A3A20' }}>
         <div className="flex gap-4 items-center">
-          <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-amber-400 shrink-0">
+          <div className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#C45A3A' }}>
             <Award size={28} className="text-white" />
           </div>
           <div>
