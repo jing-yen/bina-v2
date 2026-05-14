@@ -5,7 +5,7 @@ import {
   FileText, Palette, Upload, Download, Save,
   ChevronLeft, ChevronRight, ChevronDown, Eye, X, Plus, Trash2,
   Camera, Mic, Globe, Home, Link2, Shield, User, Copy, MessageCircle, LayoutGrid,
-  Loader2, Sparkles, Search, Check, GitBranch, Undo2, Redo2,
+  Loader2, Sparkles, Search, Check, GitBranch, Undo2, Redo2, PartyPopper,
 } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -100,14 +100,14 @@ const STEPS = [
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent';
 
-async function callGemini(prompt: string, apiKey: string, retries = 2): Promise<string> {
+async function callGemini(prompt: string, apiKey: string, retries = 3): Promise<string> {
   const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 2048 } }),
   });
-  if (res.status === 429 && retries > 0) {
-    await new Promise(r => setTimeout(r, 2000 * (3 - retries)));
+  if ([429, 500, 502, 503].includes(res.status) && retries > 0) {
+    await new Promise(r => setTimeout(r, 2000 * (4 - retries)));
     return callGemini(prompt, apiKey, retries - 1);
   }
   if (!res.ok) {
@@ -133,8 +133,8 @@ async function callGeminiJSON<T = any>(prompt: string, apiKey: string, schema: R
       },
     }),
   });
-  if (res.status === 429 && retries > 0) {
-    await new Promise(r => setTimeout(r, 2000 * (3 - retries)));
+  if ([429, 500, 502, 503].includes(res.status) && retries > 0) {
+    await new Promise(r => setTimeout(r, 2000 * (4 - retries)));
     return callGeminiJSON<T>(prompt, apiKey, schema, retries - 1);
   }
   if (!res.ok) {
@@ -144,6 +144,21 @@ async function callGeminiJSON<T = any>(prompt: string, apiKey: string, schema: R
   const data = await res.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   return JSON.parse(text);
+}
+
+// ─── Emoji sanitizer ───
+// Gemini returns CLDR slug names like "emoji_seedling" instead of Unicode characters.
+// We use the full Unicode CLDR slug→emoji map (1900+ entries) as fallback.
+import emojiSlugMap from './recipes/emojiSlugMap.json';
+
+function sanitizeEmoji(raw: string): string {
+  if (!raw) return '\u{1F916}';
+  const trimmed = raw.trim();
+  const emojiMatch = trimmed.match(/(\p{Emoji_Presentation}|\p{Emoji}\u{FE0F})/u);
+  if (emojiMatch) return emojiMatch[0];
+  const cleaned = trimmed.replace(/^emoji_?/i, '').replace(/^:/, '').replace(/:$/, '').toLowerCase().trim();
+  if ((emojiSlugMap as Record<string, string>)[cleaned]) return (emojiSlugMap as Record<string, string>)[cleaned];
+  return '\u{1F916}';
 }
 
 // ─── YAML serializer ───
@@ -224,6 +239,7 @@ export function Studio() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [publishSuccess, setPublishSuccess] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [dirty, setDirty] = useState(false);
   const loadedRef = useRef(false);
@@ -236,7 +252,7 @@ export function Studio() {
   const [blockedKeywords, setBlockedKeywords] = useState('');
   const [introPage, setIntroPage] = useState<IntroPageConfig>({ ...defaultIntroPage(), enabled: true });
   const [category, setCategory] = useState('Education');
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['en']);
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(ALL_LANGUAGES.map(l => l.code));
   const [langSearch, setLangSearch] = useState('');
   const [maxClarifications, setMaxClarifications] = useState(2);
   const [fallbackScreen, setFallbackScreen] = useState('');
@@ -264,6 +280,12 @@ export function Studio() {
   const [knowledgeSuggestions, setKnowledgeSuggestions] = useState<{ recipeName: string; recipeDescription: string; category: string; systemPrompt: string; recipeIcon: string; themeKey: string; authorName: string; authorOrg: string; links: { label: string; url: string }[]; homeHeading: string; homeHint: string; sampleConversation: { userMessage: string; aiClarification: string; userReply: string }; screens: { id: string; title: string; emoji: string; templateId: string; heading: string; hint: string; description: string; buttonLabel: string; aiInstruction: string }[] } | null>(null);
   const [suggestionSelections, setSuggestionSelections] = useState<{ name: boolean; description: boolean; category: boolean; systemPrompt: boolean; icon: boolean; theme: boolean; author: boolean; links: boolean; homePreview: boolean; screens: Record<number, boolean> }>({ name: true, description: true, category: true, systemPrompt: true, icon: true, theme: true, author: true, links: true, homePreview: true, screens: {} });
   const [identityExpanded, setIdentityExpanded] = useState(false);
+  const [suggestionsApplied, setSuggestionsApplied] = useState(false);
+
+  const updateSuggestionSelection = (updater: (prev: typeof suggestionSelections) => typeof suggestionSelections) => {
+    setSuggestionSelections(updater);
+    setSuggestionsApplied(false);
+  };
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
@@ -375,7 +397,7 @@ export function Studio() {
   const loadRecipe = (recipe: RecipeConfig) => {
     setRecipeName(recipe.recipeName);
     setRecipeDescription(recipe.recipeDescription);
-    setRecipeIcon(recipe.recipeIcon);
+    setRecipeIcon(sanitizeEmoji(recipe.recipeIcon));
     setSystemPrompt(recipe.systemPrompt);
     setBlockedKeywords(recipe.blockedKeywords);
     setIntroPage({ ...(recipe.introPage || defaultIntroPage(recipe.disclaimer)), enabled: true });
@@ -384,7 +406,7 @@ export function Studio() {
     setSelectedTheme(recipe.selectedTheme);
     setCustomPrimary(recipe.customPrimary);
     setCustomSecondary(recipe.customSecondary);
-    setScreens(recipe.screens);
+    setScreens(recipe.screens.map(s => s.screenIcon ? { ...s, screenIcon: sanitizeEmoji(s.screenIcon) } : s));
     setKnowledgeSummary(recipe.knowledgeSummary);
     setMaxClarifications(recipe.maxClarifications ?? 2);
     setFallbackScreen(recipe.fallbackScreen ?? '');
@@ -398,7 +420,7 @@ export function Studio() {
     const def = getScreenTemplate(templateId);
     const id = `screen_${Date.now()}`;
     const title = customTitle || def?.name || 'New Screen';
-    const newScreen: ScreenConfig = { id, title, isHome: false, gridColumns: 1, ...createScreen(templateId), ...(customEmoji ? { screenIcon: customEmoji } : {}) };
+    const newScreen: ScreenConfig = { id, title, isHome: false, gridColumns: 1, ...createScreen(templateId), ...(customEmoji ? { screenIcon: sanitizeEmoji(customEmoji) } : {}) };
     setScreens(prev => [...prev, newScreen]);
     setShowTemplatePicker(false);
     setTimeout(() => {
@@ -545,7 +567,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                   title: { type: 'STRING' },
                   isHome: { type: 'BOOLEAN' },
                   gridColumns: { type: 'INTEGER' },
-                  templateId: { type: 'STRING', enum: ['ask_ai', 'camera_analysis', 'calculator', 'nearby_places', 'info_display', 'checklist'] },
+                  templateId: { type: 'STRING', enum: ['ask_ai', 'camera_analysis', 'calculator', 'nearby_places', 'info_display', 'checklist', 'sms_dispatch'] },
                   fields: { type: 'OBJECT', properties: { hint: { type: 'STRING' }, ai_instruction: { type: 'STRING' } } },
                 },
                 required: ['id', 'title', 'templateId'],
@@ -606,8 +628,9 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     try {
       const demoMeta = ready.map(f => DEMO_DOCUMENTS.find(d => d.name === f.name)).filter(Boolean);
       const metaHint = demoMeta.length > 0 ? `\n\nDocument metadata (use these exactly):\n${demoMeta.map(d => `- Author: ${d!.author}, Organisation: ${d!.org}\n  Links: ${d!.links.map(l => `${l.label}: ${l.url}`).join(', ')}`).join('\n')}` : '';
+      setSuggestionsApplied(false);
       const parsed = await callGeminiJSON(
-        `Based on these documents, suggest a Bina.ai recipe configuration.\n\nDocuments:\n${ready.map(f => `${f.name}: ${f.summary}`).join('\n\n')}${metaHint}\n\nAvailable screen templates: ask_ai (chat/Q&A), camera_analysis (photo analysis), calculator (numeric calc), nearby_places (location finder), info_display (static info), checklist (step-by-step guide).\nSuggest 2-4 screens relevant to the document content. First should be ask_ai for general Q&A. Category must be one of: Agriculture, Health, Education, Emergency, Finance, Environment.\nChoose an appropriate emoji icon for the recipe and a theme color (navy for general, forest for agriculture/nature, coral for emergency/health, amber for finance/education).\n\nAlso provide:\n- authorName and authorOrg: Use the document metadata author/org if provided above. Otherwise suggest appropriate ones.\n- links: Use the document metadata links if provided above. Otherwise suggest 2-3 relevant reference links.\n- homeHeading: A contextual heading for the home chat screen, e.g. "What crop issue can I help with?"\n- homeHint: An input placeholder for the home chat, e.g. "Describe your crop symptoms..."\n- sampleConversation: A sample conversation demonstrating the recipe in action with a userMessage, aiClarification, and userReply. Make it contextual to the uploaded documents.\n- For each screen: heading (screen heading text), hint (input placeholder), description (short description of what the screen does), buttonLabel (action button text like "Diagnose", "Calculate", "Find"), and aiInstruction (the AI prompt instruction — for ask_ai use "ask:{{user_text}}" but prefix with context like "ask:Based on the crop disease knowledge base, diagnose and recommend treatment for: {{user_text}}". For camera_analysis use "vision_ask:Analyze this photo and identify [specific thing based on content]. {{user_text}}"). Make aiInstruction specific and useful, not generic.`,
+        `Based on these documents, suggest a Bina.ai recipe configuration.\n\nDocuments:\n${ready.map(f => `${f.name}: ${f.summary}`).join('\n\n')}${metaHint}\n\nAvailable screen templates: ask_ai (chat/Q&A), camera_analysis (photo analysis), calculator (numeric calc), nearby_places (location finder), info_display (static info), checklist (step-by-step guide), sms_dispatch (pre-configured contacts for SMS or phone calls — no AI needed).\nSuggest 2-4 screens relevant to the document content. First should be ask_ai for general Q&A. Category must be one of: Agriculture, Health, Education, Emergency, Finance, Environment.\nChoose an appropriate emoji icon (return the actual Unicode emoji character like 🌾, NOT text names like "seedling" or "emoji_seedling") for the recipe and a theme color (navy for general, forest for agriculture/nature, coral for emergency/health, amber for finance/education).\n\nAlso provide:\n- authorName and authorOrg: Use the document metadata author/org if provided above. Otherwise suggest appropriate ones.\n- links: Use the document metadata links if provided above. Otherwise suggest 2-3 relevant reference links.\n- homeHeading: A contextual heading for the home chat screen, e.g. "What crop issue can I help with?"\n- homeHint: An input placeholder for the home chat, e.g. "Describe your crop symptoms..."\n- sampleConversation: A sample conversation demonstrating the recipe in action with a userMessage, aiClarification, and userReply. Make it contextual to the uploaded documents.\n- For each screen: heading (screen heading text), hint (input placeholder or "call"/"sms" for sms_dispatch), description (for sms_dispatch: contacts as "Name | Phone" lines separated by newlines, e.g. "Ambulance | 999\\nFire Dept | 994"), buttonLabel (action button text like "Diagnose", "Calculate", "Find"), and aiInstruction (the AI prompt instruction — for ask_ai use "ask:{{user_text}}" but prefix with context like "ask:Based on the crop disease knowledge base, diagnose and recommend treatment for: {{user_text}}". For camera_analysis use "vision_ask:Analyze this photo and identify [specific thing based on content]. {{user_text}}". For sms_dispatch use the SMS message template e.g. "Emergency at my location. Need help."). Make aiInstruction specific and useful, not generic.`,
         apiKey,
         {
           type: 'OBJECT',
@@ -616,7 +639,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             recipeDescription: { type: 'STRING' },
             category: { type: 'STRING', enum: ['Agriculture', 'Health', 'Education', 'Emergency', 'Finance', 'Environment'] },
             systemPrompt: { type: 'STRING' },
-            recipeIcon: { type: 'STRING', description: 'A single emoji for the recipe icon' },
+            recipeIcon: { type: 'STRING', description: 'A single Unicode emoji character like 🌾 or 🏥. Do NOT return emoji names like "seedling" — return the actual Unicode character.' },
             themeKey: { type: 'STRING', enum: ['navy', 'forest', 'coral', 'amber'] },
             authorName: { type: 'STRING' },
             authorOrg: { type: 'STRING' },
@@ -631,8 +654,8 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                 properties: {
                   id: { type: 'STRING' },
                   title: { type: 'STRING' },
-                  emoji: { type: 'STRING' },
-                  templateId: { type: 'STRING', enum: ['ask_ai', 'camera_analysis', 'calculator', 'nearby_places', 'info_display', 'checklist'] },
+                  emoji: { type: 'STRING', description: 'A single Unicode emoji character like 📷 or 📊. Do NOT return emoji names — return the actual character.' },
+                  templateId: { type: 'STRING', enum: ['ask_ai', 'camera_analysis', 'calculator', 'nearby_places', 'info_display', 'checklist', 'sms_dispatch'] },
                   heading: { type: 'STRING', description: 'Screen heading text' },
                   hint: { type: 'STRING', description: 'Input hint/placeholder text' },
                   description: { type: 'STRING', description: 'Short description of screen purpose' },
@@ -662,7 +685,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     if (sel.name && s.recipeName) setRecipeName(s.recipeName);
     if (sel.description && s.recipeDescription) setRecipeDescription(s.recipeDescription);
     if (sel.category && s.category) setCategory(s.category);
-    if (sel.icon && s.recipeIcon) setRecipeIcon(s.recipeIcon);
+    if (sel.icon && s.recipeIcon) setRecipeIcon(sanitizeEmoji(s.recipeIcon));
     if (sel.theme && s.themeKey) {
       const t = THEMES.find(t => t.key === s.themeKey);
       if (t) { setSelectedTheme(t.key as ThemeKey); setCustomPrimary(t.primary); setCustomSecondary(t.secondary); }
@@ -676,14 +699,52 @@ Do not assume any specific domain — use the recipe name, category, and knowled
         const origIdx = s.screens.indexOf(selectedScreens[i]);
         return origIdx === 0;
       });
-      const newScreens: ScreenConfig[] = selectedScreens.map((sc: { id: string; title: string; emoji: string; templateId: string; heading: string; hint: string; description: string; buttonLabel: string; aiInstruction: string }, i: number) => ({
-        id: (i === 0 && hasHome) ? 'home' : (sc.id || sc.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')),
-        title: (i === 0 && hasHome) ? '' : sc.title,
-        isHome: i === 0 && hasHome,
-        gridColumns: 1,
-        ...createScreen(sc.templateId || 'ask_ai', { heading: sc.heading, hint: sc.hint, button_label: sc.buttonLabel, ai_instruction: sc.aiInstruction }),
-        screenIcon: sc.emoji,
-      }));
+      const newScreens: ScreenConfig[] = selectedScreens.map((sc: { id: string; title: string; emoji: string; templateId: string; heading: string; hint: string; description: string; buttonLabel: string; aiInstruction: string }, i: number) => {
+        const tid = sc.templateId || 'ask_ai';
+        const overrides: Record<string, string> = {};
+        switch (tid) {
+          case 'ask_ai':
+            overrides.heading = sc.heading || 'How can I help?';
+            overrides.hint = sc.hint || 'Ask a question...';
+            overrides.button_label = sc.buttonLabel || 'Ask';
+            overrides.ai_instruction = sc.aiInstruction || 'ask:{{user_text}}';
+            break;
+          case 'camera_analysis':
+            overrides.button_label = sc.buttonLabel || 'Analyse';
+            overrides.ai_instruction = sc.aiInstruction?.startsWith('vision_ask:') ? sc.aiInstruction : `vision_ask:${sc.aiInstruction || 'Analyse this image. {{user_text}}'}`;
+            break;
+          case 'calculator':
+            overrides.field_a_label = sc.heading || 'Value A';
+            overrides.field_a_hint = sc.hint || 'Enter value';
+            overrides.result_label = sc.buttonLabel || 'Result';
+            break;
+          case 'checklist':
+            overrides.steps = sc.description ? sc.description.split(/[,;]/).map(s => s.trim() + '|text').join('\n') : 'Step 1|text\nStep 2|text\nStep 3|text';
+            break;
+          case 'nearby_places':
+            overrides.heading = sc.heading || 'Find places near you';
+            break;
+          case 'info_display':
+            overrides.text = sc.heading || 'Welcome';
+            overrides.style = 'heading';
+            break;
+          case 'sms_dispatch':
+            overrides.heading = sc.heading || 'Emergency Contacts';
+            overrides.contact_type = sc.hint?.includes('call') ? 'call' : 'sms';
+            overrides.contacts = sc.description || 'Contact 1 | +60123456789\nContact 2 | +60198765432';
+            overrides.sms_template = sc.aiInstruction || 'Help needed. Please respond.';
+            break;
+        }
+        return {
+          id: (i === 0 && hasHome) ? 'home' : (sc.id || sc.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')),
+          title: (i === 0 && hasHome) ? '' : sc.title,
+          isHome: i === 0 && hasHome,
+          gridColumns: 1,
+          ...createScreen(tid, overrides),
+          screenIcon: sanitizeEmoji(sc.emoji),
+          description: sc.description,
+        };
+      });
       if (sel.homePreview && hasHome && s.homeHeading) {
         const home = newScreens.find(ns => ns.isHome);
         if (home) {
@@ -693,6 +754,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       setScreens(newScreens);
       setActiveScreenIndex(0);
     }
+    setSuggestionsApplied(true);
     toast.success('Applied — review in Identity & Layout steps');
   };
 
@@ -729,6 +791,9 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     }
     if (allTypes.includes('checklist_items')) {
       vars.push('  checklist_step: { type: number, default: "0" }');
+    }
+    if (screens.some(s => s.templateId === 'sms_dispatch' && s.fieldValues.contact_type === 'sms')) {
+      vars.push('  sms_body:     { type: string, default: "" }');
     }
 
     const questionsYaml = screens.map(s => {
@@ -819,7 +884,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
   const API_KEY_STORAGE = 'bina_studio_api_key';
 
   useEffect(() => {
-    const savedKey = localStorage.getItem(API_KEY_STORAGE);
+    const savedKey = localStorage.getItem(API_KEY_STORAGE) || import.meta.env.VITE_GEMINI_API_KEY || '';
     if (savedKey) setApiKey(savedKey);
 
     if (recipeId) {
@@ -874,13 +939,12 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       };
       if (recipeId) {
         await updateRecipe(recipeId, config);
-        toast.success('Recipe saved');
       } else {
         const newId = await createFirestoreRecipe(config);
-        toast.success('Recipe created');
         navigate(`/studio/${newId}`, { replace: true });
       }
       setDirty(false);
+      setPublishSuccess(true);
     } catch (e) {
       toast.error(`Failed to save: ${e instanceof Error ? e.message : 'Unknown error'}`);
     } finally {
@@ -933,14 +997,15 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       }
       case 'voice_input': return null;
       case 'camera_input': return <div key={wi} className="rounded-xl bg-gray-800 flex items-center justify-center" style={{ height: 70 }}><Camera size={18} className="text-white/50" /></div>;
-      case 'action_button': return <button key={wi} className="w-full py-1.5 rounded-lg text-white text-[10px] font-semibold" style={{ background: activePrimary }}>{p.label || 'Submit'}</button>;
+      case 'action_button': return <button key={wi} className={`w-full py-1.5 rounded-lg text-[10px] font-semibold ${p.style === 'secondary' ? 'border border-gray-300 text-gray-700 bg-white' : p.style === 'danger' ? 'text-white bg-red-600' : 'text-white'}`} style={p.style !== 'secondary' && p.style !== 'danger' ? { background: activePrimary } : undefined}>{p.label || 'Submit'}</button>;
       case 'markdown_output': return <div key={wi} className="rounded-xl p-2 bg-white/50"><div className="space-y-1"><div className="h-1.5 rounded-full bg-gray-300/50 w-full" /><div className="h-1.5 rounded-full bg-gray-300/50 w-4/5" /><div className="h-1.5 rounded-full bg-gray-300/50 w-3/5" /></div></div>;
       case 'macro_grid': {
         const cols = parseInt(p.columns) || 2;
         const others = screens.filter(s => !s.isHome);
         const templateEmoji: Record<string, string> = {
           ask_ai: '\u{1F4AC}', camera_analysis: '\u{1F4F7}', calculator: '\u{1F9EE}',
-          nearby_places: '\u{1F4CD}', info_display: '\u{1F4DD}', checklist: '✅',
+          nearby_places: '\u{1F4CD}', info_display: '\u{1F4DD}', checklist: '\u{2705}',
+          sms_dispatch: '\u{1F4F1}',
         };
         return (
           <div key={wi} className="gap-1.5" style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
@@ -949,13 +1014,10 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               const screenEmoji = s.screenIcon || tmplEmoji || '\u{1F4CB}';
               return (
                 <button key={s.id} onClick={() => setActiveScreenIndex(screens.indexOf(s))}
-                  className="rounded-xl p-2.5 flex flex-col items-center gap-1 cursor-pointer hover:opacity-80 relative"
+                  className="rounded-xl p-2.5 flex flex-col items-center gap-1 cursor-pointer hover:opacity-80"
                   style={{ background: i === 0 ? activePrimary : 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
                   <span className="text-base">{screenEmoji}</span>
                   <span className="text-[7px] font-semibold leading-tight text-center" style={{ color: i === 0 ? 'white' : activePrimary }}>{s.title}</span>
-                  {tmplEmoji && s.screenIcon && (
-                    <span className="absolute top-1 right-1 text-[7px] opacity-60">{tmplEmoji}</span>
-                  )}
                 </button>
               );
             })}
@@ -1014,12 +1076,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     if (!def) return null;
 
     return (
-      <div className="rounded-lg border border-gray-200 overflow-hidden">
-        <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border-b border-gray-100">
-          <span className="text-sm">{def.emoji}</span>
-          <span className="text-xs font-semibold text-gray-800 flex-1">{def.name}</span>
-        </div>
-        <div className="px-3 py-2 space-y-2">
+      <div className="space-y-2">
           {def.fields.map(f => {
             if (!checkShowWhen(f.showWhen, screen.fieldValues)) return null;
             return (
@@ -1034,7 +1091,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                 ) : f.type === 'textarea' ? (
                   <textarea value={screen.fieldValues[f.key] || ''} onChange={e => updateScreenField(si, f.key, e.target.value)}
                     placeholder={f.placeholder}
-                    className="flex-1 text-[11px] text-gray-700 rounded border border-gray-200 bg-white px-1.5 py-1 outline-none resize-none" rows={2} />
+                    className="flex-1 text-[11px] text-gray-700 rounded border border-gray-200 bg-white px-1.5 py-1 outline-none resize-none" rows={3} />
                 ) : (
                   <input value={screen.fieldValues[f.key] || ''} onChange={e => updateScreenField(si, f.key, e.target.value)}
                     placeholder={f.placeholder}
@@ -1047,31 +1104,6 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             <div className="rounded bg-gray-50 px-2 py-1.5 mt-1">
               <p className="text-[9px] text-gray-400 mb-0.5">Formula preview</p>
               <code className="text-[10px] font-mono text-gray-700">{resolveFormula(screen)}</code>
-            </div>
-          )}
-          {screen.templateId !== 'ask_ai' && def.widgets.some(w => w.optional) && (
-            <div className="flex flex-wrap gap-1 pt-1 border-t border-gray-50">
-              {def.widgets.map(pw => {
-                const disabled = screen.disabledWidgets.includes(pw.wid);
-                const label = pw.wid === 'input_a' ? 'Field A'
-                  : pw.wid === 'input_b' ? 'Field B'
-                  : pw.wid === 'input_c' ? 'Field C'
-                  : pw.wid === 'input_d' ? 'Field D'
-                  : pw.type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                if (!pw.optional) return <span key={pw.wid} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{label}</span>;
-                return (
-                  <button key={pw.wid} onClick={() => toggleScreenWidget(si, pw.wid)}
-                    className="text-[10px] px-1.5 py-0.5 rounded border transition-all"
-                    style={{
-                      borderColor: disabled ? '#D1D5DB' : '#091A7A',
-                      background: disabled ? 'transparent' : '#091A7A10',
-                      color: disabled ? '#9CA3AF' : '#091A7A',
-                      borderStyle: disabled ? 'dashed' : 'solid',
-                    }}>
-                    {disabled ? `+ ${label}` : label}
-                  </button>
-                );
-              })}
             </div>
           )}
           {/* Dynamic form field editor for ask_ai form mode */}
@@ -1137,6 +1169,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           {!screen.isHome && (
             <div className="border-t border-gray-100 pt-2 space-y-2">
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">AI Routing</p>
+              <p className="text-[10px] text-gray-400 -mt-1">Helps the AI understand this screen so it can route users here in chat mode.</p>
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-[10px] text-gray-500">Screen Summary</label>
@@ -1169,7 +1202,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                 </div>
                 <textarea value={screen.description || generateScreenDescription(screen)}
                   onChange={e => updateScreenDescription(si, e.target.value)}
-                  className="w-full text-[10px] text-gray-600 rounded border border-gray-200 bg-white px-2 py-1 outline-none resize-none" rows={2} />
+                  className="w-full text-[10px] text-gray-600 rounded border border-gray-200 bg-white px-2 py-1 outline-none resize-none" rows={3} />
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -1203,7 +1236,6 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               </div>
             </div>
           )}
-        </div>
       </div>
     );
   };
@@ -1229,21 +1261,9 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             <h1 className="text-2xl font-bold text-gray-900">Recipe Studio</h1>
             <p className="text-sm text-gray-500 mt-1">{recipeId ? 'Editing recipe' : 'Turn your expertise into an AI-powered tool'}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-0.5 mr-1">
-              <button onClick={undo} disabled={!canUndo} className="p-1.5 rounded-md hover:bg-gray-100 disabled:opacity-30" title="Undo (Cmd+Z)"><Undo2 size={15} className="text-gray-500" /></button>
-              <button onClick={redo} disabled={!canRedo} className="p-1.5 rounded-md hover:bg-gray-100 disabled:opacity-30" title="Redo (Cmd+Shift+Z)"><Redo2 size={15} className="text-gray-500" /></button>
-            </div>
-            <button onClick={handleSave} disabled={saving || !dirty}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-all"
-              style={{
-                background: dirty ? '#10B981' : '#E5E7EB',
-                color: dirty ? 'white' : '#9CA3AF',
-                opacity: saving ? 0.7 : 1,
-              }}>
-              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-              {saving ? 'Saving...' : dirty ? 'Save' : 'Saved'}
-            </button>
+          <div className="flex items-center gap-0.5">
+            <button onClick={undo} disabled={!canUndo} className="p-1.5 rounded-md hover:bg-gray-100 disabled:opacity-30" title="Undo (Cmd+Z)"><Undo2 size={15} className="text-gray-500" /></button>
+            <button onClick={redo} disabled={!canRedo} className="p-1.5 rounded-md hover:bg-gray-100 disabled:opacity-30" title="Redo (Cmd+Shift+Z)"><Redo2 size={15} className="text-gray-500" /></button>
           </div>
         </div>
 
@@ -1526,7 +1546,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                                   value={screen.screenIcon || (tmpl?.emoji || '\u{1F4CB}')}
                                   onChange={e => setScreens(prev => prev.map((s, i) => i === si ? { ...s, screenIcon: e.target.value } : s))}
                                   className="w-10 h-8 text-center text-lg appearance-none rounded-lg border border-gray-200 bg-white cursor-pointer outline-none focus:border-blue-400">
-                                  {['\u{1F4CB}', '\u{1F4AC}', '\u{1F4F7}', '\u{1F9EE}', '\u{1F4CD}', '\u{1F4DD}', '✅',
+                                  {['\u{1F4CB}', '\u{1F4AC}', '\u{1F4F7}', '\u{1F9EE}', '\u{1F4CD}', '\u{1F4DD}', '\u{2705}', '\u{1F4F1}',
                                     '\u{1F33E}', '\u{1F3E5}', '\u{1F6A8}', '\u{1F4DA}', '\u{1F4B0}', '\u{1F331}', '\u{2764}\u{FE0F}',
                                     '\u{1F50D}', '\u{2B50}', '\u{1F4A1}', '\u{1F3AF}', '\u{1F916}', '\u{1F30D}',
                                     '\u{1F6E1}\u{FE0F}', '\u{1F4CA}', '\u{1F4E6}', '\u{2615}', '\u{1F37D}\u{FE0F}'].map(e => (
@@ -1627,22 +1647,6 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           {/* ─── Step 1: Knowledge ─── */}
           {currentStep === 1 && (
             <div className="space-y-6 max-w-2xl mx-auto">
-              {/* Welcome hero — only when no files */}
-              {knowledgeFiles.length === 0 && !knowledgeSuggestions && (
-                <div className="text-center py-4">
-                  <div className="flex items-center justify-center gap-3 mb-4">
-                    <div className="flex items-center gap-1">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-lg">📄</div>
-                      <ChevronRight size={16} className="text-gray-300" />
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-50 text-lg">✨</div>
-                      <ChevronRight size={16} className="text-gray-300" />
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-green-50 text-lg">📱</div>
-                    </div>
-                  </div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">Start with what you know</h2>
-                  <p className="text-sm text-gray-500 max-w-md mx-auto">Your domain knowledge is the most powerful tool you can contribute to our Builders. Upload your documents and we'll suggest Functions that turn your expertise into real impact.</p>
-                </div>
-              )}
               {(knowledgeFiles.length > 0 || knowledgeSuggestions) && (
                 <>
                   <h2 className="text-lg font-semibold text-gray-900">Knowledge Base</h2>
@@ -1650,12 +1654,22 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                 </>
               )}
 
-              {/* Upload area */}
+              {/* Upload area — doubles as hero when no files */}
               {knowledgeFiles.length === 0 && (
-                <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center gap-2 hover:border-gray-400 cursor-pointer transition-colors">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#091A7A10' }}><Upload size={24} style={{ color: '#091A7A' }} /></div>
-                  <p className="text-sm font-medium text-gray-700">Drop files here or click to browse</p>
-                  <p className="text-xs text-gray-400">PDF, TXT, CSV up to 10MB</p>
+                <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center gap-3 hover:border-gray-400 cursor-pointer transition-colors bg-gray-50/50">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-blue-50 text-base">{'\u{1F4C4}'}</div>
+                    <ChevronRight size={14} className="text-gray-300" />
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-purple-50 text-base">{'\u{2728}'}</div>
+                    <ChevronRight size={14} className="text-gray-300" />
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-green-50 text-base">{'\u{1F4F1}'}</div>
+                  </div>
+                  <h2 className="text-lg font-bold text-gray-900">Start with what you know</h2>
+                  <p className="text-sm text-gray-500 max-w-sm mx-auto text-center">Upload your expertise — guides, manuals, protocols — and we&apos;ll turn it into an AI-powered recipe.</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#091A7A10' }}><Upload size={20} style={{ color: '#091A7A' }} /></div>
+                  </div>
+                  <p className="text-xs text-gray-400">PDF, TXT, CSV, MD — up to 10 MB</p>
                 </div>
               )}
               <input ref={fileInputRef} type="file" accept=".pdf,.txt,.csv,.md" multiple className="hidden" onChange={handleFileUpload} />
@@ -1677,6 +1691,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         <span className="text-xl">{doc.emoji}</span>
                         <span className="text-[10px] font-medium text-gray-700 text-center leading-tight">{doc.name}</span>
                         <span className="text-[9px] text-gray-400">{doc.category}</span>
+                        <span className="text-[8px] text-gray-400 text-center leading-tight">{doc.author} · {doc.org}</span>
                       </button>
                     ))}
                   </div>
@@ -1714,16 +1729,40 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                 <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
                   <div className="flex items-center justify-between p-4 border-b border-gray-100">
                     <div>
-                      <p className="text-sm font-semibold text-gray-800">AI Suggestions</p>
-                      <p className="text-xs text-gray-500">We'll design a recipe based on your documents.</p>
+                      <p className="text-sm font-semibold text-gray-800">Recipe Blueprint</p>
+                      <p className="text-xs text-gray-500">Analyze your documents and design a complete recipe — name, screens, prompts, and more.</p>
                     </div>
                     <button onClick={() => ensureApiKey(generateKnowledgeSuggestions)} disabled={aiLoading}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white hover:opacity-90 shrink-0"
                       style={{ background: '#091A7A' }}>
                       {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                      {knowledgeSuggestions ? 'Regenerate' : 'Suggest Recipe'}
+                      {knowledgeSuggestions ? 'Regenerate' : 'Generate Blueprint'}
                     </button>
                   </div>
+                  {aiLoading && !knowledgeSuggestions && (
+                    <div className="p-4 space-y-3 relative overflow-hidden">
+                      <div className="absolute inset-0 pointer-events-none" style={{
+                        background: 'linear-gradient(90deg, transparent 0%, rgba(9,26,122,0.04) 50%, transparent 100%)',
+                        backgroundSize: '200% 100%',
+                        animation: 'shimmerSweep 30s linear infinite',
+                      }} />
+                      <style>{`@keyframes shimmerSweep { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Loader2 size={14} className="animate-spin text-gray-400" />
+                        <span className="text-xs text-gray-500 animate-pulse">Analyzing your documents and designing screens...</span>
+                      </div>
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="rounded-lg border border-gray-100 p-3 space-y-2 animate-pulse">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-gray-200" />
+                            <div className="h-3 bg-gray-200 rounded w-32" />
+                          </div>
+                          <div className="h-2 bg-gray-100 rounded w-full" />
+                          <div className="h-2 bg-gray-100 rounded w-3/4" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {knowledgeSuggestions && (
                     <div className="p-4 space-y-3">
                       {/* Identity — collapsible */}
@@ -1735,7 +1774,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                       {identityExpanded && (
                         <div className="space-y-2 pl-1">
                           <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="checkbox" checked={suggestionSelections.name} onChange={e => setSuggestionSelections(prev => ({ ...prev, name: e.target.checked }))}
+                            <input type="checkbox" checked={suggestionSelections.name} onChange={e => updateSuggestionSelection(prev => ({ ...prev, name: e.target.checked }))}
                               className="mt-0.5 rounded border-gray-300" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium text-gray-500">Recipe Name</p>
@@ -1743,7 +1782,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                             </div>
                           </label>
                           <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="checkbox" checked={suggestionSelections.description} onChange={e => setSuggestionSelections(prev => ({ ...prev, description: e.target.checked }))}
+                            <input type="checkbox" checked={suggestionSelections.description} onChange={e => updateSuggestionSelection(prev => ({ ...prev, description: e.target.checked }))}
                               className="mt-0.5 rounded border-gray-300" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium text-gray-500">Description</p>
@@ -1752,7 +1791,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                           </label>
                           <div className="flex gap-4">
                             <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
-                              <input type="checkbox" checked={suggestionSelections.category} onChange={e => setSuggestionSelections(prev => ({ ...prev, category: e.target.checked }))}
+                              <input type="checkbox" checked={suggestionSelections.category} onChange={e => updateSuggestionSelection(prev => ({ ...prev, category: e.target.checked }))}
                                 className="mt-0.5 rounded border-gray-300" />
                               <div>
                                 <p className="text-xs font-medium text-gray-500">Category</p>
@@ -1760,7 +1799,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                               </div>
                             </label>
                             <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
-                              <input type="checkbox" checked={suggestionSelections.systemPrompt} onChange={e => setSuggestionSelections(prev => ({ ...prev, systemPrompt: e.target.checked }))}
+                              <input type="checkbox" checked={suggestionSelections.systemPrompt} onChange={e => updateSuggestionSelection(prev => ({ ...prev, systemPrompt: e.target.checked }))}
                                 className="mt-0.5 rounded border-gray-300" />
                               <div>
                                 <p className="text-xs font-medium text-gray-500">System Prompt</p>
@@ -1770,7 +1809,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                           </div>
                           <div className="flex gap-4">
                             <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
-                              <input type="checkbox" checked={suggestionSelections.icon} onChange={e => setSuggestionSelections(prev => ({ ...prev, icon: e.target.checked }))}
+                              <input type="checkbox" checked={suggestionSelections.icon} onChange={e => updateSuggestionSelection(prev => ({ ...prev, icon: e.target.checked }))}
                                 className="rounded border-gray-300" />
                               <div className="flex items-center gap-2">
                                 <p className="text-xs font-medium text-gray-500">Icon</p>
@@ -1778,7 +1817,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                               </div>
                             </label>
                             <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
-                              <input type="checkbox" checked={suggestionSelections.theme} onChange={e => setSuggestionSelections(prev => ({ ...prev, theme: e.target.checked }))}
+                              <input type="checkbox" checked={suggestionSelections.theme} onChange={e => updateSuggestionSelection(prev => ({ ...prev, theme: e.target.checked }))}
                                 className="rounded border-gray-300" />
                               <div className="flex items-center gap-2">
                                 <p className="text-xs font-medium text-gray-500">Theme</p>
@@ -1787,7 +1826,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                             </label>
                           </div>
                           <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="checkbox" checked={suggestionSelections.author} onChange={e => setSuggestionSelections(prev => ({ ...prev, author: e.target.checked }))}
+                            <input type="checkbox" checked={suggestionSelections.author} onChange={e => updateSuggestionSelection(prev => ({ ...prev, author: e.target.checked }))}
                               className="mt-0.5 rounded border-gray-300" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium text-gray-500">Author</p>
@@ -1795,7 +1834,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                             </div>
                           </label>
                           <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="checkbox" checked={suggestionSelections.links} onChange={e => setSuggestionSelections(prev => ({ ...prev, links: e.target.checked }))}
+                            <input type="checkbox" checked={suggestionSelections.links} onChange={e => updateSuggestionSelection(prev => ({ ...prev, links: e.target.checked }))}
                               className="mt-0.5 rounded border-gray-300" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium text-gray-500">Links</p>
@@ -1803,7 +1842,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                             </div>
                           </label>
                           <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="checkbox" checked={suggestionSelections.homePreview} onChange={e => setSuggestionSelections(prev => ({ ...prev, homePreview: e.target.checked }))}
+                            <input type="checkbox" checked={suggestionSelections.homePreview} onChange={e => updateSuggestionSelection(prev => ({ ...prev, homePreview: e.target.checked }))}
                               className="mt-0.5 rounded border-gray-300" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium text-gray-500">Home Preview</p>
@@ -1821,7 +1860,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                           return (
                             <label key={i} className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
                               <input type="checkbox" checked={!!suggestionSelections.screens[i]}
-                                onChange={e => setSuggestionSelections(prev => ({ ...prev, screens: { ...prev.screens, [i]: e.target.checked } }))}
+                                onChange={e => updateSuggestionSelection(prev => ({ ...prev, screens: { ...prev.screens, [i]: e.target.checked } }))}
                                 className="rounded border-gray-300 shrink-0" />
                               <span className="text-lg shrink-0">{sc.emoji}</span>
                               <div className="flex-1 min-w-0">
@@ -1836,10 +1875,10 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                       </div>
 
                       {/* Apply button */}
-                      <button onClick={applySuggestions}
-                        className="w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90 mt-2"
-                        style={{ background: '#10B981' }}>
-                        Apply Selected
+                      <button onClick={applySuggestions} disabled={suggestionsApplied}
+                        className="w-full py-2.5 rounded-lg text-sm font-medium mt-2 flex items-center justify-center gap-1.5 transition-all"
+                        style={{ background: suggestionsApplied ? '#E5E7EB' : '#10B981', color: suggestionsApplied ? '#9CA3AF' : 'white' }}>
+                        {suggestionsApplied ? <><Check size={14} /> Applied</> : 'Apply Selected'}
                       </button>
                     </div>
                   )}
@@ -1894,17 +1933,69 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           )}
         </div>
 
+        {/* Publish success overlay */}
+        {publishSuccess && (
+          <div className="absolute inset-0 z-50 bg-white flex flex-col items-center justify-center text-center px-8 overflow-hidden">
+            <style>{`
+              @keyframes confettiFall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+              .confetti-piece { position: absolute; top: -10px; width: 8px; height: 8px; border-radius: 2px; animation: confettiFall linear forwards; }
+            `}</style>
+            {Array.from({ length: 40 }).map((_, i) => (
+              <div key={i} className="confetti-piece" style={{
+                left: `${Math.random() * 100}%`,
+                background: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#091A7A'][i % 7],
+                width: `${6 + Math.random() * 6}px`,
+                height: `${6 + Math.random() * 6}px`,
+                borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+                animationDuration: `${2 + Math.random() * 3}s`,
+                animationDelay: `${Math.random() * 2}s`,
+              }} />
+            ))}
+            <div className="relative z-10">
+              <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-5">
+                <PartyPopper size={32} className="text-green-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Recipe Published!</h2>
+              <p className="text-sm text-gray-500 max-w-md mb-1">
+                <span className="font-semibold text-gray-700">{recipeName}</span> is now live.
+              </p>
+              <p className="text-sm text-gray-400 max-w-md mb-8">
+                Thank you for sharing your knowledge. Every recipe helps communities access the tools and expertise they need, right on their phones — no internet required.
+              </p>
+              <div className="flex items-center gap-3 justify-center">
+                <button onClick={() => { setPublishSuccess(false); navigate('/studio', { replace: true }); window.location.reload(); }}
+                  className="px-5 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  Create Another
+                </button>
+                <button onClick={() => navigate('/')}
+                  className="px-5 py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90"
+                  style={{ background: '#091A7A' }}>
+                  Back to Dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Bottom bar */}
+        {!publishSuccess && (
         <div className="sticky bottom-0 border-t border-gray-200 bg-white px-8 py-4 flex items-center justify-between">
           <div>{currentStep > 1 && <button onClick={() => setCurrentStep(s => s - 1)} className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"><ChevronLeft size={16} /> Previous</button>}</div>
           <div className="flex items-center gap-3">
             {currentStep === 4 && <>
               <button onClick={() => setShowYamlPreview(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"><Eye size={16} /> Preview YAML</button>
-              <button onClick={downloadYaml} className="flex items-center gap-1.5 px-5 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#10B981' }}><Download size={16} /> Download YAML</button>
+              <button onClick={downloadYaml} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"><Download size={16} /> Download YAML</button>
+              <button onClick={handleSave} disabled={saving}
+                className="flex items-center gap-1.5 px-5 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90 transition-all"
+                style={{ background: saving ? '#9CA3AF' : '#10B981' }}>
+                {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                {saving ? 'Saving...' : 'Save & Publish'}
+              </button>
             </>}
             {currentStep < 4 && <button onClick={() => setCurrentStep(s => s + 1)} className="flex items-center gap-1 px-5 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#091A7A' }}>Next Step <ChevronRight size={16} /></button>}
           </div>
         </div>
+        )}
       </div>
 
       {/* ─── Right: Live Preview ─── */}
@@ -2062,7 +2153,6 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             )}
             {!previewIntro && (
               <div className="flex gap-1 justify-center pb-2 px-3">
-                <button onClick={() => setPreviewIntro(true)} className="px-2 py-0.5 rounded-full text-[7px] font-medium cursor-pointer" style={{ background: previewIntro ? activePrimary : activePrimary + '20', color: previewIntro ? 'white' : activePrimary }}>Intro</button>
                 {screens.map((s, i) => <button key={s.id} onClick={() => { setPreviewIntro(false); setActiveScreenIndex(i); }} className="px-2 py-0.5 rounded-full text-[7px] font-medium cursor-pointer" style={{ background: !previewIntro && i === activeScreenIndex ? activePrimary : activePrimary + '20', color: !previewIntro && i === activeScreenIndex ? 'white' : activePrimary }}>{s.isHome ? (recipeName || 'Home') : s.title}</button>)}
               </div>
             )}

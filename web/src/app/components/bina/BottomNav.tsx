@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { useNavigate, useLocation } from 'react-router';
 import { UserMode } from './Root';
-import { Store, Pocket, Radio, Hammer, BarChart3 } from 'lucide-react';
+import { Store, Pocket, Hammer, BarChart3 } from 'lucide-react';
 
 interface BottomNavProps {
   userMode: UserMode;
@@ -14,7 +14,6 @@ export function BottomNav({ userMode }: BottomNavProps) {
   const builderTabs = [
     { id: 'hub', label: 'Hub', icon: Store, path: '/' },
     { id: 'pocket', label: 'My Pocket', icon: Pocket, path: '/pocket' },
-    { id: 'sync', label: 'Offline Sync', icon: Radio, path: '/sync' },
   ];
 
   const architectTabs = [

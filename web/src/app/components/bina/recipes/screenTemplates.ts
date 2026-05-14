@@ -110,7 +110,7 @@ export const SCREEN_TEMPLATES: ScreenTemplate[] = [
     ],
   },
   {
-    id: 'checklist', name: 'Checklist', emoji: '✅', description: 'Step-by-step workflow with progress tracking',
+    id: 'checklist', name: 'Checklist', emoji: '\u{2705}', description: 'Step-by-step workflow with progress tracking',
     widgets: [
       { wid: 'progress_bar', type: 'progress_bar', optional: false, defaultOn: true, staticProps: { bind: 'checklist_step' }, fieldMap: {} },
       { wid: 'checklist_items', type: 'checklist_items', optional: false, defaultOn: true, staticProps: { bind: 'checklist_step' }, fieldMap: {} },
@@ -122,6 +122,19 @@ export const SCREEN_TEMPLATES: ScreenTemplate[] = [
       { key: 'completion_action', label: 'On completion', placeholder: '', type: 'select', options: ['none', 'ai_summary', 'show_result'], defaultValue: 'none' },
     ],
   },
+  {
+    id: 'sms_dispatch', name: 'SMS / Phone', emoji: '\u{1F4F1}', description: 'Pre-configured contacts for SMS or phone calls',
+    widgets: [
+      { wid: 'text_label', type: 'text_label', optional: false, defaultOn: true, staticProps: { style: 'subheading' }, fieldMap: { heading: 'text' } },
+      { wid: 'contact_list', type: 'action_button', optional: false, defaultOn: true, staticProps: { style: 'primary' }, fieldMap: {} },
+    ],
+    fields: [
+      { key: 'heading', label: 'Heading', placeholder: 'Emergency Contacts', type: 'text', defaultValue: 'Emergency Contacts' },
+      { key: 'contact_type', label: 'Action type', placeholder: '', type: 'select', options: ['sms', 'call'], defaultValue: 'sms' },
+      { key: 'contacts', label: 'Contacts (one per line: Name | Phone number)', placeholder: 'Ambulance | 999\nFire | 994\nPoison Control | +60123456789', type: 'textarea', defaultValue: 'Contact 1 | +60123456789\nContact 2 | +60198765432' },
+      { key: 'sms_template', label: 'SMS message template', placeholder: 'Help needed at my location. Situation: {{user_text}}', type: 'textarea', defaultValue: 'Help needed. Please respond.', showWhen: { field: 'contact_type', value: 'sms' } },
+    ],
+  },
 ];
 
 export const getScreenTemplate = (id: string) => SCREEN_TEMPLATES.find(t => t.id === id);
@@ -129,7 +142,7 @@ export const getScreenTemplate = (id: string) => SCREEN_TEMPLATES.find(t => t.id
 export function createScreen(templateId: string, fieldOverrides?: Record<string, string>): Pick<ScreenConfig, 'templateId' | 'fieldValues' | 'disabledWidgets'> {
   const def = getScreenTemplate(templateId);
   const fieldValues: Record<string, string> = {};
-  def?.fields.forEach(f => { fieldValues[f.key] = fieldOverrides?.[f.key] ?? f.defaultValue; });
+  def?.fields.forEach(f => { fieldValues[f.key] = fieldOverrides?.[f.key] || f.defaultValue; });
   const disabledWidgets = def?.widgets.filter(w => w.optional && !w.defaultOn).map(w => w.wid) || [];
   return { templateId, fieldValues, disabledWidgets };
 }
@@ -250,6 +263,24 @@ export function resolveTemplateWidgets(screen: ScreenConfig): WidgetConfig[] {
     }
     filtered.splice(btnIdx >= 0 ? btnIdx : filtered.length, 0, ...formWidgets);
     widgets = filtered;
+  }
+
+  // sms_dispatch: expand contacts into individual action buttons
+  if (screen.templateId === 'sms_dispatch') {
+    const contactType = screen.fieldValues.contact_type || 'sms';
+    const contacts = (screen.fieldValues.contacts || '').split('\n').map(l => l.trim()).filter(Boolean);
+    const smsTemplate = screen.fieldValues.sms_template || '';
+    const contactWidgets: WidgetConfig[] = contacts.map(line => {
+      const [name, phone] = line.split('|').map(s => s.trim());
+      if (!name || !phone) return null;
+      const action = contactType === 'call' ? `tel:${phone}` : `sms:${phone}:${smsTemplate}`;
+      return {
+        type: 'action_button' as const,
+        props: { label: `${contactType === 'call' ? '\u{1F4DE}' : '\u{1F4E8}'} ${name}`, action, style: 'secondary' },
+      };
+    }).filter((w): w is WidgetConfig => w !== null);
+    widgets = widgets.filter(w => !(w.type === 'action_button'));
+    widgets.push(...contactWidgets);
   }
 
   // checklist: inject parsed steps into widget props

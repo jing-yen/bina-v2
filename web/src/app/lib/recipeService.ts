@@ -18,7 +18,8 @@ function stripUndefined(obj: Record<string, unknown>): Record<string, unknown> {
 }
 
 function cleanValue(v: unknown): unknown {
-  if (v === null || v === undefined) return v;
+  if (v === undefined) return v;
+  if (v === null) return '';
   if (v instanceof Timestamp || v instanceof Date) return v;
   if (Array.isArray(v)) return v.map(cleanValue);
   if (typeof v === 'object') return stripUndefined(v as Record<string, unknown>);
