@@ -111,7 +111,7 @@ export function Dashboard() {
 
   const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
   const stats = [
-    { label: 'Total Recipes', value: String(recipes.length), icon: FileText, color: '#091A7A' },
+    { label: 'Total Recipes', value: String(recipes.length), icon: FileText, color: '#C45A3A' },
     { label: 'Active Users', value: platformStats ? formatCount(platformStats.uniqueDevices) : '—', icon: Users, color: '#3B82F6' },
     { label: 'Downloads', value: platformStats ? formatCount(platformStats.totalDownloads) : '—', icon: Download, color: '#10B981' },
     { label: 'Avg Rating', value: platformStats ? (platformStats.avgRating > 0 ? platformStats.avgRating.toFixed(1) : '—') : '—', icon: Star, color: '#F59E0B' },
@@ -122,10 +122,10 @@ export function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back, Jing Yen</h1>
+          <h1 className="text-2xl font-bold text-stone-900">Welcome back, Jing Yen</h1>
           <div className="flex items-center gap-2 mt-1.5">
             <span className="text-lg">{'\u{1F33E}'}</span>
-            <span className="text-sm text-gray-600">Ministry of Agriculture, Malaysia</span>
+            <span className="text-sm text-stone-600">Ministry of Agriculture, Malaysia</span>
             <BadgeCheck size={16} className="text-blue-500" />
             <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">Verified</span>
           </div>
@@ -133,7 +133,7 @@ export function Dashboard() {
         <button
           onClick={() => navigate('/studio')}
           className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-medium transition-colors hover:opacity-90"
-          style={{ background: '#091A7A' }}
+          style={{ background: '#C45A3A' }}
         >
           <Plus size={18} />
           Create New Recipe
@@ -141,11 +141,11 @@ export function Dashboard() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+            <div key={stat.label} className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <div
                   className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -154,21 +154,21 @@ export function Dashboard() {
                   <Icon size={20} style={{ color: stat.color }} />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-              <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
+              <p className="text-2xl font-bold text-stone-900">{stat.value}</p>
+              <p className="text-sm text-stone-500 mt-1">{stat.label}</p>
             </div>
           );
         })}
       </div>
 
       {/* Download heatmap */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">Download Heatmap</h2>
-        <p className="text-xs text-gray-500 mb-4">Where your recipes are being used across Southeast Asia</p>
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6 mb-8">
+        <h2 className="text-lg font-semibold text-stone-900 mb-1">Download Heatmap</h2>
+        <p className="text-xs text-stone-500 mb-4">Where your recipes are being used across Southeast Asia</p>
         <div className="relative bg-white rounded-xl overflow-hidden" style={{ height: 260 }}>
           <svg viewBox="90 -30 53 43" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
             {SE_ASIA_PATHS.map(country => (
-              <path key={country.name} d={country.d} fill="#E2E8F0" stroke="#CBD5E1" strokeWidth="0.15" />
+              <path key={country.name} d={country.d} fill="#E7E0D8" stroke="#D6D3D1" strokeWidth="0.15" />
             ))}
             {(() => {
               const maxCount = Math.max(1, ...regionCounts.map(r => r.count));
@@ -178,10 +178,10 @@ export function Dashboard() {
                 const size = 6 + (rc.count / maxCount) * 14;
                 return (
                   <g key={rc.countryCode}>
-                    <circle cx={coords.x} cy={coords.y} r={size / 3} fill="#091A7A" opacity={0.15} />
-                    <circle cx={coords.x} cy={coords.y} r={size / 4.5} fill="#091A7A" opacity={0.35} />
-                    <circle cx={coords.x} cy={coords.y} r={size / 8} fill="#091A7A" opacity={0.7} />
-                    <text x={coords.x} y={coords.y + size / 3 + 1.8} textAnchor="middle" fontSize="1.8" fill="#4B5563" fontWeight="500">
+                    <circle cx={coords.x} cy={coords.y} r={size / 3} fill="#C45A3A" opacity={0.15} />
+                    <circle cx={coords.x} cy={coords.y} r={size / 4.5} fill="#C45A3A" opacity={0.35} />
+                    <circle cx={coords.x} cy={coords.y} r={size / 8} fill="#C45A3A" opacity={0.7} />
+                    <text x={coords.x} y={coords.y + size / 3 + 1.8} textAnchor="middle" fontSize="1.8" fill="#44403C" fontWeight="500">
                       {coords.name} ({rc.count})
                     </text>
                   </g>
@@ -191,52 +191,52 @@ export function Dashboard() {
           </svg>
           <div className="absolute bottom-3 right-3 flex items-center gap-3 bg-white/90 rounded-lg px-3 py-1.5">
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-[#091A7A] opacity-30" />
-              <span className="text-[10px] text-gray-500">Low</span>
+              <div className="w-2 h-2 rounded-full bg-[#C45A3A] opacity-30" />
+              <span className="text-[10px] text-stone-500">Low</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-[#091A7A] opacity-50" />
-              <span className="text-[10px] text-gray-500">Medium</span>
+              <div className="w-3 h-3 rounded-full bg-[#C45A3A] opacity-50" />
+              <span className="text-[10px] text-stone-500">Medium</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-4 h-4 rounded-full bg-[#091A7A] opacity-70" />
-              <span className="text-[10px] text-gray-500">High</span>
+              <div className="w-4 h-4 rounded-full bg-[#C45A3A] opacity-70" />
+              <span className="text-[10px] text-stone-500">High</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Recipes table */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900">Your Recipes</h2>
+      <div className="bg-white rounded-xl border border-stone-200 shadow-sm">
+        <div className="px-6 py-4 border-b border-stone-200">
+          <h2 className="text-lg font-semibold text-stone-900">Your Recipes</h2>
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 size={24} className="animate-spin text-gray-400" />
+            <Loader2 size={24} className="animate-spin text-stone-400" />
           </div>
         ) : recipes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#091A7A10' }}>
-              <FileText size={28} style={{ color: '#091A7A' }} />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#C45A3A10' }}>
+              <FileText size={28} style={{ color: '#C45A3A' }} />
             </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-700">No recipes yet</p>
-              <p className="text-xs text-gray-500 mt-1">Create your first recipe or import the demo</p>
+              <p className="text-sm font-medium text-stone-700">No recipes yet</p>
+              <p className="text-xs text-stone-500 mt-1">Create your first recipe or import the demo</p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => navigate('/studio')}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90"
-                style={{ background: '#091A7A' }}
+                style={{ background: '#C45A3A' }}
               >
                 <Plus size={16} /> Create Recipe
               </button>
               <button
                 onClick={handleSeedDemo}
                 disabled={seeding}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50"
               >
                 {seeding ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                 Import Demo Recipe
@@ -247,12 +247,12 @@ export function Dashboard() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-50">
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Recipe</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Category</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Screens</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Languages</th>
-                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Updated</th>
+                <tr className="border-b border-stone-100">
+                  <th className="text-left text-xs font-medium text-stone-500 uppercase tracking-wider px-6 py-3">Recipe</th>
+                  <th className="text-left text-xs font-medium text-stone-500 uppercase tracking-wider px-6 py-3">Category</th>
+                  <th className="text-left text-xs font-medium text-stone-500 uppercase tracking-wider px-6 py-3">Screens</th>
+                  <th className="text-left text-xs font-medium text-stone-500 uppercase tracking-wider px-6 py-3">Languages</th>
+                  <th className="text-left text-xs font-medium text-stone-500 uppercase tracking-wider px-6 py-3">Updated</th>
                   <th className="w-10"></th>
                 </tr>
               </thead>
@@ -261,24 +261,24 @@ export function Dashboard() {
                   <tr
                     key={recipe.id}
                     onClick={() => setSelectedRecipe(recipe)}
-                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors cursor-pointer"
+                    className="border-b border-stone-100 last:border-0 hover:bg-stone-50/50 transition-colors cursor-pointer"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <span className="text-xl">{recipe.recipeIcon}</span>
-                        <span className="text-sm font-medium text-gray-900">{recipe.recipeName}</span>
+                        <span className="text-sm font-medium text-stone-900">{recipe.recipeName}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">
+                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-stone-100 text-stone-600">
                         {recipe.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{recipe.screens.length}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{recipe.selectedLanguages.length}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{relativeTime(recipe.updatedAt)}</td>
+                    <td className="px-6 py-4 text-sm text-stone-600">{recipe.screens.length}</td>
+                    <td className="px-6 py-4 text-sm text-stone-600">{recipe.selectedLanguages.length}</td>
+                    <td className="px-6 py-4 text-sm text-stone-500">{relativeTime(recipe.updatedAt)}</td>
                     <td className="px-6 py-3">
-                      <ChevronRight size={16} className="text-gray-300" />
+                      <ChevronRight size={16} className="text-stone-300" />
                     </td>
                   </tr>
                 ))}
@@ -291,66 +291,66 @@ export function Dashboard() {
       {/* Recipe detail slide-over */}
       {selectedRecipe && (
         <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-black/20" onClick={() => setSelectedRecipe(null)} />
-          <div className="relative w-[480px] bg-white shadow-2xl overflow-y-auto animate-in slide-in-from-right">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+          <div className="absolute inset-0 bg-stone-900/20" onClick={() => setSelectedRecipe(null)} />
+          <div className="relative w-[480px] bg-white shadow-elevated overflow-y-auto animate-in slide-in-from-right">
+            <div className="sticky top-0 bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{selectedRecipe.recipeIcon}</span>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{selectedRecipe.recipeName}</h3>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{selectedRecipe.category}</span>
+                  <h3 className="text-lg font-semibold text-stone-900">{selectedRecipe.recipeName}</h3>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">{selectedRecipe.category}</span>
                 </div>
               </div>
-              <button onClick={() => setSelectedRecipe(null)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => setSelectedRecipe(null)} className="text-stone-400 hover:text-stone-600">
                 <X size={20} />
               </button>
             </div>
             <div className="p-6 space-y-6">
-              <p className="text-sm text-gray-600 leading-relaxed">{selectedRecipe.recipeDescription || 'No description'}</p>
+              <p className="text-sm text-stone-600 leading-relaxed">{selectedRecipe.recipeDescription || 'No description'}</p>
 
               <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-3 rounded-xl bg-gray-50">
-                  <p className="text-lg font-bold text-gray-900">{selectedRecipe.screens.length}</p>
-                  <p className="text-[11px] text-gray-500">Screens</p>
+                <div className="text-center p-3 rounded-xl bg-stone-50">
+                  <p className="text-lg font-bold text-stone-900">{selectedRecipe.screens.length}</p>
+                  <p className="text-[11px] text-stone-500">Screens</p>
                 </div>
-                <div className="text-center p-3 rounded-xl bg-gray-50">
-                  <p className="text-lg font-bold text-gray-900">{selectedRecipe.selectedLanguages.length}</p>
-                  <p className="text-[11px] text-gray-500">Languages</p>
+                <div className="text-center p-3 rounded-xl bg-stone-50">
+                  <p className="text-lg font-bold text-stone-900">{selectedRecipe.selectedLanguages.length}</p>
+                  <p className="text-[11px] text-stone-500">Languages</p>
                 </div>
-                <div className="text-center p-3 rounded-xl bg-gray-50">
+                <div className="text-center p-3 rounded-xl bg-stone-50">
                   <div className="flex items-center justify-center gap-1">
                     <Star size={14} className="text-amber-400 fill-amber-400" />
-                    <p className="text-lg font-bold text-gray-900">{selectedRecipe.stats.rating || '—'}</p>
+                    <p className="text-lg font-bold text-stone-900">{selectedRecipe.stats.rating || '—'}</p>
                   </div>
-                  <p className="text-[11px] text-gray-500">Rating</p>
+                  <p className="text-[11px] text-stone-500">Rating</p>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Details</h4>
+                <h4 className="text-sm font-medium text-stone-700 mb-2">Details</h4>
                 <div className="space-y-2">
-                  <div className="flex justify-between py-2 border-b border-gray-50">
-                    <span className="text-sm text-gray-500">Theme</span>
-                    <span className="text-sm font-medium text-gray-900 capitalize">{selectedRecipe.selectedTheme}</span>
+                  <div className="flex justify-between py-2 border-b border-stone-100">
+                    <span className="text-sm text-stone-500">Theme</span>
+                    <span className="text-sm font-medium text-stone-900 capitalize">{selectedRecipe.selectedTheme}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-gray-50">
-                    <span className="text-sm text-gray-500">Languages</span>
-                    <span className="text-sm font-medium text-gray-900">{selectedRecipe.selectedLanguages.join(', ').toUpperCase()}</span>
+                  <div className="flex justify-between py-2 border-b border-stone-100">
+                    <span className="text-sm text-stone-500">Languages</span>
+                    <span className="text-sm font-medium text-stone-900">{selectedRecipe.selectedLanguages.join(', ').toUpperCase()}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-gray-50">
-                    <span className="text-sm text-gray-500">Last Updated</span>
-                    <span className="text-sm font-medium text-gray-900">{relativeTime(selectedRecipe.updatedAt)}</span>
+                  <div className="flex justify-between py-2 border-b border-stone-100">
+                    <span className="text-sm text-stone-500">Last Updated</span>
+                    <span className="text-sm font-medium text-stone-900">{relativeTime(selectedRecipe.updatedAt)}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-gray-50">
-                    <span className="text-sm text-gray-500">Created</span>
-                    <span className="text-sm font-medium text-gray-900">{relativeTime(selectedRecipe.createdAt)}</span>
+                  <div className="flex justify-between py-2 border-b border-stone-100">
+                    <span className="text-sm text-stone-500">Created</span>
+                    <span className="text-sm font-medium text-stone-900">{relativeTime(selectedRecipe.createdAt)}</span>
                   </div>
                 </div>
               </div>
 
               {/* Mini heatmap for this recipe */}
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Download Distribution</h4>
+                <h4 className="text-sm font-medium text-stone-700 mb-2">Download Distribution</h4>
                 <div className="space-y-2">
                   {[
                     { region: 'Indonesia', pct: 42 },
@@ -359,11 +359,11 @@ export function Dashboard() {
                     { region: 'Others', pct: 12 },
                   ].map(r => (
                     <div key={r.region} className="flex items-center gap-3">
-                      <span className="text-xs text-gray-600 w-24">{r.region}</span>
-                      <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
-                        <div className="h-full rounded-full" style={{ background: '#091A7A', width: `${r.pct}%` }} />
+                      <span className="text-xs text-stone-600 w-24">{r.region}</span>
+                      <div className="flex-1 h-2 rounded-full bg-stone-100 overflow-hidden">
+                        <div className="h-full rounded-full" style={{ background: '#C45A3A', width: `${r.pct}%` }} />
                       </div>
-                      <span className="text-xs font-medium text-gray-700 w-8 text-right">{r.pct}%</span>
+                      <span className="text-xs font-medium text-stone-700 w-8 text-right">{r.pct}%</span>
                     </div>
                   ))}
                 </div>
@@ -373,13 +373,13 @@ export function Dashboard() {
                 <button
                   onClick={() => { const id = selectedRecipe.id; setSelectedRecipe(null); navigate(`/studio/${id}`); }}
                   className="flex-1 py-2.5 rounded-lg text-white text-sm font-medium"
-                  style={{ background: '#091A7A' }}
+                  style={{ background: '#C45A3A' }}
                 >
                   Edit Recipe
                 </button>
                 <button
                   onClick={handleDuplicate}
-                  className="py-2.5 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="py-2.5 px-4 rounded-lg border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50"
                   title="Duplicate"
                 >
                   <Copy size={16} />

@@ -31,21 +31,21 @@ export function Analytics() {
     <div className="p-8 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Track your published recipes' performance</p>
+        <h1 className="text-2xl font-bold text-stone-900">Analytics Dashboard</h1>
+        <p className="text-sm text-stone-500 mt-1">Track your published recipes' performance</p>
       </div>
 
       {/* Stats grid - 4 columns */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {/* Total Downloads */}
-        <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#10B98115' }}>
               <Download size={20} className="text-green-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats ? formatCount(stats.totalDownloads) : '—'}</p>
-          <p className="text-sm text-gray-500 mt-1">Total Downloads</p>
+          <p className="text-2xl font-bold text-stone-900">{stats ? formatCount(stats.totalDownloads) : '—'}</p>
+          <p className="text-sm text-stone-500 mt-1">Total Downloads</p>
           <div className="flex items-center gap-1 mt-2">
             <TrendingUp size={14} className="text-green-600" />
             <span className="text-xs font-semibold text-green-600">Live from Firestore</span>
@@ -53,14 +53,14 @@ export function Analytics() {
         </div>
 
         {/* Average Rating */}
-        <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#F59E0B15' }}>
               <Award size={20} className="text-amber-500" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats && stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—'}</p>
-          <p className="text-sm text-gray-500 mt-1">Average Rating</p>
+          <p className="text-2xl font-bold text-stone-900">{stats && stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—'}</p>
+          <p className="text-sm text-stone-500 mt-1">Average Rating</p>
           <div className="flex gap-0.5 mt-2">
             {[1, 2, 3, 4, 5].map(s => (
               <Star key={s} size={14} className="text-amber-400 fill-amber-400" />
@@ -69,14 +69,14 @@ export function Analytics() {
         </div>
 
         {/* Active Users */}
-        <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#091A7A15' }}>
-              <Users size={20} style={{ color: '#091A7A' }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#C45A3A15' }}>
+              <Users size={20} style={{ color: '#C45A3A' }} />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats ? formatCount(stats.uniqueDevices) : '—'}</p>
-          <p className="text-sm text-gray-500 mt-1">Active Users</p>
+          <p className="text-2xl font-bold text-stone-900">{stats ? formatCount(stats.uniqueDevices) : '—'}</p>
+          <p className="text-sm text-stone-500 mt-1">Active Users</p>
           <div className="flex items-center gap-1 mt-2">
             <TrendingUp size={14} className="text-green-600" />
             <span className="text-xs font-semibold text-green-600">Unique devices</span>
@@ -84,34 +84,34 @@ export function Analytics() {
         </div>
 
         {/* Regions */}
-        <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#3B82F615' }}>
               <Globe size={20} className="text-blue-500" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats ? stats.countriesReached : '—'}</p>
-          <p className="text-sm text-gray-500 mt-1">Countries Reached</p>
+          <p className="text-2xl font-bold text-stone-900">{stats ? stats.countriesReached : '—'}</p>
+          <p className="text-sm text-stone-500 mt-1">Countries Reached</p>
           <p className="text-xs text-blue-500 mt-2">Southeast Asia focused</p>
         </div>
       </div>
 
       {/* Charts row */}
-      <div className="grid grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Download Trends */}
-        <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold text-gray-900">Download Trends</h3>
-            <BarChart3 size={18} className="text-gray-400" />
+            <h3 className="text-base font-semibold text-stone-900">Download Trends</h3>
+            <BarChart3 size={18} className="text-stone-400" />
           </div>
           <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={regions.slice(0, 6).map(r => ({ name: COUNTRY_NAMES[r.countryCode] || r.countryCode, downloads: r.count }))}>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 11 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#57534E', fontSize: 11 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#57534E', fontSize: 12 }} />
                 <Bar dataKey="downloads" radius={[6, 6, 0, 0]}>
                   {regions.slice(0, 6).map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill="#091A7A" />
+                    <Cell key={`cell-${index}`} fill="#C45A3A" />
                   ))}
                 </Bar>
               </BarChart>
@@ -120,8 +120,8 @@ export function Analytics() {
         </div>
 
         {/* Regional Distribution */}
-        <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-          <h3 className="text-base font-semibold text-gray-900 mb-4">Regional Distribution</h3>
+        <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-sm">
+          <h3 className="text-base font-semibold text-stone-900 mb-4">Regional Distribution</h3>
           <div className="space-y-4">
             {(regions.length > 0 ? regions.slice(0, 6) : [{ countryCode: '—', count: 0 }]).map((rc) => {
               const pct = Math.round((rc.count / totalRegionCount) * 100);
@@ -129,14 +129,14 @@ export function Analytics() {
               return (
                 <div key={rc.countryCode}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm font-medium text-gray-800">{name}</span>
-                    <span className="text-xs text-gray-500">{rc.count.toLocaleString()} downloads</span>
+                    <span className="text-sm font-medium text-stone-800">{name}</span>
+                    <span className="text-xs text-stone-500">{rc.count.toLocaleString()} downloads</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
-                      <div className="h-full rounded-full" style={{ background: '#091A7A', width: `${pct}%` }} />
+                    <div className="flex-1 h-2 rounded-full bg-stone-100 overflow-hidden">
+                      <div className="h-full rounded-full" style={{ background: '#C45A3A', width: `${pct}%` }} />
                     </div>
-                    <span className="text-xs font-semibold text-gray-700 min-w-[32px] text-right">{pct}%</span>
+                    <span className="text-xs font-semibold text-stone-700 min-w-[32px] text-right">{pct}%</span>
                   </div>
                 </div>
               );
@@ -147,24 +147,24 @@ export function Analytics() {
 
       {/* User feedback cards */}
       <div className="mb-8">
-        <h3 className="text-base font-semibold text-gray-900 mb-4">User Feedback</h3>
-        <div className="grid grid-cols-3 gap-4">
+        <h3 className="text-base font-semibold text-stone-900 mb-4">User Feedback</h3>
+        <div className="bg-white rounded-xl border border-stone-200 shadow-sm divide-y divide-stone-200">
           {FEEDBACK.map((fb, i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#091A7A' }}>
-                  <MessageSquare size={14} className="text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">{fb.user}</p>
-                  <p className="text-xs text-gray-400">{fb.location}</p>
-                </div>
+            <div key={i} className="flex items-start gap-4 p-5">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: '#C45A3A' }}>
+                <MessageSquare size={14} className="text-white" />
               </div>
-              <p className="text-sm text-gray-600 mb-3 leading-relaxed">{fb.text}</p>
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map(s => (
-                  <Star key={s} size={12} className={s <= fb.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200'} />
-                ))}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-sm font-semibold text-stone-900">{fb.user}</p>
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <Star key={s} size={12} className={s <= fb.rating ? 'text-amber-400 fill-amber-400' : 'text-stone-200'} />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-xs text-stone-400 mb-1">{fb.location}</p>
+                <p className="text-sm text-stone-600 leading-relaxed">{fb.text}</p>
               </div>
             </div>
           ))}
@@ -178,8 +178,8 @@ export function Analytics() {
             <Award size={28} className="text-white" />
           </div>
           <div>
-            <h4 className="text-base font-semibold text-gray-900 mb-1">Top Contributor</h4>
-            <p className="text-sm text-gray-600">
+            <h4 className="text-base font-semibold text-stone-900 mb-1">Top Contributor</h4>
+            <p className="text-sm text-stone-600">
               Your recipes have reached over 20K users across Southeast Asia. Thank you for empowering grassroots communities!
             </p>
           </div>

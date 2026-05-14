@@ -31,7 +31,7 @@ import { DEMO_DOCUMENTS } from './recipes/demoDocuments';
 // ─── Constants ───
 
 const THEMES: { key: ThemeKey; label: string; primary: string; secondary: string }[] = [
-  { key: 'navy', label: 'Navy', primary: '#091A7A', secondary: '#ADC8FF' },
+  { key: 'navy', label: 'Navy', primary: '#C45A3A', secondary: '#ADC8FF' },
   { key: 'forest', label: 'Forest', primary: '#2E7D32', secondary: '#A5D6A7' },
   { key: 'coral', label: 'Coral', primary: '#DC2626', secondary: '#FECACA' },
   { key: 'amber', label: 'Amber', primary: '#D97706', secondary: '#FDE68A' },
@@ -966,10 +966,10 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           const opts = (p.options || '').split(',').map((o: string) => o.trim()).filter(Boolean);
           return (
             <div key={wi} className="px-1 py-0.5">
-              {p.label && <p className="text-[8px] text-gray-500 mb-0.5 px-1">{p.label}</p>}
-              <div className="w-full h-7 rounded-lg border border-gray-200 bg-white flex items-center px-2 justify-between">
-                <span className="text-[9px] text-gray-400">{opts[0] || 'Select...'}</span>
-                <ChevronDown size={8} className="text-gray-400" />
+              {p.label && <p className="text-[8px] text-stone-500 mb-0.5 px-1">{p.label}</p>}
+              <div className="w-full h-7 rounded-lg border border-stone-200 bg-white flex items-center px-2 justify-between">
+                <span className="text-[9px] text-stone-500">{opts[0] || 'Select...'}</span>
+                <ChevronDown size={8} className="text-stone-500" />
               </div>
             </div>
           );
@@ -977,8 +977,8 @@ Do not assume any specific domain — use the recipe name, category, and knowled
         if (inputType === 'toggle') {
           return (
             <div key={wi} className="px-1 py-1 rounded-lg bg-white flex items-center justify-between">
-              <span className="text-[9px] text-gray-600 px-1">{p.label || 'Toggle'}</span>
-              <div className="w-7 h-4 rounded-full bg-gray-300 relative mr-1">
+              <span className="text-[9px] text-stone-600 px-1">{p.label || 'Toggle'}</span>
+              <div className="w-7 h-4 rounded-full bg-stone-300 relative mr-1">
                 <div className="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white" />
               </div>
             </div>
@@ -986,19 +986,19 @@ Do not assume any specific domain — use the recipe name, category, and knowled
         }
         return (
           <div key={wi} className="px-1 py-0.5">
-            {p.label && <p className="text-[8px] text-gray-500 mb-0.5 px-1">{p.label}</p>}
-            <div className="w-full h-7 rounded-lg border border-gray-200 bg-white flex items-center px-2">
+            {p.label && <p className="text-[8px] text-stone-500 mb-0.5 px-1">{p.label}</p>}
+            <div className="w-full h-7 rounded-lg border border-stone-200 bg-white flex items-center px-2">
               {p._hasMic === 'true' && <Mic size={10} className="shrink-0 mr-1.5" style={{ color: activePrimary }} />}
-              <span className="text-[9px] text-gray-400 flex-1">{p.hint || p.label || 'Type here...'}</span>
-              {inputType === 'number' && <span className="text-[8px] text-gray-300 ml-auto">#</span>}
+              <span className="text-[9px] text-stone-500 flex-1">{p.hint || p.label || 'Type here...'}</span>
+              {inputType === 'number' && <span className="text-[8px] text-stone-400 ml-auto">#</span>}
             </div>
           </div>
         );
       }
       case 'voice_input': return null;
-      case 'camera_input': return <div key={wi} className="rounded-xl bg-gray-800 flex items-center justify-center" style={{ height: 70 }}><Camera size={18} className="text-white/50" /></div>;
-      case 'action_button': return <button key={wi} className={`w-full py-1.5 rounded-lg text-[10px] font-semibold ${p.style === 'secondary' ? 'border border-gray-300 text-gray-700 bg-white' : p.style === 'danger' ? 'text-white bg-red-600' : 'text-white'}`} style={p.style !== 'secondary' && p.style !== 'danger' ? { background: activePrimary } : undefined}>{p.label || 'Submit'}</button>;
-      case 'markdown_output': return <div key={wi} className="rounded-xl p-2 bg-white/50"><div className="space-y-1"><div className="h-1.5 rounded-full bg-gray-300/50 w-full" /><div className="h-1.5 rounded-full bg-gray-300/50 w-4/5" /><div className="h-1.5 rounded-full bg-gray-300/50 w-3/5" /></div></div>;
+      case 'camera_input': return <div key={wi} className="rounded-xl bg-stone-800 flex items-center justify-center" style={{ height: 70 }}><Camera size={18} className="text-white/50" /></div>;
+      case 'action_button': return <button key={wi} className={`w-full py-1.5 rounded-lg text-[10px] font-semibold ${p.style === 'secondary' ? 'border border-stone-300 text-stone-700 bg-white' : p.style === 'danger' ? 'text-white bg-red-600' : 'text-white'}`} style={p.style !== 'secondary' && p.style !== 'danger' ? { background: activePrimary } : undefined}>{p.label || 'Submit'}</button>;
+      case 'markdown_output': return <div key={wi} className="rounded-xl p-2 bg-white/50"><div className="space-y-1"><div className="h-1.5 rounded-full bg-stone-300/50 w-full" /><div className="h-1.5 rounded-full bg-stone-300/50 w-4/5" /><div className="h-1.5 rounded-full bg-stone-300/50 w-3/5" /></div></div>;
       case 'macro_grid': {
         const cols = parseInt(p.columns) || 2;
         const others = screens.filter(s => !s.isHome);
@@ -1015,7 +1015,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               return (
                 <button key={s.id} onClick={() => setActiveScreenIndex(screens.indexOf(s))}
                   className="rounded-xl p-2.5 flex flex-col items-center gap-1 cursor-pointer hover:opacity-80"
-                  style={{ background: i === 0 ? activePrimary : 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+                  style={{ background: i === 0 ? activePrimary : 'white', boxShadow: '0 1px 3px rgba(28,25,23,0.08)' }}>
                   <span className="text-base">{screenEmoji}</span>
                   <span className="text-[7px] font-semibold leading-tight text-center" style={{ color: i === 0 ? 'white' : activePrimary }}>{s.title}</span>
                 </button>
@@ -1024,7 +1024,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           </div>
         );
       }
-      case 'slider': return <div key={wi} className="px-1 py-1"><p className="text-[8px] text-gray-500 mb-0.5">{p.label || 'Value'}</p><div className="h-1.5 rounded-full bg-gray-300 relative"><div className="absolute left-1/3 -top-1 w-3 h-3 rounded-full" style={{ background: activePrimary }} /></div></div>;
+      case 'slider': return <div key={wi} className="px-1 py-1"><p className="text-[8px] text-stone-500 mb-0.5">{p.label || 'Value'}</p><div className="h-1.5 rounded-full bg-stone-300 relative"><div className="absolute left-1/3 -top-1 w-3 h-3 rounded-full" style={{ background: activePrimary }} /></div></div>;
       case 'metric_card': return (
         <div key={wi} className="rounded-xl p-3 bg-white/70 text-center">
           <span className="text-lg font-bold" style={{ color: activePrimary }}>
@@ -1032,17 +1032,17 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             0
             {p.suffix && <span className="text-xs font-medium ml-0.5">{p.suffix}</span>}
           </span>
-          <p className="text-[8px] text-gray-500">{p.label || 'Result'}</p>
+          <p className="text-[8px] text-stone-500">{p.label || 'Result'}</p>
         </div>
       );
-      case 'geo_display': return <div key={wi} className="rounded-xl p-2 bg-white/70 flex items-center gap-2"><span className="text-xs">{'\u{1F4CD}'}</span><span className="text-[9px] text-gray-400">Nearby places</span></div>;
+      case 'geo_display': return <div key={wi} className="rounded-xl p-2 bg-white/70 flex items-center gap-2"><span className="text-xs">{'\u{1F4CD}'}</span><span className="text-[9px] text-stone-500">Nearby places</span></div>;
       case 'progress_bar': {
         const total = parseInt(p.total) || 3;
         const current = 1;
         return (
           <div key={wi} className="px-1 py-1">
-            <p className="text-[8px] text-gray-500 mb-0.5">Step {current} of {total}</p>
-            <div className="h-1.5 rounded-full bg-gray-200 overflow-hidden">
+            <p className="text-[8px] text-stone-500 mb-0.5">Step {current} of {total}</p>
+            <div className="h-1.5 rounded-full bg-stone-200 overflow-hidden">
               <div className="h-full rounded-full transition-all" style={{ width: `${(current / total) * 100}%`, background: activePrimary }} />
             </div>
           </div>
@@ -1056,11 +1056,11 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             {steps.map((step, si) => (
               <div key={si} className="flex items-center gap-2 rounded-lg px-2 py-1.5" style={{ background: si === 0 ? activePrimary + '15' : 'white' }}>
                 <div className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold"
-                  style={{ background: si === 0 ? activePrimary : '#E5E7EB', color: si === 0 ? 'white' : '#9CA3AF' }}>
+                  style={{ background: si === 0 ? activePrimary : '#E7E0D8', color: si === 0 ? 'white' : '#A8A29E' }}>
                   {si + 1}
                 </div>
                 <span className="text-[9px] font-medium" style={{ color: si === 0 ? activePrimary : '#6B7280' }}>{step.label}</span>
-                <span className="text-[7px] text-gray-400 ml-auto">{step.type}</span>
+                <span className="text-[7px] text-stone-500 ml-auto">{step.type}</span>
               </div>
             ))}
           </div>
@@ -1081,58 +1081,58 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             if (!checkShowWhen(f.showWhen, screen.fieldValues)) return null;
             return (
               <div key={f.key} className="flex items-center gap-2">
-                <label className="text-[10px] text-gray-400 w-20 shrink-0">{f.label}</label>
+                <label className="text-[10px] text-stone-500 w-20 shrink-0">{f.label}</label>
                 {f.type === 'select' ? (
                   <select value={screen.fieldValues[f.key] || f.defaultValue}
                     onChange={e => updateScreenField(si, f.key, e.target.value)}
-                    className="flex-1 h-6 text-[11px] text-gray-700 rounded border border-gray-200 bg-white px-1.5 outline-none">
+                    className="flex-1 h-6 text-[11px] text-stone-700 rounded border border-stone-200 bg-white px-1.5 outline-none">
                     {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
                   </select>
                 ) : f.type === 'textarea' ? (
                   <textarea value={screen.fieldValues[f.key] || ''} onChange={e => updateScreenField(si, f.key, e.target.value)}
                     placeholder={f.placeholder}
-                    className="flex-1 text-[11px] text-gray-700 rounded border border-gray-200 bg-white px-1.5 py-1 outline-none resize-none" rows={3} />
+                    className="flex-1 text-[11px] text-stone-700 rounded border border-stone-200 bg-white px-1.5 py-1 outline-none resize-none" rows={3} />
                 ) : (
                   <input value={screen.fieldValues[f.key] || ''} onChange={e => updateScreenField(si, f.key, e.target.value)}
                     placeholder={f.placeholder}
-                    className="flex-1 h-6 text-[11px] text-gray-700 rounded border border-gray-200 bg-white px-1.5 outline-none focus:border-blue-400" />
+                    className="flex-1 h-6 text-[11px] text-stone-700 rounded border border-stone-200 bg-white px-1.5 outline-none focus:border-blue-400" />
                 )}
               </div>
             );
           })}
           {screen.templateId === 'calculator' && (
-            <div className="rounded bg-gray-50 px-2 py-1.5 mt-1">
-              <p className="text-[9px] text-gray-400 mb-0.5">Formula preview</p>
-              <code className="text-[10px] font-mono text-gray-700">{resolveFormula(screen)}</code>
+            <div className="rounded bg-stone-50 px-2 py-1.5 mt-1">
+              <p className="text-[9px] text-stone-500 mb-0.5">Formula preview</p>
+              <code className="text-[10px] font-mono text-stone-700">{resolveFormula(screen)}</code>
             </div>
           )}
           {/* Dynamic form field editor for ask_ai form mode */}
           {screen.templateId === 'ask_ai' && screen.fieldValues.mode === 'form' && (() => {
             const fieldCount = parseInt(screen.fieldValues.form_field_count || '2') || 2;
             return (
-              <div className="border-t border-gray-100 pt-2 space-y-1.5">
+              <div className="border-t border-stone-100 pt-2 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Form Fields</label>
+                  <label className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Form Fields</label>
                   <button onClick={() => {
                     const nc = fieldCount + 1;
                     setScreens(prev => prev.map((s, i) => i !== si ? s : {
                       ...s, fieldValues: { ...s.fieldValues, form_field_count: String(nc), [`f${nc}_label`]: '', [`f${nc}_type`]: 'text' },
                     }));
                   }}
-                    className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                    className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#C45A3A10', color: '#C45A3A' }}>
                     + Add Field
                   </button>
                 </div>
                 {Array.from({ length: fieldCount }, (_, idx) => idx + 1).map(n => (
                   <div key={n} className="flex items-center gap-1.5">
-                    <span className="text-[9px] text-gray-400 w-3 shrink-0">{n}</span>
+                    <span className="text-[9px] text-stone-500 w-3 shrink-0">{n}</span>
                     <input value={screen.fieldValues[`f${n}_label`] || ''}
                       onChange={e => updateScreenField(si, `f${n}_label`, e.target.value)}
                       placeholder={`Field ${n} label`}
-                      className="flex-1 h-6 text-[11px] text-gray-700 rounded border border-gray-200 bg-white px-1.5 outline-none focus:border-blue-400" />
+                      className="flex-1 h-6 text-[11px] text-stone-700 rounded border border-stone-200 bg-white px-1.5 outline-none focus:border-blue-400" />
                     <select value={screen.fieldValues[`f${n}_type`] || 'text'}
                       onChange={e => updateScreenField(si, `f${n}_type`, e.target.value)}
-                      className="w-[72px] h-6 text-[10px] text-gray-600 rounded border border-gray-200 bg-white px-1 outline-none">
+                      className="w-[72px] h-6 text-[10px] text-stone-600 rounded border border-stone-200 bg-white px-1 outline-none">
                       <option value="text">Text</option>
                       <option value="number">Number</option>
                       <option value="dropdown">Dropdown</option>
@@ -1142,7 +1142,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                       <input value={screen.fieldValues[`f${n}_options`] || ''}
                         onChange={e => updateScreenField(si, `f${n}_options`, e.target.value)}
                         placeholder="opt1, opt2"
-                        className="w-24 h-6 text-[10px] text-gray-600 rounded border border-gray-200 bg-white px-1 outline-none" />
+                        className="w-24 h-6 text-[10px] text-stone-600 rounded border border-stone-200 bg-white px-1 outline-none" />
                     )}
                     {fieldCount > 1 && (
                       <button onClick={() => {
@@ -1158,7 +1158,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         newFV.form_field_count = String(fieldCount - 1);
                         setScreens(prev => prev.map((s, i) => i === si ? { ...s, fieldValues: newFV } : s));
                       }}
-                        className="text-gray-300 hover:text-red-500 shrink-0"><X size={10} /></button>
+                        className="text-stone-400 hover:text-red-500 shrink-0"><X size={10} /></button>
                     )}
                   </div>
                 ))}
@@ -1167,15 +1167,15 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           })()}
           {/* AI Routing: Description + Prefill Hints */}
           {!screen.isHome && (
-            <div className="border-t border-gray-100 pt-2 space-y-2">
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">AI Routing</p>
-              <p className="text-[10px] text-gray-400 -mt-1">Helps the AI understand this screen so it can route users here in chat mode.</p>
+            <div className="border-t border-stone-100 pt-2 space-y-2">
+              <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">AI Routing</p>
+              <p className="text-[10px] text-stone-500 -mt-1">Helps the AI understand this screen so it can route users here in chat mode.</p>
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] text-gray-500">Screen Summary</label>
+                  <label className="text-[10px] text-stone-500">Screen Summary</label>
                   <div className="flex items-center gap-1">
                     <button onClick={() => regenerateScreenMeta(si)}
-                      className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                      className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#C45A3A10', color: '#C45A3A' }}>
                       Regenerate
                     </button>
                     <button onClick={() => {
@@ -1195,23 +1195,23 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                     }}
                       disabled={aiLoading}
                       className="text-[9px] font-medium px-1.5 py-0.5 rounded flex items-center gap-0.5"
-                      style={{ background: '#091A7A10', color: '#091A7A' }}>
+                      style={{ background: '#C45A3A10', color: '#C45A3A' }}>
                       {aiLoading ? <Loader2 size={8} className="animate-spin" /> : <Sparkles size={8} />} Polish
                     </button>
                   </div>
                 </div>
                 <textarea value={screen.description || generateScreenDescription(screen)}
                   onChange={e => updateScreenDescription(si, e.target.value)}
-                  className="w-full text-[10px] text-gray-600 rounded border border-gray-200 bg-white px-2 py-1 outline-none resize-none" rows={3} />
+                  className="w-full text-[10px] text-stone-600 rounded border border-stone-200 bg-white px-2 py-1 outline-none resize-none" rows={3} />
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] text-gray-500">Prefill Hints</label>
+                  <label className="text-[10px] text-stone-500">Prefill Hints</label>
                   <button onClick={() => {
                     const hints = generatePrefillHints(screen);
                     setScreens(prev => prev.map((s, i) => i === si ? { ...s, prefillHints: hints } : s));
                   }}
-                    className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                    className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#C45A3A10', color: '#C45A3A' }}>
                     Auto-derive
                   </button>
                 </div>
@@ -1220,17 +1220,17 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                     <input value={key}
                       onChange={e => updateScreenPrefillHint(si, key, e.target.value, val)}
                       placeholder="entity"
-                      className="w-24 h-5 text-[10px] rounded border border-gray-200 bg-white px-1.5 outline-none font-mono" />
-                    <span className="text-[9px] text-gray-400">{'→'}</span>
+                      className="w-24 h-5 text-[10px] rounded border border-stone-200 bg-white px-1.5 outline-none font-mono" />
+                    <span className="text-[9px] text-stone-500">{'→'}</span>
                     <input value={val}
                       onChange={e => updateScreenPrefillHint(si, key, key, e.target.value)}
                       placeholder="bind_var"
-                      className="w-20 h-5 text-[10px] rounded border border-gray-200 bg-white px-1.5 outline-none font-mono" />
-                    <button onClick={() => updateScreenPrefillHint(si, key, '', '')} className="text-gray-300 hover:text-red-500"><X size={10} /></button>
+                      className="w-20 h-5 text-[10px] rounded border border-stone-200 bg-white px-1.5 outline-none font-mono" />
+                    <button onClick={() => updateScreenPrefillHint(si, key, '', '')} className="text-stone-400 hover:text-red-500"><X size={10} /></button>
                   </div>
                 ))}
                 <button onClick={() => updateScreenPrefillHint(si, '', `hint_${Date.now()}`, '')}
-                  className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                  className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#C45A3A10', color: '#C45A3A' }}>
                   + Add Hint
                 </button>
               </div>
@@ -1243,27 +1243,27 @@ Do not assume any specific domain — use the recipe name, category, and knowled
   // ─── Render ───
   if (pageLoading) {
     return (
-      <div className="flex h-full min-h-screen items-center justify-center">
+      <div className="flex h-full min-h-[100dvh] items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 size={32} className="animate-spin text-gray-400" />
-          <span className="text-sm text-gray-500">Loading recipe...</span>
+          <Loader2 size={32} className="animate-spin text-stone-500" />
+          <span className="text-sm text-stone-500">Loading recipe...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full min-h-screen">
+    <div className="flex h-full min-h-[100dvh]">
       {/* Left panel */}
-      <div className="flex-[3] flex flex-col overflow-y-auto border-r border-gray-200">
+      <div className="flex-[3] flex flex-col overflow-y-auto border-r border-stone-200">
         <div className="px-8 pt-8 pb-4 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Recipe Studio</h1>
-            <p className="text-sm text-gray-500 mt-1">{recipeId ? 'Editing recipe' : 'Turn your expertise into an AI-powered tool'}</p>
+            <h1 className="text-2xl font-bold text-stone-900">Recipe Studio</h1>
+            <p className="text-sm text-stone-500 mt-1">{recipeId ? 'Editing recipe' : 'Turn your expertise into an AI-powered tool'}</p>
           </div>
           <div className="flex items-center gap-0.5">
-            <button onClick={undo} disabled={!canUndo} className="p-1.5 rounded-md hover:bg-gray-100 disabled:opacity-30" title="Undo (Cmd+Z)"><Undo2 size={15} className="text-gray-500" /></button>
-            <button onClick={redo} disabled={!canRedo} className="p-1.5 rounded-md hover:bg-gray-100 disabled:opacity-30" title="Redo (Cmd+Shift+Z)"><Redo2 size={15} className="text-gray-500" /></button>
+            <button onClick={undo} disabled={!canUndo} className="p-1.5 rounded-md hover:bg-stone-100 disabled:opacity-30" title="Undo (Cmd+Z)"><Undo2 size={15} className="text-stone-500" /></button>
+            <button onClick={redo} disabled={!canRedo} className="p-1.5 rounded-md hover:bg-stone-100 disabled:opacity-30" title="Redo (Cmd+Shift+Z)"><Redo2 size={15} className="text-stone-500" /></button>
           </div>
         </div>
 
@@ -1275,12 +1275,12 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               return (
                 <div key={step.id} className="flex items-center flex-1">
                   <button onClick={() => setCurrentStep(step.id)} className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center border-2" style={{ background: isActive || done ? '#091A7A' : '#F3F4F6', borderColor: isActive || done ? '#091A7A' : '#E5E7EB' }}>
-                      <Icon size={16} style={{ color: isActive || done ? 'white' : '#9CA3AF' }} />
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center border-2" style={{ background: isActive || done ? '#C45A3A' : '#F5F0EB', borderColor: isActive || done ? '#C45A3A' : '#E7E0D8' }}>
+                      <Icon size={16} style={{ color: isActive || done ? 'white' : '#A8A29E' }} />
                     </div>
-                    <span className="text-xs font-medium hidden lg:inline" style={{ color: isActive ? '#091A7A' : '#9CA3AF' }}>{step.label}</span>
+                    <span className="text-xs font-medium hidden lg:inline" style={{ color: isActive ? '#C45A3A' : '#A8A29E' }}>{step.label}</span>
                   </button>
-                  {i < STEPS.length - 1 && <div className="flex-1 h-0.5 mx-3" style={{ background: done ? '#091A7A' : '#E5E7EB' }} />}
+                  {i < STEPS.length - 1 && <div className="flex-1 h-0.5 mx-3" style={{ background: done ? '#C45A3A' : '#E7E0D8' }} />}
                 </div>
               );
             })}
@@ -1291,31 +1291,31 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           {/* ─── Step 2: Identity ─── */}
           {currentStep === 2 && (
             <div className="space-y-5 max-w-2xl mx-auto">
-              <h2 className="text-lg font-semibold text-gray-900">Define Identity</h2>
-              <p className="text-sm text-gray-500 -mt-3">Give your recipe a personality that resonates with your community.</p>
-              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Recipe Name</label><Input value={recipeName} onChange={e => setRecipeName(e.target.value)} placeholder="e.g. Health Assistant" /></div>
-              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Description</label><Input value={recipeDescription} onChange={e => setRecipeDescription(e.target.value)} placeholder="Short description" /></div>
+              <h2 className="text-lg font-semibold text-stone-900">Define Identity</h2>
+              <p className="text-sm text-stone-500 -mt-3">Give your recipe a personality that resonates with your community.</p>
+              <div><label className="text-sm font-medium text-stone-700 mb-1.5 block">Recipe Name</label><Input value={recipeName} onChange={e => setRecipeName(e.target.value)} placeholder="e.g. Health Assistant" /></div>
+              <div><label className="text-sm font-medium text-stone-700 mb-1.5 block">Description</label><Input value={recipeDescription} onChange={e => setRecipeDescription(e.target.value)} placeholder="Short description" /></div>
 
               {/* Compact row: Icon + Cover Photo + Theme */}
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Icon</label>
+                  <label className="text-xs text-stone-500 mb-1 block">Icon</label>
                   <button onClick={() => setShowIconPicker(true)}
-                    className="w-full h-16 rounded-xl border-2 border-gray-200 flex items-center justify-center text-3xl hover:border-gray-300 cursor-pointer bg-white">{recipeIcon}</button>
+                    className="w-full h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center text-3xl hover:border-stone-300 cursor-pointer bg-white">{recipeIcon}</button>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Cover Photo</label>
+                  <label className="text-xs text-stone-500 mb-1 block">Cover Photo</label>
                   {introPage.coverPhoto ? (
-                    <div className="relative rounded-xl overflow-hidden border border-gray-200 h-16 cursor-pointer" onClick={() => coverInputRef.current?.click()}>
+                    <div className="relative rounded-xl overflow-hidden border border-stone-200 h-16 cursor-pointer" onClick={() => coverInputRef.current?.click()}>
                       <img src={introPage.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
                       <button onClick={e => { e.stopPropagation(); setIntroPage(p => ({ ...p, coverPhoto: undefined })); }}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 flex items-center justify-center hover:bg-black/70"><X size={10} className="text-white" /></button>
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-stone-900/50 flex items-center justify-center hover:bg-stone-900/70"><X size={10} className="text-white" /></button>
                     </div>
                   ) : (
                     <button onClick={() => coverInputRef.current?.click()}
-                      className="w-full h-16 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-0.5 hover:border-gray-400 cursor-pointer">
-                      <Camera size={16} className="text-gray-400" />
-                      <span className="text-[9px] text-gray-400">Upload</span>
+                      className="w-full h-16 rounded-xl border-2 border-dashed border-stone-300 flex flex-col items-center justify-center gap-0.5 hover:border-stone-400 cursor-pointer">
+                      <Camera size={16} className="text-stone-500" />
+                      <span className="text-[9px] text-stone-500">Upload</span>
                     </button>
                   )}
                   <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={e => {
@@ -1328,12 +1328,12 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                   }} />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Theme</label>
+                  <label className="text-xs text-stone-500 mb-1 block">Theme</label>
                   <button onClick={() => setShowThemePicker(true)}
-                    className="w-full h-16 rounded-xl border-2 border-gray-200 flex items-center justify-center gap-2 hover:border-gray-300 cursor-pointer bg-white">
+                    className="w-full h-16 rounded-xl border-2 border-stone-200 flex items-center justify-center gap-2 hover:border-stone-300 cursor-pointer bg-white">
                     <div className="w-5 h-5 rounded-full" style={{ background: activePrimary }} />
                     <div className="w-5 h-5 rounded-full" style={{ background: activeSecondary }} />
-                    <span className="text-[10px] text-gray-500">{THEMES.find(t => t.key === selectedTheme)?.label}</span>
+                    <span className="text-[10px] text-stone-500">{THEMES.find(t => t.key === selectedTheme)?.label}</span>
                   </button>
                 </div>
               </div>
@@ -1341,31 +1341,31 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               {/* Languages — compact summary */}
               <div>
                 <button onClick={() => setShowLangDialog(true)}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white hover:border-gray-300 text-left cursor-pointer">
-                  <Globe size={14} className="text-gray-400 shrink-0" />
-                  <span className="text-xs text-gray-600 flex-1 truncate">
+                  className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 text-left cursor-pointer">
+                  <Globe size={14} className="text-stone-500 shrink-0" />
+                  <span className="text-xs text-stone-600 flex-1 truncate">
                     {selectedLanguages.length > 0
                       ? selectedLanguages.map(c => ALL_LANGUAGES.find(l => l.code === c)?.label || c).join(', ')
                       : 'Select languages...'}
                   </span>
-                  {selectedLanguages.length > 0 && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: '#091A7A', color: 'white' }}>{selectedLanguages.length}</span>}
-                  <ChevronRight size={14} className="text-gray-400 shrink-0" />
+                  {selectedLanguages.length > 0 && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: '#C45A3A', color: 'white' }}>{selectedLanguages.length}</span>}
+                  <ChevronRight size={14} className="text-stone-500 shrink-0" />
                 </button>
               </div>
 
-              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Category</label><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
+              <div><label className="text-sm font-medium text-stone-700 mb-1.5 block">Category</label><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
 
               {/* Author */}
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Author Name</label><Input value={introPage.authorName} onChange={e => setIntroPage(p => ({ ...p, authorName: e.target.value }))} placeholder="Your name" /></div>
-                <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Organisation</label><Input value={introPage.authorOrg} onChange={e => setIntroPage(p => ({ ...p, authorOrg: e.target.value }))} placeholder="Your org" /></div>
+                <div><label className="text-sm font-medium text-stone-700 mb-1.5 block">Author Name</label><Input value={introPage.authorName} onChange={e => setIntroPage(p => ({ ...p, authorName: e.target.value }))} placeholder="Your name" /></div>
+                <div><label className="text-sm font-medium text-stone-700 mb-1.5 block">Organisation</label><Input value={introPage.authorOrg} onChange={e => setIntroPage(p => ({ ...p, authorOrg: e.target.value }))} placeholder="Your org" /></div>
               </div>
               {/* Links */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-sm font-medium text-gray-700">Links</label>
+                  <label className="text-sm font-medium text-stone-700">Links</label>
                   <button onClick={() => setIntroPage(p => ({ ...p, links: [...p.links, { label: '', url: '' }] }))}
-                    className="text-xs font-medium px-2 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                    className="text-xs font-medium px-2 py-0.5 rounded" style={{ background: '#C45A3A10', color: '#C45A3A' }}>
                     + Add Link
                   </button>
                 </div>
@@ -1373,7 +1373,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                   <div key={li} className="flex items-center gap-2 mb-1.5">
                     <Input value={link.label} onChange={e => setIntroPage(p => ({ ...p, links: p.links.map((l, i) => i === li ? { ...l, label: e.target.value } : l) }))} placeholder="Label" className="h-8 text-xs flex-1" />
                     <Input value={link.url} onChange={e => setIntroPage(p => ({ ...p, links: p.links.map((l, i) => i === li ? { ...l, url: e.target.value } : l) }))} placeholder="https://..." className="h-8 text-xs flex-1" />
-                    <button onClick={() => setIntroPage(p => ({ ...p, links: p.links.filter((_, i) => i !== li) }))} className="text-gray-300 hover:text-red-500"><X size={14} /></button>
+                    <button onClick={() => setIntroPage(p => ({ ...p, links: p.links.filter((_, i) => i !== li) }))} className="text-stone-400 hover:text-red-500"><X size={14} /></button>
                   </div>
                 ))}
               </div>
@@ -1381,15 +1381,15 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               {/* System prompt & safety */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-sm font-medium text-gray-700">System Prompt</label>
-                  <button onClick={() => ensureApiKey(generateSystemPrompt)} disabled={aiLoading || !recipeName} className="text-xs font-medium px-3 py-1 rounded-md flex items-center gap-1" style={{ background: '#091A7A10', color: '#091A7A', opacity: !recipeName ? 0.4 : 1 }}>{aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} AI Generate</button>
+                  <label className="text-sm font-medium text-stone-700">System Prompt</label>
+                  <button onClick={() => ensureApiKey(generateSystemPrompt)} disabled={aiLoading || !recipeName} className="text-xs font-medium px-3 py-1 rounded-md flex items-center gap-1" style={{ background: '#C45A3A10', color: '#C45A3A', opacity: !recipeName ? 0.4 : 1 }}>{aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} AI Generate</button>
                 </div>
                 <Textarea value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} placeholder="You are a helpful assistant..." rows={5} />
               </div>
-              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Blocked Keywords</label><Input value={blockedKeywords} onChange={e => setBlockedKeywords(e.target.value)} placeholder="Comma-separated" /></div>
+              <div><label className="text-sm font-medium text-stone-700 mb-1.5 block">Blocked Keywords</label><Input value={blockedKeywords} onChange={e => setBlockedKeywords(e.target.value)} placeholder="Comma-separated" /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="text-xs text-gray-400 mb-1 block">Disclaimer</label><Input value={introPage.disclaimer} onChange={e => setIntroPage(p => ({ ...p, disclaimer: e.target.value }))} placeholder="AI-generated content..." className="h-8 text-xs" /></div>
-                <div><label className="text-xs text-gray-400 mb-1 block">Accept Button Label</label><Input value={introPage.acceptLabel} onChange={e => setIntroPage(p => ({ ...p, acceptLabel: e.target.value }))} placeholder="I Understand" className="h-8 text-xs" /></div>
+                <div><label className="text-xs text-stone-500 mb-1 block">Disclaimer</label><Input value={introPage.disclaimer} onChange={e => setIntroPage(p => ({ ...p, disclaimer: e.target.value }))} placeholder="AI-generated content..." className="h-8 text-xs" /></div>
+                <div><label className="text-xs text-stone-500 mb-1 block">Accept Button Label</label><Input value={introPage.acceptLabel} onChange={e => setIntroPage(p => ({ ...p, acceptLabel: e.target.value }))} placeholder="I Understand" className="h-8 text-xs" /></div>
               </div>
             </div>
           )}
@@ -1397,8 +1397,8 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           {/* ─── Step 3: Style & Layout ─── */}
           {currentStep === 3 && (
             <div className="space-y-6 max-w-2xl mx-auto">
-              <h2 className="text-lg font-semibold text-gray-900">Style & Layout</h2>
-              <p className="text-sm text-gray-500 -mt-4">Design the experience your Builders will see on their devices.</p>
+              <h2 className="text-lg font-semibold text-stone-900">Style & Layout</h2>
+              <p className="text-sm text-stone-500 -mt-4">Design the experience your Builders will see on their devices.</p>
 
               {/* Home Screen Config */}
               {(() => {
@@ -1407,10 +1407,10 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                 const isChatMode = !!homeScreen?.templateId;
                 const nonHomeScreens = screens.filter(s => !s.isHome);
                 return (
-                  <div className="rounded-xl border-2 border-gray-100 bg-gray-50/50 p-4 space-y-4">
+                  <div className="rounded-xl border-2 border-stone-100 bg-stone-50/50 p-4 space-y-4">
                     <div>
-                      <label className="text-sm font-semibold text-gray-800 mb-1 block">Home Screen</label>
-                      <p className="text-xs text-gray-500 mb-3">How builders navigate your recipe on first launch</p>
+                      <label className="text-sm font-semibold text-stone-800 mb-1 block">Home Screen</label>
+                      <p className="text-xs text-stone-500 mb-3">How builders navigate your recipe on first launch</p>
                       {nonHomeScreens.length > 0 && (
                         <div className="grid grid-cols-2 gap-3">
                           {[
@@ -1429,12 +1429,12 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                                 }));
                               }}
                                 className="flex flex-col gap-2 p-3 rounded-xl border-2 text-left transition-all"
-                                style={{ borderColor: isSelected ? '#091A7A' : '#E5E7EB', background: isSelected ? '#091A7A08' : 'white' }}>
+                                style={{ borderColor: isSelected ? '#C45A3A' : '#E7E0D8', background: isSelected ? '#C45A3A08' : 'white' }}>
                                 <div className="flex items-center gap-2">
-                                  <opt.icon size={16} style={{ color: isSelected ? '#091A7A' : '#9CA3AF' }} />
-                                  <span className="text-xs font-semibold" style={{ color: isSelected ? '#091A7A' : '#4B5563' }}>{opt.label}</span>
+                                  <opt.icon size={16} style={{ color: isSelected ? '#C45A3A' : '#A8A29E' }} />
+                                  <span className="text-xs font-semibold" style={{ color: isSelected ? '#C45A3A' : '#4B5563' }}>{opt.label}</span>
                                 </div>
-                                <p className="text-[10px] text-gray-500 leading-relaxed">{opt.desc}</p>
+                                <p className="text-[10px] text-stone-500 leading-relaxed">{opt.desc}</p>
                               </button>
                             );
                           })}
@@ -1445,7 +1445,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                     {/* Grid-first: column layout */}
                     {!isChatMode && nonHomeScreens.length > 0 && (
                       <div>
-                        <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2 block">Grid Layout</label>
+                        <label className="text-[10px] font-medium text-stone-500 uppercase tracking-wider mb-2 block">Grid Layout</label>
                         <div className="flex gap-2">
                           {[1, 2, 3].map(cols => {
                             const selected = (homeScreen?.gridColumns || 1) === cols;
@@ -1453,13 +1453,13 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                             return (
                               <button key={cols} onClick={() => updateGridColumns(cols)}
                                 className="flex-1 rounded-lg border-2 p-2.5 flex flex-col items-center gap-1.5 transition-all"
-                                style={{ borderColor: selected ? '#091A7A' : '#E5E7EB', background: selected ? '#091A7A08' : 'white' }}>
+                                style={{ borderColor: selected ? '#C45A3A' : '#E7E0D8', background: selected ? '#C45A3A08' : 'white' }}>
                                 <div className="gap-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, width: '100%' }}>
                                   {Array.from({ length: previewItems }).map((_, j) => (
-                                    <div key={j} className="h-3 rounded" style={{ background: selected ? '#091A7A' : '#E5E7EB' }} />
+                                    <div key={j} className="h-3 rounded" style={{ background: selected ? '#C45A3A' : '#E7E0D8' }} />
                                   ))}
                                 </div>
-                                <span className="text-[9px] font-medium" style={{ color: selected ? '#091A7A' : '#9CA3AF' }}>{cols} col{cols > 1 ? 's' : ''}</span>
+                                <span className="text-[9px] font-medium" style={{ color: selected ? '#C45A3A' : '#A8A29E' }}>{cols} col{cols > 1 ? 's' : ''}</span>
                               </button>
                             );
                           })}
@@ -1471,26 +1471,26 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                     {isChatMode && homeScreen && homeIdx >= 0 && (
                       <div className="space-y-3">
                         <div>
-                          <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1 block">Heading</label>
+                          <label className="text-[10px] font-medium text-stone-500 uppercase tracking-wider mb-1 block">Heading</label>
                           <Input value={homeScreen.fieldValues.heading || ''} onChange={e => updateScreenField(homeIdx, 'heading', e.target.value)}
                             placeholder="How can I help?" className="h-8 text-sm" />
                         </div>
                         <div>
-                          <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1 block">Input Hint</label>
+                          <label className="text-[10px] font-medium text-stone-500 uppercase tracking-wider mb-1 block">Input Hint</label>
                           <Input value={homeScreen.fieldValues.hint || ''} onChange={e => updateScreenField(homeIdx, 'hint', e.target.value)}
                             placeholder="Ask a question..." className="h-8 text-sm" />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1 block">Max Clarifications</label>
+                            <label className="text-[10px] font-medium text-stone-500 uppercase tracking-wider mb-1 block">Max Clarifications</label>
                             <div className="flex items-center gap-1.5">
                               {[1, 2, 3, 4, 5].map(n => (
                                 <button key={n} onClick={() => setMaxClarifications(n)}
                                   className="w-7 h-7 rounded-lg border-2 text-[11px] font-bold transition-all"
                                   style={{
-                                    borderColor: maxClarifications === n ? '#091A7A' : '#E5E7EB',
-                                    background: maxClarifications === n ? '#091A7A' : 'white',
-                                    color: maxClarifications === n ? 'white' : '#9CA3AF',
+                                    borderColor: maxClarifications === n ? '#C45A3A' : '#E7E0D8',
+                                    background: maxClarifications === n ? '#C45A3A' : 'white',
+                                    color: maxClarifications === n ? 'white' : '#A8A29E',
                                   }}>
                                   {n}
                                 </button>
@@ -1498,9 +1498,9 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                             </div>
                           </div>
                           <div>
-                            <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1 block">Fallback Screen</label>
+                            <label className="text-[10px] font-medium text-stone-500 uppercase tracking-wider mb-1 block">Fallback Screen</label>
                             <select value={fallbackScreen} onChange={e => setFallbackScreen(e.target.value)}
-                              className="w-full h-7 text-[11px] rounded border border-gray-200 bg-white px-1.5 outline-none">
+                              className="w-full h-7 text-[11px] rounded border border-stone-200 bg-white px-1.5 outline-none">
                               <option value="">Show all screens</option>
                               {nonHomeScreens.map(s => <option key={s.id} value={s.id}>{s.title || s.id}</option>)}
                             </select>
@@ -1513,13 +1513,13 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               })()}
 
               {/* Screens (non-home only) */}
-              <div className="rounded-xl border-2 border-gray-100 bg-gray-50/50 p-4">
+              <div className="rounded-xl border-2 border-stone-100 bg-stone-50/50 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <label className="text-sm font-semibold text-gray-800">Screens ({screens.filter(s => !s.isHome).length})</label>
-                    <p className="text-xs text-gray-500 mt-0.5">Configure each screen and its template</p>
+                    <label className="text-sm font-semibold text-stone-800">Screens ({screens.filter(s => !s.isHome).length})</label>
+                    <p className="text-xs text-stone-500 mt-0.5">Configure each screen and its template</p>
                   </div>
-                  <button onClick={() => setShowTemplatePicker(true)} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-md" style={{ background: '#091A7A10', color: '#091A7A' }}><Plus size={14} /> Add Screen</button>
+                  <button onClick={() => setShowTemplatePicker(true)} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-md" style={{ background: '#C45A3A10', color: '#C45A3A' }}><Plus size={14} /> Add Screen</button>
                 </div>
                 <div className="space-y-2">
                   {screens.map((screen, si) => {
@@ -1527,25 +1527,25 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                     const isActive = si === activeScreenIndex;
                     const tmpl = screen.templateId ? getScreenTemplate(screen.templateId) : null;
                     return (
-                      <div key={screen.id} className="rounded-xl border overflow-hidden bg-white" style={{ borderColor: isActive ? '#091A7A' : '#E5E7EB', boxShadow: isActive ? '0 0 0 1px #091A7A' : 'none' }}>
-                        <button onClick={() => { setActiveScreenIndex(si); setPreviewIntro(false); }} className="w-full flex items-center gap-2 px-4 py-2.5 text-left" style={{ background: isActive ? '#091A7A08' : '#FAFAFA' }}>
+                      <div key={screen.id} className="rounded-xl border overflow-hidden bg-white" style={{ borderColor: isActive ? '#C45A3A' : '#E7E0D8', boxShadow: isActive ? '0 0 0 1px #C45A3A' : 'none' }}>
+                        <button onClick={() => { setActiveScreenIndex(si); setPreviewIntro(false); }} className="w-full flex items-center gap-2 px-4 py-2.5 text-left" style={{ background: isActive ? '#C45A3A08' : '#FAFAFA' }}>
                           <span className="text-sm shrink-0">{screen.screenIcon || tmpl?.emoji || '\u{1F4CB}'}</span>
-                          <span className="text-sm font-medium text-gray-900 flex-1 truncate">{screen.title || tmpl?.name || 'Untitled'}</span>
-                          {tmpl && <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{tmpl.emoji} {tmpl.name}</span>}
-                          <ChevronDown size={14} className="text-gray-400" style={{ transform: isActive ? 'rotate(180deg)' : 'rotate(0)' }} />
-                          <button onClick={e => { e.stopPropagation(); duplicateScreen(si); }} className="text-gray-300 hover:text-blue-500" title="Duplicate"><Copy size={13} /></button>
-                          {screens.filter(s => !s.isHome).length > 1 && <button onClick={e => { e.stopPropagation(); removeScreen(si); }} className="text-gray-300 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>}
+                          <span className="text-sm font-medium text-stone-900 flex-1 truncate">{screen.title || tmpl?.name || 'Untitled'}</span>
+                          {tmpl && <span className="text-[9px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500">{tmpl.emoji} {tmpl.name}</span>}
+                          <ChevronDown size={14} className="text-stone-500" style={{ transform: isActive ? 'rotate(180deg)' : 'rotate(0)' }} />
+                          <button onClick={e => { e.stopPropagation(); duplicateScreen(si); }} className="text-stone-400 hover:text-blue-500" title="Duplicate"><Copy size={13} /></button>
+                          {screens.filter(s => !s.isHome).length > 1 && <button onClick={e => { e.stopPropagation(); removeScreen(si); }} className="text-stone-400 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>}
                         </button>
 
                         {isActive && (
-                          <div className="px-4 py-3 border-t border-gray-100 bg-white space-y-3">
+                          <div className="px-4 py-3 border-t border-stone-100 bg-white space-y-3">
                             <div>
-                              <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1.5 block">Screen Title & Icon</label>
+                              <label className="text-[10px] font-medium text-stone-500 uppercase tracking-wider mb-1.5 block">Screen Title & Icon</label>
                               <div className="flex items-center gap-2">
                                 <select
                                   value={screen.screenIcon || (tmpl?.emoji || '\u{1F4CB}')}
                                   onChange={e => setScreens(prev => prev.map((s, i) => i === si ? { ...s, screenIcon: e.target.value } : s))}
-                                  className="w-10 h-8 text-center text-lg appearance-none rounded-lg border border-gray-200 bg-white cursor-pointer outline-none focus:border-blue-400">
+                                  className="w-10 h-8 text-center text-lg appearance-none rounded-lg border border-stone-200 bg-white cursor-pointer outline-none focus:border-blue-400">
                                   {['\u{1F4CB}', '\u{1F4AC}', '\u{1F4F7}', '\u{1F9EE}', '\u{1F4CD}', '\u{1F4DD}', '\u{2705}', '\u{1F4F1}',
                                     '\u{1F33E}', '\u{1F3E5}', '\u{1F6A8}', '\u{1F4DA}', '\u{1F4B0}', '\u{1F331}', '\u{2764}\u{FE0F}',
                                     '\u{1F50D}', '\u{2B50}', '\u{1F4A1}', '\u{1F3AF}', '\u{1F916}', '\u{1F30D}',
@@ -1563,13 +1563,13 @@ Do not assume any specific domain — use the recipe name, category, and knowled
 
                             {/* Routing editor (non-home only) */}
                             {!screen.isHome && screen.templateId && (
-                              <div className="rounded-lg border border-gray-200 overflow-hidden mt-2">
+                              <div className="rounded-lg border border-stone-200 overflow-hidden mt-2">
                                 <button onClick={() => toggleScreenRouting(si)}
-                                  className="w-full flex items-center gap-2 px-3 py-2 bg-gray-50 border-b border-gray-100 text-left">
-                                  <GitBranch size={12} className="text-gray-500" />
-                                  <span className="text-xs font-semibold text-gray-700 flex-1">Route by Answer</span>
+                                  className="w-full flex items-center gap-2 px-3 py-2 bg-stone-50 border-b border-stone-100 text-left">
+                                  <GitBranch size={12} className="text-stone-500" />
+                                  <span className="text-xs font-semibold text-stone-700 flex-1">Route by Answer</span>
                                   <div className="relative w-8 h-4 rounded-full transition-colors"
-                                    style={{ background: screen.routing ? '#091A7A' : '#D1D5DB' }}>
+                                    style={{ background: screen.routing ? '#C45A3A' : '#D1D5DB' }}>
                                     <div className="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform"
                                       style={{ left: screen.routing ? 14 : 2 }} />
                                   </div>
@@ -1580,17 +1580,17 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                                   return (
                                     <div className="px-3 py-2 space-y-2">
                                       <div className="flex items-center gap-2">
-                                        <label className="text-[10px] text-gray-400 w-16 shrink-0">Field</label>
+                                        <label className="text-[10px] text-stone-500 w-16 shrink-0">Field</label>
                                         <select value={screen.routing.field}
                                           onChange={e => updateScreenRouting(si, { ...screen.routing!, field: e.target.value })}
-                                          className="flex-1 h-6 text-[11px] rounded border border-gray-200 bg-white px-1.5 outline-none">
+                                          className="flex-1 h-6 text-[11px] rounded border border-stone-200 bg-white px-1.5 outline-none">
                                           <option value="">Select variable</option>
                                           {bindVars.map(v => <option key={v} value={v}>{v}</option>)}
                                         </select>
                                       </div>
                                       {screen.routing.rules.map((rule, ri) => (
                                         <div key={ri} className="flex items-center gap-1.5">
-                                          <span className="text-[10px] text-gray-400 w-16 shrink-0">If =</span>
+                                          <span className="text-[10px] text-stone-500 w-16 shrink-0">If =</span>
                                           <input value={rule.value}
                                             onChange={e => {
                                               const rules = [...screen.routing!.rules];
@@ -1598,33 +1598,33 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                                               updateScreenRouting(si, { ...screen.routing!, rules });
                                             }}
                                             placeholder="value"
-                                            className="w-20 h-6 text-[11px] rounded border border-gray-200 bg-white px-1.5 outline-none" />
-                                          <span className="text-[10px] text-gray-400">{'→'}</span>
+                                            className="w-20 h-6 text-[11px] rounded border border-stone-200 bg-white px-1.5 outline-none" />
+                                          <span className="text-[10px] text-stone-500">{'→'}</span>
                                           <select value={rule.goto}
                                             onChange={e => {
                                               const rules = [...screen.routing!.rules];
                                               rules[ri] = { ...rules[ri], goto: e.target.value };
                                               updateScreenRouting(si, { ...screen.routing!, rules });
                                             }}
-                                            className="flex-1 h-6 text-[11px] rounded border border-gray-200 bg-white px-1.5 outline-none">
+                                            className="flex-1 h-6 text-[11px] rounded border border-stone-200 bg-white px-1.5 outline-none">
                                             <option value="">Go to...</option>
                                             {otherScreens.map(s => <option key={s.id} value={s.id}>{s.title || s.id}</option>)}
                                           </select>
                                           <button onClick={() => {
                                             const rules = screen.routing!.rules.filter((_, i) => i !== ri);
                                             updateScreenRouting(si, { ...screen.routing!, rules });
-                                          }} className="text-gray-300 hover:text-red-500"><X size={12} /></button>
+                                          }} className="text-stone-400 hover:text-red-500"><X size={12} /></button>
                                         </div>
                                       ))}
                                       <button onClick={() => updateScreenRouting(si, { ...screen.routing!, rules: [...screen.routing!.rules, { value: '', goto: '' }] })}
-                                        className="text-[10px] font-medium px-2 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                                        className="text-[10px] font-medium px-2 py-0.5 rounded" style={{ background: '#C45A3A10', color: '#C45A3A' }}>
                                         + Add Rule
                                       </button>
                                       <div className="flex items-center gap-2">
-                                        <label className="text-[10px] text-gray-400 w-16 shrink-0">Fallback</label>
+                                        <label className="text-[10px] text-stone-500 w-16 shrink-0">Fallback</label>
                                         <select value={screen.routing.fallback}
                                           onChange={e => updateScreenRouting(si, { ...screen.routing!, fallback: e.target.value })}
-                                          className="flex-1 h-6 text-[11px] rounded border border-gray-200 bg-white px-1.5 outline-none">
+                                          className="flex-1 h-6 text-[11px] rounded border border-stone-200 bg-white px-1.5 outline-none">
                                           <option value="">Next screen</option>
                                           {otherScreens.map(s => <option key={s.id} value={s.id}>{s.title || s.id}</option>)}
                                         </select>
@@ -1649,27 +1649,27 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             <div className="space-y-6 max-w-2xl mx-auto">
               {(knowledgeFiles.length > 0 || knowledgeSuggestions) && (
                 <>
-                  <h2 className="text-lg font-semibold text-gray-900">Knowledge Base</h2>
-                  <p className="text-sm text-gray-500 -mt-4">Your domain knowledge powers every Function we suggest.</p>
+                  <h2 className="text-lg font-semibold text-stone-900">Knowledge Base</h2>
+                  <p className="text-sm text-stone-500 -mt-4">Your domain knowledge powers every Function we suggest.</p>
                 </>
               )}
 
               {/* Upload area — doubles as hero when no files */}
               {knowledgeFiles.length === 0 && (
-                <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center gap-3 hover:border-gray-400 cursor-pointer transition-colors bg-gray-50/50">
+                <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-stone-300 rounded-2xl p-8 flex flex-col items-center gap-3 hover:border-stone-400 cursor-pointer transition-colors bg-stone-50/50">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-blue-50 text-base">{'\u{1F4C4}'}</div>
-                    <ChevronRight size={14} className="text-gray-300" />
+                    <ChevronRight size={14} className="text-stone-400" />
                     <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-purple-50 text-base">{'\u{2728}'}</div>
-                    <ChevronRight size={14} className="text-gray-300" />
+                    <ChevronRight size={14} className="text-stone-400" />
                     <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-green-50 text-base">{'\u{1F4F1}'}</div>
                   </div>
-                  <h2 className="text-lg font-bold text-gray-900">Start with what you know</h2>
-                  <p className="text-sm text-gray-500 max-w-sm mx-auto text-center">Upload your expertise — guides, manuals, protocols — and we&apos;ll turn it into an AI-powered recipe.</p>
+                  <h2 className="text-lg font-bold text-stone-900">Start with what you know</h2>
+                  <p className="text-sm text-stone-500 max-w-sm mx-auto text-center">Upload your expertise — guides, manuals, protocols — and we&apos;ll turn it into an AI-powered recipe.</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#091A7A10' }}><Upload size={20} style={{ color: '#091A7A' }} /></div>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#C45A3A10' }}><Upload size={20} style={{ color: '#C45A3A' }} /></div>
                   </div>
-                  <p className="text-xs text-gray-400">PDF, TXT, CSV, MD — up to 10 MB</p>
+                  <p className="text-xs text-stone-500">PDF, TXT, CSV, MD — up to 10 MB</p>
                 </div>
               )}
               <input ref={fileInputRef} type="file" accept=".pdf,.txt,.csv,.md" multiple className="hidden" onChange={handleFileUpload} />
@@ -1677,7 +1677,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               {/* Demo docs */}
               {knowledgeFiles.length === 0 && (
                 <div>
-                  <p className="text-xs font-medium text-gray-500 mb-2">Or start with a demo document</p>
+                  <p className="text-xs font-medium text-stone-500 mb-2">Or start with a demo document</p>
                   <div className="grid grid-cols-3 gap-2">
                     {DEMO_DOCUMENTS.map(doc => (
                       <button key={doc.name} onClick={() => {
@@ -1687,11 +1687,11 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         if (cur.trim()) chunks.push(cur.trim());
                         setKnowledgeFiles(prev => [...prev, { name: doc.name, size: `${(doc.content.length / 1024).toFixed(1)} KB`, status: 'ready', chunks: chunks.length, summary: doc.content.slice(0, 200) + '...' }]);
                       }}
-                        className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 transition-all cursor-pointer">
+                        className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50 transition-all cursor-pointer">
                         <span className="text-xl">{doc.emoji}</span>
-                        <span className="text-[10px] font-medium text-gray-700 text-center leading-tight">{doc.name}</span>
-                        <span className="text-[9px] text-gray-400">{doc.category}</span>
-                        <span className="text-[8px] text-gray-400 text-center leading-tight">{doc.author} · {doc.org}</span>
+                        <span className="text-[10px] font-medium text-stone-700 text-center leading-tight">{doc.name}</span>
+                        <span className="text-[9px] text-stone-500">{doc.category}</span>
+                        <span className="text-[8px] text-stone-500 text-center leading-tight">{doc.author} · {doc.org}</span>
                       </button>
                     ))}
                   </div>
@@ -1702,39 +1702,39 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               {knowledgeFiles.length > 0 && (
                 <div className="space-y-2">
                   {knowledgeFiles.map((f, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 bg-white">
-                      <FileText size={20} className={f.status === 'ready' ? 'text-green-600' : 'text-gray-400'} />
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-stone-100 bg-white">
+                      <FileText size={20} className={f.status === 'ready' ? 'text-green-600' : 'text-stone-500'} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-800 truncate">{f.name}</p>
+                        <p className="text-sm font-medium text-stone-800 truncate">{f.name}</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <p className="text-xs text-gray-400">{f.size}</p>
+                          <p className="text-xs text-stone-500">{f.size}</p>
                           {f.status === 'ready' && f.chunks && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-green-50 text-green-700">{f.chunks} chunks</span>}
                           {f.status !== 'ready' && <span className="text-[10px] text-amber-600">{f.status}...</span>}
                         </div>
                         {f.status !== 'ready' && <Progress value={f.status === 'uploading' ? 40 : 75} className="mt-1.5 h-1.5" />}
                       </div>
-                      <button onClick={() => removeFile(i)} className="text-gray-400 hover:text-gray-600 shrink-0"><X size={16} /></button>
+                      <button onClick={() => removeFile(i)} className="text-stone-500 hover:text-stone-600 shrink-0"><X size={16} /></button>
                     </div>
                   ))}
                   <button onClick={() => fileInputRef.current?.click()}
-                    className="flex items-center gap-2 p-3 rounded-lg border border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors w-full">
-                    <Plus size={16} className="text-gray-400" />
-                    <span className="text-sm text-gray-500">Add another document</span>
+                    className="flex items-center gap-2 p-3 rounded-lg border border-dashed border-stone-300 hover:border-stone-400 hover:bg-stone-50 transition-colors w-full">
+                    <Plus size={16} className="text-stone-500" />
+                    <span className="text-sm text-stone-500">Add another document</span>
                   </button>
                 </div>
               )}
 
               {/* AI Suggestions */}
               {knowledgeFiles.some(f => f.status === 'ready') && (
-                <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-                  <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                <div className="rounded-xl border border-stone-200 bg-white overflow-hidden">
+                  <div className="flex items-center justify-between p-4 border-b border-stone-100">
                     <div>
-                      <p className="text-sm font-semibold text-gray-800">Recipe Blueprint</p>
-                      <p className="text-xs text-gray-500">Analyze your documents and design a complete recipe — name, screens, prompts, and more.</p>
+                      <p className="text-sm font-semibold text-stone-800">Recipe Blueprint</p>
+                      <p className="text-xs text-stone-500">Analyze your documents and design a complete recipe — name, screens, prompts, and more.</p>
                     </div>
                     <button onClick={() => ensureApiKey(generateKnowledgeSuggestions)} disabled={aiLoading}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white hover:opacity-90 shrink-0"
-                      style={{ background: '#091A7A' }}>
+                      style={{ background: '#C45A3A' }}>
                       {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
                       {knowledgeSuggestions ? 'Regenerate' : 'Generate Blueprint'}
                     </button>
@@ -1742,23 +1742,23 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                   {aiLoading && !knowledgeSuggestions && (
                     <div className="p-4 space-y-3 relative overflow-hidden">
                       <div className="absolute inset-0 pointer-events-none" style={{
-                        background: 'linear-gradient(90deg, transparent 0%, rgba(9,26,122,0.04) 50%, transparent 100%)',
+                        background: 'linear-gradient(90deg, transparent 0%, rgba(196,90,58,0.04) 50%, transparent 100%)',
                         backgroundSize: '200% 100%',
                         animation: 'shimmerSweep 30s linear infinite',
                       }} />
                       <style>{`@keyframes shimmerSweep { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
                       <div className="flex items-center gap-2 mb-2">
-                        <Loader2 size={14} className="animate-spin text-gray-400" />
-                        <span className="text-xs text-gray-500 animate-pulse">Analyzing your documents and designing screens...</span>
+                        <Loader2 size={14} className="animate-spin text-stone-500" />
+                        <span className="text-xs text-stone-500 animate-pulse">Analyzing your documents and designing screens...</span>
                       </div>
                       {[1, 2, 3].map(i => (
-                        <div key={i} className="rounded-lg border border-gray-100 p-3 space-y-2 animate-pulse">
+                        <div key={i} className="rounded-lg border border-stone-100 p-3 space-y-2 animate-pulse">
                           <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-gray-200" />
-                            <div className="h-3 bg-gray-200 rounded w-32" />
+                            <div className="w-6 h-6 rounded-full bg-stone-200" />
+                            <div className="h-3 bg-stone-200 rounded w-32" />
                           </div>
-                          <div className="h-2 bg-gray-100 rounded w-full" />
-                          <div className="h-2 bg-gray-100 rounded w-3/4" />
+                          <div className="h-2 bg-stone-100 rounded w-full" />
+                          <div className="h-2 bg-stone-100 rounded w-3/4" />
                         </div>
                       ))}
                     </div>
@@ -1767,108 +1767,108 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                     <div className="p-4 space-y-3">
                       {/* Identity — collapsible */}
                       <button onClick={() => setIdentityExpanded(!identityExpanded)} className="flex items-center gap-2 w-full text-left">
-                        <ChevronRight size={12} className={`text-gray-400 transition-transform ${identityExpanded ? 'rotate-90' : ''}`} />
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Identity</p>
-                        <span className="text-[10px] text-gray-400 ml-auto">{knowledgeSuggestions.recipeName} · {knowledgeSuggestions.recipeIcon} · {(() => { const t = THEMES.find(t => t.key === knowledgeSuggestions.themeKey); return t?.label || knowledgeSuggestions.themeKey; })()}</span>
+                        <ChevronRight size={12} className={`text-stone-500 transition-transform ${identityExpanded ? 'rotate-90' : ''}`} />
+                        <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Identity</p>
+                        <span className="text-[10px] text-stone-500 ml-auto">{knowledgeSuggestions.recipeName} · {knowledgeSuggestions.recipeIcon} · {(() => { const t = THEMES.find(t => t.key === knowledgeSuggestions.themeKey); return t?.label || knowledgeSuggestions.themeKey; })()}</span>
                       </button>
                       {identityExpanded && (
                         <div className="space-y-2 pl-1">
-                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-stone-50 cursor-pointer">
                             <input type="checkbox" checked={suggestionSelections.name} onChange={e => updateSuggestionSelection(prev => ({ ...prev, name: e.target.checked }))}
-                              className="mt-0.5 rounded border-gray-300" />
+                              className="mt-0.5 rounded border-stone-300" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-gray-500">Recipe Name</p>
-                              <p className="text-sm font-semibold text-gray-900">{knowledgeSuggestions.recipeName}</p>
+                              <p className="text-xs font-medium text-stone-500">Recipe Name</p>
+                              <p className="text-sm font-semibold text-stone-900">{knowledgeSuggestions.recipeName}</p>
                             </div>
                           </label>
-                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-stone-50 cursor-pointer">
                             <input type="checkbox" checked={suggestionSelections.description} onChange={e => updateSuggestionSelection(prev => ({ ...prev, description: e.target.checked }))}
-                              className="mt-0.5 rounded border-gray-300" />
+                              className="mt-0.5 rounded border-stone-300" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-gray-500">Description</p>
-                              <p className="text-sm text-gray-700">{knowledgeSuggestions.recipeDescription}</p>
+                              <p className="text-xs font-medium text-stone-500">Description</p>
+                              <p className="text-sm text-stone-700">{knowledgeSuggestions.recipeDescription}</p>
                             </div>
                           </label>
                           <div className="flex gap-4">
-                            <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
+                            <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-stone-50 cursor-pointer flex-1">
                               <input type="checkbox" checked={suggestionSelections.category} onChange={e => updateSuggestionSelection(prev => ({ ...prev, category: e.target.checked }))}
-                                className="mt-0.5 rounded border-gray-300" />
+                                className="mt-0.5 rounded border-stone-300" />
                               <div>
-                                <p className="text-xs font-medium text-gray-500">Category</p>
-                                <p className="text-sm text-gray-700">{knowledgeSuggestions.category}</p>
+                                <p className="text-xs font-medium text-stone-500">Category</p>
+                                <p className="text-sm text-stone-700">{knowledgeSuggestions.category}</p>
                               </div>
                             </label>
-                            <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
+                            <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-stone-50 cursor-pointer flex-1">
                               <input type="checkbox" checked={suggestionSelections.systemPrompt} onChange={e => updateSuggestionSelection(prev => ({ ...prev, systemPrompt: e.target.checked }))}
-                                className="mt-0.5 rounded border-gray-300" />
+                                className="mt-0.5 rounded border-stone-300" />
                               <div>
-                                <p className="text-xs font-medium text-gray-500">System Prompt</p>
-                                <p className="text-sm text-gray-700 line-clamp-1">{knowledgeSuggestions.systemPrompt}</p>
+                                <p className="text-xs font-medium text-stone-500">System Prompt</p>
+                                <p className="text-sm text-stone-700 line-clamp-1">{knowledgeSuggestions.systemPrompt}</p>
                               </div>
                             </label>
                           </div>
                           <div className="flex gap-4">
-                            <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
+                            <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-stone-50 cursor-pointer flex-1">
                               <input type="checkbox" checked={suggestionSelections.icon} onChange={e => updateSuggestionSelection(prev => ({ ...prev, icon: e.target.checked }))}
-                                className="rounded border-gray-300" />
+                                className="rounded border-stone-300" />
                               <div className="flex items-center gap-2">
-                                <p className="text-xs font-medium text-gray-500">Icon</p>
+                                <p className="text-xs font-medium text-stone-500">Icon</p>
                                 <span className="text-xl">{knowledgeSuggestions.recipeIcon}</span>
                               </div>
                             </label>
-                            <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
+                            <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-stone-50 cursor-pointer flex-1">
                               <input type="checkbox" checked={suggestionSelections.theme} onChange={e => updateSuggestionSelection(prev => ({ ...prev, theme: e.target.checked }))}
-                                className="rounded border-gray-300" />
+                                className="rounded border-stone-300" />
                               <div className="flex items-center gap-2">
-                                <p className="text-xs font-medium text-gray-500">Theme</p>
-                                {(() => { const t = THEMES.find(t => t.key === knowledgeSuggestions.themeKey); return t ? <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full" style={{ background: t.primary }} /><span className="text-sm text-gray-700 capitalize">{t.label}</span></div> : <span className="text-sm text-gray-700">{knowledgeSuggestions.themeKey}</span>; })()}
+                                <p className="text-xs font-medium text-stone-500">Theme</p>
+                                {(() => { const t = THEMES.find(t => t.key === knowledgeSuggestions.themeKey); return t ? <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full" style={{ background: t.primary }} /><span className="text-sm text-stone-700 capitalize">{t.label}</span></div> : <span className="text-sm text-stone-700">{knowledgeSuggestions.themeKey}</span>; })()}
                               </div>
                             </label>
                           </div>
-                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-stone-50 cursor-pointer">
                             <input type="checkbox" checked={suggestionSelections.author} onChange={e => updateSuggestionSelection(prev => ({ ...prev, author: e.target.checked }))}
-                              className="mt-0.5 rounded border-gray-300" />
+                              className="mt-0.5 rounded border-stone-300" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-gray-500">Author</p>
-                              <p className="text-sm text-gray-700">{knowledgeSuggestions.authorName} — {knowledgeSuggestions.authorOrg}</p>
+                              <p className="text-xs font-medium text-stone-500">Author</p>
+                              <p className="text-sm text-stone-700">{knowledgeSuggestions.authorName} — {knowledgeSuggestions.authorOrg}</p>
                             </div>
                           </label>
-                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-stone-50 cursor-pointer">
                             <input type="checkbox" checked={suggestionSelections.links} onChange={e => updateSuggestionSelection(prev => ({ ...prev, links: e.target.checked }))}
-                              className="mt-0.5 rounded border-gray-300" />
+                              className="mt-0.5 rounded border-stone-300" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-gray-500">Links</p>
-                              <p className="text-sm text-gray-700">{knowledgeSuggestions.links?.length || 0} reference link{(knowledgeSuggestions.links?.length || 0) !== 1 ? 's' : ''}</p>
+                              <p className="text-xs font-medium text-stone-500">Links</p>
+                              <p className="text-sm text-stone-700">{knowledgeSuggestions.links?.length || 0} reference link{(knowledgeSuggestions.links?.length || 0) !== 1 ? 's' : ''}</p>
                             </div>
                           </label>
-                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-stone-50 cursor-pointer">
                             <input type="checkbox" checked={suggestionSelections.homePreview} onChange={e => updateSuggestionSelection(prev => ({ ...prev, homePreview: e.target.checked }))}
-                              className="mt-0.5 rounded border-gray-300" />
+                              className="mt-0.5 rounded border-stone-300" />
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-gray-500">Home Preview</p>
-                              <p className="text-sm text-gray-700">{knowledgeSuggestions.homeHeading} &middot; {knowledgeSuggestions.homeHint}</p>
+                              <p className="text-xs font-medium text-stone-500">Home Preview</p>
+                              <p className="text-sm text-stone-700">{knowledgeSuggestions.homeHeading} &middot; {knowledgeSuggestions.homeHint}</p>
                             </div>
                           </label>
                         </div>
                       )}
 
                       {/* Screens with checkboxes — full width cards */}
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mt-4">Functions</p>
+                      <p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider mt-4">Functions</p>
                       <div className="space-y-2">
                         {knowledgeSuggestions.screens?.map((sc, i) => {
                           const tpl = getScreenTemplate(sc.templateId);
                           return (
-                            <label key={i} className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                            <label key={i} className="flex items-center gap-3 p-3 rounded-lg border border-stone-100 hover:border-stone-200 hover:bg-stone-50 cursor-pointer transition-colors">
                               <input type="checkbox" checked={!!suggestionSelections.screens[i]}
                                 onChange={e => updateSuggestionSelection(prev => ({ ...prev, screens: { ...prev.screens, [i]: e.target.checked } }))}
-                                className="rounded border-gray-300 shrink-0" />
+                                className="rounded border-stone-300 shrink-0" />
                               <span className="text-lg shrink-0">{sc.emoji}</span>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-gray-900">{sc.title}</p>
-                                {sc.description && <p className="text-[11px] text-gray-600 mt-0.5">{sc.description}</p>}
-                                <p className="text-[11px] text-gray-500">{tpl?.name || sc.templateId} template</p>
+                                <p className="text-sm font-semibold text-stone-900">{sc.title}</p>
+                                {sc.description && <p className="text-[11px] text-stone-600 mt-0.5">{sc.description}</p>}
+                                <p className="text-[11px] text-stone-500">{tpl?.name || sc.templateId} template</p>
                               </div>
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0">{tpl?.emoji} {tpl?.name || sc.templateId}</span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-500 shrink-0">{tpl?.emoji} {tpl?.name || sc.templateId}</span>
                             </label>
                           );
                         })}
@@ -1877,7 +1877,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                       {/* Apply button */}
                       <button onClick={applySuggestions} disabled={suggestionsApplied}
                         className="w-full py-2.5 rounded-lg text-sm font-medium mt-2 flex items-center justify-center gap-1.5 transition-all"
-                        style={{ background: suggestionsApplied ? '#E5E7EB' : '#10B981', color: suggestionsApplied ? '#9CA3AF' : 'white' }}>
+                        style={{ background: suggestionsApplied ? '#E7E0D8' : '#10B981', color: suggestionsApplied ? '#A8A29E' : 'white' }}>
                         {suggestionsApplied ? <><Check size={14} /> Applied</> : 'Apply Selected'}
                       </button>
                     </div>
@@ -1890,27 +1890,27 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           {/* ─── Step 4: Review ─── */}
           {currentStep === 4 && (
             <div className="space-y-5 max-w-2xl mx-auto">
-              <h2 className="text-lg font-semibold text-gray-900">Review & Publish</h2>
-              <p className="text-sm text-gray-500 -mt-3">Check everything looks right before sharing with the world.</p>
-              <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-                <div className="px-5 py-4 flex items-center gap-3 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-stone-900">Review & Publish</h2>
+              <p className="text-sm text-stone-500 -mt-3">Check everything looks right before sharing with the world.</p>
+              <div className="rounded-xl border border-stone-200 bg-white overflow-hidden">
+                <div className="px-5 py-4 flex items-center gap-3 border-b border-stone-100">
                   <span className="text-2xl">{recipeIcon}</span>
-                  <div><p className="text-sm font-semibold text-gray-900">{recipeName || 'Untitled'}</p><p className="text-xs text-gray-500">{recipeDescription || 'No description'}</p></div>
-                  <span className="ml-auto text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">{category}</span>
+                  <div><p className="text-sm font-semibold text-stone-900">{recipeName || 'Untitled'}</p><p className="text-xs text-stone-500">{recipeDescription || 'No description'}</p></div>
+                  <span className="ml-auto text-xs font-medium px-2.5 py-1 rounded-full bg-stone-100 text-stone-600">{category}</span>
                 </div>
-                <div className="px-5 py-3 grid grid-cols-3 gap-4 text-center border-b border-gray-100">
-                  <div><p className="text-lg font-bold text-gray-900">{screens.length}</p><p className="text-[11px] text-gray-500">Screens</p></div>
-                  <div><p className="text-lg font-bold text-gray-900">{screens.filter(s => s.templateId).length}</p><p className="text-[11px] text-gray-500">Templates</p></div>
-                  <div><p className="text-lg font-bold text-gray-900">{selectedLanguages.length}</p><p className="text-[11px] text-gray-500">Languages</p></div>
+                <div className="px-5 py-3 grid grid-cols-3 gap-4 text-center border-b border-stone-100">
+                  <div><p className="text-lg font-bold text-stone-900">{screens.length}</p><p className="text-[11px] text-stone-500">Screens</p></div>
+                  <div><p className="text-lg font-bold text-stone-900">{screens.filter(s => s.templateId).length}</p><p className="text-[11px] text-stone-500">Templates</p></div>
+                  <div><p className="text-lg font-bold text-stone-900">{selectedLanguages.length}</p><p className="text-[11px] text-stone-500">Languages</p></div>
                 </div>
                 <div className="px-5 py-3">
                   {screens.map(s => {
                     const pd = s.templateId ? getScreenTemplate(s.templateId) : null;
                     return (
                       <div key={s.id} className="flex items-center gap-2 py-1">
-                        <span className="text-xs font-medium text-gray-700">{screenTitle(s)}</span>
-                        {pd && <span className="text-[10px] text-gray-400">{pd.emoji} {pd.name}</span>}
-                        {s.isHome && screens.length > 1 && <span className="text-[10px] text-gray-400">+ Grid ({s.gridColumns} col)</span>}
+                        <span className="text-xs font-medium text-stone-700">{screenTitle(s)}</span>
+                        {pd && <span className="text-[10px] text-stone-500">{pd.emoji} {pd.name}</span>}
+                        {s.isHome && screens.length > 1 && <span className="text-[10px] text-stone-500">+ Grid ({s.gridColumns} col)</span>}
                       </div>
                     );
                   })}
@@ -1918,17 +1918,17 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               </div>
               {/* Formula summary for calculator */}
               {screens.some(s => s.templateId === 'calculator') && (
-                <div className="rounded-xl border border-gray-200 bg-white p-4">
-                  <p className="text-xs font-medium text-gray-500 mb-2">Calculator Formula</p>
+                <div className="rounded-xl border border-stone-200 bg-white p-4">
+                  <p className="text-xs font-medium text-stone-500 mb-2">Calculator Formula</p>
                   {screens.filter(s => s.templateId === 'calculator').map(s => (
                     <div key={s.id} className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-gray-700">{s.title}:</span>
-                      <code className="text-xs font-mono text-gray-600 bg-gray-50 px-2 py-0.5 rounded">{resolveFormula(s)}</code>
+                      <span className="text-xs font-medium text-stone-700">{s.title}:</span>
+                      <code className="text-xs font-mono text-stone-600 bg-stone-50 px-2 py-0.5 rounded">{resolveFormula(s)}</code>
                     </div>
                   ))}
                 </div>
               )}
-              {selectedLanguages.length > 0 && <div className="rounded-xl border border-gray-200 bg-white p-4"><p className="text-xs font-medium text-gray-500 mb-2">Languages</p><div className="flex flex-wrap gap-1.5">{selectedLanguages.map(c => <span key={c} className="text-xs px-2 py-0.5 rounded-md bg-gray-100 text-gray-700">{ALL_LANGUAGES.find(l => l.code === c)?.label || c}</span>)}</div></div>}
+              {selectedLanguages.length > 0 && <div className="rounded-xl border border-stone-200 bg-white p-4"><p className="text-xs font-medium text-stone-500 mb-2">Languages</p><div className="flex flex-wrap gap-1.5">{selectedLanguages.map(c => <span key={c} className="text-xs px-2 py-0.5 rounded-md bg-stone-100 text-stone-700">{ALL_LANGUAGES.find(l => l.code === c)?.label || c}</span>)}</div></div>}
             </div>
           )}
         </div>
@@ -1943,7 +1943,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
             {Array.from({ length: 40 }).map((_, i) => (
               <div key={i} className="confetti-piece" style={{
                 left: `${Math.random() * 100}%`,
-                background: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#091A7A'][i % 7],
+                background: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#C45A3A'][i % 7],
                 width: `${6 + Math.random() * 6}px`,
                 height: `${6 + Math.random() * 6}px`,
                 borderRadius: Math.random() > 0.5 ? '50%' : '2px',
@@ -1955,21 +1955,21 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-5">
                 <PartyPopper size={32} className="text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Recipe Published!</h2>
-              <p className="text-sm text-gray-500 max-w-md mb-1">
-                <span className="font-semibold text-gray-700">{recipeName}</span> is now live.
+              <h2 className="text-2xl font-bold text-stone-900 mb-2">Recipe Published!</h2>
+              <p className="text-sm text-stone-500 max-w-md mb-1">
+                <span className="font-semibold text-stone-700">{recipeName}</span> is now live.
               </p>
-              <p className="text-sm text-gray-400 max-w-md mb-8">
+              <p className="text-sm text-stone-500 max-w-md mb-8">
                 Thank you for sharing your knowledge. Every recipe helps communities access the tools and expertise they need, right on their phones — no internet required.
               </p>
               <div className="flex items-center gap-3 justify-center">
                 <button onClick={() => { setPublishSuccess(false); navigate('/studio', { replace: true }); window.location.reload(); }}
-                  className="px-5 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                  className="px-5 py-2.5 rounded-lg border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50">
                   Create Another
                 </button>
                 <button onClick={() => navigate('/')}
                   className="px-5 py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90"
-                  style={{ background: '#091A7A' }}>
+                  style={{ background: '#C45A3A' }}>
                   Back to Dashboard
                 </button>
               </div>
@@ -1979,34 +1979,34 @@ Do not assume any specific domain — use the recipe name, category, and knowled
 
         {/* Bottom bar */}
         {!publishSuccess && (
-        <div className="sticky bottom-0 border-t border-gray-200 bg-white px-8 py-4 flex items-center justify-between">
-          <div>{currentStep > 1 && <button onClick={() => setCurrentStep(s => s - 1)} className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"><ChevronLeft size={16} /> Previous</button>}</div>
+        <div className="sticky bottom-0 border-t border-stone-200 bg-white px-8 py-4 flex items-center justify-between">
+          <div>{currentStep > 1 && <button onClick={() => setCurrentStep(s => s - 1)} className="flex items-center gap-1 text-sm font-medium text-stone-600 hover:text-stone-900"><ChevronLeft size={16} /> Previous</button>}</div>
           <div className="flex items-center gap-3">
             {currentStep === 4 && <>
-              <button onClick={() => setShowYamlPreview(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"><Eye size={16} /> Preview YAML</button>
-              <button onClick={downloadYaml} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"><Download size={16} /> Download YAML</button>
+              <button onClick={() => setShowYamlPreview(true)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50"><Eye size={16} /> Preview YAML</button>
+              <button onClick={downloadYaml} className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50"><Download size={16} /> Download YAML</button>
               <button onClick={handleSave} disabled={saving}
                 className="flex items-center gap-1.5 px-5 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90 transition-all"
-                style={{ background: saving ? '#9CA3AF' : '#10B981' }}>
+                style={{ background: saving ? '#A8A29E' : '#10B981' }}>
                 {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                 {saving ? 'Saving...' : 'Save & Publish'}
               </button>
             </>}
-            {currentStep < 4 && <button onClick={() => setCurrentStep(s => s + 1)} className="flex items-center gap-1 px-5 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#091A7A' }}>Next Step <ChevronRight size={16} /></button>}
+            {currentStep < 4 && <button onClick={() => setCurrentStep(s => s + 1)} className="flex items-center gap-1 px-5 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#C45A3A' }}>Next Step <ChevronRight size={16} /></button>}
           </div>
         </div>
         )}
       </div>
 
       {/* ─── Right: Live Preview ─── */}
-      <div className="flex-[2] flex flex-col items-center bg-gray-50 p-4 overflow-hidden">
+      <div className="flex-[2] flex flex-col items-center bg-stone-50 p-4 overflow-hidden">
         <div className="flex items-center gap-2 mb-2 self-start shrink-0">
           <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Live Preview</span>
-          {screens.length > 1 && <span className="text-[10px] text-gray-400 ml-2">{screenTitle(activeScreen)}</span>}
+          <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Live Preview</span>
+          {screens.length > 1 && <span className="text-[10px] text-stone-500 ml-2">{screenTitle(activeScreen)}</span>}
         </div>
         <div ref={previewContainerRef} className="flex-1 w-full flex items-center justify-center min-h-0">
-        <div className="rounded-[2.5rem] p-3 shadow-xl" style={{ background: '#1F2937', width: 280, transform: `scale(${phoneScale})`, transformOrigin: 'center center' }}>
+        <div className="rounded-[2.5rem] p-3 shadow-xl" style={{ background: '#292524', width: 280, transform: `scale(${phoneScale})`, transformOrigin: 'center center' }}>
           <div className="rounded-[2rem] overflow-hidden flex flex-col" style={{ background: activeSecondary, height: 560 }}>
             <div className="flex items-center justify-between px-5 pt-3 pb-1">
               <span className="text-[10px] font-medium" style={{ color: activePrimary }}>9:41</span>
@@ -2026,7 +2026,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                   <div className="flex-1 px-5 pb-4 flex flex-col items-center text-center relative">
                     <span className="text-4xl mb-1">{recipeIcon}</span>
                     <p className="text-sm font-bold mb-0.5" style={{ color: activePrimary }}>{recipeName || 'My Recipe'}</p>
-                    <p className="text-[9px] text-gray-500 mb-2">{recipeDescription || 'A custom AI recipe'}</p>
+                    <p className="text-[9px] text-stone-500 mb-2">{recipeDescription || 'A custom AI recipe'}</p>
                     {introPage.authorName && (
                       <div className="flex flex-col items-center gap-0.5 mb-2">
                         <div className="flex items-center gap-1">
@@ -2034,7 +2034,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                           <span className="text-[9px] font-medium" style={{ color: activePrimary }}>{introPage.authorName}</span>
                           {introPage.authorVerified && <Check size={8} className="text-green-600" />}
                         </div>
-                        {introPage.authorOrg && <span className="text-[8px] text-gray-400">{introPage.authorOrg}</span>}
+                        {introPage.authorOrg && <span className="text-[8px] text-stone-500">{introPage.authorOrg}</span>}
                       </div>
                     )}
                     {introPage.links.filter(l => l.label && l.url).map((l, li) => (
@@ -2055,7 +2055,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                     )}
                     <div className="mt-auto w-full pt-3">
                       {introPage.disclaimer && (
-                        <p className="text-[7px] text-gray-400 mb-2">{introPage.disclaimer}</p>
+                        <p className="text-[7px] text-stone-500 mb-2">{introPage.disclaimer}</p>
                       )}
                       <button className="w-full py-1.5 rounded-lg text-white text-[10px] font-semibold" style={{ background: activePrimary }}>{introPage.acceptLabel || 'I Understand'}</button>
                     </div>
@@ -2083,7 +2083,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         {/* AI greeting */}
                         <div className="flex justify-start">
                           <div className="rounded-2xl rounded-bl-sm px-3 py-1.5 max-w-[80%] bg-white/80">
-                            <p className="text-[9px] text-gray-700 font-semibold">{heading}</p>
+                            <p className="text-[9px] text-stone-700 font-semibold">{heading}</p>
                           </div>
                         </div>
                         {/* User message */}
@@ -2095,7 +2095,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         {/* AI clarification */}
                         <div className="flex justify-start">
                           <div className="rounded-2xl rounded-bl-sm px-3 py-1.5 max-w-[80%] bg-white/80">
-                            <p className="text-[9px] text-gray-700">{knowledgeSuggestions?.sampleConversation?.aiClarification || 'Can you tell me what crop this is? And would you like to take a photo of the affected leaves?'}</p>
+                            <p className="text-[9px] text-stone-700">{knowledgeSuggestions?.sampleConversation?.aiClarification || 'Can you tell me what crop this is? And would you like to take a photo of the affected leaves?'}</p>
                           </div>
                         </div>
                         {/* User reply */}
@@ -2107,7 +2107,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         {/* AI recommendation */}
                         <div className="flex justify-start">
                           <div className="rounded-2xl rounded-bl-sm px-3 py-2 max-w-[85%] bg-white/80">
-                            <p className="text-[9px] text-gray-700 mb-1.5">I think {demoScreenTitle} can help. Let me take you there.</p>
+                            <p className="text-[9px] text-stone-700 mb-1.5">I think {demoScreenTitle} can help. Let me take you there.</p>
                             <button onClick={() => { if (demoScreen) setActiveScreenIndex(screens.indexOf(demoScreen)); }}
                               className="w-full py-1.5 rounded-lg text-white text-[9px] font-semibold flex items-center justify-center gap-1"
                               style={{ background: activePrimary }}>
@@ -2121,8 +2121,8 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         <button className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: activePrimary + '15' }}>
                           <Camera size={10} style={{ color: activePrimary }} />
                         </button>
-                        <div className="flex-1 h-6 rounded-full bg-gray-100 flex items-center px-2.5">
-                          <span className="text-[8px] text-gray-400">{hint}</span>
+                        <div className="flex-1 h-6 rounded-full bg-stone-100 flex items-center px-2.5">
+                          <span className="text-[8px] text-stone-500">{hint}</span>
                         </div>
                         <button className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: activePrimary + '15' }}>
                           <Mic size={10} style={{ color: activePrimary }} />
@@ -2166,8 +2166,8 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       <Dialog open={showYamlPreview} onOpenChange={setShowYamlPreview}>
         <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Recipe YAML</DialogTitle><DialogDescription>Generated DSL configuration</DialogDescription></DialogHeader>
-          <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs leading-relaxed overflow-x-auto whitespace-pre-wrap">{generateYaml()}</pre>
-          <button onClick={downloadYaml} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#091A7A' }}><Download size={16} /> Download YAML File</button>
+          <pre className="bg-stone-900 text-green-400 p-4 rounded-lg text-xs leading-relaxed overflow-x-auto whitespace-pre-wrap">{generateYaml()}</pre>
+          <button onClick={downloadYaml} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#C45A3A' }}><Download size={16} /> Download YAML File</button>
         </DialogContent>
       </Dialog>
 
@@ -2175,7 +2175,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Google AI Studio API Key</DialogTitle><DialogDescription>Enter your Gemini API key to enable AI features.</DialogDescription></DialogHeader>
           <Input value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="AIza..." type="password" />
-          <button onClick={() => { setShowApiKeyDialog(false); localStorage.setItem(API_KEY_STORAGE, apiKey); toast.success('API key saved'); }} disabled={!apiKey} className="w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: apiKey ? '#091A7A' : '#9CA3AF' }}>Save & Continue</button>
+          <button onClick={() => { setShowApiKeyDialog(false); localStorage.setItem(API_KEY_STORAGE, apiKey); toast.success('API key saved'); }} disabled={!apiKey} className="w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: apiKey ? '#C45A3A' : '#A8A29E' }}>Save & Continue</button>
         </DialogContent>
       </Dialog>
 
@@ -2187,12 +2187,12 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               <div className="grid grid-cols-2 gap-3">
                 {SCREEN_TEMPLATES.map(pkg => (
                   <button key={pkg.id} onClick={() => { setNewScreenTemplate(pkg.id); setNewScreenTitle(pkg.name); setNewScreenEmoji(pkg.emoji); }}
-                    className="flex flex-col gap-2 p-4 rounded-xl border-2 border-gray-200 text-left hover:border-gray-300 hover:bg-gray-50 transition-all">
+                    className="flex flex-col gap-2 p-4 rounded-xl border-2 border-stone-200 text-left hover:border-stone-300 hover:bg-stone-50 transition-all">
                     <div className="flex items-center gap-2">
                       <span className="text-xl">{pkg.emoji}</span>
-                      <span className="text-sm font-semibold text-gray-900">{pkg.name}</span>
+                      <span className="text-sm font-semibold text-stone-900">{pkg.name}</span>
                     </div>
-                    <p className="text-xs text-gray-500">{pkg.description}</p>
+                    <p className="text-xs text-stone-500">{pkg.description}</p>
                   </button>
                 ))}
               </div>
@@ -2203,32 +2203,32 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               <>
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <button onClick={() => setNewScreenTemplate(null)} className="text-gray-400 hover:text-gray-600"><ChevronLeft size={18} /></button>
+                    <button onClick={() => setNewScreenTemplate(null)} className="text-stone-500 hover:text-stone-600"><ChevronLeft size={18} /></button>
                     <span>{tmpl?.emoji} {tmpl?.name}</span>
                   </DialogTitle>
                   <DialogDescription>Set a name and icon for this screen</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Screen Title</label>
+                    <label className="text-xs text-stone-500 mb-1 block">Screen Title</label>
                     <Input value={newScreenTitle} onChange={e => setNewScreenTitle(e.target.value)} placeholder="Screen title" autoFocus />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 mb-1.5 block">Icon</label>
+                    <label className="text-xs text-stone-500 mb-1.5 block">Icon</label>
                     <div className="flex flex-wrap gap-1.5">
                       {[tmpl?.emoji || '\u{1F4CB}', '\u{1F4AC}', '\u{1F4F7}', '\u{1F9EE}', '\u{1F4CD}', '\u{1F4DD}', '\u{2705}',
                         '\u{1F33E}', '\u{1F3E5}', '\u{1F6A8}', '\u{1F4DA}', '\u{1F4B0}', '\u{1F331}', '\u{2764}\u{FE0F}',
                         '\u{1F50D}', '\u{2B50}', '\u{1F4A1}', '\u{1F3AF}', '\u{1F916}', '\u{1F30D}'].map(e => (
                         <button key={e} onClick={() => setNewScreenEmoji(e)}
                           className="w-9 h-9 rounded-lg flex items-center justify-center text-lg border-2 hover:scale-105"
-                          style={{ borderColor: newScreenEmoji === e ? '#091A7A' : '#E5E7EB', background: newScreenEmoji === e ? '#091A7A10' : 'white' }}>{e}</button>
+                          style={{ borderColor: newScreenEmoji === e ? '#C45A3A' : '#E7E0D8', background: newScreenEmoji === e ? '#C45A3A10' : 'white' }}>{e}</button>
                       ))}
                     </div>
                   </div>
                   <button onClick={() => { addScreenFromTemplate(newScreenTemplate, newScreenTitle, newScreenEmoji); setNewScreenTemplate(null); setNewScreenTitle(''); setNewScreenEmoji(''); }}
                     disabled={!newScreenTitle.trim()}
                     className="w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90"
-                    style={{ background: newScreenTitle.trim() ? '#091A7A' : '#9CA3AF' }}>
+                    style={{ background: newScreenTitle.trim() ? '#C45A3A' : '#A8A29E' }}>
                     Create Screen
                   </button>
                 </div>
@@ -2245,7 +2245,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           <div className="flex flex-wrap gap-2 justify-center">
             {EMOJI_ICONS.map(e => <button key={e} onClick={() => { setRecipeIcon(e); setShowIconPicker(false); }}
               className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl border-2 hover:scale-110 transition-transform"
-              style={{ borderColor: recipeIcon === e ? '#091A7A' : '#E5E7EB', background: recipeIcon === e ? '#091A7A10' : 'white' }}>{e}</button>)}
+              style={{ borderColor: recipeIcon === e ? '#C45A3A' : '#E7E0D8', background: recipeIcon === e ? '#C45A3A10' : 'white' }}>{e}</button>)}
           </div>
         </DialogContent>
       </Dialog>
@@ -2257,12 +2257,12 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           <div className="grid grid-cols-2 gap-3">
             {THEMES.map(t => <button key={t.key} onClick={() => { setSelectedTheme(t.key); if (t.key !== 'custom') setShowThemePicker(false); }}
               className="flex items-center gap-3 p-3 rounded-xl border-2 text-left"
-              style={{ borderColor: selectedTheme === t.key ? '#091A7A' : '#E5E7EB', background: selectedTheme === t.key ? '#F8FAFC' : 'white' }}>
+              style={{ borderColor: selectedTheme === t.key ? '#C45A3A' : '#E7E0D8', background: selectedTheme === t.key ? '#F8FAFC' : 'white' }}>
               <div className="flex gap-1"><div className="w-6 h-6 rounded-full" style={{ background: t.primary }} /><div className="w-6 h-6 rounded-full" style={{ background: t.secondary }} /></div>
-              <span className="text-xs font-medium text-gray-700">{t.label}</span>
+              <span className="text-xs font-medium text-stone-700">{t.label}</span>
             </button>)}
           </div>
-          {selectedTheme === 'custom' && <div className="flex gap-4 mt-2"><div><label className="text-xs text-gray-500 mb-1 block">Primary</label><Input value={customPrimary} onChange={e => setCustomPrimary(e.target.value)} className="w-32" /></div><div><label className="text-xs text-gray-500 mb-1 block">Secondary</label><Input value={customSecondary} onChange={e => setCustomSecondary(e.target.value)} className="w-32" /></div></div>}
+          {selectedTheme === 'custom' && <div className="flex gap-4 mt-2"><div><label className="text-xs text-stone-500 mb-1 block">Primary</label><Input value={customPrimary} onChange={e => setCustomPrimary(e.target.value)} className="w-32" /></div><div><label className="text-xs text-stone-500 mb-1 block">Secondary</label><Input value={customSecondary} onChange={e => setCustomSecondary(e.target.value)} className="w-32" /></div></div>}
         </DialogContent>
       </Dialog>
 
@@ -2270,11 +2270,11 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       <Dialog open={showLangDialog} onOpenChange={setShowLangDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Target Languages</DialogTitle><DialogDescription>Select languages your recipe should support</DialogDescription></DialogHeader>
-          <div className="px-1 py-2 border-b border-gray-100"><div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-50"><Search size={14} className="text-gray-400" /><input value={langSearch} onChange={e => setLangSearch(e.target.value)} placeholder="Search languages..." className="bg-transparent text-xs outline-none flex-1 text-gray-700" /></div></div>
+          <div className="px-1 py-2 border-b border-stone-100"><div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-stone-50"><Search size={14} className="text-stone-500" /><input value={langSearch} onChange={e => setLangSearch(e.target.value)} placeholder="Search languages..." className="bg-transparent text-xs outline-none flex-1 text-stone-700" /></div></div>
           <div className="max-h-72 overflow-y-auto">
-            {filteredGroups.map(g => <div key={g.label} className="mb-2"><p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-2 py-1">{g.label}</p><div className="grid grid-cols-2 gap-1">{g.languages.map(l => { const sel = selectedLanguages.includes(l.code); return <button key={l.code} onClick={() => toggleLanguage(l.code)} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-left text-xs" style={{ background: sel ? '#091A7A' : 'transparent', color: sel ? 'white' : '#4B5563' }}>{sel && <Check size={10} />}<span className="font-medium">{l.label}</span><span className="opacity-50 text-[10px] ml-auto">{l.native}</span></button>; })}</div></div>)}
+            {filteredGroups.map(g => <div key={g.label} className="mb-2"><p className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider px-2 py-1">{g.label}</p><div className="grid grid-cols-2 gap-1">{g.languages.map(l => { const sel = selectedLanguages.includes(l.code); return <button key={l.code} onClick={() => toggleLanguage(l.code)} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-left text-xs" style={{ background: sel ? '#C45A3A' : 'transparent', color: sel ? 'white' : '#4B5563' }}>{sel && <Check size={10} />}<span className="font-medium">{l.label}</span><span className="opacity-50 text-[10px] ml-auto">{l.native}</span></button>; })}</div></div>)}
           </div>
-          {selectedLanguages.length > 0 && <div className="pt-2 border-t border-gray-100 flex flex-wrap gap-1">{selectedLanguages.map(code => { const l = ALL_LANGUAGES.find(x => x.code === code); return <span key={code} className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-medium text-white" style={{ background: '#091A7A' }}>{l?.label || code}<button onClick={() => toggleLanguage(code)}><X size={8} className="opacity-60" /></button></span>; })}</div>}
+          {selectedLanguages.length > 0 && <div className="pt-2 border-t border-stone-100 flex flex-wrap gap-1">{selectedLanguages.map(code => { const l = ALL_LANGUAGES.find(x => x.code === code); return <span key={code} className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-medium text-white" style={{ background: '#C45A3A' }}>{l?.label || code}<button onClick={() => toggleLanguage(code)}><X size={8} className="opacity-60" /></button></span>; })}</div>}
         </DialogContent>
       </Dialog>
     </div>

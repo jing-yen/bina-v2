@@ -29,7 +29,7 @@ export function BottomNav({ userMode }: BottomNavProps) {
       <motion.div 
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
+        transition={{ delay: 0.3, type: "spring", stiffness: 300, damping: 30 }}
         className="mx-4 rounded-3xl backdrop-blur-lg border border-white/20 shadow-elevated overflow-hidden"
         style={{
           background: 'rgba(255, 255, 255, 0.9)'
@@ -47,7 +47,7 @@ export function BottomNav({ userMode }: BottomNavProps) {
                 onClick={() => navigate(tab.path)}
                 className="flex flex-col items-center gap-1 px-6 py-2 rounded-2xl transition-all relative min-h-[44px] min-w-[44px]"
                 style={{
-                  background: isActive ? 'rgba(173, 200, 255, 0.3)' : 'transparent'
+                  background: isActive ? 'rgba(232, 221, 211, 0.3)' : 'transparent'
                 }}
               >
                 {isActive && (
@@ -55,17 +55,17 @@ export function BottomNav({ userMode }: BottomNavProps) {
                     layoutId={`activeTab-${userMode}`}
                     className="absolute inset-0 rounded-2xl"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(173, 200, 255, 0.4) 0%, rgba(173, 200, 255, 0.2) 100%)',
+                      background: 'linear-gradient(135deg, rgba(232, 221, 211, 0.4) 0%, rgba(232, 221, 211, 0.2) 100%)',
                       border: '1px solid rgba(255, 255, 255, 0.3)'
                     }}
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   />
                 )}
                 <Icon 
                   size={20} 
                   className="relative z-10"
                   style={{ 
-                    color: isActive ? '#091A7A' : '#6B7280',
+                    color: isActive ? '#C45A3A' : '#78716C',
                     strokeWidth: isActive ? 2.5 : 2
                   }} 
                 />
@@ -74,7 +74,7 @@ export function BottomNav({ userMode }: BottomNavProps) {
                   style={{ 
                     fontSize: '10px',
                     fontWeight: isActive ? 600 : 400,
-                    color: isActive ? '#091A7A' : '#6B7280'
+                    color: isActive ? '#C45A3A' : '#78716C'
                   }}
                 >
                   {tab.label}

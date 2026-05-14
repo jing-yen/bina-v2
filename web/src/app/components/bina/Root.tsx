@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
-import { LayoutDashboard, Wand2, BarChart3, Cloud, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { LayoutDashboard, Wand2, BarChart3, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Toaster } from 'sonner';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/studio', label: 'Recipe Studio', icon: Wand2 },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { path: '/sync', label: 'Sync', icon: Cloud },
 ];
 
 export default function Root() {
@@ -16,10 +15,10 @@ export default function Root() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
+    <div className="flex min-h-[100dvh] w-full overflow-hidden">
       <aside
-        className="flex flex-col justify-between p-4 transition-all duration-200 ease-in-out"
-        style={{ background: '#091A7A', width: collapsed ? 64 : 240, minWidth: collapsed ? 64 : 240 }}
+        className="flex flex-col justify-between p-4 transition-all duration-200"
+        style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)', background: '#1C1917', width: collapsed ? 64 : 240, minWidth: collapsed ? 64 : 240 }}
       >
         <div>
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-3'} pt-2 pb-6`}>
@@ -42,10 +41,10 @@ export default function Root() {
                   key={item.path}
                   onClick={() => navigate(item.path)}
                   title={collapsed ? item.label : undefined}
-                  className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 rounded-lg text-left transition-colors`}
+                  className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 rounded-lg text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30`}
                   style={{
                     background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
-                    color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.6)',
+                    color: isActive ? '#FAF8F5' : 'rgba(255,255,255,0.6)',
                   }}
                 >
                   <Icon size={20} className="shrink-0" />
@@ -66,7 +65,7 @@ export default function Root() {
           )}
           <button
             onClick={() => setCollapsed(c => !c)}
-            className="flex items-center justify-center py-2 rounded-lg transition-colors hover:bg-white/10"
+            className="flex items-center justify-center py-2 rounded-lg transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             style={{ color: 'rgba(255,255,255,0.5)' }}
           >
             {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
@@ -74,7 +73,7 @@ export default function Root() {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto" style={{ background: '#F8FAFC' }}>
+      <main className="flex-1 overflow-y-auto" style={{ background: '#FAF8F5' }}>
         <Outlet />
       </main>
 
