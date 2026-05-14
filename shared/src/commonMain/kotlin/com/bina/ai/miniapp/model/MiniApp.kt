@@ -28,7 +28,12 @@ data class MiniApp(
     val formulas: Map<String, FormulaDef> = emptyMap(),
     val data: Map<String, DataSet> = emptyMap(),
     val safety: SafetyConfig = SafetyConfig(),
-    val permissions: List<String> = emptyList()
+    val permissions: List<String> = emptyList(),
+    val setup: SetupConfig = SetupConfig(),
+    val triage: TriageConfig = TriageConfig(),
+    @SerialName("screen_catalog") val screenCatalog: List<ScreenCatalogEntry> = emptyList(),
+    val knowledge: KnowledgeConfig = KnowledgeConfig(),
+    val questions: Map<String, List<String>> = emptyMap()
 )
 
 @Serializable
@@ -111,7 +116,8 @@ data class SafetyConfig(
 data class GridButton(
     val label: String,
     val action: String,
-    val color: String = ""
+    val color: String = "",
+    val icon: String = ""
 )
 
 @Serializable
@@ -124,3 +130,47 @@ data class Feature(
     @SerialName("size_kb") val sizeKb: Float = 0f,
     val requires: List<String> = emptyList()
 )
+
+@Serializable
+data class IntroLink(val label: String, val url: String)
+
+@Serializable
+data class IntroPageConfig(
+    @SerialName("accept_label") val acceptLabel: String = "I Understand",
+    val disclaimer: String = "",
+    @SerialName("cover_photo") val coverPhoto: Boolean = false,
+    val author: Author? = null,
+    val links: List<IntroLink> = emptyList()
+)
+
+@Serializable
+data class SetupConfig(
+    @SerialName("intro_page") val introPage: IntroPageConfig = IntroPageConfig()
+)
+
+@Serializable
+data class TriageConfig(
+    @SerialName("home_mode") val homeMode: String = "grid",
+    @SerialName("max_clarifications") val maxClarifications: Int = 2,
+    val fallback: String = "show_all"
+)
+
+@Serializable
+data class ScreenCatalogEntry(
+    val id: String,
+    val title: String = "",
+    val template: String = "",
+    val icon: String = "",
+    val description: String = "",
+    @SerialName("accepted_inputs") val acceptedInputs: List<String> = emptyList(),
+    @SerialName("prefill_hints") val prefillHints: Map<String, String> = emptyMap()
+)
+
+@Serializable
+data class KnowledgeConfig(
+    @SerialName("always_loaded") val alwaysLoaded: String = "",
+    val chunks: Int = 0
+)
+
+@Serializable
+data class ChecklistItem(val label: String, val type: String = "text")

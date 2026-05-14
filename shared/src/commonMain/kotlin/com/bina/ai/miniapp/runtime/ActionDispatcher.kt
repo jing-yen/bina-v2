@@ -33,6 +33,7 @@ class ActionDispatcher(
             "go" -> handleGo(payload)
             "geolocate" -> handleGeolocate()
             "set" -> handleSet(payload)
+            "increment" -> handleIncrement(payload)
             else -> Logger.w(TAG, "Unknown action: $prefix")
         }
     }
@@ -62,9 +63,11 @@ class ActionDispatcher(
             return
         }
 
+        val systemPrompt = buildSystemPrompt()
+
         try {
             val sb = StringBuilder()
-            engine.generate(prompt, miniApp.model.systemPrompt)
+            engine.generate(prompt, systemPrompt)
                 .onEach { chunk ->
                     sb.append(chunk)
                     store["ai_response"] = sb.toString()
@@ -98,9 +101,11 @@ class ActionDispatcher(
             return
         }
 
+        val systemPrompt = buildSystemPrompt()
+
         try {
             val sb = StringBuilder()
-            engine.generateWithImage(prompt, photoPath, miniApp.model.systemPrompt)
+            engine.generateWithImage(prompt, photoPath, systemPrompt)
                 .onEach { chunk ->
                     sb.append(chunk)
                     store["ai_response"] = sb.toString()
@@ -148,6 +153,21 @@ class ActionDispatcher(
             val value = payload.substring(eqIndex + 1)
             store[key] = value
         }
+    }
+
+    private fun handleIncrement(variableName: String) {
+        if (variableName.isBlank()) return
+        val current = store[variableName].toIntOrNull() ?: 0
+        store[variableName] = (current + 1).toString()
+    }
+
+    private fun buildSystemPrompt(): String = buildString {
+        if (miniApp.knowledge.alwaysLoaded.isNotBlank()) {
+            appendLine("## Reference Knowledge")
+            appendLine(miniApp.knowledge.alwaysLoaded)
+            appendLine()
+        }
+        append(miniApp.model.systemPrompt)
     }
 
     companion object {

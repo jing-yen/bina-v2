@@ -65,10 +65,10 @@ screens:
       - macro_grid:
           columns: 2
           buttons:
-            - { label: "Tanda Bahaya", action: "ask:Apa saja tanda bahaya pada kehamilan trimester ketiga?" }
-            - { label: "Jadwal ANC", action: "ask:Berapa kali ibu hamil harus periksa ANC?" }
-            - { label: "Persiapan Rujukan", action: "ask:Bagaimana cara rujukan darurat ke rumah sakit?" }
-            - { label: "Nutrisi Ibu Hamil", action: "ask:Makanan apa yang penting untuk ibu hamil?" }
+            - { label: "Tanda Bahaya", action: "ask:Apa saja tanda bahaya pada kehamilan trimester ketiga?", icon: "⚠️" }
+            - { label: "Jadwal ANC", action: "ask:Berapa kali ibu hamil harus periksa ANC?", icon: "📅" }
+            - { label: "Persiapan Rujukan", action: "ask:Bagaimana cara rujukan darurat ke rumah sakit?", icon: "🏥" }
+            - { label: "Nutrisi Ibu Hamil", action: "ask:Makanan apa yang penting untuk ibu hamil?", icon: "🥗" }
 
       - text_input:
           bind: user_text

@@ -28,7 +28,7 @@ export const MARKET_PRICE_RECIPE: RecipeConfig = {
       disabledWidgets: [],
     },
     {
-      id: 'profit_calc', title: 'Profit Calculator', isHome: false, gridColumns: 2,
+      id: 'profit_calc', title: 'Profit Calculator', isHome: false, gridColumns: 2, screenIcon: '\u{1F4B0}',
       templateId: 'calculator',
       fieldValues: {
         field_a_label: 'Selling price/kg', field_a_hint: 'Price per kg',
@@ -40,15 +40,19 @@ export const MARKET_PRICE_RECIPE: RecipeConfig = {
         result_label: 'Net profit', result_prefix: '', result_suffix: '',
       },
       disabledWidgets: ['input_d'],
+      description: 'SCREEN: Profit Calculator | FUNCTION: Calculate profit from selling price, cost, and tax | INPUTS: calc_a, calc_b, calc_c, calc_rate | TRIGGERS: how much profit, untung berapa, calculate margin, cost and price',
+      prefillHints: { selling_price: 'calc_a', cost_price: 'calc_b', quantity: 'calc_c', tax_rate: 'calc_rate' },
     },
     {
-      id: 'markets', title: 'Nearby Markets', isHome: false, gridColumns: 2,
+      id: 'markets', title: 'Nearby Markets', isHome: false, gridColumns: 2, screenIcon: '\u{1F3EA}',
       templateId: 'nearby_places',
       fieldValues: { heading: 'Find Markets Near You' },
       disabledWidgets: [],
+      description: 'SCREEN: Nearby Markets | FUNCTION: Find nearby markets and trading points | TRIGGERS: where to sell, nearest market, pasar, find buyer',
+      prefillHints: {},
     },
     {
-      id: 'grading', title: 'Produce Grading', isHome: false, gridColumns: 2,
+      id: 'grading', title: 'Produce Grading', isHome: false, gridColumns: 2, screenIcon: '\u{1F34A}',
       templateId: 'camera_analysis',
       fieldValues: {
         camera_label: 'Photo of Produce',
@@ -56,6 +60,8 @@ export const MARKET_PRICE_RECIPE: RecipeConfig = {
         ai_instruction: 'vision_ask:Grade this produce quality (A/B/C). Identify any defects, estimate freshness, suggest best use (direct sale, processing, animal feed). {{user_text}}',
       },
       disabledWidgets: [],
+      description: 'SCREEN: Produce Grading | FUNCTION: Grade produce quality from a photo | INPUTS: photo_path, user_text | TRIGGERS: grade my produce, check quality, is this fresh, gred hasil',
+      prefillHints: { produce_name: 'user_text' },
     },
   ],
   knowledgeSummary: '',

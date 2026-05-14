@@ -9,17 +9,21 @@ import {
 } from '../ui/alert-dialog';
 import type { RecipeWithId } from './recipes';
 import { listRecipes, deleteRecipe, duplicateRecipe, createRecipe } from '../../lib/recipeService';
+import { fetchPlatformStats, fetchRegionCounts, type PlatformStats, type RegionCount } from '../../lib/analyticsService';
 import { RECIPES } from './recipes';
 
-const HEATMAP_REGIONS = [
-  { name: 'Indonesia', x: 118.0, y: 2.5, size: 18, downloads: 3200 },
-  { name: 'Malaysia', x: 101.7, y: -3.1, size: 14, downloads: 2100 },
-  { name: 'Philippines', x: 121.8, y: -12.9, size: 12, downloads: 1400 },
-  { name: 'Vietnam', x: 108.0, y: -16.0, size: 10, downloads: 800 },
-  { name: 'Thailand', x: 100.5, y: -15.9, size: 9, downloads: 650 },
-  { name: 'Myanmar', x: 96.2, y: -19.8, size: 7, downloads: 350 },
-  { name: 'Cambodia', x: 104.9, y: -12.6, size: 6, downloads: 200 },
-];
+const HEATMAP_REGION_COORDS: Record<string, { x: number; y: number; name: string }> = {
+  ID: { name: 'Indonesia', x: 118.0, y: 2.5 },
+  MY: { name: 'Malaysia', x: 101.7, y: -3.1 },
+  PH: { name: 'Philippines', x: 121.8, y: -12.9 },
+  VN: { name: 'Vietnam', x: 108.0, y: -16.0 },
+  TH: { name: 'Thailand', x: 100.5, y: -15.9 },
+  MM: { name: 'Myanmar', x: 96.2, y: -19.8 },
+  KH: { name: 'Cambodia', x: 104.9, y: -12.6 },
+  LA: { name: 'Laos', x: 102.5, y: -18.0 },
+  SG: { name: 'Singapore', x: 103.8, y: -1.4 },
+  BN: { name: 'Brunei', x: 114.9, y: -4.9 },
+};
 
 const SE_ASIA_PATHS = [
   { name: 'Indonesia', d: 'M141.0,2.6 L141.0,5.9 L141.0,9.1 L140.1,8.3 L139.1,8.1 L138.9,8.4 L137.6,8.4 L138.0,7.6 L138.7,7.3 L138.4,6.2 L137.9,5.4 L136.0,4.5 L135.2,4.5 L133.7,3.5 L133.4,4.0 L133.0,4.1 L132.8,3.7 L132.8,3.3 L132.0,2.8 L133.1,2.5 L133.8,2.5 L133.7,2.2 L132.2,2.2 L131.8,1.6 L130.9,1.4 L130.5,0.9 L131.9,0.7 L132.4,0.4 L134.0,0.8 L134.1,1.2 L134.4,2.8 L135.5,3.4 L136.3,2.3 L137.4,1.7 L138.3,1.7 L139.2,2.1 L139.9,2.4 L141.0,2.6 Z M125.0,8.9 L125.1,9.1 L125.1,9.4 L124.4,10.1 L123.6,10.4 L123.5,10.2 L123.6,9.9 L124.0,9.3 L125.0,8.9 Z M134.2,6.9 L134.1,6.1 L134.3,5.8 L134.5,5.4 L134.7,5.7 L134.7,6.2 L134.2,6.9 Z M117.9,-4.1 L117.3,-3.2 L118.0,-2.3 L117.9,-1.8 L119.0,-0.9 L117.8,-0.8 L117.5,-0.1 L117.5,0.8 L116.6,1.5 L116.5,2.5 L116.1,4.0 L116.0,3.7 L114.9,4.1 L114.5,3.5 L113.8,3.4 L113.3,3.1 L112.1,3.5 L111.7,3.0 L111.0,3.0 L110.2,2.9 L110.1,1.6 L109.6,1.3 L109.1,0.5 L109.0,-0.4 L109.1,-1.3 L109.7,-2.0 L109.8,-1.3 L110.5,-0.8 L111.2,-1.0 L111.8,-0.9 L112.4,-1.4 L112.9,-1.5 L113.8,-1.2 L114.6,-1.4 L115.1,-2.8 L115.5,-3.2 L115.9,-4.3 L117.0,-4.3 L117.9,-4.1 Z M129.4,2.8 L130.5,3.1 L130.8,3.9 L130.0,3.4 L129.2,3.4 L128.6,3.4 L127.9,3.4 L128.1,2.8 L129.4,2.8 Z M126.9,3.8 L126.2,3.6 L126.0,3.2 L127.0,3.1 L127.2,3.5 L126.9,3.8 Z M127.9,-2.2 L128.0,-1.6 L128.6,-1.5 L128.7,-1.1 L128.6,-0.3 L128.1,-0.4 L128.0,0.3 L128.4,0.8 L128.1,0.9 L127.7,0.3 L127.4,-1.0 L127.6,-1.8 L127.9,-2.2 Z M122.9,-0.9 L124.1,-0.9 L125.1,-1.6 L125.2,-1.4 L124.4,-0.4 L123.7,-0.2 L122.7,-0.4 L121.1,-0.4 L120.2,-0.2 L120.0,0.5 L120.9,1.4 L121.5,1.0 L123.3,0.6 L123.3,1.1 L122.8,0.9 L122.4,1.5 L121.5,1.9 L122.5,3.2 L122.3,3.5 L123.2,4.7 L123.2,5.3 L122.6,5.6 L122.2,5.3 L122.7,4.5 L121.7,4.9 L121.5,4.6 L121.6,4.2 L120.9,3.6 L121.0,2.6 L120.3,2.9 L120.4,4.1 L120.4,5.5 L119.8,5.7 L119.4,5.4 L119.7,4.5 L119.5,3.5 L119.1,3.5 L118.8,2.8 L119.2,2.1 L119.3,1.4 L119.8,-0.2 L120.0,-0.6 L120.9,-1.3 L121.7,-1.0 L122.9,-0.9 Z M120.3,10.3 L119.0,9.6 L119.9,9.4 L120.4,9.7 L120.8,10.0 L120.7,10.2 L120.3,10.3 Z M121.3,8.5 L122.0,8.5 L122.9,8.1 L122.8,8.6 L121.3,8.9 L119.9,8.8 L119.9,8.4 L120.7,8.2 L121.3,8.5 Z M118.3,8.4 L118.9,8.3 L119.1,8.7 L118.0,8.9 L117.3,9.0 L116.7,9.0 L117.1,8.5 L117.6,8.4 L117.9,8.1 L118.3,8.4 Z M108.5,6.4 L108.6,6.8 L110.5,6.9 L110.8,6.5 L112.6,6.9 L113.0,7.6 L114.5,7.8 L115.7,8.4 L114.6,8.8 L113.5,8.3 L112.6,8.4 L111.5,8.3 L110.6,8.1 L109.4,7.7 L108.7,7.6 L108.3,7.8 L106.5,7.4 L106.3,6.9 L105.4,6.9 L106.1,5.9 L107.3,6.0 L108.1,6.3 L108.5,6.4 Z M104.4,1.1 L104.5,1.8 L104.9,2.3 L105.6,2.4 L106.1,3.1 L105.9,4.3 L105.8,5.9 L104.7,5.9 L103.9,5.0 L102.6,4.2 L102.2,3.6 L101.4,2.8 L100.9,2.1 L100.1,0.7 L99.3,-0.2 L99.0,-1.0 L98.6,-1.8 L97.7,-2.5 L97.2,-3.3 L96.4,-3.9 L95.4,-5.0 L95.3,-5.5 L95.9,-5.4 L97.5,-5.2 L98.4,-4.3 L99.1,-3.6 L99.7,-3.2 L100.6,-2.1 L101.7,-2.1 L102.5,-1.4 L103.1,-0.6 L103.8,-0.1 L103.4,0.7 L104.0,1.1 L104.4,1.1 Z' },
@@ -56,6 +60,8 @@ export function Dashboard() {
   const [selectedRecipe, setSelectedRecipe] = useState<RecipeWithId | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
+  const [regionCounts, setRegionCounts] = useState<RegionCount[]>([]);
 
   const fetchRecipes = () => {
     setLoading(true);
@@ -66,6 +72,10 @@ export function Dashboard() {
   };
 
   useEffect(() => { fetchRecipes(); }, []);
+  useEffect(() => {
+    fetchPlatformStats().then(setPlatformStats).catch(() => {});
+    fetchRegionCounts().then(setRegionCounts).catch(() => {});
+  }, []);
 
   const handleDelete = async () => {
     if (!selectedRecipe) return;
@@ -99,11 +109,12 @@ export function Dashboard() {
     finally { setSeeding(false); }
   };
 
+  const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
   const stats = [
     { label: 'Total Recipes', value: String(recipes.length), icon: FileText, color: '#091A7A' },
-    { label: 'Active Users', value: '21.3K', icon: Users, color: '#3B82F6' },
-    { label: 'Downloads', value: '8.7K', icon: Download, color: '#10B981' },
-    { label: 'Avg Rating', value: '4.8', icon: Star, color: '#F59E0B' },
+    { label: 'Active Users', value: platformStats ? formatCount(platformStats.uniqueDevices) : '—', icon: Users, color: '#3B82F6' },
+    { label: 'Downloads', value: platformStats ? formatCount(platformStats.totalDownloads) : '—', icon: Download, color: '#10B981' },
+    { label: 'Avg Rating', value: platformStats ? (platformStats.avgRating > 0 ? platformStats.avgRating.toFixed(1) : '—') : '—', icon: Star, color: '#F59E0B' },
   ];
 
   return (
@@ -159,16 +170,24 @@ export function Dashboard() {
             {SE_ASIA_PATHS.map(country => (
               <path key={country.name} d={country.d} fill="#E2E8F0" stroke="#CBD5E1" strokeWidth="0.15" />
             ))}
-            {HEATMAP_REGIONS.map(region => (
-              <g key={region.name}>
-                <circle cx={region.x} cy={region.y} r={region.size / 3} fill="#091A7A" opacity={0.15} />
-                <circle cx={region.x} cy={region.y} r={region.size / 4.5} fill="#091A7A" opacity={0.35} />
-                <circle cx={region.x} cy={region.y} r={region.size / 8} fill="#091A7A" opacity={0.7} />
-                <text x={region.x} y={region.y + region.size / 3 + 1.8} textAnchor="middle" fontSize="1.8" fill="#4B5563" fontWeight="500">
-                  {region.name}
-                </text>
-              </g>
-            ))}
+            {(() => {
+              const maxCount = Math.max(1, ...regionCounts.map(r => r.count));
+              return regionCounts.map(rc => {
+                const coords = HEATMAP_REGION_COORDS[rc.countryCode];
+                if (!coords) return null;
+                const size = 6 + (rc.count / maxCount) * 14;
+                return (
+                  <g key={rc.countryCode}>
+                    <circle cx={coords.x} cy={coords.y} r={size / 3} fill="#091A7A" opacity={0.15} />
+                    <circle cx={coords.x} cy={coords.y} r={size / 4.5} fill="#091A7A" opacity={0.35} />
+                    <circle cx={coords.x} cy={coords.y} r={size / 8} fill="#091A7A" opacity={0.7} />
+                    <text x={coords.x} y={coords.y + size / 3 + 1.8} textAnchor="middle" fontSize="1.8" fill="#4B5563" fontWeight="500">
+                      {coords.name} ({rc.count})
+                    </text>
+                  </g>
+                );
+              });
+            })()}
           </svg>
           <div className="absolute bottom-3 right-3 flex items-center gap-3 bg-white/90 rounded-lg px-3 py-1.5">
             <div className="flex items-center gap-1">

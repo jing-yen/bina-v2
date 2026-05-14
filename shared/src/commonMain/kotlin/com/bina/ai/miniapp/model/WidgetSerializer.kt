@@ -45,6 +45,7 @@ object WidgetSerializer : KSerializer<Widget> {
                 hint = props.stringOr("hint", ""),
                 label = props.stringOr("label", ""),
                 inputType = props.stringOr("input_type", "text"),
+                options = props.stringList("options"),
                 visibleIf = props.stringOrNull("visible_if"),
                 hiddenIf = props.stringOrNull("hidden_if")
             )
@@ -115,6 +116,18 @@ object WidgetSerializer : KSerializer<Widget> {
                 visibleIf = props.stringOrNull("visible_if"),
                 hiddenIf = props.stringOrNull("hidden_if")
             )
+            "progress_bar" -> Widget.ProgressBar(
+                bind = props.string("bind"),
+                total = props.intOr("total", 3),
+                visibleIf = props.stringOrNull("visible_if"),
+                hiddenIf = props.stringOrNull("hidden_if")
+            )
+            "checklist_items" -> Widget.ChecklistItems(
+                bind = props.string("bind"),
+                items = props.checklistItemList("items"),
+                visibleIf = props.stringOrNull("visible_if"),
+                hiddenIf = props.stringOrNull("hidden_if")
+            )
             else -> Widget.TextLabel(text = "Unknown widget: $widgetType")
         }
     }
@@ -141,6 +154,26 @@ private fun YamlMap.boolOr(key: String, default: Boolean): Boolean =
 private fun YamlMap.getScalar(key: String): YamlScalar? =
     try { get<YamlScalar>(key) } catch (_: Exception) { null }
 
+private fun YamlMap.stringList(key: String): List<String> {
+    val list = try { get<YamlList>(key) } catch (_: Exception) { return emptyList() }
+        ?: return emptyList()
+    return list.items.mapNotNull { node ->
+        (node as? YamlScalar)?.content
+    }
+}
+
+private fun YamlMap.checklistItemList(key: String): List<ChecklistItem> {
+    val list = try { get<YamlList>(key) } catch (_: Exception) { return emptyList() }
+        ?: return emptyList()
+    return list.items.mapNotNull { node ->
+        val itemMap = (node as? YamlMap) ?: return@mapNotNull null
+        ChecklistItem(
+            label = itemMap.string("label"),
+            type = itemMap.stringOr("type", "text")
+        )
+    }
+}
+
 private fun YamlMap.buttonList(key: String): List<GridButton> {
     val list = try { get<YamlList>(key) } catch (_: Exception) { return emptyList() }
         ?: return emptyList()
@@ -149,7 +182,8 @@ private fun YamlMap.buttonList(key: String): List<GridButton> {
         GridButton(
             label = btnMap.string("label"),
             action = btnMap.string("action"),
-            color = btnMap.stringOr("color", "")
+            color = btnMap.stringOr("color", ""),
+            icon = btnMap.stringOr("icon", "")
         )
     }
 }

@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import {
   FileText, Palette, Upload, Download, Save,
   ChevronLeft, ChevronRight, ChevronDown, Eye, X, Plus, Trash2,
-  Camera, Mic, Globe, Home, Link2, Shield, User, Copy,
+  Camera, Mic, Globe, Home, Link2, Shield, User, Copy, MessageCircle, LayoutGrid,
   Loader2, Sparkles, Search, Check, GitBranch, Undo2, Redo2,
 } from 'lucide-react';
 import { Input } from '../ui/input';
@@ -23,8 +23,10 @@ import type {
 import {
   SCREEN_TEMPLATES, FORMULA_TEMPLATES, getScreenTemplate, createScreen,
   resolveFormula, resolveScreenWidgets, defaultIntroPage, checkShowWhen,
+  generateScreenDescription, generatePrefillHints, getScreenAcceptedInputs,
 } from './recipes';
 import { getRecipe, createRecipe as createFirestoreRecipe, updateRecipe } from '../../lib/recipeService';
+import { DEMO_DOCUMENTS } from './recipes/demoDocuments';
 
 // ─── Constants ───
 
@@ -88,25 +90,60 @@ const LANGUAGE_GROUPS = [
 const ALL_LANGUAGES = LANGUAGE_GROUPS.flatMap(g => g.languages);
 
 const STEPS = [
-  { id: 1, label: 'Identity', icon: FileText },
-  { id: 2, label: 'Style & Layout', icon: Palette },
-  { id: 3, label: 'Knowledge', icon: Upload },
+  { id: 1, label: 'Knowledge', icon: Upload },
+  { id: 2, label: 'Identity', icon: FileText },
+  { id: 3, label: 'Style & Layout', icon: Palette },
   { id: 4, label: 'Review', icon: Eye },
 ];
 
 // ─── Gemini ───
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent';
 
-async function callGemini(prompt: string, apiKey: string): Promise<string> {
+async function callGemini(prompt: string, apiKey: string, retries = 2): Promise<string> {
   const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 2048 } }),
   });
-  if (!res.ok) throw new Error(`Gemini API error: ${res.status}`);
+  if (res.status === 429 && retries > 0) {
+    await new Promise(r => setTimeout(r, 2000 * (3 - retries)));
+    return callGemini(prompt, apiKey, retries - 1);
+  }
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(res.status === 429 ? 'Rate limited — wait a moment and try again' : `Gemini API error: ${res.status}${body ? ` — ${body.slice(0, 100)}` : ''}`);
+  }
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function callGeminiJSON<T = any>(prompt: string, apiKey: string, schema: Record<string, unknown>, retries = 2): Promise<T> {
+  const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 2048,
+        responseMimeType: 'application/json',
+        responseSchema: schema,
+      },
+    }),
+  });
+  if (res.status === 429 && retries > 0) {
+    await new Promise(r => setTimeout(r, 2000 * (3 - retries)));
+    return callGeminiJSON<T>(prompt, apiKey, schema, retries - 1);
+  }
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(res.status === 429 ? 'Rate limited — wait a moment and try again' : `Gemini API error: ${res.status}${body ? ` — ${body.slice(0, 100)}` : ''}`);
+  }
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return JSON.parse(text);
 }
 
 // ─── YAML serializer ───
@@ -123,6 +160,10 @@ function widgetToYaml(w: WidgetConfig, allScreens: { id: string; title: string }
       let y = `      - text_input:${line('bind', p.bind || 'user_text')}${line('hint', p.hint || 'Type here...', true)}`;
       if (p.label) y += line('label', p.label, true);
       if (p.input_type && p.input_type !== 'text') y += line('input_type', p.input_type);
+      if (p.input_type === 'dropdown' && p.options) {
+        const opts = p.options.split(',').map((o: string) => o.trim()).filter(Boolean);
+        if (opts.length > 0) y += `\n          options:\n${opts.map((o: string) => `            - "${o}"`).join('\n')}`;
+      }
       return y;
     }
     case 'voice_input':
@@ -134,9 +175,14 @@ function widgetToYaml(w: WidgetConfig, allScreens: { id: string; title: string }
     case 'markdown_output':
       return `      - markdown_output:${line('source', p.source || 'ai_response')}${line('streaming', p.streaming || 'true')}${opt('empty_text', p.empty_text, true)}`;
     case 'macro_grid': {
-      const screens = p._allScreens ? JSON.parse(p._allScreens) as { id: string; title: string }[] : allScreens.filter(s => s.id !== 'home');
+      const screens = p._allScreens ? JSON.parse(p._allScreens) as { id: string; title: string; icon?: string }[] : allScreens.filter(s => s.id !== 'home');
       const btns = screens.length > 0
-        ? screens.map(s => `            - { label: "${s.title}", action: "go:${s.id}" }`).join('\n')
+        ? screens.map(s => {
+            const icon = (s as { icon?: string }).icon;
+            return icon
+              ? `            - { label: "${s.title}", action: "go:${s.id}", icon: "${icon}" }`
+              : `            - { label: "${s.title}", action: "go:${s.id}" }`;
+          }).join('\n')
         : '            - { label: "Option 1", action: "go:home" }';
       return `      - macro_grid:${line('columns', p.columns || '2')}\n          buttons:\n${btns}`;
     }
@@ -166,7 +212,7 @@ interface RecipeSnapshot {
   systemPrompt: string; blockedKeywords: string; introPage: IntroPageConfig;
   category: string; selectedLanguages: string[];
   selectedTheme: ThemeKey; customPrimary: string; customSecondary: string;
-  screens: ScreenConfig[]; knowledgeSummary: string;
+  screens: ScreenConfig[]; knowledgeSummary: string; maxClarifications: number; fallbackScreen: string;
 }
 
 const MAX_HISTORY = 50;
@@ -188,26 +234,38 @@ export function Studio() {
   const [recipeIcon, setRecipeIcon] = useState('\u{1F916}');
   const [systemPrompt, setSystemPrompt] = useState('You are a helpful assistant.');
   const [blockedKeywords, setBlockedKeywords] = useState('');
-  const [introPage, setIntroPage] = useState<IntroPageConfig>(defaultIntroPage());
+  const [introPage, setIntroPage] = useState<IntroPageConfig>({ ...defaultIntroPage(), enabled: true });
   const [category, setCategory] = useState('Education');
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['en']);
   const [langSearch, setLangSearch] = useState('');
-  const [showAllLangs, setShowAllLangs] = useState(false);
+  const [maxClarifications, setMaxClarifications] = useState(2);
+  const [fallbackScreen, setFallbackScreen] = useState('');
 
   // Step 2
   const [selectedTheme, setSelectedTheme] = useState<ThemeKey>('navy');
   const [customPrimary, setCustomPrimary] = useState('#6B21A8');
   const [customSecondary, setCustomSecondary] = useState('#E9D5FF');
   const [screens, setScreens] = useState<ScreenConfig[]>([
-    { id: 'main', title: '', isHome: false, gridColumns: 2, ...createScreen('ask_ai') },
+    { id: 'home', title: '', isHome: true, gridColumns: 1, templateId: 'ask_ai', fieldValues: { heading: 'How can I help?', hint: 'Ask a question...' }, disabledWidgets: [] },
+    { id: 'main', title: 'Ask AI', isHome: false, gridColumns: 1, ...createScreen('ask_ai') },
   ]);
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [newScreenTemplate, setNewScreenTemplate] = useState<string | null>(null);
+  const [newScreenTitle, setNewScreenTitle] = useState('');
+  const [newScreenEmoji, setNewScreenEmoji] = useState('');
+  const [showLangDialog, setShowLangDialog] = useState(false);
+  const [showIconPicker, setShowIconPicker] = useState(false);
+  const [showThemePicker, setShowThemePicker] = useState(false);
 
   // Step 3
   const [knowledgeFiles, setKnowledgeFiles] = useState<KnowledgeFile[]>([]);
   const [knowledgeSummary, setKnowledgeSummary] = useState('');
+  const [knowledgeSuggestions, setKnowledgeSuggestions] = useState<{ recipeName: string; recipeDescription: string; category: string; systemPrompt: string; recipeIcon: string; themeKey: string; authorName: string; authorOrg: string; links: { label: string; url: string }[]; homeHeading: string; homeHint: string; sampleConversation: { userMessage: string; aiClarification: string; userReply: string }; screens: { id: string; title: string; emoji: string; templateId: string; heading: string; hint: string; description: string; buttonLabel: string; aiInstruction: string }[] } | null>(null);
+  const [suggestionSelections, setSuggestionSelections] = useState<{ name: boolean; description: boolean; category: boolean; systemPrompt: boolean; icon: boolean; theme: boolean; author: boolean; links: boolean; homePreview: boolean; screens: Record<number, boolean> }>({ name: true, description: true, category: true, systemPrompt: true, icon: true, theme: true, author: true, links: true, homePreview: true, screens: {} });
+  const [identityExpanded, setIdentityExpanded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   // LLM
   const [apiKey, setApiKey] = useState('');
@@ -215,6 +273,8 @@ export function Studio() {
   const [showYamlPreview, setShowYamlPreview] = useState(false);
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [previewIntro, setPreviewIntro] = useState(false);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const [phoneScale, setPhoneScale] = useState(1);
 
   // ─── Undo / Redo ───
   const historyRef = useRef<RecipeSnapshot[]>([]);
@@ -224,10 +284,10 @@ export function Studio() {
   const takeSnapshot = useCallback((): RecipeSnapshot => ({
     recipeName, recipeDescription, recipeIcon, systemPrompt, blockedKeywords,
     introPage, category, selectedLanguages, selectedTheme, customPrimary,
-    customSecondary, screens, knowledgeSummary,
+    customSecondary, screens, knowledgeSummary, maxClarifications, fallbackScreen,
   }), [recipeName, recipeDescription, recipeIcon, systemPrompt, blockedKeywords,
     introPage, category, selectedLanguages, selectedTheme, customPrimary,
-    customSecondary, screens, knowledgeSummary]);
+    customSecondary, screens, knowledgeSummary, maxClarifications, fallbackScreen]);
 
   const applySnapshot = useCallback((snap: RecipeSnapshot) => {
     restoringRef.current = true;
@@ -283,16 +343,33 @@ export function Studio() {
 
   // Sync preview with editing context
   useEffect(() => {
-    if (currentStep === 1 && introPage.enabled) setPreviewIntro(true);
-    else if (currentStep !== 1) setPreviewIntro(false);
-  }, [currentStep, introPage.enabled]);
+    if (currentStep <= 2) {
+      setPreviewIntro(true);
+    } else {
+      setPreviewIntro(false);
+      if (currentStep === 3) {
+        const homeIdx = screens.findIndex(s => s.isHome);
+        if (homeIdx >= 0) setActiveScreenIndex(homeIdx);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
 
   // ─── Derived ───
   const activePrimary = selectedTheme === 'custom' ? customPrimary : THEMES.find(t => t.key === selectedTheme)!.primary;
   const activeSecondary = selectedTheme === 'custom' ? customSecondary : THEMES.find(t => t.key === selectedTheme)!.secondary;
   const activeScreen = screens[activeScreenIndex] || screens[0];
-  const previewWidgets = activeScreen ? resolveScreenWidgets(activeScreen, screens) : [];
-  const screenTitle = (s: ScreenConfig) => s.title || recipeName || 'Untitled';
+  const previewWidgetsRaw = activeScreen ? resolveScreenWidgets(activeScreen, screens) : [];
+  const previewWidgets = previewWidgetsRaw.reduce<WidgetConfig[]>((acc, w) => {
+    if (w.type === 'voice_input' && acc.length > 0 && acc[acc.length - 1].type === 'text_input') {
+      const prev = acc[acc.length - 1];
+      acc[acc.length - 1] = { ...prev, props: { ...prev.props, _hasMic: 'true' } };
+      return acc;
+    }
+    acc.push(w);
+    return acc;
+  }, []);
+  const screenTitle = (s: ScreenConfig) => s.isHome ? (recipeName || 'Home') : (s.title || 'Untitled');
 
   // ─── Load recipe from navigation state ───
   const loadRecipe = (recipe: RecipeConfig) => {
@@ -301,7 +378,7 @@ export function Studio() {
     setRecipeIcon(recipe.recipeIcon);
     setSystemPrompt(recipe.systemPrompt);
     setBlockedKeywords(recipe.blockedKeywords);
-    setIntroPage(recipe.introPage || defaultIntroPage(recipe.disclaimer));
+    setIntroPage({ ...(recipe.introPage || defaultIntroPage(recipe.disclaimer)), enabled: true });
     setCategory(recipe.category);
     setSelectedLanguages(recipe.selectedLanguages);
     setSelectedTheme(recipe.selectedTheme);
@@ -309,33 +386,20 @@ export function Studio() {
     setCustomSecondary(recipe.customSecondary);
     setScreens(recipe.screens);
     setKnowledgeSummary(recipe.knowledgeSummary);
+    setMaxClarifications(recipe.maxClarifications ?? 2);
+    setFallbackScreen(recipe.fallbackScreen ?? '');
     setCurrentStep(1);
   };
 
   // ─── Helpers ───
   const toggleLanguage = (code: string) => setSelectedLanguages(prev => prev.includes(code) ? prev.filter(c => c !== code) : [...prev, code]);
 
-  const addScreenFromTemplate = (templateId: string) => {
+  const addScreenFromTemplate = (templateId: string, customTitle?: string, customEmoji?: string) => {
     const def = getScreenTemplate(templateId);
     const id = `screen_${Date.now()}`;
-    const title = def?.name || 'New Screen';
-    const newScreen: ScreenConfig = { id, title, isHome: false, gridColumns: 2, ...createScreen(templateId) };
-
-    setScreens(prev => {
-      const contentScreens = prev.filter(s => !s.isHome);
-      if (contentScreens.length >= 1 && !prev.some(s => s.isHome)) {
-        const home: ScreenConfig = { id: 'home', title: '', isHome: true, gridColumns: 2, ...createScreen('ask_ai') };
-        const backfilled = prev.map(s => {
-          if (!s.title && s.templateId) {
-            const def = getScreenTemplate(s.templateId);
-            return { ...s, title: def?.name || 'Screen' };
-          }
-          return s;
-        });
-        return [home, ...backfilled, newScreen];
-      }
-      return [...prev, newScreen];
-    });
+    const title = customTitle || def?.name || 'New Screen';
+    const newScreen: ScreenConfig = { id, title, isHome: false, gridColumns: 1, ...createScreen(templateId), ...(customEmoji ? { screenIcon: customEmoji } : {}) };
+    setScreens(prev => [...prev, newScreen]);
     setShowTemplatePicker(false);
     setTimeout(() => {
       setScreens(cur => {
@@ -375,16 +439,7 @@ export function Studio() {
   };
 
   const updateGridColumns = (cols: number) => {
-    setScreens(prev => prev.map((s, i) => i === activeScreenIndex && s.isHome ? { ...s, gridColumns: cols } : s));
-  };
-
-  const toggleHomeAsk = () => {
-    setScreens(prev => prev.map((s, i) => {
-      if (i !== activeScreenIndex || !s.isHome) return s;
-      return s.templateId
-        ? { ...s, templateId: null, fieldValues: {}, disabledWidgets: [] }
-        : { ...s, ...createScreen('ask_ai') };
-    }));
+    setScreens(prev => prev.map(s => s.isHome ? { ...s, gridColumns: cols } : s));
   };
 
   const updateScreenField = (screenIndex: number, fieldKey: string, value: string) => {
@@ -423,6 +478,35 @@ export function Studio() {
     }));
   };
 
+  const regenerateScreenMeta = (si: number) => {
+    setScreens(prev => prev.map((s, i) => {
+      if (i !== si || !s.templateId) return s;
+      return { ...s, description: generateScreenDescription(s), prefillHints: generatePrefillHints(s) };
+    }));
+  };
+
+  const regenerateAllScreenMeta = () => {
+    setScreens(prev => prev.map(s => {
+      if (!s.templateId || s.isHome) return s;
+      return { ...s, description: generateScreenDescription(s), prefillHints: generatePrefillHints(s) };
+    }));
+  };
+
+  const updateScreenDescription = (si: number, description: string) => {
+    setScreens(prev => prev.map((s, i) => i === si ? { ...s, description } : s));
+  };
+
+  const updateScreenPrefillHint = (si: number, oldKey: string, newKey: string, value: string) => {
+    setScreens(prev => prev.map((s, i) => {
+      if (i !== si) return s;
+      const hints = { ...s.prefillHints };
+      if (oldKey && oldKey !== newKey) delete hints[oldKey];
+      if (newKey) hints[newKey] = value;
+      else if (oldKey) delete hints[oldKey];
+      return { ...s, prefillHints: hints };
+    }));
+  };
+
   // ─── AI ───
   const ensureApiKey = (cb: () => void) => { if (apiKey) { cb(); return; } setShowApiKeyDialog(true); };
 
@@ -441,33 +525,62 @@ export function Studio() {
     if (!apiKey || !recipeName) return;
     setAiLoading(true);
     try {
-      const result = await callGemini(
-        `Design a Bina.ai recipe. Name: "${recipeName}", Desc: "${recipeDescription}", Category: ${category}.\nReturn JSON (no markdown):\n{"system_prompt":"...","screens":[{"id":"home","title":"","isHome":true,"gridColumns":2,"templateId":"ask_ai","fields":{"hint":"...","ai_instruction":"ask:{{user_text}}"}},{"id":"camera","title":"Camera","isHome":false,"templateId":"camera_analysis","fields":{}}],"blocked_keywords":["kw"],"disclaimer":"..."}\nAvailable screen templates: ask_ai, voice_ask, camera_analysis, calculator, nearby_places, info_display\nFirst screen must be home with isHome:true. Each non-home screen has exactly one template.\nDo not assume any specific domain — use the recipe name and category to guide content.`, apiKey);
-      const jsonMatch = result.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('Invalid response');
-      const parsed = JSON.parse(jsonMatch[0]);
+      const knowledgeContext = knowledgeFiles.filter(f => f.status === 'ready' && f.summary).map(f => `${f.name}: ${f.summary}`).join('\n');
+      const parsed = await callGeminiJSON(
+        `Design a Bina.ai recipe. Name: "${recipeName}", Desc: "${recipeDescription}", Category: ${category}.${knowledgeContext ? `\nKnowledge context from uploaded documents:\n${knowledgeContext}\nUse this knowledge to inform the screens, system prompt, and content.` : ''}
+Available screen templates: ask_ai, camera_analysis, calculator, nearby_places, info_display, checklist
+First screen must be home with isHome:true. Each non-home screen has exactly one template.
+Do not assume any specific domain — use the recipe name, category, and knowledge context to guide content.`,
+        apiKey,
+        {
+          type: 'OBJECT',
+          properties: {
+            system_prompt: { type: 'STRING' },
+            screens: {
+              type: 'ARRAY',
+              items: {
+                type: 'OBJECT',
+                properties: {
+                  id: { type: 'STRING' },
+                  title: { type: 'STRING' },
+                  isHome: { type: 'BOOLEAN' },
+                  gridColumns: { type: 'INTEGER' },
+                  templateId: { type: 'STRING', enum: ['ask_ai', 'camera_analysis', 'calculator', 'nearby_places', 'info_display', 'checklist'] },
+                  fields: { type: 'OBJECT', properties: { hint: { type: 'STRING' }, ai_instruction: { type: 'STRING' } } },
+                },
+                required: ['id', 'title', 'templateId'],
+              },
+            },
+            blocked_keywords: { type: 'ARRAY', items: { type: 'STRING' } },
+            disclaimer: { type: 'STRING' },
+          },
+          required: ['system_prompt', 'screens'],
+        },
+      );
       if (parsed.system_prompt) setSystemPrompt(parsed.system_prompt);
       if (parsed.screens?.length > 0) {
         const newScreens: ScreenConfig[] = parsed.screens.map((s: { id: string; title: string; isHome?: boolean; gridColumns?: number; templateId?: string; fields?: Record<string, string> }) => ({
           id: s.id, title: s.title || '', isHome: !!s.isHome,
-          gridColumns: s.gridColumns || 2,
+          gridColumns: s.gridColumns || 1,
           ...(s.templateId ? createScreen(s.templateId, s.fields) : { templateId: null, fieldValues: {}, disabledWidgets: [] }),
         }));
         setScreens(newScreens);
         setActiveScreenIndex(0);
       }
       if (parsed.blocked_keywords) setBlockedKeywords(parsed.blocked_keywords.join(', '));
-      if (parsed.disclaimer) setIntroPage(prev => ({ ...prev, disclaimer: parsed.disclaimer, enabled: true }));
+      if (parsed.disclaimer) setIntroPage(prev => ({ ...prev, disclaimer: parsed.disclaimer }));
       toast.success('AI configured your recipe');
     } catch (e) { toast.error(`${e instanceof Error ? e.message : 'Error'}`); }
     finally { setAiLoading(false); }
-  }, [apiKey, recipeName, recipeDescription, category]);
+  }, [apiKey, recipeName, recipeDescription, category, knowledgeFiles]);
 
   // ─── Knowledge ───
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    for (const file of Array.from(files)) {
+    const fileList = Array.from(files);
+    for (let fi = 0; fi < fileList.length; fi++) {
+      const file = fileList[fi];
       const sizeStr = file.size > 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${(file.size / 1024).toFixed(0)} KB`;
       setKnowledgeFiles(prev => [...prev, { name: file.name, size: sizeStr, status: 'uploading' }]);
       const text = await file.text();
@@ -477,6 +590,7 @@ export function Studio() {
       if (cur.trim()) chunks.push(cur.trim());
       let summary = `Document: ${file.name} (${chunks.length} chunks)`;
       if (apiKey && chunks.length > 0) {
+        if (fi > 0) await new Promise(r => setTimeout(r, 1500));
         try { summary = (await callGemini(`Summarize in 2-3 sentences:\n\n${chunks.slice(0, 3).join('\n\n')}`, apiKey)).trim(); } catch {}
       }
       setKnowledgeFiles(prev => prev.map(f => f.name === file.name ? { ...f, status: 'ready', chunks: chunks.length, summary } : f));
@@ -484,18 +598,103 @@ export function Studio() {
     e.target.value = '';
   };
   const removeFile = (i: number) => setKnowledgeFiles(prev => prev.filter((_, idx) => idx !== i));
-  const generateKnowledgeSummary = useCallback(async () => {
+  const generateKnowledgeSuggestions = useCallback(async () => {
     if (!apiKey) return;
     const ready = knowledgeFiles.filter(f => f.status === 'ready' && f.summary);
     if (!ready.length) { toast.error('No files'); return; }
     setAiLoading(true);
     try {
-      const result = await callGemini(`Create "always loaded" brief (max 300 words) for "${recipeName}" from:\n${ready.map(f => `${f.name}: ${f.summary}`).join('\n\n')}`, apiKey);
-      setKnowledgeSummary(result.trim());
-      toast.success('Brief generated');
+      const demoMeta = ready.map(f => DEMO_DOCUMENTS.find(d => d.name === f.name)).filter(Boolean);
+      const metaHint = demoMeta.length > 0 ? `\n\nDocument metadata (use these exactly):\n${demoMeta.map(d => `- Author: ${d!.author}, Organisation: ${d!.org}\n  Links: ${d!.links.map(l => `${l.label}: ${l.url}`).join(', ')}`).join('\n')}` : '';
+      const parsed = await callGeminiJSON(
+        `Based on these documents, suggest a Bina.ai recipe configuration.\n\nDocuments:\n${ready.map(f => `${f.name}: ${f.summary}`).join('\n\n')}${metaHint}\n\nAvailable screen templates: ask_ai (chat/Q&A), camera_analysis (photo analysis), calculator (numeric calc), nearby_places (location finder), info_display (static info), checklist (step-by-step guide).\nSuggest 2-4 screens relevant to the document content. First should be ask_ai for general Q&A. Category must be one of: Agriculture, Health, Education, Emergency, Finance, Environment.\nChoose an appropriate emoji icon for the recipe and a theme color (navy for general, forest for agriculture/nature, coral for emergency/health, amber for finance/education).\n\nAlso provide:\n- authorName and authorOrg: Use the document metadata author/org if provided above. Otherwise suggest appropriate ones.\n- links: Use the document metadata links if provided above. Otherwise suggest 2-3 relevant reference links.\n- homeHeading: A contextual heading for the home chat screen, e.g. "What crop issue can I help with?"\n- homeHint: An input placeholder for the home chat, e.g. "Describe your crop symptoms..."\n- sampleConversation: A sample conversation demonstrating the recipe in action with a userMessage, aiClarification, and userReply. Make it contextual to the uploaded documents.\n- For each screen: heading (screen heading text), hint (input placeholder), description (short description of what the screen does), buttonLabel (action button text like "Diagnose", "Calculate", "Find"), and aiInstruction (the AI prompt instruction — for ask_ai use "ask:{{user_text}}" but prefix with context like "ask:Based on the crop disease knowledge base, diagnose and recommend treatment for: {{user_text}}". For camera_analysis use "vision_ask:Analyze this photo and identify [specific thing based on content]. {{user_text}}"). Make aiInstruction specific and useful, not generic.`,
+        apiKey,
+        {
+          type: 'OBJECT',
+          properties: {
+            recipeName: { type: 'STRING' },
+            recipeDescription: { type: 'STRING' },
+            category: { type: 'STRING', enum: ['Agriculture', 'Health', 'Education', 'Emergency', 'Finance', 'Environment'] },
+            systemPrompt: { type: 'STRING' },
+            recipeIcon: { type: 'STRING', description: 'A single emoji for the recipe icon' },
+            themeKey: { type: 'STRING', enum: ['navy', 'forest', 'coral', 'amber'] },
+            authorName: { type: 'STRING' },
+            authorOrg: { type: 'STRING' },
+            links: { type: 'ARRAY', items: { type: 'OBJECT', properties: { label: { type: 'STRING' }, url: { type: 'STRING' } }, required: ['label', 'url'] } },
+            homeHeading: { type: 'STRING', description: 'Contextual heading for the home chat screen, e.g. "What crop issue can I help with?"' },
+            homeHint: { type: 'STRING', description: 'Input placeholder for home chat, e.g. "Describe your crop symptoms..."' },
+            sampleConversation: { type: 'OBJECT', properties: { userMessage: { type: 'STRING' }, aiClarification: { type: 'STRING' }, userReply: { type: 'STRING' } }, required: ['userMessage', 'aiClarification', 'userReply'] },
+            screens: {
+              type: 'ARRAY',
+              items: {
+                type: 'OBJECT',
+                properties: {
+                  id: { type: 'STRING' },
+                  title: { type: 'STRING' },
+                  emoji: { type: 'STRING' },
+                  templateId: { type: 'STRING', enum: ['ask_ai', 'camera_analysis', 'calculator', 'nearby_places', 'info_display', 'checklist'] },
+                  heading: { type: 'STRING', description: 'Screen heading text' },
+                  hint: { type: 'STRING', description: 'Input hint/placeholder text' },
+                  description: { type: 'STRING', description: 'Short description of screen purpose' },
+                  buttonLabel: { type: 'STRING', description: 'Action button text, e.g. "Diagnose", "Calculate", "Find"' },
+                  aiInstruction: { type: 'STRING', description: 'AI prompt instruction, e.g. "ask:Based on crop disease knowledge, diagnose: {{user_text}}"' },
+                },
+                required: ['id', 'title', 'emoji', 'templateId', 'heading', 'hint', 'description', 'buttonLabel', 'aiInstruction'],
+              },
+            },
+          },
+          required: ['recipeName', 'recipeDescription', 'category', 'systemPrompt', 'recipeIcon', 'themeKey', 'authorName', 'authorOrg', 'links', 'homeHeading', 'homeHint', 'sampleConversation', 'screens'],
+        },
+      );
+      setKnowledgeSuggestions(parsed);
+      const allSel = { name: true, description: true, category: true, systemPrompt: true, icon: true, theme: true, author: true, links: true, homePreview: true, screens: Object.fromEntries(parsed.screens.map((_: unknown, i: number) => [i, true])) };
+      setSuggestionSelections(allSel);
+      applySuggestions(parsed, allSel);
+      toast.success('Recipe configured — review and adjust below');
     } catch (e) { toast.error(`${e instanceof Error ? e.message : 'Error'}`); }
     finally { setAiLoading(false); }
-  }, [apiKey, knowledgeFiles, recipeName]);
+  }, [apiKey, knowledgeFiles]);
+
+  const applySuggestions = (directData?: typeof knowledgeSuggestions, directSel?: typeof suggestionSelections) => {
+    const s = directData || knowledgeSuggestions;
+    if (!s) return;
+    const sel = directSel || suggestionSelections;
+    if (sel.name && s.recipeName) setRecipeName(s.recipeName);
+    if (sel.description && s.recipeDescription) setRecipeDescription(s.recipeDescription);
+    if (sel.category && s.category) setCategory(s.category);
+    if (sel.icon && s.recipeIcon) setRecipeIcon(s.recipeIcon);
+    if (sel.theme && s.themeKey) {
+      const t = THEMES.find(t => t.key === s.themeKey);
+      if (t) { setSelectedTheme(t.key as ThemeKey); setCustomPrimary(t.primary); setCustomSecondary(t.secondary); }
+    }
+    if (sel.systemPrompt && s.systemPrompt) setSystemPrompt(s.systemPrompt);
+    if (sel.author && (s.authorName || s.authorOrg)) setIntroPage(p => ({ ...p, authorName: s.authorName || p.authorName, authorOrg: s.authorOrg || p.authorOrg, authorVerified: true }));
+    if (sel.links && s.links?.length) setIntroPage(p => ({ ...p, links: s.links }));
+    const selectedScreens = s.screens?.filter((_: unknown, i: number) => sel.screens[i]) || [];
+    if (selectedScreens.length > 0) {
+      const hasHome = selectedScreens.some((_: unknown, i: number) => {
+        const origIdx = s.screens.indexOf(selectedScreens[i]);
+        return origIdx === 0;
+      });
+      const newScreens: ScreenConfig[] = selectedScreens.map((sc: { id: string; title: string; emoji: string; templateId: string; heading: string; hint: string; description: string; buttonLabel: string; aiInstruction: string }, i: number) => ({
+        id: (i === 0 && hasHome) ? 'home' : (sc.id || sc.title.toLowerCase().replace(/[^a-z0-9]+/g, '_')),
+        title: (i === 0 && hasHome) ? '' : sc.title,
+        isHome: i === 0 && hasHome,
+        gridColumns: 1,
+        ...createScreen(sc.templateId || 'ask_ai', { heading: sc.heading, hint: sc.hint, button_label: sc.buttonLabel, ai_instruction: sc.aiInstruction }),
+        screenIcon: sc.emoji,
+      }));
+      if (sel.homePreview && hasHome && s.homeHeading) {
+        const home = newScreens.find(ns => ns.isHome);
+        if (home) {
+          home.fieldValues = { ...home.fieldValues, heading: s.homeHeading, hint: s.homeHint || home.fieldValues.hint };
+        }
+      }
+      setScreens(newScreens);
+      setActiveScreenIndex(0);
+    }
+    toast.success('Applied — review in Identity & Layout steps');
+  };
 
   // ─── YAML ───
   const generateYaml = (): string => {
@@ -520,10 +719,11 @@ export function Studio() {
       if (hasC) vars.push('  calc_c:       { type: number, default: "0" }');
       if (hasD) vars.push('  calc_d:       { type: number, default: "0" }');
     }
-    const hasFormMode = screens.some(s => s.templateId === 'ask_ai' && s.fieldValues.mode === 'form');
-    if (hasFormMode) {
-      for (let i = 1; i <= 4; i++) {
-        const hasField = screens.some(s => s.templateId === 'ask_ai' && s.fieldValues.mode === 'form' && s.fieldValues[`f${i}_label`]);
+    const formScreens = screens.filter(s => s.templateId === 'ask_ai' && s.fieldValues.mode === 'form');
+    if (formScreens.length > 0) {
+      const maxFields = Math.max(...formScreens.map(s => parseInt(s.fieldValues.form_field_count || '2') || 2));
+      for (let i = 1; i <= maxFields; i++) {
+        const hasField = formScreens.some(s => s.fieldValues[`f${i}_label`]);
         if (hasField) vars.push(`  form_f${i}:     { type: string, default: "" }`);
       }
     }
@@ -533,13 +733,13 @@ export function Studio() {
 
     const questionsYaml = screens.map(s => {
       if (!s.templateId) return '';
-      if (s.templateId !== 'ask_ai' && s.templateId !== 'voice_ask') return '';
+      if (s.templateId !== 'ask_ai') return '';
       const qs = [s.fieldValues.q1, s.fieldValues.q2, s.fieldValues.q3, s.fieldValues.q4].filter(q => q && q.trim());
       if (qs.length === 0) return '';
       return `  ${s.id}:\n${qs.map(q => `    - "${q}"`).join('\n')}`;
     }).filter(Boolean).join('\n');
 
-    const nonHomeScreens = screens.filter(s => !s.isHome).map(s => ({ id: s.id, title: s.title }));
+    const nonHomeScreens = screens.filter(s => !s.isHome).map(s => ({ id: s.id, title: s.title, icon: s.screenIcon }));
     const screensYaml = screens.map((screen, si) => {
       const widgets = allResolved[si];
       const title = screen.title || recipeName || 'My Recipe';
@@ -566,8 +766,10 @@ export function Studio() {
     const know = knowledgeSummary ? `\nknowledge:\n  always_loaded: |\n    ${knowledgeSummary.split('\n').join('\n    ')}\n  chunks: ${knowledgeFiles.filter(f => f.status === 'ready').reduce((a, f) => a + (f.chunks || 0), 0)}\n` : '';
     const questionsBlock = questionsYaml ? `\nquestions:\n${questionsYaml}\n` : '';
     let setupBlock = '';
-    if (introPage.enabled) {
-      let introYaml = `\nsetup:\n  intro_page:\n    disclaimer: "${introPage.disclaimer}"\n    accept_label: "${introPage.acceptLabel || 'I Understand'}"`;
+    {
+      let introYaml = `\nsetup:\n  intro_page:\n    accept_label: "${introPage.acceptLabel || 'I Understand'}"`;
+      if (introPage.disclaimer) introYaml += `\n    disclaimer: "${introPage.disclaimer}"`;
+      if (introPage.coverPhoto) introYaml += `\n    cover_photo: true`;
       if (introPage.authorName) introYaml += `\n    author:\n      name: "${introPage.authorName}"${introPage.authorOrg ? `\n      organisation: "${introPage.authorOrg}"` : ''}${introPage.authorVerified ? '\n      verified: true' : ''}`;
       if (introPage.links.length > 0) {
         introYaml += `\n    links:`;
@@ -576,7 +778,28 @@ export function Studio() {
       setupBlock = introYaml + '\n';
     }
 
-    return `id: ${id}\nname: "${recipeName || 'My Recipe'}"\ndescription: "${recipeDescription || 'A custom AI recipe'}"\nicon: "${recipeIcon}"\nversion: "1.0.0"\ncategory: ${category}\n\nauthor:\n  name: User\n  organisation: ""\n  verified: false\n\nmodel:\n  model_id: gemma-4-e2b-it\n  backend: cpu\n${sysPrompt}\n\ntheme:\n  primary: "${activePrimary}"\n  secondary: "${activeSecondary}"\n\nvariables:\n${vars.join('\n')}\n\nscreens:\n${screensYaml}\n${formulas}${data}\nsafety:\n  blocked_keywords:\n${blockedYaml}\n  escalation_message: "This request has been blocked for safety."\n  disclaimer: "${introPage.disclaimer || 'AI-generated content.'}"\n\npermissions:\n${perms.length > 0 ? perms.join('\n') : '  []'}${loc}${know}${questionsBlock}${setupBlock}`;
+    const catalogScreens = screens.filter(s => !s.isHome && s.templateId);
+    const screenCatalog = catalogScreens.length > 0 ? `\nscreen_catalog:\n${catalogScreens.map(s => {
+      const desc = s.description || generateScreenDescription(s);
+      const accepted = getScreenAcceptedInputs(s);
+      const hints = s.prefillHints || generatePrefillHints(s);
+      const hintEntries = Object.entries(hints);
+      let entry = `  - id: ${s.id}\n    title: "${s.title}"\n    template: ${s.templateId}`;
+      if (s.screenIcon) entry += `\n    icon: "${s.screenIcon}"`;
+      if (desc) entry += `\n    description: "${desc}"`;
+      if (accepted.length) entry += `\n    accepted_inputs: [${accepted.join(', ')}]`;
+      if (hintEntries.length) {
+        entry += `\n    prefill_hints:`;
+        hintEntries.forEach(([k, v]) => { entry += `\n      ${k}: ${v}`; });
+      }
+      return entry;
+    }).join('\n')}\n` : '';
+
+    const homeScreen = screens.find(s => s.isHome);
+    const homeMode = homeScreen?.templateId ? 'chat' : 'grid';
+    const triageBlock = `\ntriage:\n  home_mode: "${homeMode}"\n  max_clarifications: ${maxClarifications}\n  fallback: "${fallbackScreen || 'show_all'}"\n`;
+
+    return `id: ${id}\nname: "${recipeName || 'My Recipe'}"\ndescription: "${recipeDescription || 'A custom AI recipe'}"\nicon: "${recipeIcon}"\nversion: "1.0.0"\ncategory: ${category}\n\nauthor:\n  name: User\n  organisation: ""\n  verified: false\n\nmodel:\n  model_id: gemma-4-e2b-it\n  backend: cpu\n${sysPrompt}\n\ntheme:\n  primary: "${activePrimary}"\n  secondary: "${activeSecondary}"\n\nvariables:\n${vars.join('\n')}\n\nscreens:\n${screensYaml}\n${formulas}${data}\nsafety:\n  blocked_keywords:\n${blockedYaml}\n  escalation_message: "This request has been blocked for safety."\n  disclaimer: "${introPage.disclaimer || 'AI-generated content.'}"\n\npermissions:\n${perms.length > 0 ? perms.join('\n') : '  []'}${loc}${know}${questionsBlock}${setupBlock}${screenCatalog}${triageBlock}`;
   };
 
   // ─── Download YAML ───
@@ -621,11 +844,22 @@ export function Studio() {
 
   useEffect(() => {
     if (loadedRef.current) { setDirty(true); pushHistory(); }
-  }, [recipeName, recipeDescription, recipeIcon, systemPrompt, blockedKeywords, introPage, category, selectedLanguages, selectedTheme, customPrimary, customSecondary, screens, knowledgeSummary, pushHistory]);
+  }, [recipeName, recipeDescription, recipeIcon, systemPrompt, blockedKeywords, introPage, category, selectedLanguages, selectedTheme, customPrimary, customSecondary, screens, knowledgeSummary, maxClarifications, fallbackScreen, pushHistory]);
 
   useEffect(() => {
     if (apiKey) localStorage.setItem(API_KEY_STORAGE, apiKey);
   }, [apiKey]);
+
+  useEffect(() => {
+    const el = previewContainerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setPhoneScale(Math.min(width / 310, height / 620, 1.2));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const handleSave = async () => {
     if (!recipeName.trim()) { toast.error('Recipe name is required'); return; }
@@ -635,7 +869,8 @@ export function Studio() {
         recipeName, recipeDescription, recipeIcon, systemPrompt,
         blockedKeywords, disclaimer: introPage.disclaimer, category, selectedLanguages,
         selectedTheme, customPrimary, customSecondary, screens, knowledgeSummary,
-        introPage,
+        introPage, maxClarifications, ...(fallbackScreen ? { fallbackScreen } : {}),
+        generatedYaml: generateYaml(),
       };
       if (recipeId) {
         await updateRecipe(recipeId, config);
@@ -661,23 +896,69 @@ export function Studio() {
     const p = w.props;
     switch (w.type) {
       case 'text_label': return <p key={wi} className="text-[10px] font-semibold px-1" style={{ color: activePrimary }}>{p.text || 'Welcome'}</p>;
-      case 'text_input': return <div key={wi} className="rounded-xl p-2 bg-white/70"><div className="w-full h-7 rounded-lg border border-gray-200 bg-white flex items-center px-2"><span className="text-[9px] text-gray-400">{p.hint || p.label || 'Type here...'}</span></div></div>;
-      case 'voice_input': return <div key={wi} className="rounded-xl p-2 bg-white/70 flex items-center gap-2"><Mic size={12} style={{ color: activePrimary }} /><span className="text-[9px] text-gray-400">{p.hint || 'Tap to speak...'}</span></div>;
+      case 'text_input': {
+        const inputType = p.input_type || 'text';
+        if (inputType === 'dropdown') {
+          const opts = (p.options || '').split(',').map((o: string) => o.trim()).filter(Boolean);
+          return (
+            <div key={wi} className="px-1 py-0.5">
+              {p.label && <p className="text-[8px] text-gray-500 mb-0.5 px-1">{p.label}</p>}
+              <div className="w-full h-7 rounded-lg border border-gray-200 bg-white flex items-center px-2 justify-between">
+                <span className="text-[9px] text-gray-400">{opts[0] || 'Select...'}</span>
+                <ChevronDown size={8} className="text-gray-400" />
+              </div>
+            </div>
+          );
+        }
+        if (inputType === 'toggle') {
+          return (
+            <div key={wi} className="px-1 py-1 rounded-lg bg-white flex items-center justify-between">
+              <span className="text-[9px] text-gray-600 px-1">{p.label || 'Toggle'}</span>
+              <div className="w-7 h-4 rounded-full bg-gray-300 relative mr-1">
+                <div className="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white" />
+              </div>
+            </div>
+          );
+        }
+        return (
+          <div key={wi} className="px-1 py-0.5">
+            {p.label && <p className="text-[8px] text-gray-500 mb-0.5 px-1">{p.label}</p>}
+            <div className="w-full h-7 rounded-lg border border-gray-200 bg-white flex items-center px-2">
+              {p._hasMic === 'true' && <Mic size={10} className="shrink-0 mr-1.5" style={{ color: activePrimary }} />}
+              <span className="text-[9px] text-gray-400 flex-1">{p.hint || p.label || 'Type here...'}</span>
+              {inputType === 'number' && <span className="text-[8px] text-gray-300 ml-auto">#</span>}
+            </div>
+          </div>
+        );
+      }
+      case 'voice_input': return null;
       case 'camera_input': return <div key={wi} className="rounded-xl bg-gray-800 flex items-center justify-center" style={{ height: 70 }}><Camera size={18} className="text-white/50" /></div>;
       case 'action_button': return <button key={wi} className="w-full py-1.5 rounded-lg text-white text-[10px] font-semibold" style={{ background: activePrimary }}>{p.label || 'Submit'}</button>;
       case 'markdown_output': return <div key={wi} className="rounded-xl p-2 bg-white/50"><div className="space-y-1"><div className="h-1.5 rounded-full bg-gray-300/50 w-full" /><div className="h-1.5 rounded-full bg-gray-300/50 w-4/5" /><div className="h-1.5 rounded-full bg-gray-300/50 w-3/5" /></div></div>;
       case 'macro_grid': {
         const cols = parseInt(p.columns) || 2;
         const others = screens.filter(s => !s.isHome);
+        const templateEmoji: Record<string, string> = {
+          ask_ai: '\u{1F4AC}', camera_analysis: '\u{1F4F7}', calculator: '\u{1F9EE}',
+          nearby_places: '\u{1F4CD}', info_display: '\u{1F4DD}', checklist: '✅',
+        };
         return (
           <div key={wi} className="gap-1.5" style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-            {others.map((s, i) => (
-              <button key={s.id} onClick={() => setActiveScreenIndex(screens.indexOf(s))}
-                className="rounded-lg p-2 flex items-center justify-center cursor-pointer hover:opacity-80"
-                style={{ background: i === 0 ? activePrimary : 'white' }}>
-                <span className="text-[8px] font-medium" style={{ color: i === 0 ? 'white' : activePrimary }}>{s.title}</span>
-              </button>
-            ))}
+            {others.map((s, i) => {
+              const tmplEmoji = s.templateId ? templateEmoji[s.templateId] || '' : '';
+              const screenEmoji = s.screenIcon || tmplEmoji || '\u{1F4CB}';
+              return (
+                <button key={s.id} onClick={() => setActiveScreenIndex(screens.indexOf(s))}
+                  className="rounded-xl p-2.5 flex flex-col items-center gap-1 cursor-pointer hover:opacity-80 relative"
+                  style={{ background: i === 0 ? activePrimary : 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+                  <span className="text-base">{screenEmoji}</span>
+                  <span className="text-[7px] font-semibold leading-tight text-center" style={{ color: i === 0 ? 'white' : activePrimary }}>{s.title}</span>
+                  {tmplEmoji && s.screenIcon && (
+                    <span className="absolute top-1 right-1 text-[7px] opacity-60">{tmplEmoji}</span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         );
       }
@@ -768,7 +1049,7 @@ export function Studio() {
               <code className="text-[10px] font-mono text-gray-700">{resolveFormula(screen)}</code>
             </div>
           )}
-          {def.widgets.some(w => w.optional) && (
+          {screen.templateId !== 'ask_ai' && def.widgets.some(w => w.optional) && (
             <div className="flex flex-wrap gap-1 pt-1 border-t border-gray-50">
               {def.widgets.map(pw => {
                 const disabled = screen.disabledWidgets.includes(pw.wid);
@@ -791,6 +1072,135 @@ export function Studio() {
                   </button>
                 );
               })}
+            </div>
+          )}
+          {/* Dynamic form field editor for ask_ai form mode */}
+          {screen.templateId === 'ask_ai' && screen.fieldValues.mode === 'form' && (() => {
+            const fieldCount = parseInt(screen.fieldValues.form_field_count || '2') || 2;
+            return (
+              <div className="border-t border-gray-100 pt-2 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Form Fields</label>
+                  <button onClick={() => {
+                    const nc = fieldCount + 1;
+                    setScreens(prev => prev.map((s, i) => i !== si ? s : {
+                      ...s, fieldValues: { ...s.fieldValues, form_field_count: String(nc), [`f${nc}_label`]: '', [`f${nc}_type`]: 'text' },
+                    }));
+                  }}
+                    className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                    + Add Field
+                  </button>
+                </div>
+                {Array.from({ length: fieldCount }, (_, idx) => idx + 1).map(n => (
+                  <div key={n} className="flex items-center gap-1.5">
+                    <span className="text-[9px] text-gray-400 w-3 shrink-0">{n}</span>
+                    <input value={screen.fieldValues[`f${n}_label`] || ''}
+                      onChange={e => updateScreenField(si, `f${n}_label`, e.target.value)}
+                      placeholder={`Field ${n} label`}
+                      className="flex-1 h-6 text-[11px] text-gray-700 rounded border border-gray-200 bg-white px-1.5 outline-none focus:border-blue-400" />
+                    <select value={screen.fieldValues[`f${n}_type`] || 'text'}
+                      onChange={e => updateScreenField(si, `f${n}_type`, e.target.value)}
+                      className="w-[72px] h-6 text-[10px] text-gray-600 rounded border border-gray-200 bg-white px-1 outline-none">
+                      <option value="text">Text</option>
+                      <option value="number">Number</option>
+                      <option value="dropdown">Dropdown</option>
+                      <option value="toggle">Toggle</option>
+                    </select>
+                    {screen.fieldValues[`f${n}_type`] === 'dropdown' && (
+                      <input value={screen.fieldValues[`f${n}_options`] || ''}
+                        onChange={e => updateScreenField(si, `f${n}_options`, e.target.value)}
+                        placeholder="opt1, opt2"
+                        className="w-24 h-6 text-[10px] text-gray-600 rounded border border-gray-200 bg-white px-1 outline-none" />
+                    )}
+                    {fieldCount > 1 && (
+                      <button onClick={() => {
+                        const newFV = { ...screen.fieldValues };
+                        for (let j = n; j < fieldCount; j++) {
+                          newFV[`f${j}_label`] = newFV[`f${j + 1}_label`] || '';
+                          newFV[`f${j}_type`] = newFV[`f${j + 1}_type`] || 'text';
+                          newFV[`f${j}_options`] = newFV[`f${j + 1}_options`] || '';
+                        }
+                        delete newFV[`f${fieldCount}_label`];
+                        delete newFV[`f${fieldCount}_type`];
+                        delete newFV[`f${fieldCount}_options`];
+                        newFV.form_field_count = String(fieldCount - 1);
+                        setScreens(prev => prev.map((s, i) => i === si ? { ...s, fieldValues: newFV } : s));
+                      }}
+                        className="text-gray-300 hover:text-red-500 shrink-0"><X size={10} /></button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+          {/* AI Routing: Description + Prefill Hints */}
+          {!screen.isHome && (
+            <div className="border-t border-gray-100 pt-2 space-y-2">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">AI Routing</p>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[10px] text-gray-500">Screen Summary</label>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => regenerateScreenMeta(si)}
+                      className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                      Regenerate
+                    </button>
+                    <button onClick={() => {
+                      ensureApiKey(async () => {
+                        setAiLoading(true);
+                        try {
+                          const base = screen.description || generateScreenDescription(screen);
+                          const result = await callGemini(
+                            `Rewrite this screen summary for an on-device LLM routing prompt. Make it richer with trigger phrases and natural language synonyms a user might say. Keep it under 80 words. Input:\n${base}`,
+                            apiKey,
+                          );
+                          updateScreenDescription(si, result.trim());
+                          toast.success('Description polished');
+                        } catch (e) { toast.error(`${e instanceof Error ? e.message : 'Error'}`); }
+                        finally { setAiLoading(false); }
+                      });
+                    }}
+                      disabled={aiLoading}
+                      className="text-[9px] font-medium px-1.5 py-0.5 rounded flex items-center gap-0.5"
+                      style={{ background: '#091A7A10', color: '#091A7A' }}>
+                      {aiLoading ? <Loader2 size={8} className="animate-spin" /> : <Sparkles size={8} />} Polish
+                    </button>
+                  </div>
+                </div>
+                <textarea value={screen.description || generateScreenDescription(screen)}
+                  onChange={e => updateScreenDescription(si, e.target.value)}
+                  className="w-full text-[10px] text-gray-600 rounded border border-gray-200 bg-white px-2 py-1 outline-none resize-none" rows={2} />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[10px] text-gray-500">Prefill Hints</label>
+                  <button onClick={() => {
+                    const hints = generatePrefillHints(screen);
+                    setScreens(prev => prev.map((s, i) => i === si ? { ...s, prefillHints: hints } : s));
+                  }}
+                    className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                    Auto-derive
+                  </button>
+                </div>
+                {Object.entries(screen.prefillHints || {}).map(([key, val]) => (
+                  <div key={key} className="flex items-center gap-1.5 mb-1">
+                    <input value={key}
+                      onChange={e => updateScreenPrefillHint(si, key, e.target.value, val)}
+                      placeholder="entity"
+                      className="w-24 h-5 text-[10px] rounded border border-gray-200 bg-white px-1.5 outline-none font-mono" />
+                    <span className="text-[9px] text-gray-400">{'→'}</span>
+                    <input value={val}
+                      onChange={e => updateScreenPrefillHint(si, key, key, e.target.value)}
+                      placeholder="bind_var"
+                      className="w-20 h-5 text-[10px] rounded border border-gray-200 bg-white px-1.5 outline-none font-mono" />
+                    <button onClick={() => updateScreenPrefillHint(si, key, '', '')} className="text-gray-300 hover:text-red-500"><X size={10} /></button>
+                  </div>
+                ))}
+                <button onClick={() => updateScreenPrefillHint(si, '', `hint_${Date.now()}`, '')}
+                  className="text-[9px] font-medium px-1.5 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                  + Add Hint
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -817,19 +1227,13 @@ export function Studio() {
         <div className="px-8 pt-8 pb-4 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Recipe Studio</h1>
-            <p className="text-sm text-gray-500 mt-1">{recipeId ? 'Editing recipe' : 'Create a new AI recipe'}</p>
+            <p className="text-sm text-gray-500 mt-1">{recipeId ? 'Editing recipe' : 'Turn your expertise into an AI-powered tool'}</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5 mr-1">
               <button onClick={undo} disabled={!canUndo} className="p-1.5 rounded-md hover:bg-gray-100 disabled:opacity-30" title="Undo (Cmd+Z)"><Undo2 size={15} className="text-gray-500" /></button>
               <button onClick={redo} disabled={!canRedo} className="p-1.5 rounded-md hover:bg-gray-100 disabled:opacity-30" title="Redo (Cmd+Shift+Z)"><Redo2 size={15} className="text-gray-500" /></button>
             </div>
-            {recipeName && (
-              <button onClick={() => ensureApiKey(generateRecipeWithAI)} disabled={aiLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium hover:opacity-90" style={{ background: '#091A7A', color: 'white' }}>
-                {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />} AI Auto-Configure
-              </button>
-            )}
             <button onClick={handleSave} disabled={saving || !dirty}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-all"
               style={{
@@ -864,41 +1268,97 @@ export function Studio() {
         </div>
 
         <div className="flex-1 px-8 pb-4">
-          {/* ─── Step 1: Identity ─── */}
-          {currentStep === 1 && (
-            <div className="space-y-5 max-w-2xl">
+          {/* ─── Step 2: Identity ─── */}
+          {currentStep === 2 && (
+            <div className="space-y-5 max-w-2xl mx-auto">
               <h2 className="text-lg font-semibold text-gray-900">Define Identity</h2>
-              {/* Languages */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Globe size={16} className="text-gray-500" />
-                    <label className="text-sm font-medium text-gray-700">Target Languages</label>
-                    {selectedLanguages.length > 0 && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: '#091A7A', color: 'white' }}>{selectedLanguages.length}</span>}
-                  </div>
-                  <button onClick={() => setShowAllLangs(!showAllLangs)} className="text-xs font-medium flex items-center gap-1" style={{ color: '#091A7A' }}>
-                    {showAllLangs ? 'Collapse' : `All (${ALL_LANGUAGES.length})`} <ChevronDown size={12} className={showAllLangs ? 'rotate-180' : ''} />
+              <p className="text-sm text-gray-500 -mt-3">Give your recipe a personality that resonates with your community.</p>
+              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Recipe Name</label><Input value={recipeName} onChange={e => setRecipeName(e.target.value)} placeholder="e.g. Health Assistant" /></div>
+              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Description</label><Input value={recipeDescription} onChange={e => setRecipeDescription(e.target.value)} placeholder="Short description" /></div>
+
+              {/* Compact row: Icon + Cover Photo + Theme */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">Icon</label>
+                  <button onClick={() => setShowIconPicker(true)}
+                    className="w-full h-16 rounded-xl border-2 border-gray-200 flex items-center justify-center text-3xl hover:border-gray-300 cursor-pointer bg-white">{recipeIcon}</button>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">Cover Photo</label>
+                  {introPage.coverPhoto ? (
+                    <div className="relative rounded-xl overflow-hidden border border-gray-200 h-16 cursor-pointer" onClick={() => coverInputRef.current?.click()}>
+                      <img src={introPage.coverPhoto} alt="Cover" className="w-full h-full object-cover" />
+                      <button onClick={e => { e.stopPropagation(); setIntroPage(p => ({ ...p, coverPhoto: undefined })); }}
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 flex items-center justify-center hover:bg-black/70"><X size={10} className="text-white" /></button>
+                    </div>
+                  ) : (
+                    <button onClick={() => coverInputRef.current?.click()}
+                      className="w-full h-16 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-0.5 hover:border-gray-400 cursor-pointer">
+                      <Camera size={16} className="text-gray-400" />
+                      <span className="text-[9px] text-gray-400">Upload</span>
+                    </button>
+                  )}
+                  <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => setIntroPage(p => ({ ...p, coverPhoto: reader.result as string }));
+                    reader.readAsDataURL(file);
+                    e.target.value = '';
+                  }} />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">Theme</label>
+                  <button onClick={() => setShowThemePicker(true)}
+                    className="w-full h-16 rounded-xl border-2 border-gray-200 flex items-center justify-center gap-2 hover:border-gray-300 cursor-pointer bg-white">
+                    <div className="w-5 h-5 rounded-full" style={{ background: activePrimary }} />
+                    <div className="w-5 h-5 rounded-full" style={{ background: activeSecondary }} />
+                    <span className="text-[10px] text-gray-500">{THEMES.find(t => t.key === selectedTheme)?.label}</span>
                   </button>
                 </div>
-                {selectedLanguages.length > 0 && !showAllLangs && (
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    {selectedLanguages.map(code => { const l = ALL_LANGUAGES.find(x => x.code === code); return <button key={code} onClick={() => toggleLanguage(code)} className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-white" style={{ background: '#091A7A' }}>{l?.native || code}<X size={10} className="opacity-60" /></button>; })}
-                  </div>
-                )}
-                {showAllLangs && (
-                  <div className="rounded-xl border border-gray-200 bg-white overflow-hidden mb-3">
-                    <div className="px-3 py-2 border-b border-gray-100"><div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-50"><Search size={14} className="text-gray-400" /><input value={langSearch} onChange={e => setLangSearch(e.target.value)} placeholder="Search..." className="bg-transparent text-xs outline-none flex-1 text-gray-700" /></div></div>
-                    <div className="max-h-64 overflow-y-auto p-2">
-                      {filteredGroups.map(g => <div key={g.label} className="mb-2"><p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-2 py-1">{g.label}</p><div className="grid grid-cols-2 gap-1">{g.languages.map(l => { const sel = selectedLanguages.includes(l.code); return <button key={l.code} onClick={() => toggleLanguage(l.code)} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-left text-xs" style={{ background: sel ? '#091A7A' : 'transparent', color: sel ? 'white' : '#4B5563' }}>{sel && <Check size={10} />}<span className="font-medium">{l.label}</span><span className="opacity-50 text-[10px] ml-auto">{l.native}</span></button>; })}</div></div>)}
-                    </div>
-                  </div>
-                )}
-                {!showAllLangs && <div className="flex flex-wrap gap-1.5">{[{ code: 'en', label: 'English' }, { code: 'ms', label: 'Malay' }, { code: 'id', label: 'Indonesian' }, { code: 'ta', label: 'Tamil' }, { code: 'zh', label: 'Chinese' }, { code: 'tl', label: 'Filipino' }, { code: 'th', label: 'Thai' }, { code: 'vi', label: 'Vietnamese' }, { code: 'hi', label: 'Hindi' }, { code: 'bn', label: 'Bengali' }].map(l => { const sel = selectedLanguages.includes(l.code); return <button key={l.code} onClick={() => toggleLanguage(l.code)} className="px-2.5 py-1 rounded-lg border text-xs font-medium" style={{ borderColor: sel ? '#091A7A' : '#E5E7EB', background: sel ? '#091A7A' : 'white', color: sel ? 'white' : '#6B7280' }}>{l.label}</button>; })}</div>}
               </div>
-              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Recipe Name</label><Input value={recipeName} onChange={e => setRecipeName(e.target.value)} placeholder="e.g. Health Assistant" /></div>
-              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Icon</label><div className="flex flex-wrap gap-2">{EMOJI_ICONS.map(e => <button key={e} onClick={() => setRecipeIcon(e)} className="w-10 h-10 rounded-lg flex items-center justify-center text-xl border-2 hover:scale-105" style={{ borderColor: recipeIcon === e ? '#091A7A' : '#E5E7EB', background: recipeIcon === e ? '#091A7A10' : 'white' }}>{e}</button>)}</div></div>
-              <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Description</label><Input value={recipeDescription} onChange={e => setRecipeDescription(e.target.value)} placeholder="Short description" /></div>
+
+              {/* Languages — compact summary */}
+              <div>
+                <button onClick={() => setShowLangDialog(true)}
+                  className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-200 bg-white hover:border-gray-300 text-left cursor-pointer">
+                  <Globe size={14} className="text-gray-400 shrink-0" />
+                  <span className="text-xs text-gray-600 flex-1 truncate">
+                    {selectedLanguages.length > 0
+                      ? selectedLanguages.map(c => ALL_LANGUAGES.find(l => l.code === c)?.label || c).join(', ')
+                      : 'Select languages...'}
+                  </span>
+                  {selectedLanguages.length > 0 && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: '#091A7A', color: 'white' }}>{selectedLanguages.length}</span>}
+                  <ChevronRight size={14} className="text-gray-400 shrink-0" />
+                </button>
+              </div>
+
               <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Category</label><Select value={category} onValueChange={setCategory}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
+
+              {/* Author */}
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Author Name</label><Input value={introPage.authorName} onChange={e => setIntroPage(p => ({ ...p, authorName: e.target.value }))} placeholder="Your name" /></div>
+                <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Organisation</label><Input value={introPage.authorOrg} onChange={e => setIntroPage(p => ({ ...p, authorOrg: e.target.value }))} placeholder="Your org" /></div>
+              </div>
+              {/* Links */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-sm font-medium text-gray-700">Links</label>
+                  <button onClick={() => setIntroPage(p => ({ ...p, links: [...p.links, { label: '', url: '' }] }))}
+                    className="text-xs font-medium px-2 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
+                    + Add Link
+                  </button>
+                </div>
+                {introPage.links.map((link, li) => (
+                  <div key={li} className="flex items-center gap-2 mb-1.5">
+                    <Input value={link.label} onChange={e => setIntroPage(p => ({ ...p, links: p.links.map((l, i) => i === li ? { ...l, label: e.target.value } : l) }))} placeholder="Label" className="h-8 text-xs flex-1" />
+                    <Input value={link.url} onChange={e => setIntroPage(p => ({ ...p, links: p.links.map((l, i) => i === li ? { ...l, url: e.target.value } : l) }))} placeholder="https://..." className="h-8 text-xs flex-1" />
+                    <button onClick={() => setIntroPage(p => ({ ...p, links: p.links.filter((_, i) => i !== li) }))} className="text-gray-300 hover:text-red-500"><X size={14} /></button>
+                  </div>
+                ))}
+              </div>
+
+              {/* System prompt & safety */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-sm font-medium text-gray-700">System Prompt</label>
@@ -907,158 +1367,176 @@ export function Studio() {
                 <Textarea value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} placeholder="You are a helpful assistant..." rows={5} />
               </div>
               <div><label className="text-sm font-medium text-gray-700 mb-1.5 block">Blocked Keywords</label><Input value={blockedKeywords} onChange={e => setBlockedKeywords(e.target.value)} placeholder="Comma-separated" /></div>
-              {/* Intro Page */}
-              <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-                <button onClick={() => { setIntroPage(p => { setPreviewIntro(!p.enabled); return { ...p, enabled: !p.enabled }; }); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50">
-                  <Shield size={16} style={{ color: introPage.enabled ? '#091A7A' : '#9CA3AF' }} />
-                  <span className="text-sm font-medium text-gray-800 flex-1">Intro Page</span>
-                  <span className="text-[10px] text-gray-400">{introPage.enabled ? 'Shown on launch' : 'Disabled'}</span>
-                  <div className="relative w-9 h-5 rounded-full transition-colors"
-                    style={{ background: introPage.enabled ? '#091A7A' : '#D1D5DB' }}>
-                    <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
-                      style={{ left: introPage.enabled ? 18 : 2 }} />
-                  </div>
-                </button>
-                {introPage.enabled && (
-                  <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Disclaimer</label>
-                      <Textarea value={introPage.disclaimer} onChange={e => setIntroPage(p => ({ ...p, disclaimer: e.target.value }))} placeholder="AI-generated content..." rows={2} className="text-xs" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs text-gray-500 mb-1 block">Author Name</label>
-                        <Input value={introPage.authorName} onChange={e => setIntroPage(p => ({ ...p, authorName: e.target.value }))} placeholder="Your name" className="h-8 text-xs" />
-                      </div>
-                      <div>
-                        <label className="text-xs text-gray-500 mb-1 block">Organisation</label>
-                        <Input value={introPage.authorOrg} onChange={e => setIntroPage(p => ({ ...p, authorOrg: e.target.value }))} placeholder="Your org" className="h-8 text-xs" />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 rounded-lg bg-gray-50 px-3 py-2">
-                      <span className="text-xs text-gray-600 flex-1">Verified author</span>
-                      <button onClick={() => setIntroPage(p => ({ ...p, authorVerified: !p.authorVerified }))}
-                        className="relative w-9 h-5 rounded-full transition-colors"
-                        style={{ background: introPage.authorVerified ? '#091A7A' : '#D1D5DB' }}>
-                        <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
-                          style={{ left: introPage.authorVerified ? 18 : 2 }} />
-                      </button>
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="text-xs text-gray-500">Links</label>
-                        <button onClick={() => setIntroPage(p => ({ ...p, links: [...p.links, { label: '', url: '' }] }))}
-                          className="text-[10px] font-medium px-2 py-0.5 rounded" style={{ background: '#091A7A10', color: '#091A7A' }}>
-                          + Add Link
-                        </button>
-                      </div>
-                      {introPage.links.map((link, li) => (
-                        <div key={li} className="flex items-center gap-2 mb-1.5">
-                          <Input value={link.label} onChange={e => setIntroPage(p => ({ ...p, links: p.links.map((l, i) => i === li ? { ...l, label: e.target.value } : l) }))} placeholder="Label" className="h-7 text-xs flex-1" />
-                          <Input value={link.url} onChange={e => setIntroPage(p => ({ ...p, links: p.links.map((l, i) => i === li ? { ...l, url: e.target.value } : l) }))} placeholder="https://..." className="h-7 text-xs flex-1" />
-                          <button onClick={() => setIntroPage(p => ({ ...p, links: p.links.filter((_, i) => i !== li) }))} className="text-gray-300 hover:text-red-500"><X size={14} /></button>
-                        </div>
-                      ))}
-                    </div>
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Accept Button Label</label>
-                      <Input value={introPage.acceptLabel} onChange={e => setIntroPage(p => ({ ...p, acceptLabel: e.target.value }))} placeholder="I Understand" className="h-8 text-xs" />
-                    </div>
-                  </div>
-                )}
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="text-xs text-gray-400 mb-1 block">Disclaimer</label><Input value={introPage.disclaimer} onChange={e => setIntroPage(p => ({ ...p, disclaimer: e.target.value }))} placeholder="AI-generated content..." className="h-8 text-xs" /></div>
+                <div><label className="text-xs text-gray-400 mb-1 block">Accept Button Label</label><Input value={introPage.acceptLabel} onChange={e => setIntroPage(p => ({ ...p, acceptLabel: e.target.value }))} placeholder="I Understand" className="h-8 text-xs" /></div>
               </div>
             </div>
           )}
 
-          {/* ─── Step 2: Style & Layout ─── */}
-          {currentStep === 2 && (
-            <div className="space-y-6 max-w-2xl">
+          {/* ─── Step 3: Style & Layout ─── */}
+          {currentStep === 3 && (
+            <div className="space-y-6 max-w-2xl mx-auto">
               <h2 className="text-lg font-semibold text-gray-900">Style & Layout</h2>
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-3 block">Theme</label>
-                <div className="flex gap-3 flex-wrap">
-                  {THEMES.map(t => <button key={t.key} onClick={() => setSelectedTheme(t.key)} className="flex flex-col items-center gap-2 p-3 rounded-xl border-2 w-[100px]" style={{ borderColor: selectedTheme === t.key ? '#091A7A' : '#E5E7EB', background: selectedTheme === t.key ? '#F8FAFC' : 'white' }}><div className="flex gap-1"><div className="w-6 h-6 rounded-full" style={{ background: t.primary }} /><div className="w-6 h-6 rounded-full" style={{ background: t.secondary }} /></div><span className="text-xs font-medium text-gray-700">{t.label}</span></button>)}
-                </div>
-                {selectedTheme === 'custom' && <div className="flex gap-4 mt-4"><div><label className="text-xs text-gray-500 mb-1 block">Primary</label><Input value={customPrimary} onChange={e => setCustomPrimary(e.target.value)} className="w-32" /></div><div><label className="text-xs text-gray-500 mb-1 block">Secondary</label><Input value={customSecondary} onChange={e => setCustomSecondary(e.target.value)} className="w-32" /></div></div>}
-              </div>
+              <p className="text-sm text-gray-500 -mt-4">Design the experience your Builders will see on their devices.</p>
 
-              {/* Screens */}
+              {/* Home Screen Config */}
+              {(() => {
+                const homeScreen = screens.find(s => s.isHome);
+                const homeIdx = screens.findIndex(s => s.isHome);
+                const isChatMode = !!homeScreen?.templateId;
+                const nonHomeScreens = screens.filter(s => !s.isHome);
+                return (
+                  <div className="rounded-xl border-2 border-gray-100 bg-gray-50/50 p-4 space-y-4">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-800 mb-1 block">Home Screen</label>
+                      <p className="text-xs text-gray-500 mb-3">How builders navigate your recipe on first launch</p>
+                      {nonHomeScreens.length > 0 && (
+                        <div className="grid grid-cols-2 gap-3">
+                          {[
+                            { mode: 'chat' as const, icon: MessageCircle, label: 'Chat-first', desc: 'Builder speaks or types; AI routes to the right screen.', hasTemplate: true },
+                            { mode: 'grid' as const, icon: LayoutGrid, label: 'Grid-first', desc: 'Builder picks a screen directly from buttons.', hasTemplate: false },
+                          ].map(opt => {
+                            const isSelected = opt.hasTemplate ? isChatMode : !isChatMode;
+                            return (
+                              <button key={opt.mode} onClick={() => {
+                                if (isSelected) return;
+                                setScreens(prev => prev.map(s => {
+                                  if (!s.isHome) return s;
+                                  return opt.hasTemplate
+                                    ? { ...s, templateId: 'ask_ai', fieldValues: { heading: s.fieldValues.heading || 'How can I help?', hint: s.fieldValues.hint || 'Ask a question...' }, disabledWidgets: [] }
+                                    : { ...s, templateId: null, fieldValues: {}, disabledWidgets: [] };
+                                }));
+                              }}
+                                className="flex flex-col gap-2 p-3 rounded-xl border-2 text-left transition-all"
+                                style={{ borderColor: isSelected ? '#091A7A' : '#E5E7EB', background: isSelected ? '#091A7A08' : 'white' }}>
+                                <div className="flex items-center gap-2">
+                                  <opt.icon size={16} style={{ color: isSelected ? '#091A7A' : '#9CA3AF' }} />
+                                  <span className="text-xs font-semibold" style={{ color: isSelected ? '#091A7A' : '#4B5563' }}>{opt.label}</span>
+                                </div>
+                                <p className="text-[10px] text-gray-500 leading-relaxed">{opt.desc}</p>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Grid-first: column layout */}
+                    {!isChatMode && nonHomeScreens.length > 0 && (
+                      <div>
+                        <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2 block">Grid Layout</label>
+                        <div className="flex gap-2">
+                          {[1, 2, 3].map(cols => {
+                            const selected = (homeScreen?.gridColumns || 1) === cols;
+                            const previewItems = Math.min(nonHomeScreens.length, cols * 2);
+                            return (
+                              <button key={cols} onClick={() => updateGridColumns(cols)}
+                                className="flex-1 rounded-lg border-2 p-2.5 flex flex-col items-center gap-1.5 transition-all"
+                                style={{ borderColor: selected ? '#091A7A' : '#E5E7EB', background: selected ? '#091A7A08' : 'white' }}>
+                                <div className="gap-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, width: '100%' }}>
+                                  {Array.from({ length: previewItems }).map((_, j) => (
+                                    <div key={j} className="h-3 rounded" style={{ background: selected ? '#091A7A' : '#E5E7EB' }} />
+                                  ))}
+                                </div>
+                                <span className="text-[9px] font-medium" style={{ color: selected ? '#091A7A' : '#9CA3AF' }}>{cols} col{cols > 1 ? 's' : ''}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Chat-first: simplified config */}
+                    {isChatMode && homeScreen && homeIdx >= 0 && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1 block">Heading</label>
+                          <Input value={homeScreen.fieldValues.heading || ''} onChange={e => updateScreenField(homeIdx, 'heading', e.target.value)}
+                            placeholder="How can I help?" className="h-8 text-sm" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1 block">Input Hint</label>
+                          <Input value={homeScreen.fieldValues.hint || ''} onChange={e => updateScreenField(homeIdx, 'hint', e.target.value)}
+                            placeholder="Ask a question..." className="h-8 text-sm" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1 block">Max Clarifications</label>
+                            <div className="flex items-center gap-1.5">
+                              {[1, 2, 3, 4, 5].map(n => (
+                                <button key={n} onClick={() => setMaxClarifications(n)}
+                                  className="w-7 h-7 rounded-lg border-2 text-[11px] font-bold transition-all"
+                                  style={{
+                                    borderColor: maxClarifications === n ? '#091A7A' : '#E5E7EB',
+                                    background: maxClarifications === n ? '#091A7A' : 'white',
+                                    color: maxClarifications === n ? 'white' : '#9CA3AF',
+                                  }}>
+                                  {n}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1 block">Fallback Screen</label>
+                            <select value={fallbackScreen} onChange={e => setFallbackScreen(e.target.value)}
+                              className="w-full h-7 text-[11px] rounded border border-gray-200 bg-white px-1.5 outline-none">
+                              <option value="">Show all screens</option>
+                              {nonHomeScreens.map(s => <option key={s.id} value={s.id}>{s.title || s.id}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Screens (non-home only) */}
               <div className="rounded-xl border-2 border-gray-100 bg-gray-50/50 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <label className="text-sm font-semibold text-gray-800">Screens ({screens.length})</label>
+                    <label className="text-sm font-semibold text-gray-800">Screens ({screens.filter(s => !s.isHome).length})</label>
                     <p className="text-xs text-gray-500 mt-0.5">Configure each screen and its template</p>
                   </div>
                   <button onClick={() => setShowTemplatePicker(true)} className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-md" style={{ background: '#091A7A10', color: '#091A7A' }}><Plus size={14} /> Add Screen</button>
                 </div>
                 <div className="space-y-2">
                   {screens.map((screen, si) => {
+                    if (screen.isHome) return null;
                     const isActive = si === activeScreenIndex;
                     const tmpl = screen.templateId ? getScreenTemplate(screen.templateId) : null;
                     return (
-                      <div key={screen.id} className={`rounded-xl border overflow-hidden ${screen.isHome ? 'bg-indigo-50/40' : 'bg-white'}`} style={{ borderColor: isActive ? '#091A7A' : screen.isHome ? '#C7D2FE' : '#E5E7EB', boxShadow: isActive ? '0 0 0 1px #091A7A' : 'none' }}>
-                        <button onClick={() => { setActiveScreenIndex(si); setPreviewIntro(false); }} className="w-full flex items-center gap-2 px-4 py-2.5 text-left" style={{ background: isActive ? '#091A7A08' : screen.isHome ? '#EEF2FF' : '#FAFAFA' }}>
-                          {screen.isHome ? (
-                            <div className="w-5 h-5 rounded-md flex items-center justify-center shrink-0" style={{ background: '#091A7A' }}>
-                              <Home size={11} className="text-white" />
-                            </div>
-                          ) : (
-                            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: isActive ? '#091A7A' : '#E5E7EB', color: isActive ? 'white' : '#9CA3AF' }}>{si}</div>
-                          )}
-                          <span className="text-sm font-medium text-gray-900 flex-1 truncate">{screen.isHome ? (recipeName || 'Home') : (screen.title || tmpl?.name || 'Untitled')}</span>
-                          {screen.isHome && <span className="text-[9px] px-1.5 py-0.5 rounded font-medium" style={{ background: '#091A7A20', color: '#091A7A' }}>Dashboard</span>}
-                          {tmpl && !screen.isHome && <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{tmpl.emoji} {tmpl.name}</span>}
+                      <div key={screen.id} className="rounded-xl border overflow-hidden bg-white" style={{ borderColor: isActive ? '#091A7A' : '#E5E7EB', boxShadow: isActive ? '0 0 0 1px #091A7A' : 'none' }}>
+                        <button onClick={() => { setActiveScreenIndex(si); setPreviewIntro(false); }} className="w-full flex items-center gap-2 px-4 py-2.5 text-left" style={{ background: isActive ? '#091A7A08' : '#FAFAFA' }}>
+                          <span className="text-sm shrink-0">{screen.screenIcon || tmpl?.emoji || '\u{1F4CB}'}</span>
+                          <span className="text-sm font-medium text-gray-900 flex-1 truncate">{screen.title || tmpl?.name || 'Untitled'}</span>
+                          {tmpl && <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{tmpl.emoji} {tmpl.name}</span>}
                           <ChevronDown size={14} className="text-gray-400" style={{ transform: isActive ? 'rotate(180deg)' : 'rotate(0)' }} />
-                          {!screen.isHome && <button onClick={e => { e.stopPropagation(); duplicateScreen(si); }} className="text-gray-300 hover:text-blue-500" title="Duplicate"><Copy size={13} /></button>}
-                          {!screen.isHome && screens.length > 1 && <button onClick={e => { e.stopPropagation(); removeScreen(si); }} className="text-gray-300 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>}
+                          <button onClick={e => { e.stopPropagation(); duplicateScreen(si); }} className="text-gray-300 hover:text-blue-500" title="Duplicate"><Copy size={13} /></button>
+                          {screens.filter(s => !s.isHome).length > 1 && <button onClick={e => { e.stopPropagation(); removeScreen(si); }} className="text-gray-300 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>}
                         </button>
 
                         {isActive && (
                           <div className="px-4 py-3 border-t border-gray-100 bg-white space-y-3">
-                            {/* Non-home: editable title */}
-                            {!screen.isHome && (
-                              <div><label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1 block">Screen Title</label><Input value={screen.title} onChange={e => updateScreenTitle(si, e.target.value)} className="h-8 text-sm" /></div>
-                            )}
-
-                            {/* Home: grid column selector */}
-                            {screen.isHome && screens.length > 1 && (
-                              <div>
-                                <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-2 block">Navigation Grid Layout</label>
-                                <div className="flex gap-2">
-                                  {[1, 2, 3].map(cols => {
-                                    const selected = screen.gridColumns === cols;
-                                    const otherCount = screens.filter(s => !s.isHome).length;
-                                    const previewItems = Math.min(otherCount, cols * 2);
-                                    return (
-                                      <button key={cols} onClick={() => updateGridColumns(cols)}
-                                        className="flex-1 rounded-lg border-2 p-3 flex flex-col items-center gap-2 transition-all"
-                                        style={{ borderColor: selected ? '#091A7A' : '#E5E7EB', background: selected ? '#091A7A08' : 'white' }}>
-                                        <div className="gap-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, width: '100%' }}>
-                                          {Array.from({ length: previewItems }).map((_, j) => (
-                                            <div key={j} className="h-4 rounded" style={{ background: selected ? '#091A7A' : '#E5E7EB' }} />
-                                          ))}
-                                        </div>
-                                        <span className="text-[10px] font-medium" style={{ color: selected ? '#091A7A' : '#9CA3AF' }}>{cols} col{cols > 1 ? 's' : ''}</span>
-                                      </button>
-                                    );
-                                  })}
-                                </div>
+                            <div>
+                              <label className="text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1.5 block">Screen Title & Icon</label>
+                              <div className="flex items-center gap-2">
+                                <select
+                                  value={screen.screenIcon || (tmpl?.emoji || '\u{1F4CB}')}
+                                  onChange={e => setScreens(prev => prev.map((s, i) => i === si ? { ...s, screenIcon: e.target.value } : s))}
+                                  className="w-10 h-8 text-center text-lg appearance-none rounded-lg border border-gray-200 bg-white cursor-pointer outline-none focus:border-blue-400">
+                                  {['\u{1F4CB}', '\u{1F4AC}', '\u{1F4F7}', '\u{1F9EE}', '\u{1F4CD}', '\u{1F4DD}', '✅',
+                                    '\u{1F33E}', '\u{1F3E5}', '\u{1F6A8}', '\u{1F4DA}', '\u{1F4B0}', '\u{1F331}', '\u{2764}\u{FE0F}',
+                                    '\u{1F50D}', '\u{2B50}', '\u{1F4A1}', '\u{1F3AF}', '\u{1F916}', '\u{1F30D}',
+                                    '\u{1F6E1}\u{FE0F}', '\u{1F4CA}', '\u{1F4E6}', '\u{2615}', '\u{1F37D}\u{FE0F}'].map(e => (
+                                    <option key={e} value={e}>{e}</option>
+                                  ))}
+                                </select>
+                                <Input value={screen.title} onChange={e => updateScreenTitle(si, e.target.value)}
+                                  placeholder="Screen title" className="h-8 text-sm flex-1" />
                               </div>
-                            )}
-
-                            {/* Home: toggle Ask AI section */}
-                            {screen.isHome && (
-                              <div className="flex items-center gap-3 rounded-lg bg-gray-50 px-3 py-2">
-                                <span className="text-xs text-gray-600 flex-1">Ask AI section below grid</span>
-                                <button onClick={toggleHomeAsk}
-                                  className="relative w-9 h-5 rounded-full transition-colors"
-                                  style={{ background: screen.templateId ? '#091A7A' : '#D1D5DB' }}>
-                                  <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
-                                    style={{ left: screen.templateId ? 18 : 2 }} />
-                                </button>
-                              </div>
-                            )}
+                            </div>
 
                             {/* Screen template editor */}
                             {renderScreenEditor(screen, si)}
@@ -1146,26 +1624,235 @@ export function Studio() {
             </div>
           )}
 
-          {/* ─── Step 3: Knowledge ─── */}
-          {currentStep === 3 && (
-            <div className="space-y-5 max-w-2xl">
-              <h2 className="text-lg font-semibold text-gray-900">Knowledge Base</h2>
-              <p className="text-sm text-gray-500 -mt-3">Upload documents to give your recipe domain expertise.</p>
-              <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center gap-3 hover:border-gray-400 cursor-pointer">
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ background: '#091A7A10' }}><Upload size={28} style={{ color: '#091A7A' }} /></div>
-                <p className="text-sm font-medium text-gray-700">Drop files here or click to browse</p>
-                <p className="text-xs text-gray-400">PDF, TXT, CSV up to 10MB</p>
-              </div>
+          {/* ─── Step 1: Knowledge ─── */}
+          {currentStep === 1 && (
+            <div className="space-y-6 max-w-2xl mx-auto">
+              {/* Welcome hero — only when no files */}
+              {knowledgeFiles.length === 0 && !knowledgeSuggestions && (
+                <div className="text-center py-4">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <div className="flex items-center gap-1">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-lg">📄</div>
+                      <ChevronRight size={16} className="text-gray-300" />
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-50 text-lg">✨</div>
+                      <ChevronRight size={16} className="text-gray-300" />
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-green-50 text-lg">📱</div>
+                    </div>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">Start with what you know</h2>
+                  <p className="text-sm text-gray-500 max-w-md mx-auto">Your domain knowledge is the most powerful tool you can contribute to our Builders. Upload your documents and we'll suggest Functions that turn your expertise into real impact.</p>
+                </div>
+              )}
+              {(knowledgeFiles.length > 0 || knowledgeSuggestions) && (
+                <>
+                  <h2 className="text-lg font-semibold text-gray-900">Knowledge Base</h2>
+                  <p className="text-sm text-gray-500 -mt-4">Your domain knowledge powers every Function we suggest.</p>
+                </>
+              )}
+
+              {/* Upload area */}
+              {knowledgeFiles.length === 0 && (
+                <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center gap-2 hover:border-gray-400 cursor-pointer transition-colors">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#091A7A10' }}><Upload size={24} style={{ color: '#091A7A' }} /></div>
+                  <p className="text-sm font-medium text-gray-700">Drop files here or click to browse</p>
+                  <p className="text-xs text-gray-400">PDF, TXT, CSV up to 10MB</p>
+                </div>
+              )}
               <input ref={fileInputRef} type="file" accept=".pdf,.txt,.csv,.md" multiple className="hidden" onChange={handleFileUpload} />
-              {knowledgeFiles.length > 0 && <div className="space-y-2">{knowledgeFiles.map((f, i) => <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 bg-white"><FileText size={20} className={f.status === 'ready' ? 'text-green-600' : 'text-gray-400'} /><div className="flex-1 min-w-0"><p className="text-sm font-medium text-gray-800 truncate">{f.name}</p><div className="flex items-center gap-2 mt-0.5"><p className="text-xs text-gray-400">{f.size}</p>{f.status === 'ready' && f.chunks && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-green-50 text-green-700">{f.chunks} chunks</span>}{f.status !== 'ready' && <span className="text-[10px] text-amber-600">{f.status}...</span>}</div>{f.status !== 'ready' && <Progress value={f.status === 'uploading' ? 40 : 75} className="mt-1.5 h-1.5" />}{f.summary && <p className="text-[11px] text-gray-500 mt-1.5 line-clamp-2">{f.summary}</p>}</div><button onClick={() => removeFile(i)} className="text-gray-400 hover:text-gray-600 shrink-0"><X size={16} /></button></div>)}</div>}
-              {knowledgeFiles.some(f => f.status === 'ready') && <div className="rounded-xl border border-gray-200 bg-white p-4"><div className="flex items-center justify-between mb-2"><div><p className="text-sm font-medium text-gray-700">Always-Loaded Context</p><p className="text-xs text-gray-500">Concise brief always in memory.</p></div><button onClick={() => ensureApiKey(generateKnowledgeSummary)} disabled={aiLoading} className="flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium" style={{ background: '#091A7A10', color: '#091A7A' }}>{aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} Generate Brief</button></div>{knowledgeSummary ? <Textarea value={knowledgeSummary} onChange={e => setKnowledgeSummary(e.target.value)} rows={6} className="text-xs" /> : <div className="rounded-lg p-3 bg-gray-50 text-xs text-gray-400 text-center">Click "Generate Brief" to create a summary</div>}</div>}
+
+              {/* Demo docs */}
+              {knowledgeFiles.length === 0 && (
+                <div>
+                  <p className="text-xs font-medium text-gray-500 mb-2">Or start with a demo document</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {DEMO_DOCUMENTS.map(doc => (
+                      <button key={doc.name} onClick={() => {
+                        const words = doc.content.split(/\s+/);
+                        const chunks: string[] = []; let cur = '';
+                        for (const w of words) { if (cur.length + w.length > 500) { chunks.push(cur.trim()); cur = w; } else cur += ' ' + w; }
+                        if (cur.trim()) chunks.push(cur.trim());
+                        setKnowledgeFiles(prev => [...prev, { name: doc.name, size: `${(doc.content.length / 1024).toFixed(1)} KB`, status: 'ready', chunks: chunks.length, summary: doc.content.slice(0, 200) + '...' }]);
+                      }}
+                        className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 transition-all cursor-pointer">
+                        <span className="text-xl">{doc.emoji}</span>
+                        <span className="text-[10px] font-medium text-gray-700 text-center leading-tight">{doc.name}</span>
+                        <span className="text-[9px] text-gray-400">{doc.category}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Uploaded files + compact add button */}
+              {knowledgeFiles.length > 0 && (
+                <div className="space-y-2">
+                  {knowledgeFiles.map((f, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 bg-white">
+                      <FileText size={20} className={f.status === 'ready' ? 'text-green-600' : 'text-gray-400'} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">{f.name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-xs text-gray-400">{f.size}</p>
+                          {f.status === 'ready' && f.chunks && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-green-50 text-green-700">{f.chunks} chunks</span>}
+                          {f.status !== 'ready' && <span className="text-[10px] text-amber-600">{f.status}...</span>}
+                        </div>
+                        {f.status !== 'ready' && <Progress value={f.status === 'uploading' ? 40 : 75} className="mt-1.5 h-1.5" />}
+                      </div>
+                      <button onClick={() => removeFile(i)} className="text-gray-400 hover:text-gray-600 shrink-0"><X size={16} /></button>
+                    </div>
+                  ))}
+                  <button onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2 p-3 rounded-lg border border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors w-full">
+                    <Plus size={16} className="text-gray-400" />
+                    <span className="text-sm text-gray-500">Add another document</span>
+                  </button>
+                </div>
+              )}
+
+              {/* AI Suggestions */}
+              {knowledgeFiles.some(f => f.status === 'ready') && (
+                <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                  <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">AI Suggestions</p>
+                      <p className="text-xs text-gray-500">We'll design a recipe based on your documents.</p>
+                    </div>
+                    <button onClick={() => ensureApiKey(generateKnowledgeSuggestions)} disabled={aiLoading}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white hover:opacity-90 shrink-0"
+                      style={{ background: '#091A7A' }}>
+                      {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                      {knowledgeSuggestions ? 'Regenerate' : 'Suggest Recipe'}
+                    </button>
+                  </div>
+                  {knowledgeSuggestions && (
+                    <div className="p-4 space-y-3">
+                      {/* Identity — collapsible */}
+                      <button onClick={() => setIdentityExpanded(!identityExpanded)} className="flex items-center gap-2 w-full text-left">
+                        <ChevronRight size={12} className={`text-gray-400 transition-transform ${identityExpanded ? 'rotate-90' : ''}`} />
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Identity</p>
+                        <span className="text-[10px] text-gray-400 ml-auto">{knowledgeSuggestions.recipeName} · {knowledgeSuggestions.recipeIcon} · {(() => { const t = THEMES.find(t => t.key === knowledgeSuggestions.themeKey); return t?.label || knowledgeSuggestions.themeKey; })()}</span>
+                      </button>
+                      {identityExpanded && (
+                        <div className="space-y-2 pl-1">
+                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" checked={suggestionSelections.name} onChange={e => setSuggestionSelections(prev => ({ ...prev, name: e.target.checked }))}
+                              className="mt-0.5 rounded border-gray-300" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-500">Recipe Name</p>
+                              <p className="text-sm font-semibold text-gray-900">{knowledgeSuggestions.recipeName}</p>
+                            </div>
+                          </label>
+                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" checked={suggestionSelections.description} onChange={e => setSuggestionSelections(prev => ({ ...prev, description: e.target.checked }))}
+                              className="mt-0.5 rounded border-gray-300" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-500">Description</p>
+                              <p className="text-sm text-gray-700">{knowledgeSuggestions.recipeDescription}</p>
+                            </div>
+                          </label>
+                          <div className="flex gap-4">
+                            <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
+                              <input type="checkbox" checked={suggestionSelections.category} onChange={e => setSuggestionSelections(prev => ({ ...prev, category: e.target.checked }))}
+                                className="mt-0.5 rounded border-gray-300" />
+                              <div>
+                                <p className="text-xs font-medium text-gray-500">Category</p>
+                                <p className="text-sm text-gray-700">{knowledgeSuggestions.category}</p>
+                              </div>
+                            </label>
+                            <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
+                              <input type="checkbox" checked={suggestionSelections.systemPrompt} onChange={e => setSuggestionSelections(prev => ({ ...prev, systemPrompt: e.target.checked }))}
+                                className="mt-0.5 rounded border-gray-300" />
+                              <div>
+                                <p className="text-xs font-medium text-gray-500">System Prompt</p>
+                                <p className="text-sm text-gray-700 line-clamp-1">{knowledgeSuggestions.systemPrompt}</p>
+                              </div>
+                            </label>
+                          </div>
+                          <div className="flex gap-4">
+                            <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
+                              <input type="checkbox" checked={suggestionSelections.icon} onChange={e => setSuggestionSelections(prev => ({ ...prev, icon: e.target.checked }))}
+                                className="rounded border-gray-300" />
+                              <div className="flex items-center gap-2">
+                                <p className="text-xs font-medium text-gray-500">Icon</p>
+                                <span className="text-xl">{knowledgeSuggestions.recipeIcon}</span>
+                              </div>
+                            </label>
+                            <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer flex-1">
+                              <input type="checkbox" checked={suggestionSelections.theme} onChange={e => setSuggestionSelections(prev => ({ ...prev, theme: e.target.checked }))}
+                                className="rounded border-gray-300" />
+                              <div className="flex items-center gap-2">
+                                <p className="text-xs font-medium text-gray-500">Theme</p>
+                                {(() => { const t = THEMES.find(t => t.key === knowledgeSuggestions.themeKey); return t ? <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full" style={{ background: t.primary }} /><span className="text-sm text-gray-700 capitalize">{t.label}</span></div> : <span className="text-sm text-gray-700">{knowledgeSuggestions.themeKey}</span>; })()}
+                              </div>
+                            </label>
+                          </div>
+                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" checked={suggestionSelections.author} onChange={e => setSuggestionSelections(prev => ({ ...prev, author: e.target.checked }))}
+                              className="mt-0.5 rounded border-gray-300" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-500">Author</p>
+                              <p className="text-sm text-gray-700">{knowledgeSuggestions.authorName} — {knowledgeSuggestions.authorOrg}</p>
+                            </div>
+                          </label>
+                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" checked={suggestionSelections.links} onChange={e => setSuggestionSelections(prev => ({ ...prev, links: e.target.checked }))}
+                              className="mt-0.5 rounded border-gray-300" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-500">Links</p>
+                              <p className="text-sm text-gray-700">{knowledgeSuggestions.links?.length || 0} reference link{(knowledgeSuggestions.links?.length || 0) !== 1 ? 's' : ''}</p>
+                            </div>
+                          </label>
+                          <label className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" checked={suggestionSelections.homePreview} onChange={e => setSuggestionSelections(prev => ({ ...prev, homePreview: e.target.checked }))}
+                              className="mt-0.5 rounded border-gray-300" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-gray-500">Home Preview</p>
+                              <p className="text-sm text-gray-700">{knowledgeSuggestions.homeHeading} &middot; {knowledgeSuggestions.homeHint}</p>
+                            </div>
+                          </label>
+                        </div>
+                      )}
+
+                      {/* Screens with checkboxes — full width cards */}
+                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mt-4">Functions</p>
+                      <div className="space-y-2">
+                        {knowledgeSuggestions.screens?.map((sc, i) => {
+                          const tpl = getScreenTemplate(sc.templateId);
+                          return (
+                            <label key={i} className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors">
+                              <input type="checkbox" checked={!!suggestionSelections.screens[i]}
+                                onChange={e => setSuggestionSelections(prev => ({ ...prev, screens: { ...prev.screens, [i]: e.target.checked } }))}
+                                className="rounded border-gray-300 shrink-0" />
+                              <span className="text-lg shrink-0">{sc.emoji}</span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-gray-900">{sc.title}</p>
+                                {sc.description && <p className="text-[11px] text-gray-600 mt-0.5">{sc.description}</p>}
+                                <p className="text-[11px] text-gray-500">{tpl?.name || sc.templateId} template</p>
+                              </div>
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0">{tpl?.emoji} {tpl?.name || sc.templateId}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+
+                      {/* Apply button */}
+                      <button onClick={applySuggestions}
+                        className="w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90 mt-2"
+                        style={{ background: '#10B981' }}>
+                        Apply Selected
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {/* ─── Step 4: Review ─── */}
           {currentStep === 4 && (
-            <div className="space-y-5 max-w-2xl">
-              <h2 className="text-lg font-semibold text-gray-900">Review Recipe</h2>
+            <div className="space-y-5 max-w-2xl mx-auto">
+              <h2 className="text-lg font-semibold text-gray-900">Review & Publish</h2>
+              <p className="text-sm text-gray-500 -mt-3">Check everything looks right before sharing with the world.</p>
               <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
                 <div className="px-5 py-4 flex items-center gap-3 border-b border-gray-100">
                   <span className="text-2xl">{recipeIcon}</span>
@@ -1221,13 +1908,14 @@ export function Studio() {
       </div>
 
       {/* ─── Right: Live Preview ─── */}
-      <div className="flex-[2] flex flex-col items-center bg-gray-50 p-6 overflow-y-auto">
-        <div className="flex items-center gap-2 mb-4 self-start">
+      <div className="flex-[2] flex flex-col items-center bg-gray-50 p-4 overflow-hidden">
+        <div className="flex items-center gap-2 mb-2 self-start shrink-0">
           <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
           <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Live Preview</span>
           {screens.length > 1 && <span className="text-[10px] text-gray-400 ml-2">{screenTitle(activeScreen)}</span>}
         </div>
-        <div className="rounded-[2.5rem] p-3 shadow-xl" style={{ background: '#1F2937', width: 280 }}>
+        <div ref={previewContainerRef} className="flex-1 w-full flex items-center justify-center min-h-0">
+        <div className="rounded-[2.5rem] p-3 shadow-xl" style={{ background: '#1F2937', width: 280, transform: `scale(${phoneScale})`, transformOrigin: 'center center' }}>
           <div className="rounded-[2rem] overflow-hidden flex flex-col" style={{ background: activeSecondary, height: 560 }}>
             <div className="flex items-center justify-between px-5 pt-3 pb-1">
               <span className="text-[10px] font-medium" style={{ color: activePrimary }}>9:41</span>
@@ -1235,38 +1923,133 @@ export function Studio() {
             </div>
             {previewIntro ? (
               <>
-                <div className="flex-1 px-5 pb-4 overflow-y-auto flex flex-col items-center justify-center text-center">
-                  <span className="text-4xl mb-2">{recipeIcon}</span>
-                  <p className="text-sm font-bold mb-0.5" style={{ color: activePrimary }}>{recipeName || 'My Recipe'}</p>
-                  <p className="text-[9px] text-gray-500 mb-3">{recipeDescription || 'A custom AI recipe'}</p>
-                  {introPage.authorName && (
-                    <div className="flex items-center gap-1 mb-2">
-                      <User size={10} style={{ color: activePrimary }} />
-                      <span className="text-[9px] font-medium" style={{ color: activePrimary }}>{introPage.authorName}</span>
-                      {introPage.authorOrg && <span className="text-[8px] text-gray-400">({introPage.authorOrg})</span>}
-                      {introPage.authorVerified && <Check size={8} className="text-green-600" />}
+                <div className="flex-1 overflow-y-auto flex flex-col">
+                  {introPage.coverPhoto ? (
+                    <div className="w-full h-28 shrink-0 relative">
+                      <img src={introPage.coverPhoto} alt="" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0" style={{ background: `linear-gradient(transparent 40%, ${activeSecondary})` }} />
                     </div>
+                  ) : (
+                    <div className="h-16 shrink-0" />
                   )}
-                  <div className="rounded-lg p-2 bg-white/60 mb-2 w-full">
-                    <p className="text-[8px] text-gray-600">{introPage.disclaimer}</p>
-                  </div>
-                  {introPage.links.filter(l => l.label && l.url).map((l, li) => (
-                    <div key={li} className="flex items-center gap-1 mb-0.5">
-                      <Link2 size={8} style={{ color: activePrimary }} />
-                      <span className="text-[8px] underline" style={{ color: activePrimary }}>{l.label}</span>
+                  <div className="flex-1 px-5 pb-4 flex flex-col items-center text-center relative">
+                    <span className="text-4xl mb-1">{recipeIcon}</span>
+                    <p className="text-sm font-bold mb-0.5" style={{ color: activePrimary }}>{recipeName || 'My Recipe'}</p>
+                    <p className="text-[9px] text-gray-500 mb-2">{recipeDescription || 'A custom AI recipe'}</p>
+                    {introPage.authorName && (
+                      <div className="flex flex-col items-center gap-0.5 mb-2">
+                        <div className="flex items-center gap-1">
+                          <User size={10} style={{ color: activePrimary }} />
+                          <span className="text-[9px] font-medium" style={{ color: activePrimary }}>{introPage.authorName}</span>
+                          {introPage.authorVerified && <Check size={8} className="text-green-600" />}
+                        </div>
+                        {introPage.authorOrg && <span className="text-[8px] text-gray-400">{introPage.authorOrg}</span>}
+                      </div>
+                    )}
+                    {introPage.links.filter(l => l.label && l.url).map((l, li) => (
+                      <div key={li} className="flex items-center gap-1 mb-0.5">
+                        <Link2 size={8} style={{ color: activePrimary }} />
+                        <span className="text-[8px] underline" style={{ color: activePrimary }}>{l.label}</span>
+                      </div>
+                    ))}
+                    {screens.filter(s => !s.isHome).length > 0 && (
+                      <div className="w-full mt-3 space-y-1">
+                        {screens.filter(s => !s.isHome).map(s => (
+                          <div key={s.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-white/60">
+                            <span className="text-sm">{s.screenIcon || (s.templateId ? getScreenTemplate(s.templateId)?.emoji : '') || '📋'}</span>
+                            <span className="text-[9px] font-medium truncate" style={{ color: activePrimary }}>{s.title || (s.templateId ? getScreenTemplate(s.templateId)?.name : 'Screen')}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="mt-auto w-full pt-3">
+                      {introPage.disclaimer && (
+                        <p className="text-[7px] text-gray-400 mb-2">{introPage.disclaimer}</p>
+                      )}
+                      <button className="w-full py-1.5 rounded-lg text-white text-[10px] font-semibold" style={{ background: activePrimary }}>{introPage.acceptLabel || 'I Understand'}</button>
                     </div>
-                  ))}
-                  <button className="mt-3 w-full py-1.5 rounded-lg text-white text-[10px] font-semibold" style={{ background: activePrimary }}>{introPage.acceptLabel || 'I Understand'}</button>
+                  </div>
                 </div>
               </>
+            ) : activeScreen.isHome && activeScreen.templateId ? (
+              /* Chat-first home: multi-turn demo */
+              (() => {
+                const homeFields = activeScreen.fieldValues;
+                const heading = homeFields.heading || recipeName || 'How can I help?';
+                const hint = homeFields.hint || 'Ask a question...';
+                const demoScreen = screens.find(s => !s.isHome) || null;
+                const demoScreenTitle = demoScreen?.title || 'Screen';
+                const demoScreenIcon = demoScreen?.screenIcon || (demoScreen?.templateId ? getScreenTemplate(demoScreen.templateId)?.emoji : '') || '\u{1F4CB}';
+                return (
+                  <>
+                    <div className="flex items-center gap-2 px-5 py-3">
+                      <span className="text-lg">{recipeIcon}</span>
+                      <span className="text-sm font-semibold truncate" style={{ color: activePrimary }}>{recipeName || 'Home'}</span>
+                    </div>
+                    <div className="flex-1 px-4 pb-2 overflow-y-auto flex flex-col">
+                      {/* Demo conversation */}
+                      <div className="flex-1 flex flex-col justify-end space-y-2">
+                        {/* AI greeting */}
+                        <div className="flex justify-start">
+                          <div className="rounded-2xl rounded-bl-sm px-3 py-1.5 max-w-[80%] bg-white/80">
+                            <p className="text-[9px] text-gray-700 font-semibold">{heading}</p>
+                          </div>
+                        </div>
+                        {/* User message */}
+                        <div className="flex justify-end">
+                          <div className="rounded-2xl rounded-br-sm px-3 py-1.5 max-w-[75%]" style={{ background: activePrimary }}>
+                            <p className="text-[9px] text-white">{knowledgeSuggestions?.sampleConversation?.userMessage || 'My crops have yellow spots'}</p>
+                          </div>
+                        </div>
+                        {/* AI clarification */}
+                        <div className="flex justify-start">
+                          <div className="rounded-2xl rounded-bl-sm px-3 py-1.5 max-w-[80%] bg-white/80">
+                            <p className="text-[9px] text-gray-700">{knowledgeSuggestions?.sampleConversation?.aiClarification || 'Can you tell me what crop this is? And would you like to take a photo of the affected leaves?'}</p>
+                          </div>
+                        </div>
+                        {/* User reply */}
+                        <div className="flex justify-end">
+                          <div className="rounded-2xl rounded-br-sm px-3 py-1.5 max-w-[75%]" style={{ background: activePrimary }}>
+                            <p className="text-[9px] text-white">{knowledgeSuggestions?.sampleConversation?.userReply || 'It\'s rice paddy, let me take a photo'}</p>
+                          </div>
+                        </div>
+                        {/* AI recommendation */}
+                        <div className="flex justify-start">
+                          <div className="rounded-2xl rounded-bl-sm px-3 py-2 max-w-[85%] bg-white/80">
+                            <p className="text-[9px] text-gray-700 mb-1.5">I think {demoScreenTitle} can help. Let me take you there.</p>
+                            <button onClick={() => { if (demoScreen) setActiveScreenIndex(screens.indexOf(demoScreen)); }}
+                              className="w-full py-1.5 rounded-lg text-white text-[9px] font-semibold flex items-center justify-center gap-1"
+                              style={{ background: activePrimary }}>
+                              <span>{demoScreenIcon}</span> Go to {demoScreenTitle}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Input bar */}
+                      <div className="mt-2 rounded-2xl bg-white/80 p-1.5 flex items-center gap-1.5">
+                        <button className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: activePrimary + '15' }}>
+                          <Camera size={10} style={{ color: activePrimary }} />
+                        </button>
+                        <div className="flex-1 h-6 rounded-full bg-gray-100 flex items-center px-2.5">
+                          <span className="text-[8px] text-gray-400">{hint}</span>
+                        </div>
+                        <button className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: activePrimary + '15' }}>
+                          <Mic size={10} style={{ color: activePrimary }} />
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()
             ) : (
+              /* Grid-first home or content screen */
               <>
                 <div className="flex items-center gap-2 px-5 py-3">
-                  {activeScreenIndex > 0 && <button onClick={() => setActiveScreenIndex(0)} className="opacity-50 hover:opacity-100"><ChevronLeft size={14} style={{ color: activePrimary }} /></button>}
-                  <span className="text-lg">{recipeIcon}</span>
+                  {!activeScreen.isHome && <button onClick={() => setActiveScreenIndex(screens.findIndex(s => s.isHome))} className="opacity-50 hover:opacity-100"><ChevronLeft size={14} style={{ color: activePrimary }} /></button>}
+                  <span className="text-lg">{activeScreen.isHome ? recipeIcon : (activeScreen.screenIcon || (activeScreen.templateId ? getScreenTemplate(activeScreen.templateId)?.emoji : '') || recipeIcon)}</span>
                   <span className="text-sm font-semibold truncate" style={{ color: activePrimary }}>{screenTitle(activeScreen)}</span>
                 </div>
-                <div className="flex-1 px-4 pb-4 overflow-y-auto">
+                <div className="flex-1 px-4 pb-4 overflow-y-auto flex flex-col justify-end">
                   <div className="space-y-2">{previewWidgets.map((w, i) => renderWidget(w, i))}</div>
                   {activeScreen.routing && activeScreen.routing.field && (
                     <div className="flex items-center gap-1 mt-2 px-2 py-1 rounded bg-white/50">
@@ -1277,18 +2060,21 @@ export function Studio() {
                 </div>
               </>
             )}
-            {(screens.length > 1 || introPage.enabled) && <div className="flex gap-1 justify-center pb-2 px-3">
-              {introPage.enabled && <button onClick={() => setPreviewIntro(true)} className="px-2 py-0.5 rounded-full text-[7px] font-medium cursor-pointer" style={{ background: previewIntro ? activePrimary : activePrimary + '20', color: previewIntro ? 'white' : activePrimary }}>Intro</button>}
-              {screens.map((s, i) => <button key={s.id} onClick={() => { setPreviewIntro(false); setActiveScreenIndex(i); }} className="px-2 py-0.5 rounded-full text-[7px] font-medium cursor-pointer" style={{ background: !previewIntro && i === activeScreenIndex ? activePrimary : activePrimary + '20', color: !previewIntro && i === activeScreenIndex ? 'white' : activePrimary }}>{s.isHome ? (recipeName || 'Home') : s.title}</button>)}
-            </div>}
+            {!previewIntro && (
+              <div className="flex gap-1 justify-center pb-2 px-3">
+                <button onClick={() => setPreviewIntro(true)} className="px-2 py-0.5 rounded-full text-[7px] font-medium cursor-pointer" style={{ background: previewIntro ? activePrimary : activePrimary + '20', color: previewIntro ? 'white' : activePrimary }}>Intro</button>
+                {screens.map((s, i) => <button key={s.id} onClick={() => { setPreviewIntro(false); setActiveScreenIndex(i); }} className="px-2 py-0.5 rounded-full text-[7px] font-medium cursor-pointer" style={{ background: !previewIntro && i === activeScreenIndex ? activePrimary : activePrimary + '20', color: !previewIntro && i === activeScreenIndex ? 'white' : activePrimary }}>{s.isHome ? (recipeName || 'Home') : s.title}</button>)}
+              </div>
+            )}
             <div className="flex justify-center pb-2"><div className="w-24 h-1 rounded-full" style={{ background: activePrimary + '40' }} /></div>
           </div>
+        </div>
         </div>
       </div>
 
       {/* ─── Dialogs ─── */}
       <Dialog open={showYamlPreview} onOpenChange={setShowYamlPreview}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Recipe YAML</DialogTitle><DialogDescription>Generated DSL configuration</DialogDescription></DialogHeader>
           <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-xs leading-relaxed overflow-x-auto whitespace-pre-wrap">{generateYaml()}</pre>
           <button onClick={downloadYaml} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#091A7A' }}><Download size={16} /> Download YAML File</button>
@@ -1303,26 +2089,102 @@ export function Studio() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showTemplatePicker} onOpenChange={setShowTemplatePicker}>
+      <Dialog open={showTemplatePicker} onOpenChange={v => { setShowTemplatePicker(v); if (!v) { setNewScreenTemplate(null); setNewScreenTitle(''); setNewScreenEmoji(''); } }}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>Add Screen</DialogTitle><DialogDescription>Choose a screen type for the new screen</DialogDescription></DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
-            {SCREEN_TEMPLATES.map(pkg => (
-              <button key={pkg.id} onClick={() => addScreenFromTemplate(pkg.id)}
-                className="flex flex-col gap-2 p-4 rounded-xl border-2 border-gray-200 text-left hover:border-gray-300 hover:bg-gray-50 transition-all">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{pkg.emoji}</span>
-                  <span className="text-sm font-semibold text-gray-900">{pkg.name}</span>
+          {!newScreenTemplate ? (
+            <>
+              <DialogHeader><DialogTitle>Add Screen</DialogTitle><DialogDescription>Choose a screen type</DialogDescription></DialogHeader>
+              <div className="grid grid-cols-2 gap-3">
+                {SCREEN_TEMPLATES.map(pkg => (
+                  <button key={pkg.id} onClick={() => { setNewScreenTemplate(pkg.id); setNewScreenTitle(pkg.name); setNewScreenEmoji(pkg.emoji); }}
+                    className="flex flex-col gap-2 p-4 rounded-xl border-2 border-gray-200 text-left hover:border-gray-300 hover:bg-gray-50 transition-all">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{pkg.emoji}</span>
+                      <span className="text-sm font-semibold text-gray-900">{pkg.name}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">{pkg.description}</p>
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (() => {
+            const tmpl = getScreenTemplate(newScreenTemplate);
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <button onClick={() => setNewScreenTemplate(null)} className="text-gray-400 hover:text-gray-600"><ChevronLeft size={18} /></button>
+                    <span>{tmpl?.emoji} {tmpl?.name}</span>
+                  </DialogTitle>
+                  <DialogDescription>Set a name and icon for this screen</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">Screen Title</label>
+                    <Input value={newScreenTitle} onChange={e => setNewScreenTitle(e.target.value)} placeholder="Screen title" autoFocus />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1.5 block">Icon</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[tmpl?.emoji || '\u{1F4CB}', '\u{1F4AC}', '\u{1F4F7}', '\u{1F9EE}', '\u{1F4CD}', '\u{1F4DD}', '\u{2705}',
+                        '\u{1F33E}', '\u{1F3E5}', '\u{1F6A8}', '\u{1F4DA}', '\u{1F4B0}', '\u{1F331}', '\u{2764}\u{FE0F}',
+                        '\u{1F50D}', '\u{2B50}', '\u{1F4A1}', '\u{1F3AF}', '\u{1F916}', '\u{1F30D}'].map(e => (
+                        <button key={e} onClick={() => setNewScreenEmoji(e)}
+                          className="w-9 h-9 rounded-lg flex items-center justify-center text-lg border-2 hover:scale-105"
+                          style={{ borderColor: newScreenEmoji === e ? '#091A7A' : '#E5E7EB', background: newScreenEmoji === e ? '#091A7A10' : 'white' }}>{e}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <button onClick={() => { addScreenFromTemplate(newScreenTemplate, newScreenTitle, newScreenEmoji); setNewScreenTemplate(null); setNewScreenTitle(''); setNewScreenEmoji(''); }}
+                    disabled={!newScreenTitle.trim()}
+                    className="w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90"
+                    style={{ background: newScreenTitle.trim() ? '#091A7A' : '#9CA3AF' }}>
+                    Create Screen
+                  </button>
                 </div>
-                <p className="text-xs text-gray-500">{pkg.description}</p>
-                <div className="flex flex-wrap gap-1">
-                  {pkg.widgets.filter(w => w.defaultOn).map(w => (
-                    <span key={w.wid} className="text-[9px] px-1 py-0.5 rounded bg-gray-100 text-gray-500">{w.type.replace(/_/g, ' ')}</span>
-                  ))}
-                </div>
-              </button>
-            ))}
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Icon Picker Dialog */}
+      <Dialog open={showIconPicker} onOpenChange={setShowIconPicker}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Choose Icon</DialogTitle><DialogDescription>Select a recipe icon</DialogDescription></DialogHeader>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {EMOJI_ICONS.map(e => <button key={e} onClick={() => { setRecipeIcon(e); setShowIconPicker(false); }}
+              className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl border-2 hover:scale-110 transition-transform"
+              style={{ borderColor: recipeIcon === e ? '#091A7A' : '#E5E7EB', background: recipeIcon === e ? '#091A7A10' : 'white' }}>{e}</button>)}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Theme Picker Dialog */}
+      <Dialog open={showThemePicker} onOpenChange={setShowThemePicker}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Choose Theme</DialogTitle><DialogDescription>Select a color theme</DialogDescription></DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            {THEMES.map(t => <button key={t.key} onClick={() => { setSelectedTheme(t.key); if (t.key !== 'custom') setShowThemePicker(false); }}
+              className="flex items-center gap-3 p-3 rounded-xl border-2 text-left"
+              style={{ borderColor: selectedTheme === t.key ? '#091A7A' : '#E5E7EB', background: selectedTheme === t.key ? '#F8FAFC' : 'white' }}>
+              <div className="flex gap-1"><div className="w-6 h-6 rounded-full" style={{ background: t.primary }} /><div className="w-6 h-6 rounded-full" style={{ background: t.secondary }} /></div>
+              <span className="text-xs font-medium text-gray-700">{t.label}</span>
+            </button>)}
+          </div>
+          {selectedTheme === 'custom' && <div className="flex gap-4 mt-2"><div><label className="text-xs text-gray-500 mb-1 block">Primary</label><Input value={customPrimary} onChange={e => setCustomPrimary(e.target.value)} className="w-32" /></div><div><label className="text-xs text-gray-500 mb-1 block">Secondary</label><Input value={customSecondary} onChange={e => setCustomSecondary(e.target.value)} className="w-32" /></div></div>}
+        </DialogContent>
+      </Dialog>
+
+      {/* Language Picker Dialog */}
+      <Dialog open={showLangDialog} onOpenChange={setShowLangDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Target Languages</DialogTitle><DialogDescription>Select languages your recipe should support</DialogDescription></DialogHeader>
+          <div className="px-1 py-2 border-b border-gray-100"><div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-50"><Search size={14} className="text-gray-400" /><input value={langSearch} onChange={e => setLangSearch(e.target.value)} placeholder="Search languages..." className="bg-transparent text-xs outline-none flex-1 text-gray-700" /></div></div>
+          <div className="max-h-72 overflow-y-auto">
+            {filteredGroups.map(g => <div key={g.label} className="mb-2"><p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-2 py-1">{g.label}</p><div className="grid grid-cols-2 gap-1">{g.languages.map(l => { const sel = selectedLanguages.includes(l.code); return <button key={l.code} onClick={() => toggleLanguage(l.code)} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-left text-xs" style={{ background: sel ? '#091A7A' : 'transparent', color: sel ? 'white' : '#4B5563' }}>{sel && <Check size={10} />}<span className="font-medium">{l.label}</span><span className="opacity-50 text-[10px] ml-auto">{l.native}</span></button>; })}</div></div>)}
+          </div>
+          {selectedLanguages.length > 0 && <div className="pt-2 border-t border-gray-100 flex flex-wrap gap-1">{selectedLanguages.map(code => { const l = ALL_LANGUAGES.find(x => x.code === code); return <span key={code} className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-medium text-white" style={{ background: '#091A7A' }}>{l?.label || code}<button onClick={() => toggleLanguage(code)}><X size={8} className="opacity-60" /></button></span>; })}</div>}
         </DialogContent>
       </Dialog>
     </div>

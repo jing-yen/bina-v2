@@ -1,21 +1,13 @@
+import { useState, useEffect } from 'react';
 import { TrendingUp, Download, Globe, Users, BarChart3, Award, Star, MessageSquare } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
+import { fetchPlatformStats, fetchRegionCounts, type PlatformStats, type RegionCount } from '../../lib/analyticsService';
 
-const DOWNLOAD_DATA = [
-  { month: 'Jan', downloads: 1200 },
-  { month: 'Feb', downloads: 1900 },
-  { month: 'Mar', downloads: 2500 },
-  { month: 'Apr', downloads: 3200 },
-  { month: 'May', downloads: 4100 },
-  { month: 'Jun', downloads: 5400 },
-];
-
-const REGIONAL_DATA = [
-  { region: 'Indonesia', percentage: 45, count: 6800 },
-  { region: 'Philippines', percentage: 28, count: 4200 },
-  { region: 'Vietnam', percentage: 18, count: 2700 },
-  { region: 'Thailand', percentage: 9, count: 1300 },
-];
+const COUNTRY_NAMES: Record<string, string> = {
+  ID: 'Indonesia', MY: 'Malaysia', PH: 'Philippines', VN: 'Vietnam',
+  TH: 'Thailand', MM: 'Myanmar', KH: 'Cambodia', LA: 'Laos',
+  SG: 'Singapore', BN: 'Brunei', TL: 'Timor-Leste',
+};
 
 const FEEDBACK = [
   { user: 'Siti R.', location: 'East Java', text: 'Farm Buddy helped me identify crop disease early. Saved my harvest!', rating: 5 },
@@ -24,6 +16,17 @@ const FEEDBACK = [
 ];
 
 export function Analytics() {
+  const [stats, setStats] = useState<PlatformStats | null>(null);
+  const [regions, setRegions] = useState<RegionCount[]>([]);
+
+  useEffect(() => {
+    fetchPlatformStats().then(setStats).catch(() => {});
+    fetchRegionCounts().then(setRegions).catch(() => {});
+  }, []);
+
+  const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
+  const totalRegionCount = regions.reduce((a, r) => a + r.count, 0) || 1;
+
   return (
     <div className="p-8 max-w-6xl mx-auto">
       {/* Header */}
@@ -41,11 +44,11 @@ export function Analytics() {
               <Download size={20} className="text-green-600" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">22.2K</p>
+          <p className="text-2xl font-bold text-gray-900">{stats ? formatCount(stats.totalDownloads) : '—'}</p>
           <p className="text-sm text-gray-500 mt-1">Total Downloads</p>
           <div className="flex items-center gap-1 mt-2">
             <TrendingUp size={14} className="text-green-600" />
-            <span className="text-xs font-semibold text-green-600">+21% this month</span>
+            <span className="text-xs font-semibold text-green-600">Live from Firestore</span>
           </div>
         </div>
 
@@ -56,7 +59,7 @@ export function Analytics() {
               <Award size={20} className="text-amber-500" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">4.7</p>
+          <p className="text-2xl font-bold text-gray-900">{stats && stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—'}</p>
           <p className="text-sm text-gray-500 mt-1">Average Rating</p>
           <div className="flex gap-0.5 mt-2">
             {[1, 2, 3, 4, 5].map(s => (
@@ -72,11 +75,11 @@ export function Analytics() {
               <Users size={20} style={{ color: '#091A7A' }} />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">8.4K</p>
+          <p className="text-2xl font-bold text-gray-900">{stats ? formatCount(stats.uniqueDevices) : '—'}</p>
           <p className="text-sm text-gray-500 mt-1">Active Users</p>
           <div className="flex items-center gap-1 mt-2">
             <TrendingUp size={14} className="text-green-600" />
-            <span className="text-xs font-semibold text-green-600">+15% weekly</span>
+            <span className="text-xs font-semibold text-green-600">Unique devices</span>
           </div>
         </div>
 
@@ -87,7 +90,7 @@ export function Analytics() {
               <Globe size={20} className="text-blue-500" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">12</p>
+          <p className="text-2xl font-bold text-gray-900">{stats ? stats.countriesReached : '—'}</p>
           <p className="text-sm text-gray-500 mt-1">Countries Reached</p>
           <p className="text-xs text-blue-500 mt-2">Southeast Asia focused</p>
         </div>
@@ -103,11 +106,11 @@ export function Analytics() {
           </div>
           <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={DOWNLOAD_DATA}>
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
+              <BarChart data={regions.slice(0, 6).map(r => ({ name: COUNTRY_NAMES[r.countryCode] || r.countryCode, downloads: r.count }))}>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 11 }} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
                 <Bar dataKey="downloads" radius={[6, 6, 0, 0]}>
-                  {DOWNLOAD_DATA.map((_entry, index) => (
+                  {regions.slice(0, 6).map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill="#091A7A" />
                   ))}
                 </Bar>
@@ -120,20 +123,24 @@ export function Analytics() {
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
           <h3 className="text-base font-semibold text-gray-900 mb-4">Regional Distribution</h3>
           <div className="space-y-4">
-            {REGIONAL_DATA.map((region) => (
-              <div key={region.region}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-sm font-medium text-gray-800">{region.region}</span>
-                  <span className="text-xs text-gray-500">{region.count.toLocaleString()} downloads</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
-                    <div className="h-full rounded-full" style={{ background: '#091A7A', width: `${region.percentage}%` }} />
+            {(regions.length > 0 ? regions.slice(0, 6) : [{ countryCode: '—', count: 0 }]).map((rc) => {
+              const pct = Math.round((rc.count / totalRegionCount) * 100);
+              const name = COUNTRY_NAMES[rc.countryCode] || rc.countryCode;
+              return (
+                <div key={rc.countryCode}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm font-medium text-gray-800">{name}</span>
+                    <span className="text-xs text-gray-500">{rc.count.toLocaleString()} downloads</span>
                   </div>
-                  <span className="text-xs font-semibold text-gray-700 min-w-[32px] text-right">{region.percentage}%</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-2 rounded-full bg-gray-100 overflow-hidden">
+                      <div className="h-full rounded-full" style={{ background: '#091A7A', width: `${pct}%` }} />
+                    </div>
+                    <span className="text-xs font-semibold text-gray-700 min-w-[32px] text-right">{pct}%</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

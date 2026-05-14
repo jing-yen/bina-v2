@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.ViewModelProvider
+import com.bina.ai.hub.FirestoreRecipeSource
 import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
@@ -38,16 +39,17 @@ import com.bina.ai.ui.theme.BinaGrayText
 fun HubScreen(
     miniAppRepository: MiniAppRepository,
     installStore: InstallStore,
+    firestoreRecipeSource: FirestoreRecipeSource? = null,
     onConfigureRecipe: (recipeId: String) -> Unit,
     onOpenRecipe: (recipeId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val factory = remember(miniAppRepository, installStore) {
+    val factory = remember(miniAppRepository, installStore, firestoreRecipeSource) {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
-                HubViewModel(miniAppRepository, installStore) as T
+                HubViewModel(miniAppRepository, installStore, firestoreRecipeSource) as T
         }
     }
     val vm: HubViewModel = viewModel(factory = factory)

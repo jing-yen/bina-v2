@@ -9,6 +9,22 @@ import { CURRENT_RECIPE_VERSION, defaultIntroPage } from '../components/bina/rec
 const COLLECTION = 'recipes';
 const recipesRef = collection(db, COLLECTION);
 
+function stripUndefined(obj: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([, v]) => v !== undefined)
+      .map(([k, v]) => [k, cleanValue(v)]),
+  );
+}
+
+function cleanValue(v: unknown): unknown {
+  if (v === null || v === undefined) return v;
+  if (v instanceof Timestamp || v instanceof Date) return v;
+  if (Array.isArray(v)) return v.map(cleanValue);
+  if (typeof v === 'object') return stripUndefined(v as Record<string, unknown>);
+  return v;
+}
+
 function migrateRecipe(data: Record<string, unknown>): Record<string, unknown> {
   const version = (data._version as number) || 1;
   const migrated = { ...data };
@@ -59,15 +75,15 @@ export async function createRecipe(config: RecipeConfig): Promise<string> {
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
   };
-  const ref = await addDoc(recipesRef, docData);
+  const ref = await addDoc(recipesRef, stripUndefined(docData));
   return ref.id;
 }
 
 export async function updateRecipe(id: string, config: Partial<RecipeConfig>): Promise<void> {
-  await updateDoc(doc(db, COLLECTION, id), {
+  await updateDoc(doc(db, COLLECTION, id), stripUndefined({
     ...config,
     updatedAt: Timestamp.now(),
-  });
+  }));
 }
 
 export async function deleteRecipe(id: string): Promise<void> {

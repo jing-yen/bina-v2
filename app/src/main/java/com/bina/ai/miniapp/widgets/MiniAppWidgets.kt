@@ -31,15 +31,21 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -81,7 +87,7 @@ fun TextLabelWidget(widget: Widget.TextLabel, store: VariableStore, themeColor: 
         else -> 15.sp to FontWeight.Normal
     }
     val color = if (widget.color.isNotEmpty()) parseColor(widget.color) else {
-        if (widget.style == "caption") BinaGrayText else Color(0xFF1A1A2E)
+        if (widget.style == "caption") BinaGrayText else themeColor
     }
 
     Text(
@@ -110,23 +116,100 @@ fun TextInputWidget(widget: Widget.TextInput, store: VariableStore, themeColor: 
         )
     }
 
-    OutlinedTextField(
-        value = value,
-        onValueChange = { store[widget.bind] = it },
-        placeholder = { Text(widget.hint, color = BinaGrayText, fontSize = 14.sp) },
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = themeColor,
-            cursorColor = themeColor
-        ),
-        keyboardOptions = when (widget.inputType) {
-            "number" -> KeyboardOptions(keyboardType = KeyboardType.Number)
-            else -> KeyboardOptions.Default
-        },
-        singleLine = widget.inputType != "multiline",
-        minLines = if (widget.inputType == "multiline") 3 else 1
-    )
+    when (widget.inputType) {
+        "dropdown" -> {
+            var expanded by remember { mutableStateOf(false) }
+            Box(Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .border(1.dp, if (expanded) themeColor else Color(0xFFCACACA), RoundedCornerShape(14.dp))
+                        .clickable { expanded = true }
+                        .padding(horizontal = 16.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            value.ifEmpty { widget.hint.ifEmpty { "Select..." } },
+                            fontSize = 14.sp,
+                            color = if (value.isEmpty()) BinaGrayText else Color(0xFF1A1A2E)
+                        )
+                        Icon(
+                            Icons.Filled.ArrowDropDown,
+                            contentDescription = null,
+                            tint = BinaGrayText
+                        )
+                    }
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.fillMaxWidth(0.9f)
+                ) {
+                    widget.options.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option, fontSize = 14.sp) },
+                            onClick = {
+                                store[widget.bind] = option
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        "toggle" -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Color.White)
+                    .border(1.dp, Color(0xFFE5E5E5), RoundedCornerShape(14.dp))
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    widget.label.ifEmpty { widget.hint },
+                    fontSize = 14.sp,
+                    color = Color(0xFF1A1A2E)
+                )
+                Switch(
+                    checked = value == "true",
+                    onCheckedChange = { store[widget.bind] = it.toString() },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = themeColor
+                    )
+                )
+            }
+        }
+        else -> {
+            OutlinedTextField(
+                value = value,
+                onValueChange = { store[widget.bind] = it },
+                placeholder = { Text(widget.hint, color = BinaGrayText, fontSize = 14.sp) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = themeColor,
+                    cursorColor = themeColor
+                ),
+                keyboardOptions = when (widget.inputType) {
+                    "number" -> KeyboardOptions(keyboardType = KeyboardType.Number)
+                    else -> KeyboardOptions.Default
+                },
+                singleLine = widget.inputType != "multiline",
+                minLines = if (widget.inputType == "multiline") 3 else 1
+            )
+        }
+    }
 }
 
 // ── VoiceInput ─────────────────────────────────────────────
@@ -265,10 +348,9 @@ fun CameraInputWidget(widget: Widget.CameraInput, store: VariableStore, themeCol
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(if (hasPhoto) 200.dp else 120.dp)
+            .height(if (hasPhoto) 200.dp else 100.dp)
             .clip(RoundedCornerShape(16.dp))
-            .border(2.dp, themeColor.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
-            .background(themeColor.copy(alpha = 0.05f))
+            .background(if (hasPhoto) Color.Transparent else Color(0xFF1F2937))
             .clickable {
                 val hasPermission = ContextCompat.checkSelfPermission(
                     context, Manifest.permission.CAMERA
@@ -287,7 +369,7 @@ fun CameraInputWidget(widget: Widget.CameraInput, store: VariableStore, themeCol
                 contentDescription = "Captured photo",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(if (hasPhoto) 200.dp else 120.dp)
+                    .height(if (hasPhoto) 200.dp else 100.dp)
                     .clip(RoundedCornerShape(16.dp)),
                 contentScale = ContentScale.Crop
             )
@@ -311,20 +393,12 @@ fun CameraInputWidget(widget: Widget.CameraInput, store: VariableStore, themeCol
                 }
             }
         } else {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    Icons.Filled.CameraAlt,
-                    contentDescription = "Camera",
-                    modifier = Modifier.size(32.dp),
-                    tint = themeColor
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    widget.label,
-                    fontSize = 14.sp,
-                    color = BinaGrayText
-                )
-            }
+            Icon(
+                Icons.Filled.CameraAlt,
+                contentDescription = "Camera",
+                modifier = Modifier.size(28.dp),
+                tint = Color.White.copy(alpha = 0.5f)
+            )
         }
     }
 }
@@ -340,8 +414,8 @@ fun MacroGridWidget(
 ) {
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         maxItemsInEachRow = widget.columns
     ) {
         widget.buttons.forEach { button ->
@@ -350,21 +424,29 @@ fun MacroGridWidget(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .height(56.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(btnColor.copy(alpha = 0.1f))
-                    .border(1.dp, btnColor.copy(alpha = 0.2f), RoundedCornerShape(14.dp))
-                    .clickable { onAction(button.action) },
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White)
+                    .clickable { onAction(button.action) }
+                    .padding(vertical = 14.dp, horizontal = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    button.label,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = btnColor,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (button.icon.isNotEmpty()) {
+                        Text(
+                            button.icon,
+                            fontSize = 22.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                    }
+                    Text(
+                        button.label,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = btnColor,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                }
             }
         }
     }
@@ -426,10 +508,37 @@ fun ActionButtonWidget(
     onAction: (String) -> Unit
 ) {
     val label = if (widget.icon.isNotEmpty()) "${widget.icon} ${widget.label}" else widget.label
+    var showConfirm by remember { mutableStateOf(false) }
+
+    val handleClick: () -> Unit = {
+        if (!isLoading) {
+            if (widget.confirm.isNotEmpty()) showConfirm = true
+            else onAction(widget.action)
+        }
+    }
+
+    if (showConfirm) {
+        AlertDialog(
+            onDismissRequest = { showConfirm = false },
+            title = { Text("Confirm", fontWeight = FontWeight.SemiBold) },
+            text = { Text(store.interpolate(widget.confirm), fontSize = 14.sp) },
+            confirmButton = {
+                Button(
+                    onClick = { showConfirm = false; onAction(widget.action) },
+                    colors = ButtonDefaults.buttonColors(containerColor = themeColor)
+                ) { Text("Confirm", color = Color.White) }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     when (widget.style) {
         "secondary" -> OutlinedButton(
-            onClick = { if (!isLoading) onAction(widget.action) },
+            onClick = handleClick,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(14.dp),
             enabled = !isLoading
@@ -437,7 +546,7 @@ fun ActionButtonWidget(
             Text(label, fontSize = 15.sp)
         }
         "danger" -> Button(
-            onClick = { if (!isLoading) onAction(widget.action) },
+            onClick = handleClick,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)),
@@ -446,7 +555,7 @@ fun ActionButtonWidget(
             Text(label, fontSize = 15.sp, color = Color.White)
         }
         else -> Button(
-            onClick = { if (!isLoading) onAction(widget.action) },
+            onClick = handleClick,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(containerColor = themeColor),
@@ -473,16 +582,21 @@ fun MarkdownOutputWidget(widget: Widget.MarkdownOutput, store: VariableStore, th
     val isLoading = store.isTrue("is_loading")
 
     if (content.isEmpty() && !isLoading) {
-        if (widget.emptyText.isNotEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFFF0F4FF))
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(Color.White.copy(alpha = 0.5f))
+                .padding(16.dp)
+        ) {
+            if (widget.emptyText.isNotEmpty()) {
                 Text(widget.emptyText, fontSize = 14.sp, color = BinaGrayText)
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFFE5E7EB).copy(alpha = 0.5f)))
+                    Box(Modifier.fillMaxWidth(0.8f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFFE5E7EB).copy(alpha = 0.5f)))
+                    Box(Modifier.fillMaxWidth(0.6f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(Color(0xFFE5E7EB).copy(alpha = 0.5f)))
+                }
             }
         }
         return
@@ -619,6 +733,120 @@ fun GeoDisplayWidget(
                         color = themeColor
                     )
                 }
+            }
+        }
+    }
+}
+
+// ── ProgressBar ───────────────────────────────────────────
+
+@Composable
+fun ProgressBarWidget(widget: Widget.ProgressBar, store: VariableStore, themeColor: Color) {
+    val current = store[widget.bind].toIntOrNull() ?: 0
+    val progress = (current.toFloat() / widget.total.coerceAtLeast(1)).coerceIn(0f, 1f)
+
+    Column(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                "Step $current of ${widget.total}",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF1A1A2E)
+            )
+            Text(
+                "${(progress * 100).toInt()}%",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = themeColor
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        androidx.compose.material3.LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(RoundedCornerShape(4.dp)),
+            color = themeColor,
+            trackColor = themeColor.copy(alpha = 0.12f),
+        )
+    }
+}
+
+// ── ChecklistItems ────────────────────────────────────────
+
+@Composable
+fun ChecklistItemsWidget(widget: Widget.ChecklistItems, store: VariableStore, themeColor: Color) {
+    val currentStep = store[widget.bind].toIntOrNull() ?: 0
+
+    Column(
+        Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        widget.items.forEachIndexed { index, item ->
+            val isDone = index < currentStep
+            val isCurrent = index == currentStep
+            val isFuture = index > currentStep
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        when {
+                            isCurrent -> themeColor.copy(alpha = 0.1f)
+                            else -> Color.White
+                        }
+                    )
+                    .border(
+                        width = if (isCurrent) 1.5.dp else 0.dp,
+                        color = if (isCurrent) themeColor.copy(alpha = 0.3f) else Color.Transparent,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isDone) {
+                    Icon(
+                        Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        tint = themeColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .border(
+                                2.dp,
+                                if (isCurrent) themeColor else BinaGrayText.copy(alpha = 0.4f),
+                                RoundedCornerShape(10.dp)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "${index + 1}",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isCurrent) themeColor else BinaGrayText
+                        )
+                    }
+                }
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    item.label,
+                    fontSize = 14.sp,
+                    fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Normal,
+                    color = when {
+                        isDone -> BinaGrayText
+                        isFuture -> BinaGrayText.copy(alpha = 0.6f)
+                        else -> Color(0xFF1A1A2E)
+                    },
+                    textDecoration = if (isDone) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
+                )
             }
         }
     }

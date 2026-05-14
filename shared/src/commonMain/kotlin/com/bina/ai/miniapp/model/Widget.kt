@@ -24,6 +24,7 @@ sealed class Widget {
         val hint: String = "",
         val label: String = "",
         val inputType: String = "text",
+        val options: List<String> = emptyList(),
         override val visibleIf: String? = null,
         override val hiddenIf: String? = null
     ) : Widget()
@@ -107,6 +108,22 @@ sealed class Widget {
         val limit: Int = 5,
         val showDistance: Boolean = true,
         val emptyText: String = "",
+        override val visibleIf: String? = null,
+        override val hiddenIf: String? = null
+    ) : Widget()
+
+    @Serializable
+    data class ProgressBar(
+        val bind: String,
+        val total: Int = 3,
+        override val visibleIf: String? = null,
+        override val hiddenIf: String? = null
+    ) : Widget()
+
+    @Serializable
+    data class ChecklistItems(
+        val bind: String,
+        val items: List<ChecklistItem> = emptyList(),
         override val visibleIf: String? = null,
         override val hiddenIf: String? = null
     ) : Widget()

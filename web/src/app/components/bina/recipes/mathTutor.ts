@@ -29,7 +29,7 @@ export const MATH_TUTOR_RECIPE: RecipeConfig = {
       disabledWidgets: [],
     },
     {
-      id: 'practice', title: 'Practice Calculator', isHome: false, gridColumns: 2,
+      id: 'practice', title: 'Practice Calculator', isHome: false, gridColumns: 2, screenIcon: '\u{1F9EE}',
       templateId: 'calculator',
       fieldValues: {
         field_a_label: 'Number A', field_a_hint: 'First number',
@@ -40,9 +40,11 @@ export const MATH_TUTOR_RECIPE: RecipeConfig = {
         result_label: 'Answer', result_prefix: '', result_suffix: '',
       },
       disabledWidgets: ['input_c', 'input_d', 'slider'],
+      description: 'SCREEN: Practice Calculator | FUNCTION: Multiply two numbers | INPUTS: calc_a, calc_b | TRIGGERS: calculate, multiply, times, what is X times Y, kira',
+      prefillHints: { first_number: 'calc_a', second_number: 'calc_b' },
     },
     {
-      id: 'explainer', title: 'Photo Solver', isHome: false, gridColumns: 2,
+      id: 'explainer', title: 'Photo Solver', isHome: false, gridColumns: 2, screenIcon: '\u{1F4F8}',
       templateId: 'camera_analysis',
       fieldValues: {
         camera_label: 'Take Photo of Problem',
@@ -50,6 +52,8 @@ export const MATH_TUTOR_RECIPE: RecipeConfig = {
         ai_instruction: 'vision_ask:Look at this math problem. Solve it step by step, explaining each step clearly for a student. {{user_text}}',
       },
       disabledWidgets: [],
+      description: 'SCREEN: Photo Solver | FUNCTION: Solve a math problem from a photo | INPUTS: photo_path, user_text | TRIGGERS: solve this, take photo of homework, show my problem, help with this question',
+      prefillHints: { question_context: 'user_text' },
     },
   ],
   knowledgeSummary: '',

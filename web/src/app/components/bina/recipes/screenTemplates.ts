@@ -27,51 +27,18 @@ export const SCREEN_TEMPLATES: ScreenTemplate[] = [
     widgets: [
       { wid: 'text_label', type: 'text_label', optional: false, defaultOn: true, staticProps: { style: 'subheading' }, fieldMap: { heading: 'text' } },
       { wid: 'text_input', type: 'text_input', optional: false, defaultOn: true, staticProps: { bind: 'user_text' }, fieldMap: { hint: 'hint' } },
-      { wid: 'voice_input', type: 'voice_input', optional: true, defaultOn: false, staticProps: { bind: 'user_text', mode: 'tap' }, fieldMap: { hint: 'hint' } },
+      { wid: 'voice_input', type: 'voice_input', optional: true, defaultOn: true, staticProps: { bind: 'user_text', mode: 'tap' }, fieldMap: { hint: 'hint' } },
       { wid: 'action_button', type: 'action_button', optional: false, defaultOn: true, staticProps: { style: 'primary' }, fieldMap: { button_label: 'label', ai_instruction: 'action' } },
       { wid: 'markdown_output', type: 'markdown_output', optional: false, defaultOn: true, staticProps: { source: 'ai_response', streaming: 'true' }, fieldMap: {} },
     ],
     fields: [
-      { key: 'mode', label: 'Mode', placeholder: '', type: 'select', options: ['chat', 'form'], defaultValue: 'chat' },
+      { key: 'mode', label: 'Mode', placeholder: '', type: 'select', options: ['form', 'chat'], defaultValue: 'form' },
       { key: 'heading', label: 'Heading', placeholder: 'How can I help?', type: 'text', defaultValue: 'How can I help?' },
       { key: 'hint', label: 'Input hint', placeholder: 'Ask a question...', type: 'text', defaultValue: 'Ask a question...', showWhen: { field: 'mode', value: 'chat' } },
       { key: 'q1', label: 'Question 1', placeholder: 'e.g. What is your name?', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'chat' } },
       { key: 'q2', label: 'Question 2', placeholder: 'e.g. What do you need help with?', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'chat' } },
       { key: 'q3', label: 'Question 3', placeholder: '', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'chat' } },
       { key: 'q4', label: 'Question 4', placeholder: '', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'chat' } },
-      // Form mode fields
-      { key: 'f1_label', label: 'Field 1', placeholder: 'e.g. Full Name', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'form' } },
-      { key: 'f1_type', label: 'Type 1', placeholder: '', type: 'select', options: ['text', 'number', 'dropdown', 'toggle'], defaultValue: 'text', showWhen: { field: 'mode', value: 'form' } },
-      { key: 'f1_options', label: 'Options 1', placeholder: 'opt1, opt2, opt3', type: 'text', defaultValue: '', showWhen: [{ field: 'mode', value: 'form' }, { field: 'f1_type', value: 'dropdown' }] },
-      { key: 'f2_label', label: 'Field 2', placeholder: 'e.g. Age', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'form' } },
-      { key: 'f2_type', label: 'Type 2', placeholder: '', type: 'select', options: ['text', 'number', 'dropdown', 'toggle'], defaultValue: 'text', showWhen: { field: 'mode', value: 'form' } },
-      { key: 'f2_options', label: 'Options 2', placeholder: 'opt1, opt2, opt3', type: 'text', defaultValue: '', showWhen: [{ field: 'mode', value: 'form' }, { field: 'f2_type', value: 'dropdown' }] },
-      { key: 'f3_label', label: 'Field 3', placeholder: 'e.g. Location', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'form' } },
-      { key: 'f3_type', label: 'Type 3', placeholder: '', type: 'select', options: ['text', 'number', 'dropdown', 'toggle'], defaultValue: 'text', showWhen: { field: 'mode', value: 'form' } },
-      { key: 'f3_options', label: 'Options 3', placeholder: 'opt1, opt2, opt3', type: 'text', defaultValue: '', showWhen: [{ field: 'mode', value: 'form' }, { field: 'f3_type', value: 'dropdown' }] },
-      { key: 'f4_label', label: 'Field 4', placeholder: '', type: 'text', defaultValue: '', showWhen: { field: 'mode', value: 'form' } },
-      { key: 'f4_type', label: 'Type 4', placeholder: '', type: 'select', options: ['text', 'number', 'dropdown', 'toggle'], defaultValue: 'text', showWhen: { field: 'mode', value: 'form' } },
-      { key: 'f4_options', label: 'Options 4', placeholder: 'opt1, opt2, opt3', type: 'text', defaultValue: '', showWhen: [{ field: 'mode', value: 'form' }, { field: 'f4_type', value: 'dropdown' }] },
-      { key: 'button_label', label: 'Button label', placeholder: 'Ask', type: 'text', defaultValue: 'Ask' },
-      { key: 'ai_instruction', label: 'AI instruction', placeholder: 'ask:{{user_text}}', type: 'textarea', defaultValue: 'ask:{{user_text}}' },
-    ],
-  },
-  {
-    id: 'voice_ask', name: 'Voice Ask', emoji: '\u{1F3A4}', description: 'Speak a question, get AI response',
-    widgets: [
-      { wid: 'text_label', type: 'text_label', optional: false, defaultOn: true, staticProps: { style: 'subheading' }, fieldMap: { heading: 'text' } },
-      { wid: 'voice_input', type: 'voice_input', optional: false, defaultOn: true, staticProps: { bind: 'user_text', mode: 'tap' }, fieldMap: { hint: 'hint' } },
-      { wid: 'text_input', type: 'text_input', optional: true, defaultOn: false, staticProps: { bind: 'user_text', hint: 'Or type instead...' }, fieldMap: {} },
-      { wid: 'action_button', type: 'action_button', optional: false, defaultOn: true, staticProps: { style: 'primary' }, fieldMap: { button_label: 'label', ai_instruction: 'action' } },
-      { wid: 'markdown_output', type: 'markdown_output', optional: false, defaultOn: true, staticProps: { source: 'ai_response', streaming: 'true' }, fieldMap: {} },
-    ],
-    fields: [
-      { key: 'heading', label: 'Heading', placeholder: 'How can I help?', type: 'text', defaultValue: 'How can I help?' },
-      { key: 'hint', label: 'Voice hint', placeholder: 'Tap to speak...', type: 'text', defaultValue: 'Tap to speak...' },
-      { key: 'q1', label: 'Question 1', placeholder: 'e.g. What is your name?', type: 'text', defaultValue: '' },
-      { key: 'q2', label: 'Question 2', placeholder: 'e.g. What do you need help with?', type: 'text', defaultValue: '' },
-      { key: 'q3', label: 'Question 3', placeholder: '', type: 'text', defaultValue: '' },
-      { key: 'q4', label: 'Question 4', placeholder: '', type: 'text', defaultValue: '' },
       { key: 'button_label', label: 'Button label', placeholder: 'Ask', type: 'text', defaultValue: 'Ask' },
       { key: 'ai_instruction', label: 'AI instruction', placeholder: 'ask:{{user_text}}', type: 'textarea', defaultValue: 'ask:{{user_text}}' },
     ],
@@ -167,6 +134,76 @@ export function createScreen(templateId: string, fieldOverrides?: Record<string,
   return { templateId, fieldValues, disabledWidgets };
 }
 
+export function generateScreenDescription(screen: ScreenConfig): string {
+  if (!screen.templateId) return '';
+  const def = getScreenTemplate(screen.templateId);
+  if (!def) return '';
+  const title = screen.title || def.name;
+  const widgets = def.widgets.filter(w => !screen.disabledWidgets.includes(w.wid));
+  const inputs = widgets.filter(w => w.staticProps.bind).map(w => w.staticProps.bind);
+  const fieldSummary = def.fields
+    .filter(f => screen.fieldValues[f.key] && !['mode', 'formula_template', 'completion_action'].includes(f.key))
+    .map(f => {
+      const val = screen.fieldValues[f.key];
+      if (!val || val === f.defaultValue) return null;
+      return `${f.label}: ${val}`;
+    })
+    .filter(Boolean)
+    .slice(0, 3)
+    .join(', ');
+  const parts = [`SCREEN: ${title}`, `FUNCTION: ${def.description}`];
+  if (inputs.length) parts.push(`INPUTS: ${inputs.join(', ')}`);
+  if (fieldSummary) parts.push(`CONTEXT: ${fieldSummary}`);
+  return parts.join(' | ');
+}
+
+export function generatePrefillHints(screen: ScreenConfig): Record<string, string> {
+  if (!screen.templateId) return {};
+  const def = getScreenTemplate(screen.templateId);
+  if (!def) return {};
+  const hints: Record<string, string> = {};
+  for (const widget of def.widgets) {
+    if (screen.disabledWidgets.includes(widget.wid)) continue;
+    const bind = widget.staticProps.bind;
+    if (!bind) continue;
+    for (const [fieldKey, propKey] of Object.entries(widget.fieldMap)) {
+      if (propKey !== 'label' && propKey !== 'hint') continue;
+      const label = screen.fieldValues[fieldKey];
+      if (!label) continue;
+      const key = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+      if (key) hints[key] = bind;
+    }
+  }
+  if (screen.templateId === 'ask_ai' && screen.fieldValues.mode === 'form') {
+    const fieldCount = parseInt(screen.fieldValues.form_field_count || '2') || 2;
+    for (let i = 1; i <= fieldCount; i++) {
+      const label = screen.fieldValues[`f${i}_label`];
+      if (!label) continue;
+      const key = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+      if (key) hints[key] = `form_f${i}`;
+    }
+  }
+  return hints;
+}
+
+export function getScreenAcceptedInputs(screen: ScreenConfig): string[] {
+  if (!screen.templateId) return [];
+  const def = getScreenTemplate(screen.templateId);
+  if (!def) return [];
+  const inputs: string[] = [];
+  for (const widget of def.widgets) {
+    if (screen.disabledWidgets.includes(widget.wid)) continue;
+    if (widget.staticProps.bind) inputs.push(widget.staticProps.bind);
+  }
+  if (screen.templateId === 'ask_ai' && screen.fieldValues.mode === 'form') {
+    const fieldCount = parseInt(screen.fieldValues.form_field_count || '2') || 2;
+    for (let i = 1; i <= fieldCount; i++) {
+      if (screen.fieldValues[`f${i}_label`]) inputs.push(`form_f${i}`);
+    }
+  }
+  return [...new Set(inputs)];
+}
+
 export function parseChecklistSteps(stepsStr: string): { label: string; type: string }[] {
   return stepsStr.split('\n').filter(Boolean).map(line => {
     const [label, type] = line.split('|', 2).map(s => s.trim());
@@ -195,13 +232,20 @@ export function resolveTemplateWidgets(screen: ScreenConfig): WidgetConfig[] {
     const filtered = widgets.filter(w => !(w.type === 'text_input' && w.props.bind === 'user_text'));
     const btnIdx = filtered.findIndex(w => w.type === 'action_button');
     const formWidgets: WidgetConfig[] = [];
-    for (let i = 1; i <= 4; i++) {
-      const label = screen.fieldValues[`f${i}_label`];
-      if (!label) continue;
+    const fieldCount = parseInt(screen.fieldValues.form_field_count || '2') || 2;
+    for (let i = 1; i <= fieldCount; i++) {
+      const label = screen.fieldValues[`f${i}_label`] || '';
       const fType = screen.fieldValues[`f${i}_type`] || 'text';
+      const options = screen.fieldValues[`f${i}_options`] || '';
       formWidgets.push({
         type: 'text_input',
-        props: { bind: `form_f${i}`, label, hint: label, input_type: fType === 'number' ? 'number' : 'text' },
+        props: {
+          bind: `form_f${i}`,
+          label: label || `Field ${i}`,
+          hint: label || `Field ${i}`,
+          input_type: fType,
+          ...(fType === 'dropdown' && options ? { options } : {}),
+        },
       });
     }
     filtered.splice(btnIdx >= 0 ? btnIdx : filtered.length, 0, ...formWidgets);
@@ -223,12 +267,13 @@ export function resolveTemplateWidgets(screen: ScreenConfig): WidgetConfig[] {
 
 export function resolveScreenWidgets(screen: ScreenConfig, allScreens: ScreenConfig[]): WidgetConfig[] {
   const widgets: WidgetConfig[] = [];
-  if (screen.isHome && allScreens.filter(s => !s.isHome).length > 0) {
+  const nonHomeScreens = allScreens.filter(s => !s.isHome);
+  if (screen.isHome && nonHomeScreens.length > 0 && !screen.templateId) {
     widgets.push({
       type: 'macro_grid',
       props: {
         columns: String(screen.gridColumns),
-        _allScreens: JSON.stringify(allScreens.filter(s => !s.isHome).map(s => ({ id: s.id, title: s.title }))),
+        _allScreens: JSON.stringify(nonHomeScreens.map(s => ({ id: s.id, title: s.title, icon: s.screenIcon }))),
       },
     });
   }

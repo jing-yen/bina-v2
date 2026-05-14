@@ -2,9 +2,11 @@ package com.bina.ai.ui.screens.hub
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bina.ai.hub.FirestoreRecipeSource
 import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
+import com.bina.ai.platform.Logger
 import com.bina.ai.ui.screens.hub.model.HubUiState
 import com.bina.ai.ui.screens.hub.model.Rail
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,16 +14,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 const val ALL_CATEGORY = "All"
 const val MIN_CATEGORY_RAIL_SIZE = 2
 
-/**
- * Pure rail-computation logic for the Builder Hub. Always shows an "All Recipes" rail;
- * adds per-category rails when a category has >= MIN_CATEGORY_RAIL_SIZE recipes.
- */
 fun computeRails(recipes: List<MiniApp>): List<Rail> = buildList {
     if (recipes.isNotEmpty()) add(Rail("All Recipes", recipes))
     recipes.groupBy { it.category }
@@ -35,22 +33,53 @@ fun computeRails(recipes: List<MiniApp>): List<Rail> = buildList {
 
 class HubViewModel(
     private val repo: MiniAppRepository,
-    private val installStore: InstallStore
+    private val installStore: InstallStore,
+    private val firestoreSource: FirestoreRecipeSource? = null
 ) : ViewModel() {
 
     private val _selectedCategory = MutableStateFlow(ALL_CATEGORY)
     val selectedCategory: StateFlow<String> = _selectedCategory.asStateFlow()
 
+    private val _cloudRecipes = MutableStateFlow<List<MiniApp>>(emptyList())
+
+    init {
+        if (firestoreSource != null) {
+            viewModelScope.launch {
+                try {
+                    _cloudRecipes.value = firestoreSource.fetchRecipes()
+                    Logger.d(TAG, "Loaded ${_cloudRecipes.value.size} cloud recipes")
+                } catch (e: Exception) {
+                    Logger.e(TAG, "Cloud recipe fetch failed", e)
+                }
+            }
+        }
+    }
+
     fun selectCategory(category: String) { _selectedCategory.value = category }
 
+    fun refreshCloud() {
+        if (firestoreSource == null) return
+        viewModelScope.launch {
+            try {
+                _cloudRecipes.value = firestoreSource.fetchRecipes()
+            } catch (e: Exception) {
+                Logger.e(TAG, "Cloud refresh failed", e)
+            }
+        }
+    }
+
     val uiState: StateFlow<HubUiState> = combine(
-        flowOf(repo.loadAll()),
+        _cloudRecipes,
         installStore.installs,
         _selectedCategory
-    ) { recipes, installs, category ->
-        val featured = recipes.filter { it.featured || it.emergency }
-        val categories = listOf(ALL_CATEGORY) + recipes.map { it.category }.filter { it.isNotBlank() }.toSortedSet()
-        val visibleRecipes = if (category == ALL_CATEGORY) recipes else recipes.filter { it.category == category }
+    ) { cloudRecipes, installs, category ->
+        val localRecipes = repo.loadAll()
+        val localIds = localRecipes.map { it.id }.toSet()
+        val merged = localRecipes + cloudRecipes.filter { it.id !in localIds }
+
+        val featured = merged.filter { it.featured || it.emergency }
+        val categories = listOf(ALL_CATEGORY) + merged.map { it.category }.filter { it.isNotBlank() }.toSortedSet()
+        val visibleRecipes = if (category == ALL_CATEGORY) merged else merged.filter { it.category == category }
         val rails = if (category == ALL_CATEGORY) computeRails(visibleRecipes) else emptyList()
         HubUiState.Loaded(
             allRecipes = visibleRecipes,
@@ -61,4 +90,8 @@ class HubViewModel(
             installedIds = installs.keys
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HubUiState.Loading)
+
+    companion object {
+        private const val TAG = "HubViewModel"
+    }
 }

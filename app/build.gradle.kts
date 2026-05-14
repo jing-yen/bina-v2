@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -79,6 +80,10 @@ dependencies {
 
     // Offline Sync — YAML parsing for RecipeImporter
     implementation("com.charleskorn.kaml:kaml:0.67.0")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+    implementation("com.google.firebase:firebase-firestore")
 
     // Unit tests
     testImplementation("junit:junit:4.13.2")

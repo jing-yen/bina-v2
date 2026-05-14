@@ -66,10 +66,10 @@ screens:
       - macro_grid:
           columns: 2
           buttons:
-            - { label: "Daily Profit", action: "go:profit" }
-            - { label: "Inventory Tips", action: "ask:Paano ko ayusin ang stock ng tindahan ko?" }
-            - { label: "Pricing Help", action: "ask:Magkano dapat ang dagdag presyo para may tubo?" }
-            - { label: "Cash Flow", action: "ask:Paano ko bantayan ang cash flow ng tindahan?" }
+            - { label: "Daily Profit", action: "go:profit", icon: "💰" }
+            - { label: "Inventory Tips", action: "ask:Paano ko ayusin ang stock ng tindahan ko?", icon: "📦" }
+            - { label: "Pricing Help", action: "ask:Magkano dapat ang dagdag presyo para may tubo?", icon: "🏷️" }
+            - { label: "Cash Flow", action: "ask:Paano ko bantayan ang cash flow ng tindahan?", icon: "📊" }
 
       - text_input:
           bind: user_text

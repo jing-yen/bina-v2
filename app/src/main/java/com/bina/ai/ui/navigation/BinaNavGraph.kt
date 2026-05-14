@@ -10,7 +10,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.bina.ai.analytics.tracking.AnalyticsPinger
 import com.bina.ai.analytics.tracking.EventTracker
+import com.bina.ai.hub.FirestoreRecipeSource
 import com.bina.ai.inference.InferenceEngine
 import com.bina.ai.install.CapabilityChecker
 import com.bina.ai.install.InstallStore
@@ -29,7 +31,9 @@ fun BinaNavGraph(
     capabilityChecker: CapabilityChecker,
     inferenceEngine: InferenceEngine? = null,
     eventTracker: EventTracker,
-    analyticsRepository: com.bina.ai.analytics.data.AnalyticsRepository
+    analyticsRepository: com.bina.ai.analytics.data.AnalyticsRepository,
+    firestoreRecipeSource: FirestoreRecipeSource? = null,
+    analyticsPinger: AnalyticsPinger? = null
 ) {
     NavHost(
         navController = navController,
@@ -43,6 +47,7 @@ fun BinaNavGraph(
             HubScreen(
                 miniAppRepository = miniAppRepository,
                 installStore = installStore,
+                firestoreRecipeSource = firestoreRecipeSource,
                 onConfigureRecipe = { id ->
                     navController.navigate(Screen.Configurator.createRoute(id))
                 },
@@ -126,6 +131,7 @@ fun BinaNavGraph(
                     miniApp = miniApp,
                     inferenceEngine = inferenceEngine,
                     eventTracker = eventTracker,
+                    analyticsPinger = analyticsPinger,
                     onBack = { navController.popBackStack() }
                 )
             }

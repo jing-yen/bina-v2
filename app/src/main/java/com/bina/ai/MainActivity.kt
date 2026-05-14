@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.bina.ai.analytics.tracking.AnalyticsPinger
+import com.bina.ai.hub.FirestoreRecipeSource
 import com.bina.ai.inference.InferenceEngine
 import com.bina.ai.inference.LiteRtLmEngine
 import com.bina.ai.install.CapabilityChecker
@@ -60,6 +62,8 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch { inferenceEngine.initialize() }
 
         val installStore = InstallStore.create(applicationContext)
+        val firestoreRecipeSource = try { FirestoreRecipeSource() } catch (_: Exception) { null }
+        val analyticsPinger = try { AnalyticsPinger(applicationContext) } catch (_: Exception) { null }
 
         // Analytics infrastructure
         val analyticsDb = com.bina.ai.analytics.data.AnalyticsDatabase.get(applicationContext)
@@ -109,7 +113,9 @@ class MainActivity : ComponentActivity() {
                             capabilityChecker = capabilityChecker,
                             inferenceEngine = inferenceEngine,
                             eventTracker = eventTracker,
-                            analyticsRepository = analyticsRepository
+                            analyticsRepository = analyticsRepository,
+                            firestoreRecipeSource = firestoreRecipeSource,
+                            analyticsPinger = analyticsPinger
                         )
                     }
 

@@ -28,7 +28,7 @@ export const FLOOD_RESPONSE_RECIPE: RecipeConfig = {
       disabledWidgets: [],
     },
     {
-      id: 'photo_assess', title: 'Photo Assessment', isHome: false, gridColumns: 2,
+      id: 'photo_assess', title: 'Photo Assessment', isHome: false, gridColumns: 2, screenIcon: '\u{1F4F7}',
       templateId: 'camera_analysis',
       fieldValues: {
         camera_label: 'Take Photo of Flood',
@@ -36,15 +36,19 @@ export const FLOOD_RESPONSE_RECIPE: RecipeConfig = {
         ai_instruction: 'vision_ask:Assess this flood photo. Estimate water level, identify hazards, rate danger (Low/Medium/High/Critical). Advise immediate actions. {{user_text}}',
       },
       disabledWidgets: [],
+      description: 'SCREEN: Photo Assessment | FUNCTION: Assess flood damage from photo | INPUTS: photo_path, user_text | TRIGGERS: take photo of flood, show flood, water level photo, assess damage',
+      prefillHints: { situation: 'user_text' },
     },
     {
-      id: 'evacuation', title: 'Evacuation Points', isHome: false, gridColumns: 2,
+      id: 'evacuation', title: 'Evacuation Points', isHome: false, gridColumns: 2, screenIcon: '\u{1F3E0}',
       templateId: 'nearby_places',
       fieldValues: { heading: 'Nearby Shelters & Evacuation Points' },
       disabledWidgets: [],
+      description: 'SCREEN: Evacuation Points | FUNCTION: Find nearby shelters and evacuation centres | TRIGGERS: where to go, evacuation, shelter, safe place, pusat pemindahan',
+      prefillHints: {},
     },
     {
-      id: 'supplies', title: 'Supply Calculator', isHome: false, gridColumns: 2,
+      id: 'supplies', title: 'Supply Calculator', isHome: false, gridColumns: 2, screenIcon: '\u{1F4E6}',
       templateId: 'calculator',
       fieldValues: {
         field_a_label: 'People', field_a_hint: 'Number of people',
@@ -55,9 +59,11 @@ export const FLOOD_RESPONSE_RECIPE: RecipeConfig = {
         result_label: 'Litres of water needed', result_prefix: '', result_suffix: ' L',
       },
       disabledWidgets: ['input_c', 'input_d'],
+      description: 'SCREEN: Supply Calculator | FUNCTION: Calculate emergency water and supply needs | INPUTS: calc_a, calc_b, calc_rate | TRIGGERS: how much water, supply needs, emergency kit, berapa air',
+      prefillHints: { number_of_people: 'calc_a', days: 'calc_b', buffer_percent: 'calc_rate' },
     },
     {
-      id: 'report', title: 'Report Flood', isHome: false, gridColumns: 2,
+      id: 'report', title: 'Report Flood', isHome: false, gridColumns: 2, screenIcon: '\u{1F4DD}',
       templateId: 'ask_ai',
       fieldValues: {
         mode: 'form', heading: 'Report Flood Conditions',
@@ -69,9 +75,12 @@ export const FLOOD_RESPONSE_RECIPE: RecipeConfig = {
         button_label: 'Submit Report', ai_instruction: 'ask:Flood report — Location: {{form_f1}}, Water level: {{form_f2}}, Road passable: {{form_f3}}, Notes: {{form_f4}}. Summarise this report and suggest priority actions.',
       },
       disabledWidgets: [],
+      description: 'SCREEN: Report Flood | FUNCTION: Submit a flood condition report form | INPUTS: form_f1, form_f2, form_f3, form_f4 | TRIGGERS: report flood, submit report, lapor banjir, water rising',
+      prefillHints: { location: 'form_f1', water_level: 'form_f2', road_passable: 'form_f3', notes: 'form_f4' },
     },
   ],
   knowledgeSummary: '',
+  maxClarifications: 1,
   introPage: {
     ...defaultIntroPage('For life-threatening emergencies, call your local emergency number immediately.'),
     enabled: true,

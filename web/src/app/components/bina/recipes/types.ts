@@ -53,6 +53,9 @@ export interface ScreenConfig {
   fieldValues: Record<string, string>;
   disabledWidgets: string[];
   routing?: ScreenRouting;
+  description?: string;
+  prefillHints?: Record<string, string>;
+  screenIcon?: string;
 }
 
 export interface KnowledgeFile {
@@ -71,6 +74,7 @@ export interface IntroPageConfig {
   authorVerified: boolean;
   links: { label: string; url: string }[];
   acceptLabel: string;
+  coverPhoto?: string;
 }
 
 export function defaultIntroPage(disclaimer?: string): IntroPageConfig {
@@ -79,7 +83,7 @@ export function defaultIntroPage(disclaimer?: string): IntroPageConfig {
     disclaimer: disclaimer || 'AI-generated content. Not a professional consultation.',
     authorName: '',
     authorOrg: '',
-    authorVerified: false,
+    authorVerified: true,
     links: [],
     acceptLabel: 'I Understand',
   };
@@ -100,6 +104,9 @@ export interface RecipeConfig {
   screens: ScreenConfig[];
   knowledgeSummary: string;
   introPage?: IntroPageConfig;
+  maxClarifications?: number;
+  fallbackScreen?: string;
+  generatedYaml?: string;
 }
 
 export const CURRENT_RECIPE_VERSION = 2;

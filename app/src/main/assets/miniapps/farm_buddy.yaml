@@ -70,10 +70,10 @@ screens:
       - macro_grid:
           columns: 2
           buttons:
-            - { label: "Diagnose Leaf", action: "go:diagnose" }
-            - { label: "Profit Calculator", action: "go:profit" }
-            - { label: "Fertiliser Guide", action: "ask:What fertiliser should I use for rice?" }
-            - { label: "Nearest Agro Shop", action: "go:nearby" }
+            - { label: "Diagnose Leaf", action: "go:diagnose", icon: "📷" }
+            - { label: "Profit Calculator", action: "go:profit", icon: "🧮" }
+            - { label: "Fertiliser Guide", action: "ask:What fertiliser should I use for rice?", icon: "🌱" }
+            - { label: "Nearest Agro Shop", action: "go:nearby", icon: "📍" }
 
       - text_input:
           bind: user_text
@@ -203,6 +203,65 @@ safety:
     - drink chemical
   escalation_message: "This may be dangerous. Please contact your local agriculture officer."
   disclaimer: "AI-generated guidance. Not a professional consultation."
+
+setup:
+  intro_page:
+    accept_label: "I Understand & Accept"
+    disclaimer: "Farm Buddy provides AI-generated agricultural guidance for educational purposes only. It does not replace professional agronomist advice. Always verify recommendations with your local agriculture department before applying treatments."
+    cover_photo: false
+    author:
+      name: Universiti Putra Malaysia
+      organisation: AgriTech Faculty
+      verified: true
+    links:
+      - { label: "UPM AgriTech Website", url: "https://agriculture.upm.edu.my" }
+      - { label: "Malaysian DOA Guidelines", url: "https://www.doa.gov.my" }
+
+triage:
+  home_mode: grid
+  max_clarifications: 2
+  fallback: show_all
+
+screen_catalog:
+  - id: diagnose
+    title: Leaf Diagnosis
+    template: vision_analysis
+    icon: "🔬"
+    description: "Take a photo of a diseased or damaged crop leaf to get an AI-powered diagnosis with treatment recommendations."
+    accepted_inputs: [photo, text]
+    prefill_hints: {}
+  - id: profit
+    title: Profit Calculator
+    template: calculator
+    icon: "💰"
+    description: "Calculate farming profit after costs and tax. Get AI advice on improving margins."
+    accepted_inputs: [number]
+    prefill_hints: {}
+  - id: nearby
+    title: Nearest Agro Shop
+    template: geo_lookup
+    icon: "📍"
+    description: "Find fertiliser and agricultural supply shops near your location."
+    accepted_inputs: [location]
+    prefill_hints: {}
+
+knowledge:
+  always_loaded: |
+    Common Southeast Asian crop diseases:
+    - Rice blast (Pyricularia oryzae): grey-green spots on leaves, spread in humid conditions. Treat with tricyclazole fungicide.
+    - Bacterial leaf blight (Xanthomonas oryzae): yellow-white lesions along leaf veins. Use resistant varieties, avoid excess nitrogen.
+    - Tungro virus: yellow-orange discolouration from base. Control green leafhopper vector. No direct cure.
+    - Brown planthopper: honeydew deposits, hopper burn. Use resistant varieties, avoid excessive insecticides.
+    Common crops: rice (padi), oil palm (kelapa sawit), rubber (getah), cocoa, durian, pepper.
+  chunks: 0
+
+questions:
+  diagnose:
+    - "What crop are you growing?"
+    - "Can you describe the symptoms you're seeing?"
+  profit:
+    - "What crop did you harvest?"
+    - "How many hectares?"
 
 permissions:
   - camera

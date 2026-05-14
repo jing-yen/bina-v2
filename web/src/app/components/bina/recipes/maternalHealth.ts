@@ -28,7 +28,7 @@ export const MATERNAL_HEALTH_RECIPE: RecipeConfig = {
       disabledWidgets: [],
     },
     {
-      id: 'symptom_check', title: 'Symptom Check', isHome: false, gridColumns: 2,
+      id: 'symptom_check', title: 'Symptom Check', isHome: false, gridColumns: 2, screenIcon: '\u{1FA7A}',
       templateId: 'ask_ai',
       fieldValues: {
         mode: 'form', heading: 'Symptom Checker',
@@ -40,9 +40,11 @@ export const MATERNAL_HEALTH_RECIPE: RecipeConfig = {
         button_label: 'Check', ai_instruction: 'ask:Patient is {{form_f1}} weeks pregnant with {{form_f2}} for {{form_f3}}. Details: {{form_f4}}. Assess urgency and advise.',
       },
       disabledWidgets: [],
+      description: 'SCREEN: Symptom Check | FUNCTION: Form-based symptom assessment for pregnant women | INPUTS: form_f1, form_f2, form_f3, form_f4 | TRIGGERS: I feel sick, headache, bleeding, swelling, pain, not feeling well, sakit',
+      prefillHints: { weeks_pregnant: 'form_f1', main_symptom: 'form_f2', duration: 'form_f3', details: 'form_f4' },
     },
     {
-      id: 'nutrition', title: 'Nutrition Guide', isHome: false, gridColumns: 2,
+      id: 'nutrition', title: 'Nutrition Guide', isHome: false, gridColumns: 2, screenIcon: '\u{1F34E}',
       templateId: 'ask_ai',
       fieldValues: {
         mode: 'chat', heading: 'Nutrition & Diet',
@@ -53,12 +55,16 @@ export const MATERNAL_HEALTH_RECIPE: RecipeConfig = {
         button_label: 'Ask', ai_instruction: 'ask:Answer about maternal nutrition: {{user_text}}',
       },
       disabledWidgets: [],
+      description: 'SCREEN: Nutrition Guide | FUNCTION: Chat about maternal diet and nutrition | INPUTS: user_text | TRIGGERS: what to eat, food, diet, vitamin, nutrition, iron, calcium, makan apa',
+      prefillHints: { food_question: 'user_text' },
     },
     {
-      id: 'emergency', title: 'Emergency Signs', isHome: false, gridColumns: 2,
+      id: 'emergency', title: 'Emergency Signs', isHome: false, gridColumns: 2, screenIcon: '\u{1F6A8}',
       templateId: 'info_display',
       fieldValues: { text: 'If you experience heavy bleeding, severe headaches, blurred vision, high fever, or seizures — go to the nearest clinic immediately. Call your midwife or health worker.', style: 'body' },
       disabledWidgets: [],
+      description: 'SCREEN: Emergency Signs | FUNCTION: Display critical warning signs | TRIGGERS: emergency, danger signs, when to go to hospital, bleeding, seizure, kecemasan',
+      prefillHints: {},
     },
   ],
   knowledgeSummary: '',

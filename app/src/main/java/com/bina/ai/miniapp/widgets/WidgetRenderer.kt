@@ -29,5 +29,7 @@ fun RenderWidget(
         is Widget.MarkdownOutput -> MarkdownOutputWidget(widget, store, themeColor)
         is Widget.MetricCard -> MetricCardWidget(widget, store, themeColor)
         is Widget.GeoDisplay -> GeoDisplayWidget(widget, store, dataSets[widget.data], themeColor)
+        is Widget.ProgressBar -> ProgressBarWidget(widget, store, themeColor)
+        is Widget.ChecklistItems -> ChecklistItemsWidget(widget, store, themeColor)
     }
 }

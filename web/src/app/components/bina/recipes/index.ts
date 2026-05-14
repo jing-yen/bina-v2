@@ -16,4 +16,4 @@ export const RECIPES: Record<string, RecipeConfig> = {
 export type { RecipeConfig, RecipeDocument, RecipeWithId, RecipeStats, IntroPageConfig, ScreenRouting, ShowWhenCondition } from './types';
 export { CURRENT_RECIPE_VERSION, defaultIntroPage, checkShowWhen } from './types';
 export type { ThemeKey, ScreenConfig, WidgetConfig, KnowledgeFile } from './types';
-export { SCREEN_TEMPLATES, FORMULA_TEMPLATES, getScreenTemplate, createScreen, resolveFormula, resolveTemplateWidgets, resolveScreenWidgets } from './screenTemplates';
+export { SCREEN_TEMPLATES, FORMULA_TEMPLATES, getScreenTemplate, createScreen, resolveFormula, resolveTemplateWidgets, resolveScreenWidgets, generateScreenDescription, generatePrefillHints, getScreenAcceptedInputs } from './screenTemplates';
