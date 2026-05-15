@@ -22,9 +22,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.miniapp.model.MiniApp
+import com.bina.ai.ui.theme.BinaAccent
+import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaGreen
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaIndigo
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun RecipeListItem(
@@ -37,7 +40,7 @@ fun RecipeListItem(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(BinaBgCard)
             .clickable { onClick() }
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -46,7 +49,7 @@ fun RecipeListItem(
         RecipeCover(miniApp, modifier = Modifier.size(64.dp), cornerRadius = 12.dp, emojiFontSize = 28)
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(miniApp.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary, maxLines = 1)
+                Text(miniApp.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950, maxLines = 1)
                 if (miniApp.author.verified) {
                     Text("✓", fontSize = 12.sp, color = BinaGreen)
                 }
@@ -68,10 +71,10 @@ fun RecipeListItem(
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(6.dp))
-                                .background(Color(0xFFEFF6FF))
+                                .background(BinaIndigo.copy(alpha = 0.08f))
                                 .padding(horizontal = 5.dp, vertical = 1.dp)
                         ) {
-                            Text("#$tag", fontSize = 9.sp, color = BinaPrimary)
+                            Text("#$tag", fontSize = 9.sp, color = BinaIndigo)
                         }
                     }
                     if (miniApp.tags.size > 2) {

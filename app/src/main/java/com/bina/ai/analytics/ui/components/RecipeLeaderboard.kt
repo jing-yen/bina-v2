@@ -21,8 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.analytics.ui.model.RecipeStats
 import com.bina.ai.ui.theme.BinaAmber
+import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun RecipeLeaderboard(
@@ -34,7 +35,7 @@ fun RecipeLeaderboard(
             "Most-Used Recipes",
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp,
-            color = BinaPrimary,
+            color = BinaStone950,
             modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
         )
         if (rows.isEmpty()) {
@@ -42,7 +43,7 @@ fun RecipeLeaderboard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White.copy(alpha = 0.9f))
+                    .background(BinaBgCard.copy(alpha = 0.92f))
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -66,7 +67,7 @@ private fun LeaderboardRow(rank: Int, row: RecipeStats) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White.copy(alpha = 0.9f))
+            .background(BinaBgCard.copy(alpha = 0.92f))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -82,7 +83,7 @@ private fun LeaderboardRow(rank: Int, row: RecipeStats) {
         }
         Text(row.icon, fontSize = 22.sp)
         Column(modifier = Modifier.weight(1f)) {
-            Text(row.displayName, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
+            Text(row.displayName, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
             Text(
                 "${row.launches} launches · ${row.asks} asks",
                 fontSize = 11.sp,
@@ -93,7 +94,7 @@ private fun LeaderboardRow(rank: Int, row: RecipeStats) {
             "${row.total}",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = BinaPrimary
+            color = BinaStone950
         )
     }
 }
@@ -102,5 +103,5 @@ private fun rankColor(rank: Int) = when (rank) {
     1 -> BinaAmber
     2 -> Color(0xFF94A3B8)  // silver
     3 -> Color(0xFFB45309)  // bronze
-    else -> BinaPrimary
+    else -> BinaStone950
 }

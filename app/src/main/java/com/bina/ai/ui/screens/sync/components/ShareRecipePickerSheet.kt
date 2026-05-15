@@ -18,7 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
+import com.bina.ai.ui.theme.BinaBgCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,9 +29,9 @@ fun ShareRecipePickerSheet(
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = Color.White) {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = BinaBgCard) {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
-            Text("Share a Recipe", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = BinaPrimary)
+            Text("Share a Recipe", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = BinaStone950)
             Spacer(Modifier.height(4.dp))
             Text(
                 "Pick an installed recipe. The receiver scans the QR to install it.",
@@ -49,7 +50,7 @@ fun ShareRecipePickerSheet(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(14.dp))
-                                .background(Color(0xFFF9FAFB))
+                                .background(Color(0xFFF5F0EB))
                                 .clickable { onPick(r) }
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -57,7 +58,7 @@ fun ShareRecipePickerSheet(
                         ) {
                             Text(r.icon.ifBlank { "📦" }, fontSize = 24.sp)
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(r.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = BinaPrimary)
+                                Text(r.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = BinaStone950)
                                 Text(r.category.ifBlank { "—" }, fontSize = 11.sp, color = BinaGrayText)
                             }
                         }

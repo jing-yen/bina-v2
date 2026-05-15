@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaGreen
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun ConfiguratorHeader(
@@ -37,7 +37,7 @@ fun ConfiguratorHeader(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFF8FAFC))
+            .background(Color(0xFFF5F0EB))
             .padding(16.dp)
     ) {
         Row(
@@ -55,7 +55,7 @@ fun ConfiguratorHeader(
                         text = "%.1f KB".format(size),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = BinaPrimary
+                        color = BinaStone950
                     )
                 }
             }

@@ -36,10 +36,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.analytics.ui.model.Achievement
+import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaAmber
+import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayBorder
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun AchievementCard(
@@ -54,7 +56,7 @@ fun AchievementCard(
             "Achievements",
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp,
-            color = BinaPrimary,
+            color = BinaStone950,
             modifier = Modifier.padding(start = 4.dp)
         )
         if (featured != null) FeaturedAchievement(featured)
@@ -129,7 +131,7 @@ private fun LockedAchievement(a: Achievement) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(Color.White.copy(alpha = 0.85f))
+            .background(BinaBgCard.copy(alpha = 0.92f))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -144,12 +146,12 @@ private fun LockedAchievement(a: Achievement) {
             Text(a.emoji, fontSize = 20.sp)
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(a.title, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = BinaPrimary)
+            Text(a.title, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = BinaStone950)
             Text(a.description, fontSize = 11.sp, color = BinaGrayText)
             Spacer(Modifier.height(4.dp))
             LinearProgressIndicator(
                 progress = { a.progress },
-                color = BinaPrimary,
+                color = BinaAccent,
                 trackColor = BinaGrayBorder,
                 modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(2.dp))
             )

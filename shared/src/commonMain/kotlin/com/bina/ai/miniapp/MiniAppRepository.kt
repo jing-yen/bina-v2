@@ -4,9 +4,13 @@ import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.platform.Logger
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class MiniAppRepository(
-    private val loadYamlFiles: () -> List<Pair<String, String>>
+    private val loadYamlFiles: () -> List<Pair<String, String>>,
+    private val persistYaml: ((String, String) -> Unit)? = null
 ) {
     private val yaml = Yaml(
         configuration = YamlConfiguration(strictMode = false)
@@ -14,13 +18,13 @@ class MiniAppRepository(
 
     private var cached: List<MiniApp>? = null
     private var rawYamls: Map<String, String> = emptyMap()
+    private var cloudRecipes: List<MiniApp> = emptyList()
+    private var cloudRawYamls: Map<String, String> = emptyMap()
+    private val _cloudVersion = MutableStateFlow(0)
+    val cloudVersion: StateFlow<Int> = _cloudVersion.asStateFlow()
 
     fun loadAll(): List<MiniApp> {
         cached?.let { return it }
-        // LinkedHashMap preserves insertion order; later writes for the same id
-        // overwrite earlier ones. Caller in MainActivity yields assets first,
-        // filesDir second — so user-imported recipes win over bundled ones with
-        // the same id, which prevents duplicate-key crashes in LazyColumn.
         val byId = linkedMapOf<String, MiniApp>()
         val yamls = mutableMapOf<String, String>()
         for ((filename, text) in loadYamlFiles()) {
@@ -39,12 +43,30 @@ class MiniAppRepository(
         return apps
     }
 
-    fun getById(id: String): MiniApp? = loadAll().find { it.id == id }
+    fun registerCloudRecipes(recipes: List<MiniApp>) {
+        cloudRecipes = recipes
+        _cloudVersion.value++
+    }
+
+    fun registerCloudRecipesWithYaml(recipes: List<Pair<MiniApp, String>>) {
+        cloudRecipes = recipes.map { it.first }
+        cloudRawYamls = recipes.associate { it.first.id to it.second }
+        _cloudVersion.value++
+    }
+
+    fun getById(id: String): MiniApp? =
+        loadAll().find { it.id == id } ?: cloudRecipes.find { it.id == id }
 
     /** Returns the raw YAML text the recipe was loaded from, or null if id is unknown. */
     fun getYamlById(id: String): String? {
         loadAll()
-        return rawYamls[id]
+        return rawYamls[id] ?: cloudRawYamls[id]
+    }
+
+    fun persistRecipeLocally(recipeId: String) {
+        val yamlText = cloudRawYamls[recipeId] ?: return
+        persistYaml?.invoke("${recipeId}.yaml", yamlText)
+        invalidateCache()
     }
 
     fun invalidateCache() {

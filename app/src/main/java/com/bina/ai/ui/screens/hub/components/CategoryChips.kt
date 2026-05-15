@@ -12,13 +12,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bina.ai.ui.theme.BinaPrimary
-import com.bina.ai.ui.theme.BinaSecondary
+import com.bina.ai.ui.theme.BinaAccent
+import com.bina.ai.ui.theme.BinaBgCard
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun CategoryChips(
@@ -43,11 +43,11 @@ private fun Chip(label: String, isActive: Boolean, onClick: () -> Unit) {
     val bg = if (isActive) {
         Modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(Brush.linearGradient(listOf(BinaPrimary, BinaSecondary)))
+            .background(BinaAccent)
     } else {
         Modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(Color.White)
+            .background(BinaBgCard)
     }
     Text(
         text = label,
@@ -56,6 +56,6 @@ private fun Chip(label: String, isActive: Boolean, onClick: () -> Unit) {
             .padding(horizontal = 14.dp, vertical = 8.dp),
         fontSize = 12.sp,
         fontWeight = FontWeight.SemiBold,
-        color = if (isActive) Color.White else BinaPrimary
+        color = if (isActive) Color.White else BinaStone950
     )
 }

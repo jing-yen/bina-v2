@@ -6,6 +6,7 @@ import com.bina.ai.install.CapabilityChecker
 import com.bina.ai.install.InstallStore
 import com.bina.ai.install.model.InstallRecord
 import com.bina.ai.install.totalSizeKb
+import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -63,7 +64,8 @@ data class ConfiguratorState(
 class ConfiguratorViewModel(
     initialState: ConfiguratorState,
     private val baseSizeKb: Float,
-    private val installStore: InstallStore
+    private val installStore: InstallStore,
+    private val miniAppRepository: MiniAppRepository? = null
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(initialState)
@@ -88,6 +90,7 @@ class ConfiguratorViewModel(
             return@launch
         }
         try {
+            miniAppRepository?.persistRecipeLocally(s.miniApp.id)
             installStore.install(InstallRecord(
                 recipeId = s.miniApp.id,
                 installedAt = System.currentTimeMillis(),

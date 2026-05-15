@@ -30,10 +30,9 @@ import androidx.compose.ui.unit.sp
 import com.bina.ai.analytics.ui.model.MetricsSnapshot
 import com.bina.ai.analytics.ui.model.TimeWindow
 import com.bina.ai.analytics.ui.util.plural
+import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaGreen
-import com.bina.ai.ui.theme.BinaPrimary
 import com.bina.ai.ui.theme.BinaRed
-import com.bina.ai.ui.theme.BinaSecondary
 import kotlin.math.roundToInt
 
 @Composable
@@ -63,7 +62,7 @@ fun HeroCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
             .background(
-                Brush.linearGradient(listOf(BinaPrimary, BinaSecondary))
+                Brush.linearGradient(listOf(BinaAccent, Color(0xFFE8936E)))
             )
             .padding(20.dp)
     ) {

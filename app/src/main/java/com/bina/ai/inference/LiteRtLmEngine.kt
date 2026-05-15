@@ -158,8 +158,10 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
             "_Your question: \"${prompt.take(100)}\"_")
     }
 
-    private fun findModelFile(): String? {
-        for (path in MODEL_SEARCH_PATHS) {
+    fun findModelFile(): String? {
+        val appModelsDir = File(context.filesDir, "models")
+        val searchPaths = listOf(appModelsDir.absolutePath) + MODEL_SEARCH_PATHS
+        for (path in searchPaths) {
             val dir = File(path)
             val listed = dir.listFiles()
             if (listed != null) {

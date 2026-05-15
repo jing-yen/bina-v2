@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun HubHeader(modifier: Modifier = Modifier) {
@@ -23,7 +23,7 @@ fun HubHeader(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
-            Text("Discover AI Recipes", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = BinaPrimary)
+            Text("Discover AI Recipes", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = BinaStone950)
             Text("Edge-native AI for every domain", fontSize = 12.sp, color = BinaGrayText)
         }
     }

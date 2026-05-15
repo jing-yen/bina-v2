@@ -17,12 +17,13 @@ export default function Root() {
   return (
     <div className="flex min-h-[100dvh] w-full overflow-hidden">
       <aside
-        className="flex flex-col justify-between p-4 transition-all duration-200"
+        className="relative flex flex-col justify-between p-4 transition-all duration-200 overflow-hidden"
         style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)', background: '#1C1917', width: collapsed ? 64 : 240, minWidth: collapsed ? 64 : 240 }}
       >
+        <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(196,90,58,0.12) 0%, transparent 100%)' }} />
         <div>
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-3'} pt-2 pb-6`}>
-            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: '#C45A3A' }}>
               <span className="text-white font-bold text-lg">B</span>
             </div>
             {!collapsed && <span className="text-white font-semibold text-lg tracking-tight">Bina.ai</span>}
@@ -43,8 +44,9 @@ export default function Root() {
                   title={collapsed ? item.label : undefined}
                   className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-3'} py-2.5 rounded-lg text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30`}
                   style={{
-                    background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
-                    color: isActive ? '#FAF8F5' : 'rgba(255,255,255,0.6)',
+                    background: isActive ? 'rgba(196,90,58,0.15)' : 'transparent',
+                    color: isActive ? '#FAF8F5' : 'rgba(255,255,255,0.5)',
+                    boxShadow: isActive ? 'inset 3px 0 0 #C45A3A' : 'none',
                   }}
                 >
                   <Icon size={20} className="shrink-0" />

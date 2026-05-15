@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.bina.ai.miniapp.model.MiniApp
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaSecondary
 
 /**
@@ -32,7 +32,7 @@ fun RecipeCover(
     showEmoji: Boolean = true,
     emojiFontSize: Int = 36
 ) {
-    val primary = parseHex(miniApp.theme.primary, BinaPrimary)
+    val primary = parseHex(miniApp.theme.primary, BinaAccent)
     val secondary = parseHex(miniApp.theme.secondary, BinaSecondary)
 
     Box(modifier = modifier.clip(RoundedCornerShape(cornerRadius))) {

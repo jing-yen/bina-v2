@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun RecipeStats(
@@ -33,7 +33,7 @@ fun RecipeStats(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFF8FAFC))
+            .background(Color(0xFFF5F0EB))
             .padding(vertical = 14.dp, horizontal = 12.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
@@ -52,7 +52,7 @@ private fun StatCell(value: String, label: String, modifier: Modifier = Modifier
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(value, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = BinaPrimary, maxLines = 1)
+        Text(value, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = BinaStone950, maxLines = 1)
         Text(label, fontSize = 10.sp, color = BinaGrayText, maxLines = 1)
     }
 }
@@ -63,6 +63,6 @@ private fun Divider() {
         Modifier
             .width(1.dp)
             .height(28.dp)
-            .background(Color(0xFFE5E7EB))
+            .background(Color(0xFFE7E0D8))
     )
 }

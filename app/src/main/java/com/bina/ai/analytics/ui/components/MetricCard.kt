@@ -22,8 +22,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun MetricCard(
@@ -38,7 +39,7 @@ fun MetricCard(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(Color.White.copy(alpha = 0.9f))
+            .background(BinaBgCard.copy(alpha = 0.92f))
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
             .padding(16.dp)
     ) {
@@ -58,7 +59,7 @@ fun MetricCard(
                 style = TextStyle(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = BinaPrimary
+                    color = BinaStone950
                 ),
                 formatter = formatter
             )

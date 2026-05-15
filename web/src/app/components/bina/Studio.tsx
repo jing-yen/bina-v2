@@ -18,7 +18,7 @@ import {
 } from '../ui/dialog';
 import type {
   ThemeKey, ScreenConfig, WidgetConfig, KnowledgeFile, RecipeConfig,
-  IntroPageConfig, ScreenRouting,
+  IntroPageConfig, ScreenRouting, RecipeTranslation, TranslationStatus,
 } from './recipes';
 import {
   SCREEN_TEMPLATES, FORMULA_TEMPLATES, getScreenTemplate, createScreen,
@@ -90,10 +90,10 @@ const LANGUAGE_GROUPS = [
 const ALL_LANGUAGES = LANGUAGE_GROUPS.flatMap(g => g.languages);
 
 const STEPS = [
-  { id: 1, label: 'Knowledge', icon: Upload },
-  { id: 2, label: 'Identity', icon: FileText },
-  { id: 3, label: 'Style & Layout', icon: Palette },
-  { id: 4, label: 'Review', icon: Eye },
+  { id: 1, label: 'Knowledge', icon: Upload, color: '#5B6ABF' },
+  { id: 2, label: 'Identity', icon: FileText, color: '#C45A3A' },
+  { id: 3, label: 'Style & Layout', icon: Palette, color: '#C98A1A' },
+  { id: 4, label: 'Review', icon: Eye, color: '#1A8A6A' },
 ];
 
 // ─── Gemini ───
@@ -126,7 +126,7 @@ function friendlyGeminiError(status: number): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function callGeminiJSON<T = any>(prompt: string, apiKey: string, schema: Record<string, unknown>, retries = 2): Promise<T> {
+async function callGeminiJSON<T = any>(prompt: string, apiKey: string, schema: Record<string, unknown>, retries = 2, maxOutputTokens = 2048): Promise<T> {
   const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -134,7 +134,7 @@ async function callGeminiJSON<T = any>(prompt: string, apiKey: string, schema: R
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 2048,
+        maxOutputTokens,
         responseMimeType: 'application/json',
         responseSchema: schema,
       },
@@ -171,8 +171,10 @@ function sanitizeEmoji(raw: string): string {
 
 function widgetToYaml(w: WidgetConfig, allScreens: { id: string; title: string }[]): string {
   const p = w.props;
-  const line = (k: string, v: string, q = false) => q ? `\n          ${k}: "${v}"` : `\n          ${k}: ${v}`;
+  const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  const line = (k: string, v: string, q = false) => q ? `\n          ${k}: "${esc(v)}"` : `\n          ${k}: ${v}`;
   const opt = (k: string, v: string | undefined, q = false) => v ? line(k, v, q) : '';
+  const visOpt = opt('visible_if', p.visible_if, true) + opt('hidden_if', p.hidden_if, true);
 
   switch (w.type) {
     case 'text_label':
@@ -306,10 +308,16 @@ export function Studio() {
   const [apiKey, setApiKey] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [showYamlPreview, setShowYamlPreview] = useState(false);
+  const [previewYamlLang, setPreviewYamlLang] = useState<string>('en');
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const [previewIntro, setPreviewIntro] = useState(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [phoneScale, setPhoneScale] = useState(1);
+
+  // Translation
+  const [translations, setTranslations] = useState<Record<string, RecipeTranslation>>({});
+  const [translationStatus, setTranslationStatus] = useState<Record<string, TranslationStatus>>({});
+  const [translatingAll, setTranslatingAll] = useState(false);
 
   // ─── Undo / Redo ───
   const historyRef = useRef<RecipeSnapshot[]>([]);
@@ -771,10 +779,120 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     toast.success('Applied — review in Identity & Layout steps');
   };
 
+  // ─── Translation ───
+  // Translatable: recipeName, recipeDescription, systemPrompt, disclaimer, acceptLabel,
+  //   screen titles, fieldValues (heading, hint, button_label, ai_instruction text portion, field labels, steps)
+  // NOT translated: screen IDs, variable names, action prefixes (ask:, vision_ask:, go:, formula:, geolocate, set:, increment:),
+  //   formula expressions, coordinates, theme, icon, technical config, knowledge summary (already summarised)
+
+  const KEEP_ORIGINAL_FIELDS = new Set(['mode', 'form_field_count', 'columns', 'formula', 'formula_type', 'contact_type', 'contacts', 'data']);
+
+  const collectTranslatableStrings = useCallback((): Record<string, string> => {
+    const strings: Record<string, string> = {};
+    strings['recipe.name'] = recipeName;
+    strings['recipe.description'] = recipeDescription;
+    strings['recipe.systemPrompt'] = systemPrompt;
+    strings['recipe.disclaimer'] = introPage.disclaimer;
+    strings['recipe.acceptLabel'] = introPage.acceptLabel;
+    if (knowledgeSummary) strings['recipe.knowledgeSummary'] = knowledgeSummary;
+    for (const s of screens) {
+      if (s.title) strings[`screen.${s.id}.title`] = s.title;
+      for (const [k, v] of Object.entries(s.fieldValues)) {
+        if (!v || KEEP_ORIGINAL_FIELDS.has(k) || k.startsWith('_')) continue;
+        strings[`screen.${s.id}.field.${k}`] = v;
+      }
+    }
+    return strings;
+  }, [recipeName, recipeDescription, systemPrompt, introPage.disclaimer, introPage.acceptLabel, knowledgeSummary, screens]);
+
+  const translateToLanguage = useCallback(async (langCode: string) => {
+    if (!apiKey || langCode === 'en') return;
+    const langLabel = ALL_LANGUAGES.find(l => l.code === langCode)?.label || langCode;
+    setTranslationStatus(prev => ({ ...prev, [langCode]: 'translating' }));
+    try {
+      const strings = collectTranslatableStrings();
+      const keyList = Object.keys(strings);
+      const indexed = keyList.map((k, i) => ({ idx: `t${i}`, key: k, value: strings[k] }));
+      const prompt = indexed.map(e => `${e.idx}: "${e.value.replace(/"/g, '\\"')}"`).join('\n');
+      const schemaProperties: Record<string, { type: string }> = {};
+      const required: string[] = [];
+      for (const e of indexed) { schemaProperties[e.idx] = { type: 'STRING' }; required.push(e.idx); }
+      const raw = await callGeminiJSON<Record<string, string>>(
+        `Translate the following numbered strings from English to ${langLabel} (${langCode}). This is for a mobile app used by grassroots communities.
+
+Rules:
+- Translate naturally, not word-for-word
+- Keep {{variable}} placeholders exactly as-is
+- Keep action prefixes like "ask:", "vision_ask:", "formula:", "go:", "geolocate", "set:", "increment:" at the start of strings exactly as-is — only translate the human-readable text after the prefix
+- Keep technical terms if no good local equivalent exists
+- Return the SAME numbered keys (t0, t1, ...) with translated values
+
+${prompt}`,
+        apiKey,
+        { type: 'OBJECT', properties: schemaProperties, required },
+        2,
+        8192,
+      );
+      const parsed: Record<string, string> = {};
+      for (const e of indexed) parsed[e.key] = raw[e.idx] || strings[e.key];
+      const translation: RecipeTranslation = {
+        recipeName: parsed['recipe.name'] || recipeName,
+        recipeDescription: parsed['recipe.description'] || recipeDescription,
+        systemPrompt: parsed['recipe.systemPrompt'] || systemPrompt,
+        disclaimer: parsed['recipe.disclaimer'] || introPage.disclaimer,
+        acceptLabel: parsed['recipe.acceptLabel'] || introPage.acceptLabel,
+        screens: {},
+      };
+      for (const s of screens) {
+        const screenTrans: { title: string; fieldValues: Record<string, string> } = {
+          title: parsed[`screen.${s.id}.title`] || s.title,
+          fieldValues: {},
+        };
+        for (const [k, v] of Object.entries(s.fieldValues)) {
+          const transKey = `screen.${s.id}.field.${k}`;
+          screenTrans.fieldValues[k] = parsed[transKey] || v;
+        }
+        translation.screens[s.id] = screenTrans;
+      }
+      setTranslations(prev => ({ ...prev, [langCode]: translation }));
+      setTranslationStatus(prev => ({ ...prev, [langCode]: 'done' }));
+    } catch {
+      setTranslationStatus(prev => ({ ...prev, [langCode]: 'error' }));
+    }
+  }, [apiKey, collectTranslatableStrings, recipeName, recipeDescription, systemPrompt, introPage.disclaimer, introPage.acceptLabel, screens]);
+
+  const translateAll = useCallback(async () => {
+    if (!apiKey) return;
+    setTranslatingAll(true);
+    const nonEnLangs = selectedLanguages.filter(l => l !== 'en' && translationStatus[l] !== 'done');
+    for (const lang of nonEnLangs) {
+      await translateToLanguage(lang);
+      if (nonEnLangs.indexOf(lang) < nonEnLangs.length - 1) {
+        await new Promise(r => setTimeout(r, 1500));
+      }
+    }
+    setTranslatingAll(false);
+    toast.success(`Translated to ${nonEnLangs.length} language${nonEnLangs.length !== 1 ? 's' : ''}`);
+  }, [apiKey, selectedLanguages, translationStatus, translateToLanguage]);
+
   // ─── YAML ───
-  const generateYaml = (): string => {
+  const yamlEsc = (s: string) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+  const generateYaml = (langCode?: string, translation?: RecipeTranslation): string => {
+    const t = (key: 'recipeName' | 'recipeDescription' | 'systemPrompt' | 'disclaimer' | 'acceptLabel', fallback: string) =>
+      langCode && translation ? (translation[key] || fallback) : fallback;
+    const tScreenTitle = (screenId: string, fallback: string) =>
+      langCode && translation ? (translation.screens[screenId]?.title || fallback) : fallback;
+    const tField = (screenId: string, fieldKey: string, fallback: string) =>
+      langCode && translation ? (translation.screens[screenId]?.fieldValues[fieldKey] || fallback) : fallback;
+
+    const name = t('recipeName', recipeName || 'My Recipe');
+    const desc = t('recipeDescription', recipeDescription || 'A custom AI recipe');
+    const sysPromptText = t('systemPrompt', systemPrompt).trim();
+    const disclaimerText = t('disclaimer', introPage.disclaimer);
+    const acceptLabelText = t('acceptLabel', introPage.acceptLabel);
+
     const id = recipeName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'my_recipe';
-    const sysPrompt = systemPrompt.trim() ? `  system_prompt: |\n    ${systemPrompt.trim().split('\n').join('\n    ')}` : '  system_prompt: "You are a helpful assistant."';
+    const sysPrompt = sysPromptText ? `  system_prompt: |\n    ${sysPromptText.split('\n').join('\n    ')}` : '  system_prompt: "You are a helpful assistant."';
     const blocked = blockedKeywords.split(',').map(k => k.trim()).filter(Boolean);
     const blockedYaml = blocked.length > 0 ? blocked.map(k => `    - ${k}`).join('\n') : '    - harmful';
 
@@ -812,22 +930,40 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     const questionsYaml = screens.map(s => {
       if (!s.templateId) return '';
       if (s.templateId !== 'ask_ai') return '';
-      const qs = [s.fieldValues.q1, s.fieldValues.q2, s.fieldValues.q3, s.fieldValues.q4].filter(q => q && q.trim());
+      const qs = [s.fieldValues.q1, s.fieldValues.q2, s.fieldValues.q3, s.fieldValues.q4]
+        .map((q, qi) => q && q.trim() ? tField(s.id, `q${qi + 1}`, q) : '')
+        .filter(Boolean);
       if (qs.length === 0) return '';
-      return `  ${s.id}:\n${qs.map(q => `    - "${q}"`).join('\n')}`;
+      return `  ${s.id}:\n${qs.map(q => `    - "${yamlEsc(q)}"`).join('\n')}`;
     }).filter(Boolean).join('\n');
 
-    const nonHomeScreens = screens.filter(s => !s.isHome).map(s => ({ id: s.id, title: s.title, icon: s.screenIcon }));
+    const nonHomeScreens = screens.filter(s => !s.isHome).map(s => ({ id: s.id, title: tScreenTitle(s.id, s.title), icon: s.screenIcon }));
     const screensYaml = screens.map((screen, si) => {
       const widgets = allResolved[si];
-      const title = screen.title || recipeName || 'My Recipe';
-      const body = widgets.map(w => widgetToYaml(w, nonHomeScreens)).join('\n');
+      const title = tScreenTitle(screen.id, screen.title || recipeName || 'My Recipe');
+      const translatedWidgets = langCode && translation
+        ? widgets.map(w => {
+            const screenTrans = translation.screens[screen.id];
+            if (!screenTrans) return w;
+            const translatedProps = { ...w.props };
+            for (const [pk, pv] of Object.entries(w.props)) {
+              for (const [fk, fv] of Object.entries(screenTrans.fieldValues)) {
+                if (pv === screen.fieldValues[fk] && fv) {
+                  translatedProps[pk] = fv;
+                  break;
+                }
+              }
+            }
+            return { ...w, props: translatedProps };
+          })
+        : widgets;
+      const body = translatedWidgets.map(w => widgetToYaml(w, nonHomeScreens)).join('\n');
       let routingYaml = '';
       if (screen.routing && screen.routing.field && screen.routing.rules.length > 0) {
         const rulesStr = screen.routing.rules.map(r => `        - { value: "${r.value}", goto: "${r.goto}" }`).join('\n');
         routingYaml = `\n    next:\n      field: ${screen.routing.field}\n      rules:\n${rulesStr}${screen.routing.fallback ? `\n      fallback: ${screen.routing.fallback}` : ''}`;
       }
-      return `  - id: ${screen.id}\n    title: "${title}"\n    body:\n${body}${routingYaml}`;
+      return `  - id: ${screen.id}\n    title: "${yamlEsc(title)}"\n    body:\n${body}${routingYaml}`;
     }).join('\n');
 
     let formulas = '';
@@ -845,13 +981,13 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     const questionsBlock = questionsYaml ? `\nquestions:\n${questionsYaml}\n` : '';
     let setupBlock = '';
     {
-      let introYaml = `\nsetup:\n  intro_page:\n    accept_label: "${introPage.acceptLabel || 'I Understand'}"`;
-      if (introPage.disclaimer) introYaml += `\n    disclaimer: "${introPage.disclaimer}"`;
+      let introYaml = `\nsetup:\n  intro_page:\n    accept_label: "${yamlEsc(acceptLabelText || 'I Understand')}"`;
+      if (introPage.disclaimer) introYaml += `\n    disclaimer: "${yamlEsc(disclaimerText)}"`;
       if (introPage.coverPhoto) introYaml += `\n    cover_photo: true`;
-      if (introPage.authorName) introYaml += `\n    author:\n      name: "${introPage.authorName}"${introPage.authorOrg ? `\n      organisation: "${introPage.authorOrg}"` : ''}${introPage.authorVerified ? '\n      verified: true' : ''}`;
+      if (introPage.authorName) introYaml += `\n    author:\n      name: "${yamlEsc(introPage.authorName)}"${introPage.authorOrg ? `\n      organisation: "${yamlEsc(introPage.authorOrg)}"` : ''}${introPage.authorVerified ? '\n      verified: true' : ''}`;
       if (introPage.links.length > 0) {
         introYaml += `\n    links:`;
-        introPage.links.forEach(l => { if (l.label && l.url) introYaml += `\n      - { label: "${l.label}", url: "${l.url}" }`; });
+        introPage.links.forEach(l => { if (l.label && l.url) introYaml += `\n      - { label: "${yamlEsc(l.label)}", url: "${l.url}" }`; });
       }
       setupBlock = introYaml + '\n';
     }
@@ -862,9 +998,9 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       const accepted = getScreenAcceptedInputs(s);
       const hints = s.prefillHints || generatePrefillHints(s);
       const hintEntries = Object.entries(hints);
-      let entry = `  - id: ${s.id}\n    title: "${s.title}"\n    template: ${s.templateId}`;
+      let entry = `  - id: ${s.id}\n    title: "${yamlEsc(tScreenTitle(s.id, s.title))}"\n    template: ${s.templateId}`;
       if (s.screenIcon) entry += `\n    icon: "${s.screenIcon}"`;
-      if (desc) entry += `\n    description: "${desc}"`;
+      if (desc) entry += `\n    description: "${yamlEsc(desc)}"`;
       if (accepted.length) entry += `\n    accepted_inputs: [${accepted.join(', ')}]`;
       if (hintEntries.length) {
         entry += `\n    prefill_hints:`;
@@ -877,20 +1013,28 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     const homeMode = homeScreen?.templateId ? 'chat' : 'grid';
     const triageBlock = `\ntriage:\n  home_mode: "${homeMode}"\n  max_clarifications: ${maxClarifications}\n  fallback: "${fallbackScreen || 'show_all'}"\n`;
 
-    return `id: ${id}\nname: "${recipeName || 'My Recipe'}"\ndescription: "${recipeDescription || 'A custom AI recipe'}"\nicon: "${recipeIcon}"\nversion: "1.0.0"\ncategory: ${category}\n\nauthor:\n  name: User\n  organisation: ""\n  verified: false\n\nmodel:\n  model_id: gemma-4-e2b-it\n  backend: cpu\n${sysPrompt}\n\ntheme:\n  primary: "${activePrimary}"\n  secondary: "${activeSecondary}"\n\nvariables:\n${vars.join('\n')}\n\nscreens:\n${screensYaml}\n${formulas}${data}\nsafety:\n  blocked_keywords:\n${blockedYaml}\n  escalation_message: "This request has been blocked for safety."\n  disclaimer: "${introPage.disclaimer || 'AI-generated content.'}"\n\npermissions:\n${perms.length > 0 ? perms.join('\n') : '  []'}${loc}${know}${questionsBlock}${setupBlock}${screenCatalog}${triageBlock}`;
+    const langSuffix = langCode ? `\nlanguage: ${langCode}\n` : '';
+    return `id: ${id}\nname: "${yamlEsc(name)}"\ndescription: "${yamlEsc(desc)}"\nicon: "${recipeIcon}"\nversion: "1.0.0"\ncategory: ${category}${langSuffix}\n\nauthor:\n  name: User\n  organisation: ""\n  verified: false\n\nmodel:\n  model_id: gemma-4-e2b-it\n  backend: cpu\n${sysPrompt}\n\ntheme:\n  primary: "${activePrimary}"\n  secondary: "${activeSecondary}"\n\nvariables:\n${vars.join('\n')}\n\nscreens:\n${screensYaml}\n${formulas}${data}\nsafety:\n  blocked_keywords:\n${blockedYaml}\n  escalation_message: "This request has been blocked for safety."\n  disclaimer: "${yamlEsc(disclaimerText || 'AI-generated content.')}"\n\npermissions:\n${perms.length > 0 ? perms.join('\n') : '  []'}${loc}${know}${questionsBlock}${setupBlock}${screenCatalog}${triageBlock}`;
   };
 
   // ─── Download YAML ───
   const downloadYaml = () => {
-    const yaml = generateYaml();
     const id = recipeName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'my_recipe';
-    const blob = new Blob([yaml], { type: 'text/yaml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${id}.yaml`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const downloadFile = (content: string, filename: string) => {
+      const blob = new Blob([content], { type: 'text/yaml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    downloadFile(generateYaml(), `${id}.yaml`);
+    for (const [langCode, trans] of Object.entries(translations)) {
+      if (translationStatus[langCode] === 'done') {
+        downloadFile(generateYaml(langCode, trans), `${id}_${langCode}.yaml`);
+      }
+    }
   };
 
   // ─── Firestore persistence ───
@@ -941,19 +1085,34 @@ Do not assume any specific domain — use the recipe name, category, and knowled
 
   const handleSave = async () => {
     if (!recipeName.trim()) { toast.error('Recipe name is required'); return; }
+    const nonEnLangs = selectedLanguages.filter(l => l !== 'en');
+    const untranslated = nonEnLangs.filter(l => translationStatus[l] !== 'done');
+    if (nonEnLangs.length > 0 && untranslated.length > 0) {
+      toast.error(`Translate all languages before publishing (${untranslated.length} remaining)`);
+      return;
+    }
     setSaving(true);
     try {
+      const translatedYamls: Record<string, string> = {};
+      for (const [langCode, trans] of Object.entries(translations)) {
+        if (translationStatus[langCode] === 'done') {
+          translatedYamls[langCode] = generateYaml(langCode, trans);
+        }
+      }
       const config: RecipeConfig = {
         recipeName, recipeDescription, recipeIcon, systemPrompt,
         blockedKeywords, disclaimer: introPage.disclaimer, category, selectedLanguages,
         selectedTheme, customPrimary, customSecondary, screens, knowledgeSummary,
         introPage, maxClarifications, ...(fallbackScreen ? { fallbackScreen } : {}),
         generatedYaml: generateYaml(),
+        translations,
+        translationStatus,
       };
+      const saveData = { ...config, translatedYamls };
       if (recipeId) {
-        await updateRecipe(recipeId, config);
+        await updateRecipe(recipeId, saveData);
       } else {
-        const newId = await createFirestoreRecipe(config);
+        const newId = await createFirestoreRecipe(saveData as RecipeConfig);
         navigate(`/studio/${newId}`, { replace: true });
       }
       setDirty(false);
@@ -1028,9 +1187,9 @@ Do not assume any specific domain — use the recipe name, category, and knowled
               return (
                 <button key={s.id} onClick={() => setActiveScreenIndex(screens.indexOf(s))}
                   className="rounded-xl p-2.5 flex flex-col items-center gap-1 cursor-pointer hover:opacity-80"
-                  style={{ background: i === 0 ? activePrimary : 'white', boxShadow: '0 1px 3px rgba(28,25,23,0.08)' }}>
+                  style={{ background: activePrimary, boxShadow: '0 1px 3px rgba(28,25,23,0.08)' }}>
                   <span className="text-base">{screenEmoji}</span>
-                  <span className="text-[7px] font-semibold leading-tight text-center" style={{ color: i === 0 ? 'white' : activePrimary }}>{s.title}</span>
+                  <span className="text-[7px] font-semibold leading-tight text-center text-white">{s.title}</span>
                 </button>
               );
             })}
@@ -1271,7 +1430,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       <div className="flex-[3] flex flex-col overflow-y-auto border-r border-stone-200">
         <div className="px-8 pt-8 pb-4 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900">Recipe Studio</h1>
+            <h1 className="text-3xl font-bold text-stone-900">Recipe Studio</h1>
             <p className="text-sm text-stone-500 mt-1">{recipeId ? 'Editing recipe' : 'Turn your expertise into an AI-powered tool'}</p>
           </div>
           <div className="flex items-center gap-1">
@@ -1286,15 +1445,16 @@ Do not assume any specific domain — use the recipe name, category, and knowled
           <div className="flex items-center">
             {STEPS.map((step, i) => {
               const Icon = step.icon; const isActive = currentStep === step.id; const done = currentStep > step.id;
+              const stepColor = step.color;
               return (
                 <div key={step.id} className="flex items-center flex-1">
                   <button onClick={() => setCurrentStep(step.id)} className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center border-2" style={{ background: isActive || done ? '#C45A3A' : '#F5F0EB', borderColor: isActive || done ? '#C45A3A' : '#E7E0D8' }}>
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-200" style={{ background: isActive || done ? stepColor : '#F5F0EB', borderColor: isActive || done ? stepColor : '#E7E0D8' }}>
                       <Icon size={16} style={{ color: isActive || done ? 'white' : '#A8A29E' }} />
                     </div>
-                    <span className="text-xs font-medium hidden lg:inline" style={{ color: isActive ? '#C45A3A' : '#A8A29E' }}>{step.label}</span>
+                    <span className="text-xs font-semibold hidden lg:inline" style={{ color: isActive ? stepColor : done ? '#57534E' : '#A8A29E' }}>{step.label}</span>
                   </button>
-                  {i < STEPS.length - 1 && <div className="flex-1 h-0.5 mx-3" style={{ background: done ? '#C45A3A' : '#E7E0D8' }} />}
+                  {i < STEPS.length - 1 && <div className="flex-1 h-0.5 mx-3 rounded-full" style={{ background: done ? STEPS[i + 1].color + '40' : '#E7E0D8' }} />}
                 </div>
               );
             })}
@@ -1545,7 +1705,6 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                         <button onClick={() => { setActiveScreenIndex(si); setPreviewIntro(false); }} className="w-full flex items-center gap-2 px-4 py-2.5 text-left" style={{ background: isActive ? '#C45A3A08' : '#FAF8F5' }}>
                           <span className="text-sm shrink-0">{screen.screenIcon || tmpl?.emoji || '\u{1F4CB}'}</span>
                           <span className="text-sm font-medium text-stone-900 flex-1 truncate">{screen.title || tmpl?.name || 'Untitled'}</span>
-                          {tmpl && <span className="text-[9px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500">{tmpl.emoji} {tmpl.name}</span>}
                           <ChevronDown size={14} className="text-stone-500" style={{ transform: isActive ? 'rotate(180deg)' : 'rotate(0)' }} />
                           <button onClick={e => { e.stopPropagation(); duplicateScreen(si); }} className="text-stone-400 hover:text-stone-600" title="Duplicate"><Copy size={13} /></button>
                           {screens.filter(s => !s.isHome).length > 1 && <button onClick={e => { e.stopPropagation(); removeScreen(si); }} className="text-stone-400 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>}
@@ -1670,20 +1829,20 @@ Do not assume any specific domain — use the recipe name, category, and knowled
 
               {/* Upload area — doubles as hero when no files */}
               {knowledgeFiles.length === 0 && (
-                <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-stone-300 rounded-2xl p-8 flex flex-col items-center gap-3 hover:border-stone-400 cursor-pointer transition-colors bg-stone-50/50">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-stone-100 text-base">{'\u{1F4C4}'}</div>
-                    <ChevronRight size={14} className="text-stone-400" />
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center text-base" style={{ background: '#C45A3A10' }}>{'\u{2728}'}</div>
-                    <ChevronRight size={14} className="text-stone-400" />
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-stone-100 text-base">{'\u{1F4F1}'}</div>
+                <div onClick={() => fileInputRef.current?.click()} className="rounded-2xl p-8 flex flex-col items-center gap-3 cursor-pointer transition-all hover:shadow-interactive border-2 border-dashed" style={{ background: 'linear-gradient(135deg, #C45A3A08 0%, #C98A1A06 50%, #1A8A6A08 100%)', borderColor: '#C45A3A30' }}>
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: '#5B6ABF15' }}>{'\u{1F4C4}'}</div>
+                    <ChevronRight size={14} style={{ color: '#C98A1A' }} />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: '#C98A1A15' }}>{'\u{2728}'}</div>
+                    <ChevronRight size={14} style={{ color: '#1A8A6A' }} />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: '#1A8A6A15' }}>{'\u{1F4F1}'}</div>
                   </div>
-                  <h2 className="text-lg font-bold text-stone-900">Start with what you know</h2>
+                  <h2 className="text-xl font-bold text-stone-900">Start with what you know</h2>
                   <p className="text-sm text-stone-500 max-w-sm mx-auto text-center">Upload your expertise — guides, manuals, protocols — and we&apos;ll turn it into an AI-powered recipe.</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#C45A3A10' }}><Upload size={20} style={{ color: '#C45A3A' }} /></div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-card" style={{ background: '#C45A3A' }}><Upload size={20} className="text-white" /></div>
                   </div>
-                  <p className="text-xs text-stone-500">PDF, TXT, CSV, MD — up to 10 MB</p>
+                  <p className="text-xs text-stone-400">PDF, TXT, CSV, MD — up to 10 MB</p>
                 </div>
               )}
               <input ref={fileInputRef} type="file" accept=".pdf,.txt,.csv,.md" multiple className="hidden" onChange={handleFileUpload} />
@@ -1742,8 +1901,8 @@ Do not assume any specific domain — use the recipe name, category, and knowled
 
               {/* AI Suggestions */}
               {knowledgeFiles.some(f => f.status === 'ready') && (
-                <div className="rounded-xl border border-stone-200 bg-white overflow-hidden">
-                  <div className="flex items-center justify-between p-4 border-b border-stone-100">
+                <div className="rounded-xl border overflow-hidden" style={{ borderColor: '#C98A1A25', background: '#C98A1A06' }}>
+                  <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: '#C98A1A15' }}>
                     <div>
                       <p className="text-sm font-semibold text-stone-800">Recipe Blueprint</p>
                       <p className="text-xs text-stone-500">Analyze your documents and design a complete recipe — name, screens, prompts, and more.</p>
@@ -1948,7 +2107,67 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                   ))}
                 </div>
               )}
-              {selectedLanguages.length > 0 && <div className="rounded-xl border border-stone-200 bg-white p-4"><p className="text-xs font-medium text-stone-500 mb-2">Languages</p><div className="flex flex-wrap gap-1.5">{selectedLanguages.map(c => <span key={c} className="text-xs px-2 py-0.5 rounded-md bg-stone-100 text-stone-700">{ALL_LANGUAGES.find(l => l.code === c)?.label || c}</span>)}</div></div>}
+              {selectedLanguages.length > 0 && (
+                <div className="rounded-xl border border-stone-200 bg-white overflow-hidden">
+                  <div className="px-5 py-3 flex items-center justify-between border-b border-stone-100">
+                    <div>
+                      <p className="text-sm font-semibold text-stone-900 flex items-center gap-2"><Globe size={14} /> Translation</p>
+                      <p className="text-[11px] text-stone-500 mt-0.5">One YAML per language — translated by Gemini before publishing</p>
+                    </div>
+                    {selectedLanguages.filter(l => l !== 'en').length > 0 && (
+                      <button
+                        onClick={() => { if (!apiKey) { setShowApiKeyDialog(true); return; } translateAll(); }}
+                        disabled={translatingAll || selectedLanguages.filter(l => l !== 'en').every(l => translationStatus[l] === 'done')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-opacity disabled:opacity-40"
+                        style={{ background: '#C45A3A' }}
+                      >
+                        {translatingAll ? <><Loader2 size={12} className="animate-spin" /> Translating...</> : selectedLanguages.filter(l => l !== 'en').every(l => translationStatus[l] === 'done') ? <><Check size={12} /> All Translated</> : <><Sparkles size={12} /> Translate All</>}
+                      </button>
+                    )}
+                  </div>
+                  <div className="divide-y divide-stone-50">
+                    {selectedLanguages.map(langCode => {
+                      const lang = ALL_LANGUAGES.find(l => l.code === langCode);
+                      const status = langCode === 'en' ? 'done' as TranslationStatus : (translationStatus[langCode] || 'pending');
+                      const isEn = langCode === 'en';
+                      return (
+                        <div key={langCode} className="px-5 py-2.5 flex items-center gap-3">
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm font-medium text-stone-800">{lang?.label || langCode}</span>
+                            <span className="text-xs text-stone-400 ml-2">{lang?.native}</span>
+                          </div>
+                          {isEn ? (
+                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-500">Source</span>
+                          ) : status === 'done' ? (
+                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 flex items-center gap-1"><Check size={10} /> Done</span>
+                          ) : status === 'translating' ? (
+                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 flex items-center gap-1"><Loader2 size={10} className="animate-spin" /> Translating</span>
+                          ) : status === 'error' ? (
+                            <button onClick={() => translateToLanguage(langCode)} className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-red-50 text-red-700 hover:bg-red-100 cursor-pointer">Retry</button>
+                          ) : (
+                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-stone-50 text-stone-400">Pending</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {selectedLanguages.filter(l => l !== 'en').length > 0 && (
+                    <div className="px-5 py-2.5 border-t border-stone-100 bg-stone-50/50">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 rounded-full bg-stone-200 overflow-hidden">
+                          <div className="h-full rounded-full transition-all duration-500" style={{
+                            width: `${(selectedLanguages.filter(l => l !== 'en' && translationStatus[l] === 'done').length / Math.max(selectedLanguages.filter(l => l !== 'en').length, 1)) * 100}%`,
+                            background: '#C45A3A',
+                          }} />
+                        </div>
+                        <span className="text-[10px] text-stone-500 shrink-0">
+                          {selectedLanguages.filter(l => l !== 'en' && translationStatus[l] === 'done').length}/{selectedLanguages.filter(l => l !== 'en').length}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -2171,11 +2390,13 @@ Do not assume any specific domain — use the recipe name, category, and knowled
                 </div>
               </>
             )}
-            {!previewIntro && (
-              <div className="flex gap-1 justify-center pb-2 px-3">
-                {screens.map((s, i) => <button key={s.id} onClick={() => { setPreviewIntro(false); setActiveScreenIndex(i); }} className="px-2 py-0.5 rounded-full text-[7px] font-medium cursor-pointer" style={{ background: !previewIntro && i === activeScreenIndex ? activePrimary : activePrimary + '20', color: !previewIntro && i === activeScreenIndex ? 'white' : activePrimary }}>{s.isHome ? (recipeName || 'Home') : s.title}</button>)}
-              </div>
-            )}
+            <div className="flex gap-1 justify-center pb-2 px-3">
+              {screens.filter(s => !s.isHome).map((s) => {
+                const i = screens.indexOf(s);
+                return <button key={s.id} onClick={() => { setPreviewIntro(false); setActiveScreenIndex(i); }} className="px-2 py-0.5 rounded-full text-[7px] font-medium cursor-pointer" style={{ background: !previewIntro && i === activeScreenIndex ? activePrimary : activePrimary + '20', color: !previewIntro && i === activeScreenIndex ? 'white' : activePrimary }}>{s.title}</button>;
+              })}
+              <button onClick={() => { setPreviewIntro(false); setActiveScreenIndex(screens.findIndex(s => s.isHome)); }} className="px-2 py-0.5 rounded-full text-[7px] font-medium cursor-pointer" style={{ background: !previewIntro && activeScreen.isHome ? activePrimary : activePrimary + '20', color: !previewIntro && activeScreen.isHome ? 'white' : activePrimary }}>{'\u{1F3E0}'}</button>
+            </div>
             <div className="flex justify-center pb-2"><div className="w-24 h-1 rounded-full" style={{ background: activePrimary + '40' }} /></div>
           </div>
         </div>
@@ -2183,11 +2404,26 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       </div>
 
       {/* ─── Dialogs ─── */}
-      <Dialog open={showYamlPreview} onOpenChange={setShowYamlPreview}>
+      <Dialog open={showYamlPreview} onOpenChange={v => { setShowYamlPreview(v); if (!v) setPreviewYamlLang('en'); }}>
         <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Recipe YAML</DialogTitle><DialogDescription>Generated DSL configuration</DialogDescription></DialogHeader>
-          <pre className="bg-stone-900 text-green-400 p-4 rounded-lg text-xs leading-relaxed overflow-x-auto whitespace-pre-wrap">{generateYaml()}</pre>
-          <button onClick={downloadYaml} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#C45A3A' }}><Download size={16} /> Download YAML File</button>
+          <DialogHeader>
+            <DialogTitle>Recipe YAML</DialogTitle>
+            <DialogDescription>Generated DSL configuration{Object.keys(translations).length > 0 ? ` — ${Object.keys(translations).length + 1} language files` : ''}</DialogDescription>
+          </DialogHeader>
+          {Object.keys(translations).length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pb-2">
+              <button onClick={() => setPreviewYamlLang('en')} className="px-2.5 py-1 rounded-md text-xs font-medium transition-colors" style={{ background: previewYamlLang === 'en' ? '#C45A3A' : '#F5F5F4', color: previewYamlLang === 'en' ? 'white' : '#78716C' }}>English (source)</button>
+              {Object.entries(translations).map(([code]) => (
+                <button key={code} onClick={() => setPreviewYamlLang(code)} className="px-2.5 py-1 rounded-md text-xs font-medium transition-colors" style={{ background: previewYamlLang === code ? '#C45A3A' : '#F5F5F4', color: previewYamlLang === code ? 'white' : '#78716C' }}>{ALL_LANGUAGES.find(l => l.code === code)?.label || code}</button>
+              ))}
+            </div>
+          )}
+          <pre className="bg-stone-900 text-green-400 p-4 rounded-lg text-xs leading-relaxed overflow-x-auto whitespace-pre-wrap">
+            {previewYamlLang === 'en' ? generateYaml() : generateYaml(previewYamlLang, translations[previewYamlLang])}
+          </pre>
+          <button onClick={downloadYaml} className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-white text-sm font-medium hover:opacity-90" style={{ background: '#C45A3A' }}>
+            <Download size={16} /> Download All YAML Files{Object.keys(translations).length > 0 ? ` (${Object.keys(translations).length + 1})` : ''}
+          </button>
         </DialogContent>
       </Dialog>
 

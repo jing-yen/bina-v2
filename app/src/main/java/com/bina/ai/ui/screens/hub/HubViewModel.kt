@@ -46,8 +46,10 @@ class HubViewModel(
         if (firestoreSource != null) {
             viewModelScope.launch {
                 try {
-                    _cloudRecipes.value = firestoreSource.fetchRecipes()
-                    Logger.d(TAG, "Loaded ${_cloudRecipes.value.size} cloud recipes")
+                    val recipesWithYaml = firestoreSource.fetchRecipesWithYaml()
+                    _cloudRecipes.value = recipesWithYaml.map { it.first }
+                    repo.registerCloudRecipesWithYaml(recipesWithYaml)
+                    Logger.d(TAG, "Loaded ${recipesWithYaml.size} cloud recipes")
                 } catch (e: Exception) {
                     Logger.e(TAG, "Cloud recipe fetch failed", e)
                 }
@@ -61,7 +63,9 @@ class HubViewModel(
         if (firestoreSource == null) return
         viewModelScope.launch {
             try {
-                _cloudRecipes.value = firestoreSource.fetchRecipes()
+                val recipesWithYaml = firestoreSource.fetchRecipesWithYaml()
+                _cloudRecipes.value = recipesWithYaml.map { it.first }
+                repo.registerCloudRecipesWithYaml(recipesWithYaml)
             } catch (e: Exception) {
                 Logger.e(TAG, "Cloud refresh failed", e)
             }

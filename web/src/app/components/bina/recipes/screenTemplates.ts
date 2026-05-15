@@ -126,6 +126,7 @@ export const SCREEN_TEMPLATES: ScreenTemplate[] = [
     id: 'sms_dispatch', name: 'SMS / Phone', emoji: '\u{1F4F1}', description: 'Pre-configured contacts for SMS or phone calls',
     widgets: [
       { wid: 'text_label', type: 'text_label', optional: false, defaultOn: true, staticProps: { style: 'subheading' }, fieldMap: { heading: 'text' } },
+      { wid: 'geolocate_btn', type: 'action_button', optional: true, defaultOn: true, staticProps: { label: '\u{1F4CD} Get My Location', action: 'geolocate', style: 'secondary' }, fieldMap: {} },
       { wid: 'contact_list', type: 'action_button', optional: false, defaultOn: true, staticProps: { style: 'primary' }, fieldMap: {} },
     ],
     fields: [
@@ -279,7 +280,7 @@ export function resolveTemplateWidgets(screen: ScreenConfig): WidgetConfig[] {
         props: { label: `${contactType === 'call' ? '\u{1F4DE}' : '\u{1F4E8}'} ${name}`, action, style: 'secondary' },
       };
     }).filter((w): w is WidgetConfig => w !== null);
-    widgets = widgets.filter(w => !(w.type === 'action_button'));
+    widgets = widgets.filter(w => !(w.type === 'action_button' && w.props.action !== 'geolocate'));
     widgets.push(...contactWidgets);
   }
 

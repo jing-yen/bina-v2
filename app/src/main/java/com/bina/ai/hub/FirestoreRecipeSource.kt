@@ -13,7 +13,10 @@ class FirestoreRecipeSource {
     private val db = FirebaseFirestore.getInstance()
     private val yaml = Yaml(configuration = YamlConfiguration(strictMode = false))
 
-    suspend fun fetchRecipes(): List<MiniApp> {
+    suspend fun fetchRecipes(): List<MiniApp> =
+        fetchRecipesWithYaml().map { it.first }
+
+    suspend fun fetchRecipesWithYaml(): List<Pair<MiniApp, String>> {
         return try {
             val snapshot = db.collection(COLLECTION)
                 .orderBy("updatedAt", Query.Direction.DESCENDING)
@@ -27,7 +30,7 @@ class FirestoreRecipeSource {
                     return@mapNotNull null
                 }
                 try {
-                    yaml.decodeFromString(MiniApp.serializer(), yamlText)
+                    yaml.decodeFromString(MiniApp.serializer(), yamlText) to yamlText
                 } catch (e: Exception) {
                     Logger.e(TAG, "Failed to parse YAML for ${doc.id}", e)
                     null

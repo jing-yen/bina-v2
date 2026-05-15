@@ -4,13 +4,13 @@ Last updated: 2026-05-15
 
 ## Aesthetic Direction
 
-**Warm Industrial** — Stone neutrals with terracotta accent. The palette evokes ceramics workshops and maker spaces, fitting the "recipe builder" metaphor. Tinted shadows, warm off-whites, and deliberate restraint.
+**Community Workshop** — Full palette on warm stone base. Four named color roles (terracotta, turmeric, teal, indigo) bring vibrancy to the "recipe builder" metaphor. Tinted shadows, warm off-whites, color-coded data visualization and category badges. Moved from Restrained to Full Palette on the color commitment axis.
 
 ## Type System
 
 | Role | Family | Weight | Size |
 |------|--------|--------|------|
-| Display / headings | Outfit | 600 | 20px (h1), 16px (h2) |
+| Display / headings | Outfit | 700 | 30px (h1), 20px (h2), 16px (h3) |
 | Body | Outfit | 400 | 14px |
 | Labels / small | Outfit | 400 | 12px / 10px |
 | Code / mono | JetBrains Mono | 400-600 | 14px |
@@ -23,14 +23,17 @@ Loaded via Google Fonts. Tracking: -0.01em on headings. Body line-height: 1.6.
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--color-accent` | `#C45A3A` (Terracotta) | Primary accent, CTAs, active states |
+| `--color-accent` | `#C45A3A` (Terracotta) | Primary accent, CTAs, active states, users |
+| `--color-turmeric` | `#C98A1A` (Turmeric) | AI/knowledge features, ratings, warnings |
+| `--color-teal` | `#1A8A6A` (Teal) | Success, downloads, growth, agriculture |
+| `--color-indigo` | `#5B6ABF` (Indigo) | Analytics, data, regions, info |
 | `--color-primary` | `#78350F` (Deep amber) | Dense emphasis |
 | `--bg-main` | `#FAF8F5` (Warm off-white) | Page background |
 | `--bg-card` | `rgba(255, 253, 250, 0.92)` | Card surfaces |
 | `--bg-glass` | `rgba(232, 221, 211, 0.3)` | Frosted overlays |
 | `--color-secondary` | `#E8DDD3` (Warm sand) | Subtle fills, badges |
 | `--color-neutral` | `#57534E` (Stone 600) | Body text |
-| `--color-success` | `#059669` (Emerald) | Builder mode, success |
+| `--color-success` | `#1A8A6A` (Teal) | Success states |
 | `--color-error` | `#BE3554` | Destructive actions |
 
 ### Neutral scale

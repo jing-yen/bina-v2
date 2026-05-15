@@ -16,7 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
+import com.bina.ai.ui.theme.BinaBgCard
 
 @Composable
 fun SyncActionCard(
@@ -31,7 +32,7 @@ fun SyncActionCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(Color.White.copy(alpha = 0.92f))
+            .background(BinaBgCard.copy(alpha = 0.92f))
             .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 18.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -47,7 +48,7 @@ fun SyncActionCard(
             Icon(icon, contentDescription = null, tint = accentColor, modifier = Modifier.size(26.dp))
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
+            Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
             Spacer(Modifier.height(2.dp))
             Text(subtitle, fontSize = 12.sp, color = BinaGrayText)
         }

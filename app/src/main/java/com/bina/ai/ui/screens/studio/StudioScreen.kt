@@ -56,18 +56,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bina.ai.ui.theme.BinaPrimary
-import com.bina.ai.ui.theme.BinaSecondary
-import com.bina.ai.ui.theme.BinaGreen
-import com.bina.ai.ui.theme.BinaGrayText
+import com.bina.ai.ui.theme.BinaAccent
+import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayBorder
+import com.bina.ai.ui.theme.BinaGrayText
+import com.bina.ai.ui.theme.BinaGreen
+import com.bina.ai.ui.theme.BinaStone950
+import com.bina.ai.ui.theme.BinaTurmeric
 import java.io.File
 
 data class WidgetToggle(
@@ -141,7 +142,7 @@ fun StudioScreen(onPublished: () -> Unit = {}) {
     ) {
         // Header
         Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
-            Text("Recipe Studio", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
+            Text("Recipe Studio", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
             Text("Create AI recipes for grassroots users", fontSize = 14.sp, color = BinaGrayText)
         }
 
@@ -207,7 +208,7 @@ fun StudioScreen(onPublished: () -> Unit = {}) {
                         onClick = { currentStep++ },
                         modifier = Modifier.weight(1f).height(52.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)
+                        colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
                     ) {
                         Text("Next Step", fontWeight = FontWeight.SemiBold)
                     }
@@ -276,9 +277,9 @@ private fun StepIndicator(currentStep: Int) {
                         .size(44.dp)
                         .clip(CircleShape)
                         .background(
-                            if (isActive || isCompleted) BinaPrimary else Color.White
+                            if (isActive || isCompleted) BinaAccent else BinaBgCard
                         )
-                        .border(2.dp, if (isActive || isCompleted) BinaPrimary else BinaGrayBorder, CircleShape),
+                        .border(2.dp, if (isActive || isCompleted) BinaAccent else BinaGrayBorder, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     if (isCompleted) {
@@ -297,7 +298,7 @@ private fun StepIndicator(currentStep: Int) {
                     label,
                     fontSize = 10.sp,
                     fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
-                    color = if (isActive) BinaPrimary else BinaGrayText
+                    color = if (isActive) BinaAccent else BinaGrayText
                 )
             }
 
@@ -307,7 +308,7 @@ private fun StepIndicator(currentStep: Int) {
                         .weight(1f)
                         .height(2.dp)
                         .padding(horizontal = 8.dp)
-                        .background(if (currentStep > stepNum) BinaPrimary else BinaGrayBorder)
+                        .background(if (currentStep > stepNum) BinaAccent else BinaGrayBorder)
                 )
             }
         }
@@ -324,7 +325,7 @@ private fun StepIdentity(
     disclaimer: String, onDisclaimerChange: (String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Define Your Recipe", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
+        Text("Define Your Recipe", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
         Text(
             "Set the AI's identity, personality, and safety boundaries",
             fontSize = 12.sp, color = BinaGrayText
@@ -371,11 +372,11 @@ private fun StepIdentity(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(20.dp))
-                .background(Color.White.copy(alpha = 0.9f))
+                .background(BinaBgCard.copy(alpha = 0.92f))
                 .padding(16.dp)
         ) {
             Column {
-                Text("System Prompt", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = BinaPrimary)
+                Text("System Prompt", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = BinaStone950)
                 Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     value = systemPrompt,
@@ -418,12 +419,12 @@ private fun StepIdentity(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(14.dp))
-                .background(Color(0x33ADC8FF))
+                .background(BinaTurmeric.copy(alpha = 0.1f))
                 .padding(12.dp)
         ) {
             Text(
                 "💡 Tip: Be specific about the user's context, language level, and safety constraints. This prompt runs entirely on-device.",
-                fontSize = 12.sp, color = BinaPrimary, lineHeight = 18.sp
+                fontSize = 12.sp, color = BinaStone950, lineHeight = 18.sp
             )
         }
     }
@@ -436,7 +437,7 @@ private fun StepKnowledge(
     onRemoveFile: (Int) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Upload Knowledge Base", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
+        Text("Upload Knowledge Base", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
         Text(
             "Add PDFs, text files, or CSVs to enhance the AI's knowledge",
             fontSize = 12.sp, color = BinaGrayText
@@ -450,7 +451,7 @@ private fun StepKnowledge(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(20.dp))
                 .border(2.dp, BinaGrayBorder, RoundedCornerShape(20.dp))
-                .background(Color.White.copy(alpha = 0.6f))
+                .background(BinaBgCard.copy(alpha = 0.6f))
                 .clickable { onPickFile() }
                 .padding(32.dp),
             contentAlignment = Alignment.Center
@@ -460,13 +461,13 @@ private fun StepKnowledge(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(BinaPrimary.copy(alpha = 0.12f)),
+                        .background(BinaAccent.copy(alpha = 0.12f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Upload, null, tint = BinaPrimary, modifier = Modifier.size(28.dp))
+                    Icon(Icons.Default.Upload, null, tint = BinaAccent, modifier = Modifier.size(28.dp))
                 }
                 Spacer(Modifier.height(12.dp))
-                Text("Tap to browse files", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
+                Text("Tap to browse files", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
                 Text("PDF, TXT, CSV up to 10MB", fontSize = 12.sp, color = BinaGrayText)
             }
         }
@@ -477,7 +478,7 @@ private fun StepKnowledge(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White.copy(alpha = 0.9f))
+                    .background(BinaBgCard.copy(alpha = 0.92f))
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -492,7 +493,7 @@ private fun StepKnowledge(
                     Icon(Icons.Default.Description, null, tint = BinaGreen, modifier = Modifier.size(20.dp))
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(file.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary, maxLines = 1)
+                    Text(file.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950, maxLines = 1)
                     Text(file.size, fontSize = 12.sp, color = BinaGrayText)
                 }
                 Icon(Icons.Default.Check, null, tint = BinaGreen, modifier = Modifier.size(20.dp))
@@ -504,12 +505,12 @@ private fun StepKnowledge(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(14.dp))
-                .background(Color(0x33ADC8FF))
+                .background(BinaTurmeric.copy(alpha = 0.1f))
                 .padding(12.dp)
         ) {
             Text(
                 "📚 Files are embedded locally using LiteRT. The AI can reference this knowledge even offline.",
-                fontSize = 12.sp, color = BinaPrimary, lineHeight = 18.sp
+                fontSize = 12.sp, color = BinaStone950, lineHeight = 18.sp
             )
         }
     }
@@ -521,7 +522,7 @@ private fun StepWidgets(
     onToggle: (Int) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Widget Permissions", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
+        Text("Widget Permissions", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
         Text(
             "Choose which capabilities the AI recipe can use",
             fontSize = 12.sp, color = BinaGrayText
@@ -536,7 +537,7 @@ private fun StepWidgets(
                     .clip(RoundedCornerShape(16.dp))
                     .background(
                         if (widget.enabled) BinaGreen.copy(alpha = 0.08f)
-                        else Color.White.copy(alpha = 0.9f)
+                        else BinaBgCard.copy(alpha = 0.92f)
                     )
                     .border(
                         1.dp,
@@ -558,7 +559,7 @@ private fun StepWidgets(
                     Icon(widget.icon, null, tint = Color.White, modifier = Modifier.size(22.dp))
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(widget.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
+                    Text(widget.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
                     Text(widget.description, fontSize = 12.sp, color = BinaGrayText)
                 }
                 Switch(
@@ -578,10 +579,10 @@ private fun StepWidgets(
 
 @Composable
 private fun studioFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = BinaPrimary,
+    focusedBorderColor = BinaAccent,
     unfocusedBorderColor = BinaGrayBorder,
-    focusedLabelColor = BinaPrimary,
-    cursorColor = BinaPrimary
+    focusedLabelColor = BinaAccent,
+    cursorColor = BinaAccent
 )
 
 private fun generateYaml(
@@ -856,8 +857,8 @@ model:
 $systemPromptYaml
 
 theme:
-  primary: "#091A7A"
-  secondary: "#1E3A8A"
+  primary: "#C45A3A"
+  secondary: "#E8DDD3"
 
 variables:
 $variables

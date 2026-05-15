@@ -27,8 +27,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bina.ai.ui.screens.sync.IncomingState
 import com.bina.ai.ui.screens.sync.SyncViewModel
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaAccent
+import com.bina.ai.ui.theme.BinaStone950
 import com.bina.ai.ui.theme.BinaRed
+import com.bina.ai.ui.theme.BinaBgCard
 import com.journeyapps.barcodescanner.BarcodeCallback
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.CompoundBarcodeView
@@ -131,7 +133,7 @@ fun ScanQrScreen(
                     Spacer(Modifier.height(20.dp))
                     Button(
                         onClick = { launcher.launch(Manifest.permission.CAMERA) },
-                        colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)
+                        colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
                     ) { Text("Try again") }
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -197,11 +199,11 @@ fun ScanQrScreen(
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(20.dp))
-                                .background(Color.White.copy(alpha = 0.92f))
+                                .background(BinaBgCard.copy(alpha = 0.92f))
                                 .clickable { showPaste = true }
                                 .padding(horizontal = 18.dp, vertical = 10.dp)
                         ) {
-                            Text("Paste YAML instead", color = BinaPrimary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Paste YAML instead", color = BinaStone950, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }

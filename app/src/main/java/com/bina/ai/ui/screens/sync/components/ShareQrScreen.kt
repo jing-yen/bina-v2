@@ -24,8 +24,10 @@ import androidx.compose.ui.unit.sp
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.ui.screens.sync.SyncViewModel
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
+import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaRed
+import com.bina.ai.ui.theme.BinaBgCard
 import com.google.zxing.BarcodeFormat
 import com.journeyapps.barcodescanner.BarcodeEncoder
 
@@ -96,7 +98,7 @@ fun ShareQrScreen(
             Text("Recipe not found", color = BinaGrayText)
         } else {
             Text(recipe.icon.ifBlank { "📦" }, fontSize = 36.sp)
-            Text(recipe.name, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = BinaPrimary)
+            Text(recipe.name, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = BinaStone950)
             recipe.author.name.takeIf { it.isNotBlank() }?.let {
                 Text("by $it", fontSize = 12.sp, color = BinaGrayText)
             }
@@ -115,7 +117,7 @@ fun ShareQrScreen(
                         .fillMaxWidth()
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Color.White)
+                        .background(BinaBgCard)
                         .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -132,7 +134,7 @@ fun ShareQrScreen(
                 )
                 Button(onClick = {
                     if (yamlText != null) clipboard.setText(AnnotatedString(yamlText))
-                }, colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)) {
+                }, colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)) {
                     Text("Copy YAML to clipboard")
                 }
             }
@@ -140,7 +142,7 @@ fun ShareQrScreen(
             Spacer(Modifier.weight(1f))
             Button(
                 onClick = onDone,
-                colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary),
+                colors = ButtonDefaults.buttonColors(containerColor = BinaAccent),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Done")

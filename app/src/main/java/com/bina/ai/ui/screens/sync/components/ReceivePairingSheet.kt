@@ -21,8 +21,10 @@ import androidx.compose.ui.unit.sp
 import com.bina.ai.sync.BlePairingPayload
 import com.bina.ai.ui.screens.sync.TransferState
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
+import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaRed
+import com.bina.ai.ui.theme.BinaBgCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,20 +36,20 @@ fun ReceivePairingSheet(
     onRetry: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = onCancel, sheetState = sheetState, containerColor = Color.White) {
+    ModalBottomSheet(onDismissRequest = onCancel, sheetState = sheetState, containerColor = BinaBgCard) {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
-            Text("Receive Recipe?", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = BinaPrimary)
+            Text("Receive Recipe?", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = BinaStone950)
             Spacer(Modifier.height(12.dp))
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFFF9FAFB))
+                    .background(Color(0xFFF5F0EB))
                     .padding(14.dp)
             ) {
                 Column {
-                    Text(offer.recipeName, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = BinaPrimary)
+                    Text(offer.recipeName, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = BinaStone950)
                     Spacer(Modifier.height(2.dp))
                     if (offer.authorName.isNotBlank()) {
                         Text("by ${offer.authorName}", fontSize = 12.sp, color = BinaGrayText)
@@ -65,7 +67,7 @@ fun ReceivePairingSheet(
                         Spacer(Modifier.weight(1f))
                         Button(
                             onClick = onConnect,
-                            colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)
+                            colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
                         ) { Text("Connect") }
                     }
                 }
@@ -90,7 +92,7 @@ fun ReceivePairingSheet(
                         Spacer(Modifier.weight(1f))
                         Button(
                             onClick = onRetry,
-                            colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)
+                            colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
                         ) { Text("Retry") }
                     }
                 }

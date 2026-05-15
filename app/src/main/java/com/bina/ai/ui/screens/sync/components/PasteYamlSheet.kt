@@ -17,7 +17,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
+import com.bina.ai.ui.theme.BinaAccent
+import com.bina.ai.ui.theme.BinaBgCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,9 +31,9 @@ fun PasteYamlSheet(
     val clipboard = LocalClipboardManager.current
     var text by remember { mutableStateOf("") }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = Color.White) {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = BinaBgCard) {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
-            Text("Paste recipe YAML", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = BinaPrimary)
+            Text("Paste recipe YAML", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = BinaStone950)
             Spacer(Modifier.height(4.dp))
             Text(
                 "Paste the YAML you copied from Studio (or another phone). It'll be parsed and previewed before install.",
@@ -53,7 +55,7 @@ fun PasteYamlSheet(
                 Button(
                     onClick = { onImport(text) },
                     enabled = text.isNotBlank(),
-                    colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)
+                    colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
                 ) { Text("Import") }
             }
         }

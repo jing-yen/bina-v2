@@ -38,6 +38,15 @@ const SE_ASIA_PATHS = [
   { name: 'Brunei', d: 'M115.5,-5.4 L115.4,-5.0 L115.3,-4.3 L114.9,-4.3 L114.7,-4.0 L114.2,-4.5 L114.6,-4.9 L115.5,-5.4 Z' },
 ];
 
+const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
+  Agriculture: { bg: '#1A8A6A18', text: '#1A8A6A' },
+  Health: { bg: '#C45A3A18', text: '#C45A3A' },
+  Education: { bg: '#5B6ABF18', text: '#5B6ABF' },
+  Emergency: { bg: '#BE355418', text: '#BE3554' },
+  Finance: { bg: '#C98A1A18', text: '#C98A1A' },
+  Environment: { bg: '#1A8A6A18', text: '#1A8A6A' },
+};
+
 function relativeTime(date: Date): string {
   const now = Date.now();
   const diff = now - date.getTime();
@@ -111,10 +120,10 @@ export function Dashboard() {
 
   const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
   const stats = [
-    { label: 'Total Recipes', value: String(recipes.length), icon: FileText, color: '#C45A3A' },
-    { label: 'Active Users', value: platformStats ? formatCount(platformStats.uniqueDevices) : '—', icon: Users, color: '#3B82F6' },
-    { label: 'Downloads', value: platformStats ? formatCount(platformStats.totalDownloads) : '—', icon: Download, color: '#10B981' },
-    { label: 'Avg Rating', value: platformStats ? (platformStats.avgRating > 0 ? platformStats.avgRating.toFixed(1) : '—') : '—', icon: Star, color: '#F59E0B' },
+    { label: 'Total Recipes', value: String(recipes.length), icon: FileText, color: '#C45A3A', tint: '#C45A3A0C' },
+    { label: 'Active Users', value: platformStats ? formatCount(platformStats.uniqueDevices) : '—', icon: Users, color: '#5B6ABF', tint: '#5B6ABF0C' },
+    { label: 'Downloads', value: platformStats ? formatCount(platformStats.totalDownloads) : '—', icon: Download, color: '#1A8A6A', tint: '#1A8A6A0C' },
+    { label: 'Avg Rating', value: platformStats ? (platformStats.avgRating > 0 ? platformStats.avgRating.toFixed(1) : '—') : '—', icon: Star, color: '#C98A1A', tint: '#C98A1A0C' },
   ];
 
   return (
@@ -122,7 +131,7 @@ export function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-stone-900">Welcome back, Jing Yen</h1>
+          <h1 className="text-3xl font-bold text-stone-900">Welcome back, Jing Yen</h1>
           <div className="flex items-center gap-2 mt-1.5">
             <span className="text-lg">{'\u{1F33E}'}</span>
             <span className="text-sm text-stone-600">Ministry of Agriculture, Malaysia</span>
@@ -145,16 +154,16 @@ export function Dashboard() {
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="bg-white rounded-xl border border-stone-200 p-5 shadow-card hover:shadow-interactive transition-shadow duration-200">
+            <div key={stat.label} className="rounded-xl border p-5 shadow-card hover:shadow-interactive transition-all duration-200 hover:-translate-y-0.5" style={{ background: stat.tint, borderColor: stat.color + '20' }}>
               <div className="flex items-center justify-between mb-3">
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center"
-                  style={{ background: stat.color + '15' }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: stat.color + '18' }}
                 >
                   <Icon size={20} style={{ color: stat.color }} />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-stone-900">{stat.value}</p>
+              <p className="text-3xl font-bold text-stone-900">{stat.value}</p>
               <p className="text-sm text-stone-500 mt-1">{stat.label}</p>
             </div>
           );
@@ -162,9 +171,12 @@ export function Dashboard() {
       </div>
 
       {/* Download heatmap */}
-      <div className="bg-white rounded-xl border border-stone-200 shadow-card p-6 mb-8">
-        <h2 className="text-lg font-semibold text-stone-900 mb-1">Download Heatmap</h2>
-        <p className="text-xs text-stone-500 mb-4">Where your recipes are being used across Southeast Asia</p>
+      <div className="rounded-xl border border-stone-200 shadow-card overflow-hidden mb-8">
+        <div className="px-6 pt-5 pb-4" style={{ background: 'linear-gradient(135deg, #5B6ABF08 0%, #1A8A6A06 100%)' }}>
+          <h2 className="text-lg font-semibold text-stone-900 mb-1">Download Heatmap</h2>
+          <p className="text-xs text-stone-500">Where your recipes are being used across Southeast Asia</p>
+        </div>
+        <div className="px-6 pb-6 bg-white">
         <div className="relative bg-white rounded-xl overflow-hidden" style={{ height: 260 }}>
           <svg viewBox="90 -30 53 43" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
             {SE_ASIA_PATHS.map(country => (
@@ -203,6 +215,7 @@ export function Dashboard() {
               <span className="text-[10px] text-stone-500">High</span>
             </div>
           </div>
+        </div>
         </div>
       </div>
 
@@ -280,7 +293,7 @@ export function Dashboard() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-stone-100 text-stone-600">
+                      <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: CATEGORY_COLORS[recipe.category]?.bg || '#E7E0D818', color: CATEGORY_COLORS[recipe.category]?.text || '#57534E' }}>
                         {recipe.category}
                       </span>
                     </td>
@@ -308,7 +321,7 @@ export function Dashboard() {
                 <span className="text-2xl">{selectedRecipe.recipeIcon}</span>
                 <div>
                   <h3 className="text-lg font-semibold text-stone-900">{selectedRecipe.recipeName}</h3>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">{selectedRecipe.category}</span>
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: CATEGORY_COLORS[selectedRecipe.category]?.bg || '#E7E0D818', color: CATEGORY_COLORS[selectedRecipe.category]?.text || '#57534E' }}>{selectedRecipe.category}</span>
                 </div>
               </div>
               <button onClick={() => setSelectedRecipe(null)} className="min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 hover:text-stone-600" aria-label="Close">

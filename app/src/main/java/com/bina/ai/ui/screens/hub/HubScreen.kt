@@ -119,7 +119,9 @@ fun HubScreen(
 
         sheetRecipe?.let { recipe ->
             val baseSizeKb = remember(recipe.id) {
-                runCatching {
+                val yaml = miniAppRepository.getYamlById(recipe.id)
+                if (yaml != null) yaml.length / 1024f
+                else runCatching {
                     context.assets.openFd("miniapps/${recipe.id}.yaml").use { it.length / 1024f }
                 }.getOrDefault(1.0f)
             }

@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.miniapp.model.Feature
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaAccent
 
 /**
  * Read-only preview of features. Shows icon + name as small chips. Full toggling lives
@@ -48,12 +48,12 @@ private fun FeatureChip(feature: Feature) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFFF1F5F9))
+            .background(Color(0xFFF5F0EB))
             .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Icon(Icons.Filled.Bolt, null, tint = BinaPrimary, modifier = Modifier.size(12.dp))
-        Text(feature.name, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = BinaPrimary)
+        Icon(Icons.Filled.Bolt, null, tint = BinaAccent, modifier = Modifier.size(12.dp))
+        Text(feature.name, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = BinaAccent)
     }
 }

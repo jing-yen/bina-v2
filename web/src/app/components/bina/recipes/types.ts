@@ -89,6 +89,22 @@ export function defaultIntroPage(disclaimer?: string): IntroPageConfig {
   };
 }
 
+export interface ScreenTranslation {
+  title: string;
+  fieldValues: Record<string, string>;
+}
+
+export interface RecipeTranslation {
+  recipeName: string;
+  recipeDescription: string;
+  systemPrompt: string;
+  disclaimer: string;
+  acceptLabel: string;
+  screens: Record<string, ScreenTranslation>;
+}
+
+export type TranslationStatus = 'pending' | 'translating' | 'done' | 'error';
+
 export interface RecipeConfig {
   recipeName: string;
   recipeDescription: string;
@@ -107,6 +123,8 @@ export interface RecipeConfig {
   maxClarifications?: number;
   fallbackScreen?: string;
   generatedYaml?: string;
+  translations?: Record<string, RecipeTranslation>;
+  translationStatus?: Record<string, TranslationStatus>;
 }
 
 export const CURRENT_RECIPE_VERSION = 2;

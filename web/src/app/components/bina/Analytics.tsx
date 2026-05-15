@@ -88,35 +88,35 @@ export function Analytics() {
     <div className="p-8 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-stone-900">Analytics Dashboard</h1>
+        <h1 className="text-3xl font-bold text-stone-900">Analytics Dashboard</h1>
         <p className="text-sm text-stone-500 mt-1">Track your published recipes' performance</p>
       </div>
 
       {/* Stats grid - 4 columns */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {/* Total Downloads */}
-        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-card hover:shadow-interactive transition-shadow duration-200">
+        <div className="rounded-xl border p-5 shadow-card hover:shadow-interactive transition-all duration-200 hover:-translate-y-0.5" style={{ background: '#1A8A6A0C', borderColor: '#1A8A6A20' }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#10B98115' }}>
-              <Download size={20} className="text-green-600" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#1A8A6A18' }}>
+              <Download size={20} style={{ color: '#1A8A6A' }} />
             </div>
           </div>
-          <p className="text-2xl font-bold text-stone-900">{stats ? formatCount(stats.totalDownloads) : '—'}</p>
+          <p className="text-3xl font-bold text-stone-900">{stats ? formatCount(stats.totalDownloads) : '—'}</p>
           <p className="text-sm text-stone-500 mt-1">Total Downloads</p>
           <div className="flex items-center gap-1 mt-2">
-            <TrendingUp size={14} className="text-green-600" />
+            <TrendingUp size={14} style={{ color: '#1A8A6A' }} />
             <span className="text-xs font-medium text-stone-500">All published recipes</span>
           </div>
         </div>
 
         {/* Average Rating */}
-        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-card hover:shadow-interactive transition-shadow duration-200">
+        <div className="rounded-xl border p-5 shadow-card hover:shadow-interactive transition-all duration-200 hover:-translate-y-0.5" style={{ background: '#C98A1A0C', borderColor: '#C98A1A20' }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#F59E0B15' }}>
-              <Award size={20} className="text-amber-500" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#C98A1A18' }}>
+              <Award size={20} style={{ color: '#C98A1A' }} />
             </div>
           </div>
-          <p className="text-2xl font-bold text-stone-900">{stats && stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—'}</p>
+          <p className="text-3xl font-bold text-stone-900">{stats && stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—'}</p>
           <p className="text-sm text-stone-500 mt-1">Average Rating</p>
           <div className="flex gap-0.5 mt-2">
             {[1, 2, 3, 4, 5].map(s => (
@@ -126,13 +126,13 @@ export function Analytics() {
         </div>
 
         {/* Active Users */}
-        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-card hover:shadow-interactive transition-shadow duration-200">
+        <div className="rounded-xl border p-5 shadow-card hover:shadow-interactive transition-all duration-200 hover:-translate-y-0.5" style={{ background: '#C45A3A0C', borderColor: '#C45A3A20' }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#C45A3A15' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#C45A3A18' }}>
               <Users size={20} style={{ color: '#C45A3A' }} />
             </div>
           </div>
-          <p className="text-2xl font-bold text-stone-900">{stats ? formatCount(stats.uniqueDevices) : '—'}</p>
+          <p className="text-3xl font-bold text-stone-900">{stats ? formatCount(stats.uniqueDevices) : '—'}</p>
           <p className="text-sm text-stone-500 mt-1">Active Users</p>
           <div className="flex items-center gap-1 mt-2">
             <span className="text-xs font-medium text-stone-500">Unique devices</span>
@@ -140,15 +140,15 @@ export function Analytics() {
         </div>
 
         {/* Regions */}
-        <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-card hover:shadow-interactive transition-shadow duration-200">
+        <div className="rounded-xl border p-5 shadow-card hover:shadow-interactive transition-all duration-200 hover:-translate-y-0.5" style={{ background: '#5B6ABF0C', borderColor: '#5B6ABF20' }}>
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#C45A3A15' }}>
-              <Globe size={20} style={{ color: '#C45A3A' }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#5B6ABF18' }}>
+              <Globe size={20} style={{ color: '#5B6ABF' }} />
             </div>
           </div>
-          <p className="text-2xl font-bold text-stone-900">{stats ? stats.countriesReached : '—'}</p>
+          <p className="text-3xl font-bold text-stone-900">{stats ? stats.countriesReached : '—'}</p>
           <p className="text-sm text-stone-500 mt-1">Countries Reached</p>
-          <p className="text-xs text-stone-500 mt-2">Southeast Asia focused</p>
+          <p className="text-xs font-medium mt-2" style={{ color: '#5B6ABF' }}>Southeast Asia focused</p>
         </div>
       </div>
 
@@ -167,7 +167,7 @@ export function Analytics() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#57534E', fontSize: 12 }} />
                 <Bar dataKey="downloads" radius={[6, 6, 0, 0]}>
                   {regions.slice(0, 6).map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill="#C45A3A" />
+                    <Cell key={`cell-${index}`} fill={['#C45A3A', '#1A8A6A', '#5B6ABF', '#C98A1A', '#BE3554', '#78350F'][index % 6]} />
                   ))}
                 </Bar>
               </BarChart>
@@ -179,9 +179,10 @@ export function Analytics() {
         <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-card">
           <h3 className="text-base font-semibold text-stone-900 mb-4">Regional Distribution</h3>
           <div className="space-y-4">
-            {(regions.length > 0 ? regions.slice(0, 6) : [{ countryCode: '—', count: 0 }]).map((rc) => {
+            {(regions.length > 0 ? regions.slice(0, 6) : [{ countryCode: '—', count: 0 }]).map((rc, idx) => {
               const pct = Math.round((rc.count / totalRegionCount) * 100);
               const name = COUNTRY_NAMES[rc.countryCode] || rc.countryCode;
+              const barColor = ['#C45A3A', '#1A8A6A', '#5B6ABF', '#C98A1A', '#BE3554', '#78350F'][idx % 6];
               return (
                 <div key={rc.countryCode}>
                   <div className="flex items-center justify-between mb-1.5">
@@ -189,10 +190,10 @@ export function Analytics() {
                     <span className="text-xs text-stone-500">{rc.count.toLocaleString()} downloads</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2 rounded-full bg-stone-100 overflow-hidden">
-                      <div className="h-full rounded-full" style={{ background: '#C45A3A', width: `${pct}%` }} />
+                    <div className="flex-1 h-2.5 rounded-full bg-stone-100 overflow-hidden">
+                      <div className="h-full rounded-full" style={{ background: barColor, width: `${pct}%` }} />
                     </div>
-                    <span className="text-xs font-semibold text-stone-700 min-w-[32px] text-right">{pct}%</span>
+                    <span className="text-xs font-semibold min-w-[32px] text-right" style={{ color: barColor }}>{pct}%</span>
                   </div>
                 </div>
               );

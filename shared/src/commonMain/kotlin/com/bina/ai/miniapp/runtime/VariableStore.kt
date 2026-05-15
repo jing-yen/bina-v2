@@ -25,8 +25,36 @@ class VariableStore(
     fun getNumber(key: String): Double = state[key]?.toDoubleOrNull() ?: 0.0
 
     fun isTrue(key: String): Boolean {
+        COMPARISON_REGEX.matchEntire(key.trim())?.let { match ->
+            val left = resolve(match.groupValues[1].trim())
+            val op = match.groupValues[2].trim()
+            val right = resolve(match.groupValues[3].trim())
+            val ln = left.toDoubleOrNull()
+            val rn = right.toDoubleOrNull()
+            if (ln != null && rn != null) {
+                return when (op) {
+                    ">" -> ln > rn
+                    ">=" -> ln >= rn
+                    "<" -> ln < rn
+                    "<=" -> ln <= rn
+                    "==" -> ln == rn
+                    "!=" -> ln != rn
+                    else -> false
+                }
+            }
+            return when (op) {
+                "==" -> left == right
+                "!=" -> left != right
+                else -> false
+            }
+        }
         val v = state[key] ?: return false
         return v.isNotEmpty() && v != "0" && v != "false"
+    }
+
+    private fun resolve(token: String): String {
+        if (token.startsWith("\"") && token.endsWith("\"")) return token.drop(1).dropLast(1)
+        return state[token] ?: token
     }
 
     fun interpolate(template: String): String =
@@ -36,5 +64,6 @@ class VariableStore(
 
     companion object {
         private val VARIABLE_REGEX = Regex("\\{\\{(\\w+(?:\\.\\w+)?)\\}\\}")
+        private val COMPARISON_REGEX = Regex("(.+?)\\s*(>=|<=|!=|==|>|<)\\s*(.+)")
     }
 }

@@ -22,10 +22,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.miniapp.model.MiniApp
+import com.bina.ai.ui.theme.BinaAccent
+import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaGreen
-import com.bina.ai.ui.theme.BinaPrimary
 import com.bina.ai.ui.theme.BinaRed
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun RecipeCard(
@@ -38,7 +40,7 @@ fun RecipeCard(
         modifier = modifier
             .width(150.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(BinaBgCard)
             .clickable { onClick() }
             .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -65,7 +67,7 @@ fun RecipeCard(
             }
         }
         Column {
-            Text(miniApp.name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary, maxLines = 1)
+            Text(miniApp.name, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950, maxLines = 1)
             val meta = listOfNotNull(
                 miniApp.category.takeIf { it.isNotBlank() },
                 miniApp.dialect.takeIf { it.isNotBlank() }
@@ -89,6 +91,6 @@ private fun BadgePill(text: String) {
             .background(Color.White.copy(alpha = 0.92f))
             .padding(horizontal = 5.dp, vertical = 1.dp)
     ) {
-        Text(text, fontSize = 8.sp, color = BinaPrimary, fontWeight = FontWeight.SemiBold)
+        Text(text, fontSize = 8.sp, color = BinaAccent, fontWeight = FontWeight.SemiBold)
     }
 }

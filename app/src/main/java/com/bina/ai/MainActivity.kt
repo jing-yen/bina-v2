@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -20,8 +23,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bina.ai.analytics.tracking.AnalyticsPinger
 import com.bina.ai.hub.FirestoreRecipeSource
+import com.bina.ai.install.ShortcutHelper
 import com.bina.ai.inference.InferenceEngine
 import com.bina.ai.inference.LiteRtLmEngine
+import com.bina.ai.inference.ModelDownloadManager
 import com.bina.ai.install.CapabilityChecker
 import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
@@ -29,6 +34,8 @@ import com.bina.ai.ui.components.BinaBottomNav
 import com.bina.ai.ui.components.BinaTopBar
 import com.bina.ai.ui.navigation.BinaNavGraph
 import com.bina.ai.ui.navigation.Screen
+import com.bina.ai.ui.screens.ModelDownloadScreen
+import com.bina.ai.ui.theme.BinaBgMain
 import com.bina.ai.ui.theme.BinaScreenMid
 import com.bina.ai.ui.theme.BinaScreenStart
 import com.bina.ai.ui.theme.BinaTheme
@@ -36,34 +43,55 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var inferenceEngine: InferenceEngine
+    private lateinit var inferenceEngine: LiteRtLmEngine
+    private lateinit var downloadManager: ModelDownloadManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val miniAppRepository = MiniAppRepository {
-            val assetFiles = applicationContext.assets.list("miniapps") ?: emptyArray()
-            val fromAssets = assetFiles.filter { it.endsWith(".yaml") || it.endsWith(".yml") }
-                .map { it to applicationContext.assets.open("miniapps/$it").bufferedReader().readText() }
+        val userDir = java.io.File(applicationContext.filesDir, "miniapps")
+        val miniAppRepository = MiniAppRepository(
+            loadYamlFiles = {
+                val assetFiles = applicationContext.assets.list("miniapps") ?: emptyArray()
+                val fromAssets = assetFiles.filter { it.endsWith(".yaml") || it.endsWith(".yml") }
+                    .map { it to applicationContext.assets.open("miniapps/$it").bufferedReader().readText() }
 
-            val userDir = java.io.File(applicationContext.filesDir, "miniapps")
-            val fromUser = if (userDir.isDirectory) {
-                userDir.listFiles()
-                    ?.filter { it.extension in listOf("yaml", "yml") }
-                    ?.map { it.name to it.readText() }
-                    ?: emptyList()
-            } else emptyList()
+                val fromUser = if (userDir.isDirectory) {
+                    userDir.listFiles()
+                        ?.filter { it.extension in listOf("yaml", "yml") }
+                        ?.map { it.name to it.readText() }
+                        ?: emptyList()
+                } else emptyList()
 
-            fromAssets + fromUser
-        }
+                fromAssets + fromUser
+            },
+            persistYaml = { filename, yamlText ->
+                userDir.mkdirs()
+                java.io.File(userDir, filename).writeText(yamlText)
+            }
+        )
 
         inferenceEngine = LiteRtLmEngine(applicationContext)
-        lifecycleScope.launch { inferenceEngine.initialize() }
+        downloadManager = ModelDownloadManager(applicationContext)
+
+        val modelAlreadyExists = inferenceEngine.findModelFile() != null || downloadManager.getModelPath() != null
+        if (modelAlreadyExists) {
+            lifecycleScope.launch { inferenceEngine.initialize() }
+        }
 
         val installStore = InstallStore.create(applicationContext)
         val firestoreRecipeSource = try { FirestoreRecipeSource() } catch (_: Exception) { null }
         val analyticsPinger = try { AnalyticsPinger(applicationContext) } catch (_: Exception) { null }
+
+        if (firestoreRecipeSource != null) {
+            lifecycleScope.launch {
+                try {
+                    val recipes = firestoreRecipeSource.fetchRecipesWithYaml()
+                    miniAppRepository.registerCloudRecipesWithYaml(recipes)
+                } catch (_: Exception) { }
+            }
+        }
 
         // Analytics infrastructure
         val analyticsDb = com.bina.ai.analytics.data.AnalyticsDatabase.get(applicationContext)
@@ -76,11 +104,22 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BinaTheme {
+                var modelReady by remember { mutableStateOf(modelAlreadyExists) }
                 val capabilityChecker = remember { CapabilityChecker.create(applicationContext) }
                 val navController = rememberNavController()
+                val shortcutRecipeId = remember {
+                    intent?.getStringExtra(ShortcutHelper.EXTRA_RECIPE_ID)
+                }
+                LaunchedEffect(shortcutRecipeId) {
+                    if (!shortcutRecipeId.isNullOrEmpty()) {
+                        navController.navigate(Screen.MiniAppView.createRoute(shortcutRecipeId)) {
+                            launchSingleTop = true
+                        }
+                    }
+                }
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
-                val showShell = currentRoute in listOf(
+                val showShell = modelReady && currentRoute in listOf(
                     Screen.Hub.route,
                     Screen.MyPocket.route,
                     Screen.OfflineSync.route,
@@ -95,42 +134,55 @@ class MainActivity : ComponentActivity() {
                                 colors = listOf(
                                     BinaScreenStart,
                                     BinaScreenMid,
-                                    Color.White
+                                    BinaBgMain
                                 )
                             )
                         )
                         .statusBarsPadding()
                 ) {
-                    if (showShell) {
-                        BinaTopBar()
-                    }
-
-                    Box(modifier = Modifier.weight(1f)) {
-                        BinaNavGraph(
-                            navController = navController,
-                            miniAppRepository = miniAppRepository,
-                            installStore = installStore,
-                            capabilityChecker = capabilityChecker,
-                            inferenceEngine = inferenceEngine,
-                            eventTracker = eventTracker,
-                            analyticsRepository = analyticsRepository,
-                            firestoreRecipeSource = firestoreRecipeSource,
-                            analyticsPinger = analyticsPinger
-                        )
-                    }
-
-                    if (showShell) {
-                        BinaBottomNav(
-                            currentRoute = currentRoute,
-                            onTabClick = { screen ->
-                                navController.navigate(screen.route) {
-                                    popUpTo(Screen.Hub.route) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
+                    if (!modelReady) {
+                        ModelDownloadScreen(
+                            downloadManager = downloadManager,
+                            onModelReady = {
+                                lifecycleScope.launch {
+                                    inferenceEngine.initialize()
+                                    modelReady = true
                                 }
                             },
-                            modifier = Modifier.navigationBarsPadding()
+                            modifier = Modifier.weight(1f)
                         )
+                    } else {
+                        if (showShell) {
+                            BinaTopBar()
+                        }
+
+                        Box(modifier = Modifier.weight(1f)) {
+                            BinaNavGraph(
+                                navController = navController,
+                                miniAppRepository = miniAppRepository,
+                                installStore = installStore,
+                                capabilityChecker = capabilityChecker,
+                                inferenceEngine = inferenceEngine,
+                                eventTracker = eventTracker,
+                                analyticsRepository = analyticsRepository,
+                                firestoreRecipeSource = firestoreRecipeSource,
+                                analyticsPinger = analyticsPinger
+                            )
+                        }
+
+                        if (showShell) {
+                            BinaBottomNav(
+                                currentRoute = currentRoute,
+                                onTabClick = { screen ->
+                                    navController.navigate(screen.route) {
+                                        popUpTo(Screen.Hub.route) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                modifier = Modifier.navigationBarsPadding()
+                            )
+                        }
                     }
                 }
             }

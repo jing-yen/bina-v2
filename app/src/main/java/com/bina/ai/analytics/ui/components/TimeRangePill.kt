@@ -25,7 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.analytics.ui.model.TimeWindow
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaAccent
+import com.bina.ai.ui.theme.BinaBgCard
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun TimeRangePill(
@@ -41,7 +43,7 @@ fun TimeRangePill(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(Color.White.copy(alpha = 0.7f))
+            .background(BinaBgCard.copy(alpha = 0.7f))
             .padding(4.dp)
             .height(pillHeight)
     ) {
@@ -59,7 +61,7 @@ fun TimeRangePill(
                 .width(pillWidth)
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(16.dp))
-                .background(BinaPrimary)
+                .background(BinaAccent)
         )
 
         // Labels
@@ -83,7 +85,7 @@ fun TimeRangePill(
                         text = window.label,
                         fontSize = 12.sp,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                        color = if (isSelected) Color.White else BinaPrimary.copy(alpha = textAlpha)
+                        color = if (isSelected) Color.White else BinaStone950.copy(alpha = textAlpha)
                     )
                 }
             }

@@ -35,9 +35,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.miniapp.model.Feature
+import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaGreen
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun FeatureToggleCard(
@@ -54,7 +55,7 @@ fun FeatureToggleCard(
             .fillMaxWidth()
             .alpha(rowAlpha)
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(BinaBgCard)
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -70,7 +71,7 @@ fun FeatureToggleCard(
         }
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(feature.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
+                Text(feature.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
                 if (feature.recommended) RecommendedPill()
             }
             if (feature.description.isNotBlank()) {

@@ -20,15 +20,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bina.ai.ui.theme.BinaAccent
+import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun BinaTopBar(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White.copy(alpha = 0.8f))
+            .background(BinaBgCard.copy(alpha = 0.85f))
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
@@ -37,7 +39,7 @@ fun BinaTopBar(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(BinaPrimary),
+                .background(BinaAccent),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -55,7 +57,7 @@ fun BinaTopBar(modifier: Modifier = Modifier) {
                 "Bina.ai",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = BinaPrimary
+                color = BinaStone950
             )
             Text(
                 "Edge-Native AI Platform",

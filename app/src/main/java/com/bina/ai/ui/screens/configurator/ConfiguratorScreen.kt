@@ -28,6 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,8 +46,8 @@ import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.ui.screens.configurator.components.ConfiguratorHeader
 import com.bina.ai.ui.screens.configurator.components.FeatureToggleCard
+import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +61,8 @@ fun ConfiguratorScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val recipe = remember(miniAppId) { miniAppRepository.getById(miniAppId) }
+    val cv by miniAppRepository.cloudVersion.collectAsState()
+    val recipe = remember(miniAppId, cv) { miniAppRepository.getById(miniAppId) }
 
     if (recipe == null) {
         UnavailableScaffold(onBack = onBack, modifier = modifier)
@@ -72,6 +74,7 @@ fun ConfiguratorScreen(
             recipe = recipe,
             installStore = installStore,
             capabilityChecker = capabilityChecker,
+            miniAppRepository = miniAppRepository,
             onInstalled = onInstalled,
             onBack = onBack,
             modifier = modifier
@@ -86,14 +89,15 @@ fun ConfiguratorScreen(
                 ConfiguratorViewModel(
                     initialState = ConfiguratorState.initial(recipe, capabilityChecker),
                     baseSizeKb = baseSizeKb,
-                    installStore = installStore
+                    installStore = installStore,
+                    miniAppRepository = miniAppRepository
                 ) as T
         }
     }
     val vm: ConfiguratorViewModel = viewModel(key = recipe.id, factory = factory)
     val state by vm.state.collectAsStateWithLifecycle()
     val snackHost = remember { SnackbarHostState() }
-    val accent = parseHexColor(recipe.theme.primary, fallback = BinaPrimary)
+    val accent = parseHexColor(recipe.theme.primary, fallback = BinaAccent)
 
     LaunchedEffect(vm) {
         vm.events.collect { event ->
@@ -135,7 +139,7 @@ fun ConfiguratorScreen(
                     onClick = vm::install,
                     modifier = Modifier.fillMaxWidth().height(54.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)
+                    colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
                 ) {
                     Text("Install to Pocket", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                 }
@@ -207,6 +211,7 @@ private fun EmptyFeaturesScaffold(
     recipe: MiniApp,
     installStore: InstallStore,
     capabilityChecker: CapabilityChecker,
+    miniAppRepository: MiniAppRepository,
     onInstalled: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -218,7 +223,8 @@ private fun EmptyFeaturesScaffold(
                 ConfiguratorViewModel(
                     initialState = ConfiguratorState.initial(recipe, capabilityChecker),
                     baseSizeKb = 0f,
-                    installStore = installStore
+                    installStore = installStore,
+                    miniAppRepository = miniAppRepository
                 ) as T
         }
     }
@@ -261,7 +267,7 @@ private fun EmptyFeaturesScaffold(
         ) {
             Text("This recipe has no configurable features.", fontSize = 14.sp, color = BinaGrayText)
             Spacer(Modifier.height(16.dp))
-            Button(onClick = vm::install, colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)) {
+            Button(onClick = vm::install, colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)) {
                 Text("Install with defaults", fontWeight = FontWeight.SemiBold)
             }
         }

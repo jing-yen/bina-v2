@@ -27,8 +27,9 @@ import com.bina.ai.analytics.ui.model.DailyBucket
 import com.bina.ai.analytics.ui.model.MetricsSnapshot
 import com.bina.ai.analytics.ui.model.RecipeStats
 import com.bina.ai.analytics.ui.util.plural
+import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -47,7 +48,7 @@ fun MetricDetailSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White
+        containerColor = BinaBgCard
     ) {
         Column(
             modifier = Modifier
@@ -177,7 +178,7 @@ private fun StreakDetail(metrics: MetricsSnapshot, chart: List<DailyBucket>) {
 
 @Composable
 private fun SheetHeader(title: String, subtitle: String) {
-    Text(title, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = BinaPrimary)
+    Text(title, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = BinaStone950)
     Spacer(Modifier.height(4.dp))
     Text(subtitle, fontSize = 13.sp, color = BinaGrayText)
     Spacer(Modifier.height(16.dp))
@@ -189,7 +190,7 @@ private fun SheetHint(text: String) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFF3F4F6))
+            .background(Color(0xFFF5F0EB))
             .padding(12.dp)
     ) {
         Text(text, fontSize = 12.sp, color = BinaGrayText)
@@ -202,7 +203,7 @@ private fun ListLine(leading: String, primary: String, secondary: String) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(Color(0xFFF9FAFB))
+            .background(Color(0xFFF5F0EB))
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -211,13 +212,13 @@ private fun ListLine(leading: String, primary: String, secondary: String) {
             modifier = Modifier
                 .size(28.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(Color.White),
+                .background(BinaBgCard),
             contentAlignment = Alignment.Center
         ) {
             Text(leading, fontSize = 16.sp)
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(primary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = BinaPrimary)
+            Text(primary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
             Text(secondary, fontSize = 11.sp, color = BinaGrayText)
         }
     }

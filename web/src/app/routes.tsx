@@ -3,6 +3,7 @@ import Root from "./components/bina/Root";
 import { Dashboard } from "./components/bina/Dashboard";
 import { Studio } from "./components/bina/Studio";
 import { Analytics } from "./components/bina/Analytics";
+import { SeedFirestore } from "./components/bina/SeedFirestore";
 
 export const router = createBrowserRouter([
   {
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
       { path: "studio", Component: Studio },
       { path: "studio/:id", Component: Studio },
       { path: "analytics", Component: Analytics },
+      { path: "seed", Component: SeedFirestore },
     ],
   },
 ]);

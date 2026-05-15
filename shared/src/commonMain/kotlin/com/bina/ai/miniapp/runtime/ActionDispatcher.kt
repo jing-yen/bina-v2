@@ -15,10 +15,25 @@ class ActionDispatcher(
     private val locationProvider: LocationProvider? = null,
     private val inferenceEngine: InferenceEngine? = null,
     private val onNavigate: (String) -> Unit,
-    private val onAskLogged: () -> Unit = {}
+    private val onAskLogged: () -> Unit = {},
+    private val onNativeIntent: ((NativeIntent) -> Unit)? = null
 ) {
 
+    sealed interface NativeIntent {
+        data class Sms(val phone: String, val body: String) : NativeIntent
+        data class Tel(val phone: String) : NativeIntent
+        data class Tts(val text: String) : NativeIntent
+        data class Share(val text: String) : NativeIntent
+    }
+
     suspend fun dispatch(action: String) {
+        val parts = action.split(";").map { it.trim() }.filter { it.isNotEmpty() }
+        for (part in parts) {
+            dispatchSingle(part)
+        }
+    }
+
+    private suspend fun dispatchSingle(action: String) {
         val interpolated = store.interpolate(action)
         val colonIndex = interpolated.indexOf(':')
         val prefix = if (colonIndex > 0) interpolated.substring(0, colonIndex) else interpolated
@@ -34,7 +49,22 @@ class ActionDispatcher(
             "geolocate" -> handleGeolocate()
             "set" -> handleSet(payload)
             "increment" -> handleIncrement(payload)
+            "tts" -> onNativeIntent?.invoke(NativeIntent.Tts(payload))
+            "share" -> onNativeIntent?.invoke(NativeIntent.Share(payload))
+            "sms" -> handleSms(interpolated)
+            "tel" -> onNativeIntent?.invoke(NativeIntent.Tel(payload))
             else -> Logger.w(TAG, "Unknown action: $prefix")
+        }
+    }
+
+    private fun handleSms(raw: String) {
+        // Format: sms:<phone>:<body>
+        val withoutPrefix = raw.removePrefix("sms:")
+        val colonIdx = withoutPrefix.indexOf(':')
+        if (colonIdx > 0) {
+            val phone = withoutPrefix.substring(0, colonIdx)
+            val body = withoutPrefix.substring(colonIdx + 1)
+            onNativeIntent?.invoke(NativeIntent.Sms(phone, body))
         }
     }
 

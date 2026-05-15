@@ -21,10 +21,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.bina.ai.analytics.ui.model.MetricsSnapshot
-import com.bina.ai.ui.theme.BinaAmber
-import com.bina.ai.ui.theme.BinaBlue
+import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaGreen
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaIndigo
+import com.bina.ai.ui.theme.BinaTurmeric
 import kotlinx.coroutines.delay
 
 enum class MetricKind { INSTALLED, QUESTIONS, ACTIVE_DAYS, STREAK }
@@ -47,7 +47,7 @@ fun MetricGrid(
                     label = "Recipes Installed",
                     value = metrics.recipesInstalled,
                     icon = Icons.Filled.Inventory2,
-                    accentColor = BinaPrimary,
+                    accentColor = BinaAccent,
                     onClick = { onTap(MetricKind.INSTALLED) }
                 )
             }
@@ -67,7 +67,7 @@ fun MetricGrid(
                     label = "Active Days",
                     value = metrics.activeDays,
                     icon = Icons.Filled.CalendarMonth,
-                    accentColor = BinaBlue,
+                    accentColor = BinaIndigo,
                     onClick = { onTap(MetricKind.ACTIVE_DAYS) }
                 )
             }
@@ -76,7 +76,7 @@ fun MetricGrid(
                     label = "Streak",
                     value = metrics.currentStreak,
                     icon = Icons.Filled.LocalFireDepartment,
-                    accentColor = BinaAmber,
+                    accentColor = BinaTurmeric,
                     onClick = { onTap(MetricKind.STREAK) },
                     formatter = { days ->
                         when {

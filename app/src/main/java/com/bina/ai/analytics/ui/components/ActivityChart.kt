@@ -33,9 +33,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.analytics.ui.model.DailyBucket
 import com.bina.ai.analytics.ui.util.plural
+import com.bina.ai.ui.theme.BinaAccent
+import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaGreen
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -60,7 +61,7 @@ fun ActivityChart(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(Color.White.copy(alpha = 0.9f))
+            .background(BinaBgCard.copy(alpha = 0.92f))
             .padding(16.dp)
     ) {
         Row(
@@ -72,7 +73,7 @@ fun ActivityChart(
                 "Daily Activity",
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
-                color = BinaPrimary
+                color = BinaStone950
             )
             HeatmapLegend()
         }
@@ -147,9 +148,9 @@ private fun HeatmapCell(
         else -> 1f
     }
     val baseColor = if (bucket.total == 0) {
-        Color(0xFFE5E7EB)
+        Color(0xFFE7E0D8)
     } else {
-        BinaGreen.copy(alpha = baseAlpha)
+        BinaAccent.copy(alpha = baseAlpha)
     }
 
     val cellAlpha = if (hasSelection && !isSelected) 0.35f else 1f
@@ -161,9 +162,9 @@ private fun HeatmapCell(
             .background(baseColor.copy(alpha = baseColor.alpha * cellAlpha * alpha))
             .then(
                 if (isSelected) {
-                    Modifier.border(2.dp, BinaPrimary, RoundedCornerShape(6.dp))
+                    Modifier.border(2.dp, BinaStone950, RoundedCornerShape(6.dp))
                 } else if (isToday) {
-                    Modifier.border(1.5.dp, BinaPrimary.copy(alpha = 0.45f), RoundedCornerShape(6.dp))
+                    Modifier.border(1.5.dp, BinaStone950.copy(alpha = 0.45f), RoundedCornerShape(6.dp))
                 } else Modifier
             )
             .clickable { onTap() }
@@ -173,10 +174,10 @@ private fun HeatmapCell(
 @Composable
 private fun HeatmapLegend(modifier: Modifier = Modifier) {
     val steps = listOf(
-        Color(0xFFE5E7EB),
-        BinaGreen.copy(alpha = 0.35f),
-        BinaGreen.copy(alpha = 0.65f),
-        BinaGreen
+        Color(0xFFE7E0D8),
+        BinaAccent.copy(alpha = 0.35f),
+        BinaAccent.copy(alpha = 0.65f),
+        BinaAccent
     )
     Row(
         modifier = modifier,

@@ -70,7 +70,7 @@ fun FeaturedCarousel(
                             .padding(horizontal = 3.dp)
                             .size(if (active) 8.dp else 6.dp)
                             .clip(CircleShape)
-                            .background(if (active) Color(0xFF091A7A) else Color(0xFFCBD5E1))
+                            .background(if (active) Color(0xFFC45A3A) else Color(0xFFE7E0D8))
                     )
                 }
             }

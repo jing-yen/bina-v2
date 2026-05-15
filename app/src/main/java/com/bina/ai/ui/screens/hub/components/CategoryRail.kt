@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.miniapp.model.MiniApp
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun CategoryRail(
@@ -32,7 +32,7 @@ fun CategoryRail(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
-            color = BinaPrimary
+            color = BinaStone950
         )
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),

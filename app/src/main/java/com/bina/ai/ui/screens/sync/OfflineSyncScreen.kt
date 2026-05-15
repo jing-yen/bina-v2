@@ -17,7 +17,7 @@ import com.bina.ai.ui.screens.sync.components.ShareRecipePickerSheet
 import com.bina.ai.ui.screens.sync.components.SyncActionCard
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaGreen
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun OfflineSyncScreen(
@@ -37,7 +37,7 @@ fun OfflineSyncScreen(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Text("Offline Sync", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = BinaPrimary)
+        Text("Offline Sync", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = BinaStone950)
         Text(
             "Share recipes phone-to-phone, no internet needed.",
             fontSize = 12.sp, color = BinaGrayText
@@ -47,7 +47,7 @@ fun OfflineSyncScreen(
             title = "Scan to Receive",
             subtitle = "Scan another phone's QR or paste a YAML to install.",
             icon = Icons.Filled.QrCodeScanner,
-            accentColor = BinaPrimary,
+            accentColor = BinaGreen,
             onClick = onScan
         )
         SyncActionCard(

@@ -24,9 +24,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaGrayText
-import com.bina.ai.ui.theme.BinaPrimary
-import com.bina.ai.ui.theme.BinaSecondary
+import com.bina.ai.ui.theme.BinaStone950
 
 @Composable
 fun EmptyState(
@@ -46,20 +46,20 @@ fun EmptyState(
                 modifier = Modifier
                     .size(160.dp)
                     .clip(CircleShape)
-                    .background(BinaPrimary.copy(alpha = 0.05f))
+                    .background(BinaAccent.copy(alpha = 0.05f))
             )
             Box(
                 modifier = Modifier
                     .size(110.dp)
                     .clip(CircleShape)
-                    .background(BinaPrimary.copy(alpha = 0.1f))
+                    .background(BinaAccent.copy(alpha = 0.1f))
             )
             Box(
                 modifier = Modifier
                     .size(72.dp)
                     .clip(CircleShape)
                     .background(
-                        Brush.linearGradient(listOf(BinaPrimary, BinaSecondary))
+                        Brush.linearGradient(listOf(BinaAccent, Color(0xFFE8936E)))
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -71,7 +71,7 @@ fun EmptyState(
             "No activity yet",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = BinaPrimary
+            color = BinaStone950
         )
         Spacer(Modifier.height(8.dp))
         Text(
@@ -85,7 +85,7 @@ fun EmptyState(
         Button(
             onClick = onOpenHub,
             shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = BinaPrimary)
+            colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
         ) {
             Text("Open Hub", fontWeight = FontWeight.SemiBold)
         }

@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.bina.ai.analytics.ui.model.TimeWindow
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaGreen
-import com.bina.ai.ui.theme.BinaPrimary
+import com.bina.ai.ui.theme.BinaStone950
 
 /**
  * @param collapseFraction 0f = expanded (full title + subtitle), 1f = collapsed (compact).
@@ -67,7 +67,7 @@ fun AnalyticsHeader(
                 "Analytics",
                 fontWeight = FontWeight.Bold,
                 fontSize = titleSize,
-                color = BinaPrimary
+                color = BinaStone950
             )
             Box(modifier = Modifier.height(subtitleHeight).alpha(subtitleAlpha)) {
                 Column {

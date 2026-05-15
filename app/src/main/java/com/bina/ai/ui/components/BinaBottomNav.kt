@@ -27,10 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bina.ai.ui.navigation.Screen
+import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaNavActive
 import com.bina.ai.ui.theme.BinaNavSurface
-import com.bina.ai.ui.theme.BinaPrimary
 
 @Composable
 fun BinaBottomNav(
@@ -79,13 +79,13 @@ fun BinaBottomNav(
                             imageVector = tab.icon,
                             contentDescription = tab.label,
                             modifier = Modifier.size(20.dp),
-                            tint = if (isActive) BinaPrimary else BinaGrayText
+                            tint = if (isActive) BinaAccent else BinaGrayText
                         )
                         Text(
                             text = tab.label,
                             fontSize = 10.sp,
                             fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (isActive) BinaPrimary else BinaGrayText
+                            color = if (isActive) BinaAccent else BinaGrayText
                         )
                     }
                 }

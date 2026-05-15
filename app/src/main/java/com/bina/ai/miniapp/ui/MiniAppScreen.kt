@@ -2,6 +2,8 @@ package com.bina.ai.miniapp.ui
 
 import android.content.Intent
 import android.net.Uri
+import android.speech.tts.TextToSpeech
+import java.util.Locale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -74,8 +76,25 @@ fun MiniAppScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val backingMap = remember { mutableStateMapOf<String, String>() }
-    val store = remember { VariableStore(miniApp.variables, backingMap) }
+    val storePrefs = remember { context.getSharedPreferences("bina_vars_${miniApp.id}", android.content.Context.MODE_PRIVATE) }
+    val backingMap = remember {
+        val map = mutableStateMapOf<String, String>()
+        storePrefs.all.forEach { (k, v) -> if (v is String) map[k] = v }
+        map
+    }
+    val store = remember {
+        VariableStore(miniApp.variables, backingMap).also { vs ->
+            vs.onChange = {
+                val editor = storePrefs.edit()
+                backingMap.forEach { (k, v) ->
+                    if (k != "ai_response" && k != "is_loading" && k != "photo_path") {
+                        editor.putString(k, v)
+                    }
+                }
+                editor.apply()
+            }
+        }
+    }
     val formulaEngine = remember { FormulaEngine(miniApp.formulas) }
     var currentScreenId by remember { mutableStateOf(miniApp.screens.firstOrNull()?.id ?: "") }
     var isLoading by remember { mutableStateOf(false) }
@@ -90,6 +109,18 @@ fun MiniAppScreen(
     val introAcceptedKey = "accepted_${miniApp.id}"
     var showIntro by remember { mutableStateOf(hasIntro && !introPrefs.getBoolean(introAcceptedKey, false)) }
     val scope = rememberCoroutineScope()
+    val tts = remember {
+        var engine: TextToSpeech? = null
+        engine = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                engine?.language = Locale("ms", "MY")
+            }
+        }
+        engine
+    }
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose { tts?.shutdown() }
+    }
     val themeColor = parseColor(miniApp.theme.primary)
     val secondaryColor = if (miniApp.theme.secondary.isNotEmpty()) parseColor(miniApp.theme.secondary) else themeColor.copy(alpha = 0.3f)
 
@@ -125,8 +156,37 @@ fun MiniAppScreen(
                 }
             },
             onAskLogged = {
-                // Fire-and-forget: launch a child coroutine on the screen's scope
                 scope.launch { eventTracker.logAsk(miniApp.id) }
+            },
+            onNativeIntent = { intent ->
+                when (intent) {
+                    is ActionDispatcher.NativeIntent.Tts -> {
+                        tts?.speak(intent.text, TextToSpeech.QUEUE_ADD, null, "bina_tts")
+                    }
+                    is ActionDispatcher.NativeIntent.Sms -> {
+                        try {
+                            val smsUri = Uri.parse("smsto:${intent.phone}")
+                            val smsIntent = Intent(Intent.ACTION_SENDTO, smsUri).apply {
+                                putExtra("sms_body", intent.body)
+                            }
+                            context.startActivity(smsIntent)
+                        } catch (_: Exception) {}
+                    }
+                    is ActionDispatcher.NativeIntent.Tel -> {
+                        try {
+                            context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${intent.phone}")))
+                        } catch (_: Exception) {}
+                    }
+                    is ActionDispatcher.NativeIntent.Share -> {
+                        try {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, intent.text)
+                            }
+                            context.startActivity(Intent.createChooser(shareIntent, "Kongsi"))
+                        } catch (_: Exception) {}
+                    }
+                }
             }
         )
     }
