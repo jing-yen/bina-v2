@@ -249,15 +249,22 @@ fun MiniAppScreen(
             )
         } else {
             // Content area — bottom-aligned like web preview (justify-end)
+            val scrollState = rememberScrollState()
+            val aiResponse = backingMap["ai_response"] ?: ""
+            LaunchedEffect(aiResponse) {
+                if (aiResponse.isNotEmpty()) {
+                    scrollState.animateScrollTo(scrollState.maxValue)
+                }
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .weight(1f)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .padding(horizontal = 16.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.Bottom
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     currentScreen.body.forEach { widget ->
                         RenderWidget(
                             widget = widget,
@@ -287,6 +294,22 @@ fun MiniAppScreen(
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
             ) {
+                if (!isHomeScreen) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color.White.copy(alpha = 0.6f))
+                            .clickable { onBack() }
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color(0xFF44403C),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
                 miniApp.screens.forEach { screen ->
                     val isActive = screen.id == currentScreenId
                     val isHome = screen.id == miniApp.screens.first().id

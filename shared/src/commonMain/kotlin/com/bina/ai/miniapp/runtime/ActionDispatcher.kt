@@ -162,6 +162,8 @@ class ActionDispatcher(
     }
 
     private fun buildSystemPrompt(): String = buildString {
+        appendLine("Be concise. Give a clear diagnosis or answer with actionable steps. Use short bullet points. No filler or preamble.")
+        appendLine()
         if (miniApp.knowledge.alwaysLoaded.isNotBlank()) {
             appendLine("## Reference Knowledge")
             appendLine(miniApp.knowledge.alwaysLoaded)

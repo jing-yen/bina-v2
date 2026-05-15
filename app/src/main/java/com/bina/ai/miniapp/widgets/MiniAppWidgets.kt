@@ -88,8 +88,8 @@ fun TextLabelWidget(widget: Widget.TextLabel, store: VariableStore, themeColor: 
         else -> TextAlign.Start
     }
     val (size, weight) = when (widget.style) {
-        "heading" -> 22.sp to FontWeight.Bold
-        "subheading" -> 17.sp to FontWeight.SemiBold
+        "heading" -> 24.sp to FontWeight.Bold
+        "subheading" -> 18.sp to FontWeight.SemiBold
         "caption" -> 12.sp to FontWeight.Normal
         else -> 15.sp to FontWeight.Normal
     }
@@ -507,8 +507,8 @@ fun MacroGridWidget(
 ) {
     FlowRow(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         maxItemsInEachRow = widget.columns
     ) {
         widget.buttons.forEach { button ->
@@ -708,11 +708,12 @@ fun MarkdownOutputWidget(widget: Widget.MarkdownOutput, store: VariableStore, th
             .padding(16.dp)
     ) {
         Column {
-            Text(
-                content,
-                fontSize = 14.sp,
-                lineHeight = 22.sp,
-                color = Color(0xFF1C1917)
+            SimpleMarkdown(
+                text = content,
+                baseColor = Color(0xFF1C1917),
+                baseFontSize = 14.sp,
+                fontWeight = FontWeight.Normal,
+                textAlign = TextAlign.Start
             )
             if (isLoading && widget.streaming) {
                 Spacer(Modifier.height(8.dp))
@@ -772,30 +773,28 @@ fun GeoDisplayWidget(
     themeColor: Color
 ) {
     val locationStr = store["user_location"]
-    if (locationStr.isBlank() || dataSet == null) {
-        if (widget.emptyText.isNotEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFFFAF8F5))
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(widget.emptyText, fontSize = 14.sp, color = BinaGrayText)
-            }
-        }
-        return
+    if (dataSet == null) return
+
+    val hasLocation = locationStr.isNotBlank()
+    val userLat: Double
+    val userLng: Double
+    if (hasLocation) {
+        val parts = locationStr.split(",")
+        userLat = parts.getOrNull(0)?.toDoubleOrNull() ?: 0.0
+        userLng = parts.getOrNull(1)?.toDoubleOrNull() ?: 0.0
+    } else {
+        userLat = 0.0
+        userLng = 0.0
     }
 
-    val parts = locationStr.split(",")
-    val userLat = parts.getOrNull(0)?.toDoubleOrNull() ?: 0.0
-    val userLng = parts.getOrNull(1)?.toDoubleOrNull() ?: 0.0
-
-    val sorted = dataSet.items
-        .map { it to haversine(userLat, userLng, it.lat, it.lng) }
-        .sortedBy { it.second }
-        .take(widget.limit)
+    val sorted = if (hasLocation) {
+        dataSet.items
+            .map { it to haversine(userLat, userLng, it.lat, it.lng) }
+            .sortedBy { it.second }
+            .take(widget.limit)
+    } else {
+        dataSet.items.take(widget.limit).map { it to -1.0 }
+    }
 
     Column(
         Modifier.fillMaxWidth(),
@@ -823,7 +822,7 @@ fun GeoDisplayWidget(
                         Text(point.info, fontSize = 12.sp, color = BinaGrayText)
                     }
                 }
-                if (widget.showDistance) {
+                if (widget.showDistance && distance >= 0) {
                     Text(
                         String.format("%.1f km", distance),
                         fontSize = 13.sp,
