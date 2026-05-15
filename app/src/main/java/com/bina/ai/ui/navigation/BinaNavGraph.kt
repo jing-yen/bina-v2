@@ -3,6 +3,8 @@ package com.bina.ai.ui.navigation
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -125,7 +127,8 @@ fun BinaNavGraph(
             arguments = listOf(navArgument("miniAppId") { type = NavType.StringType })
         ) { backStackEntry ->
             val miniAppId = backStackEntry.arguments?.getString("miniAppId") ?: return@composable
-            val miniApp = remember { miniAppRepository.getById(miniAppId) }
+            val cloudVersion by miniAppRepository.cloudVersion.collectAsState()
+            val miniApp = remember(cloudVersion) { miniAppRepository.getById(miniAppId) }
             if (miniApp != null) {
                 MiniAppScreen(
                     miniApp = miniApp,
@@ -143,10 +146,13 @@ fun BinaNavGraph(
         ) { backStackEntry ->
             val miniAppId = backStackEntry.arguments?.getString("miniAppId") ?: return@composable
             val context = LocalContext.current
-            val recipe = remember(miniAppId) { miniAppRepository.getById(miniAppId) }
+            val cv by miniAppRepository.cloudVersion.collectAsState()
+            val recipe = remember(miniAppId, cv) { miniAppRepository.getById(miniAppId) }
             val baseSizeKb = remember(recipe) {
                 if (recipe != null) {
-                    try {
+                    val yaml = miniAppRepository.getYamlById(recipe.id)
+                    if (yaml != null) yaml.length / 1024f
+                    else try {
                         context.assets.openFd("miniapps/${recipe.id}.yaml").use { it.length / 1024f }
                     } catch (e: Exception) {
                         1.0f
@@ -160,7 +166,10 @@ fun BinaNavGraph(
                 capabilityChecker = capabilityChecker,
                 baseSizeKb = baseSizeKb,
                 onInstalled = { _ ->
-                    navController.navigate(Screen.Hub.route) { popUpTo(Screen.Hub.route) { inclusive = true } }
+                    navController.navigate(Screen.MyPocket.route) {
+                        popUpTo(Screen.Hub.route) { inclusive = false }
+                        launchSingleTop = true
+                    }
                 },
                 onBack = { navController.popBackStack() }
             )

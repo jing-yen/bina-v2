@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,8 +24,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.animation.animateContentSize
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -56,6 +61,7 @@ import com.bina.ai.miniapp.runtime.TriageResult
 import com.bina.ai.miniapp.runtime.VariableStore
 import com.bina.ai.miniapp.widgets.RenderWidget
 import com.bina.ai.miniapp.widgets.parseColor
+import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.platform.AndroidLocationProvider
 import kotlinx.coroutines.launch
 
@@ -73,8 +79,16 @@ fun MiniAppScreen(
     val formulaEngine = remember { FormulaEngine(miniApp.formulas) }
     var currentScreenId by remember { mutableStateOf(miniApp.screens.firstOrNull()?.id ?: "") }
     var isLoading by remember { mutableStateOf(false) }
+    val screenResponses = remember { mutableMapOf<String, String>() }
+    val switchScreen = { targetId: String ->
+        screenResponses[currentScreenId] = store["ai_response"]
+        store["ai_response"] = screenResponses[targetId] ?: ""
+        currentScreenId = targetId
+    }
     val hasIntro = miniApp.setup.introPage.disclaimer.isNotEmpty()
-    var showIntro by remember { mutableStateOf(hasIntro) }
+    val introPrefs = remember { context.getSharedPreferences("bina_intro", android.content.Context.MODE_PRIVATE) }
+    val introAcceptedKey = "accepted_${miniApp.id}"
+    var showIntro by remember { mutableStateOf(hasIntro && !introPrefs.getBoolean(introAcceptedKey, false)) }
     val scope = rememberCoroutineScope()
     val themeColor = parseColor(miniApp.theme.primary)
     val secondaryColor = if (miniApp.theme.secondary.isNotEmpty()) parseColor(miniApp.theme.secondary) else themeColor.copy(alpha = 0.3f)
@@ -105,9 +119,9 @@ fun MiniAppScreen(
             inferenceEngine = inferenceEngine,
             onNavigate = { screenId ->
                 if (screenId == "home" || screenId == "back") {
-                    currentScreenId = miniApp.screens.first().id
+                    switchScreen(miniApp.screens.first().id)
                 } else {
-                    currentScreenId = screenId
+                    switchScreen(screenId)
                 }
             },
             onAskLogged = {
@@ -126,7 +140,10 @@ fun MiniAppScreen(
         IntroPageScreen(
             miniApp = miniApp,
             themeColor = themeColor,
-            onAccept = { showIntro = false },
+            onAccept = {
+                introPrefs.edit().putBoolean(introAcceptedKey, true).apply()
+                showIntro = false
+            },
             onBack = onBack
         )
         return
@@ -136,6 +153,7 @@ fun MiniAppScreen(
         Modifier
             .fillMaxSize()
             .background(secondaryColor)
+            .navigationBarsPadding()
     ) {
         // Nav bar — matches web preview: icon + title, back chevron on sub-screens only
         val isHomeScreen = currentScreenId == miniApp.screens.firstOrNull()?.id
@@ -153,7 +171,7 @@ fun MiniAppScreen(
                     tint = themeColor,
                     modifier = Modifier
                         .size(20.dp)
-                        .clickable { currentScreenId = miniApp.screens.first().id }
+                        .clickable { switchScreen(miniApp.screens.first().id) }
                 )
                 Spacer(Modifier.width(8.dp))
             }
@@ -167,10 +185,25 @@ fun MiniAppScreen(
             Spacer(Modifier.width(8.dp))
             Text(
                 currentScreen.title.ifEmpty { miniApp.name },
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = themeColor
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1C1917),
+                modifier = Modifier.weight(1f)
             )
+            if (!isHomeScreen) {
+                Icon(
+                    Icons.Filled.Refresh,
+                    contentDescription = "Reset screen",
+                    tint = themeColor,
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clickable {
+                            store["ai_response"] = ""
+                            store["photo_path"] = ""
+                            screenResponses.remove(currentScreenId)
+                        }
+                )
+            }
         }
 
         val showTriage = isHomeScreen && triageEngine.isChatMode
@@ -195,7 +228,7 @@ fun MiniAppScreen(
                             when (result) {
                                 is TriageResult.Navigate -> {
                                     result.prefillHints.forEach { (k, v) -> store[k] = v }
-                                    currentScreenId = result.screenId
+                                    switchScreen(result.screenId)
                                     triageMessages.value = emptyList()
                                     triageEngine.reset()
                                 }
@@ -241,6 +274,57 @@ fun MiniAppScreen(
                             }
                         )
                     }
+                    Spacer(Modifier.height(32.dp))
+                }
+            }
+        }
+
+        if (miniApp.screens.size > 1) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
+            ) {
+                miniApp.screens.forEach { screen ->
+                    val isActive = screen.id == currentScreenId
+                    val isHome = screen.id == miniApp.screens.first().id
+                    val catalogEntry = miniApp.screenCatalog.find { it.id == screen.id }
+                    val emoji = catalogEntry?.icon?.ifEmpty { null }
+                    val label = if (isHome) "Home"
+                        else screen.title.ifEmpty { catalogEntry?.title ?: screen.id }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(if (isActive) themeColor else Color.White.copy(alpha = 0.6f))
+                            .clickable(role = androidx.compose.ui.semantics.Role.Tab) { switchScreen(screen.id) }
+                            .padding(horizontal = if (isActive) 14.dp else 10.dp, vertical = 6.dp)
+                            .animateContentSize()
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (isHome) {
+                                Icon(
+                                    Icons.Filled.Home,
+                                    contentDescription = "Home",
+                                    tint = if (isActive) Color.White else Color(0xFF44403C),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            } else if (!emoji.isNullOrEmpty()) {
+                                Text(emoji, fontSize = 14.sp)
+                            }
+                            if (isActive) {
+                                if (isHome || !emoji.isNullOrEmpty()) Spacer(Modifier.width(4.dp))
+                                Text(
+                                    label,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color.White
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -263,6 +347,7 @@ private fun IntroPageScreen(
         Modifier
             .fillMaxSize()
             .background(secondaryColor)
+            .navigationBarsPadding()
     ) {
         Column(
             modifier = Modifier
@@ -272,21 +357,34 @@ private fun IntroPageScreen(
                 .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(32.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Go back",
+                    tint = Color(0xFF1C1917),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { onBack() }
+                )
+            }
+            Spacer(Modifier.height(16.dp))
             Text(miniApp.icon, fontSize = 48.sp)
             Spacer(Modifier.height(12.dp))
             Text(
                 miniApp.name,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = themeColor
+                color = Color(0xFF1C1917)
             )
             if (miniApp.description.isNotEmpty()) {
                 Spacer(Modifier.height(4.dp))
                 Text(
                     miniApp.description,
                     fontSize = 13.sp,
-                    color = Color(0xFF6B7280),
+                    color = BinaGrayText,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
             }
@@ -294,7 +392,7 @@ private fun IntroPageScreen(
             if (author.name.isNotEmpty()) {
                 Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(author.name, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = themeColor)
+                    Text(author.name, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF1C1917))
                     if (author.verified) {
                         Spacer(Modifier.width(4.dp))
                         Icon(
@@ -306,7 +404,7 @@ private fun IntroPageScreen(
                     }
                 }
                 if (author.organisation.isNotEmpty()) {
-                    Text(author.organisation, fontSize = 13.sp, color = Color(0xFF6B7280))
+                    Text(author.organisation, fontSize = 13.sp, color = BinaGrayText)
                 }
             }
 
@@ -368,7 +466,7 @@ private fun IntroPageScreen(
                                 screen.title,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = themeColor
+                                color = Color(0xFF1C1917)
                             )
                         }
                     }
@@ -379,9 +477,9 @@ private fun IntroPageScreen(
                 Spacer(Modifier.height(16.dp))
                 Text(
                     intro.disclaimer,
-                    fontSize = 11.sp,
-                    color = Color(0xFF6B7280),
-                    lineHeight = 16.sp,
+                    fontSize = 13.sp,
+                    color = BinaGrayText,
+                    lineHeight = 18.sp,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
             }
@@ -436,7 +534,7 @@ private fun TriageChatContent(
                 Text(
                     "Hi! I'm ${miniApp.name}. How can I help you today?",
                     fontSize = 14.sp,
-                    color = Color(0xFF1A1A2E)
+                    color = Color(0xFF1C1917)
                 )
             }
 
@@ -454,7 +552,7 @@ private fun TriageChatContent(
                     Text(
                         msg.text,
                         fontSize = 14.sp,
-                        color = if (msg.isUser) Color.White else Color(0xFF1A1A2E)
+                        color = if (msg.isUser) Color.White else Color(0xFF1C1917)
                     )
                 }
             }
