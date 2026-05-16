@@ -50,15 +50,25 @@ async function seed() {
   await Promise.all(batch);
   console.log(`Created ${batch.length} pings`);
 
-  // Update recipe stats
+  // Update recipe stats — one viral outlier
   console.log('Updating recipe stats...');
   const recipesSnap = await getDocs(recipesRef);
   const updates = [];
+  let madeViral = false;
   recipesSnap.forEach(d => {
-    const dl = Math.floor(Math.random() * 800) + 120;
-    const users = Math.floor(dl * (0.4 + Math.random() * 0.4));
-    const rating = +(3.5 + Math.random() * 1.5).toFixed(1);
-    console.log(`  ${d.id}: ${dl} downloads, ${users} users, ${rating} rating`);
+    const name = d.data().recipeName || '';
+    const isBidan = name.toLowerCase().includes('bidan');
+    let dl, users, rating;
+    if (isBidan || (!madeViral && name.toLowerCase().includes('health'))) {
+      dl = 12400; users = 4180; rating = 4.9;
+      madeViral = true;
+      console.log(`  ${d.id} (${name}): ⭐ VIRAL — ${dl} downloads, ${users} users, ${rating} rating`);
+    } else {
+      dl = Math.floor(Math.random() * 800) + 120;
+      users = Math.floor(dl * (0.4 + Math.random() * 0.4));
+      rating = +(3.5 + Math.random() * 1.5).toFixed(1);
+      console.log(`  ${d.id} (${name}): ${dl} downloads, ${users} users, ${rating} rating`);
+    }
     updates.push(updateDoc(doc(db, 'recipes', d.id), {
       'stats.downloads': String(dl),
       'stats.users': String(users),

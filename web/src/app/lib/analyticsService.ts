@@ -114,10 +114,18 @@ export async function seedMockPings(count = 120): Promise<void> {
   await Promise.all(batch);
 
   const recipes = await listRecipes();
+  let madeViral = false;
   const statUpdates = recipes.map(r => {
-    const dl = Math.floor(Math.random() * 800) + 50;
-    const users = Math.floor(dl * (0.4 + Math.random() * 0.4));
-    const rating = +(3.5 + Math.random() * 1.5).toFixed(1);
+    const isBidan = r.recipeName.toLowerCase().includes('bidan');
+    let dl: number, users: number, rating: number;
+    if (isBidan || (!madeViral && r.recipeName.toLowerCase().includes('health'))) {
+      dl = 12400; users = 4180; rating = 4.9;
+      madeViral = true;
+    } else {
+      dl = Math.floor(Math.random() * 800) + 50;
+      users = Math.floor(dl * (0.4 + Math.random() * 0.4));
+      rating = +(3.5 + Math.random() * 1.5).toFixed(1);
+    }
     return updateDoc(doc(db, 'recipes', r.id), {
       'stats.downloads': String(dl),
       'stats.users': String(users),

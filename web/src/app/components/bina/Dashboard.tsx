@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
-import { FileText, Users, Download, Star, Plus, ChevronRight, BadgeCheck, X, Copy, Trash2, Loader2, Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
+import { FileText, Users, Download, Star, Plus, ChevronRight, BadgeCheck, X, Copy, Trash2, Loader2, Sparkles, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -11,6 +11,131 @@ import type { RecipeWithId } from './recipes';
 import { listRecipes, deleteRecipe, duplicateRecipe, createRecipe } from '../../lib/recipeService';
 import { fetchPlatformStats, fetchRegionCounts, seedMockPings, type PlatformStats, type RegionCount } from '../../lib/analyticsService';
 import { RECIPES } from './recipes';
+
+const LANG_FLAGS: Record<string, string> = {
+  en: '\u{1F1EC}\u{1F1E7}', ms: '\u{1F1F2}\u{1F1FE}', zh: '\u{1F1E8}\u{1F1F3}', ta: '\u{1F1EE}\u{1F1F3}', th: '\u{1F1F9}\u{1F1ED}',
+  id: '\u{1F1EE}\u{1F1E9}', tl: '\u{1F1F5}\u{1F1ED}', ar: '\u{1F1F8}\u{1F1E6}', vi: '\u{1F1FB}\u{1F1F3}', km: '\u{1F1F0}\u{1F1ED}',
+  my: '\u{1F1F2}\u{1F1F2}', lo: '\u{1F1F1}\u{1F1E6}', bn: '\u{1F1E7}\u{1F1E9}', hi: '\u{1F1EE}\u{1F1F3}', ja: '\u{1F1EF}\u{1F1F5}',
+  ko: '\u{1F1F0}\u{1F1F7}', pt: '\u{1F1E7}\u{1F1F7}', es: '\u{1F1EA}\u{1F1F8}', fr: '\u{1F1EB}\u{1F1F7}', de: '\u{1F1E9}\u{1F1EA}',
+  ru: '\u{1F1F7}\u{1F1FA}', sw: '\u{1F1F0}\u{1F1EA}', am: '\u{1F1EA}\u{1F1F9}', ne: '\u{1F1F3}\u{1F1F5}', si: '\u{1F1F1}\u{1F1F0}',
+  ur: '\u{1F1F5}\u{1F1F0}', ml: '\u{1F1EE}\u{1F1F3}', te: '\u{1F1EE}\u{1F1F3}', kn: '\u{1F1EE}\u{1F1F3}', gu: '\u{1F1EE}\u{1F1F3}',
+};
+
+function langFlags(codes: string[], max = 8): string {
+  const flags = codes.map(c => LANG_FLAGS[c] || c.toUpperCase()).slice(0, max);
+  const extra = codes.length - max;
+  return flags.join('') + (extra > 0 ? ` +${extra}` : '');
+}
+
+const RECIPE_EN_SUBTITLE: Record<string, string> = {
+  'Bidan Pintar': 'Smart Midwife Assistant',
+  'Pakar Sawit': 'Palm Oil Expert',
+  'Pakar Tani': 'Farming Expert',
+  'Buku Kira-Kira': 'Micro-Business Ledger',
+  'Kira Mikro': 'Micro-Finance Calculator',
+  'Triage Ibu Hamil': 'Maternal Health Triage',
+  'Farm Buddy': 'Crop & Livestock Assistant',
+  'Rural Triage': 'Rural Emergency Triage',
+  'Crop Disease Assistant': 'Crop Disease Identifier',
+  'Smallholder Market Pricing Guide': 'Market Price Lookup',
+  'First Aid Response': 'Emergency First Aid',
+  'Maternal Health Guide': 'Prenatal Care Guide',
+  'Community Health Worker': 'CHW Training Tool',
+  'Dengue Prevention': 'Dengue Awareness & Prevention',
+  'Cegah Denggi': 'Dengue Prevention Chatbot',
+  'Panduan Nutrisi Kanak-Kanak': 'Child Nutrition Screening',
+  'Klinik Bantuan Pertama': 'First Aid Clinic Guide',
+  '\u{0E1C}\u{0E39}\u{0E49}\u{0E0A}\u{0E48}\u{0E27}\u{0E22}\u{0E23}\u{0E49}\u{0E32}\u{0E19}\u{0E04}\u{0E49}\u{0E32}': 'Shop Assistant',
+  'Tr\u{1EE3} L\u{00FD} N\u{00F4}ng Nghi\u{1EC7}p': 'Agriculture Assistant',
+  '\u{1780}\u{179F}\u{17B7}\u{1780}\u{1798}\u{17D2}\u{1798}\u{1786}\u{17D2}\u{179B}\u{17B6}\u{178F}': 'Smart Farming',
+  '\u{101B}\u{103D}\u{102C}\u{1000}\u{103B}\u{1014}\u{103A}\u{1038}\u{1019}\u{102C}\u{101B}\u{1031}\u{1038}': 'Village Health Guide',
+};
+
+const RECIPE_ICON_OVERRIDE: Record<string, string> = {
+  'Bidan Pintar': '\u{1F930}',
+  'Klinik Bantuan Pertama': '\u{26D1}\u{FE0F}',
+};
+
+const MOCK_HEALTH_RECIPES: RecipeWithId[] = [
+  {
+    id: 'mock_dengue', recipeName: 'Cegah Denggi', recipeDescription: 'Dengue prevention awareness chatbot for community health campaigns',
+    recipeIcon: '\u{1F99F}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Health',
+    selectedLanguages: ['ms', 'en', 'ta', 'zh'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
+    screens: [{} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-04-20'), updatedAt: new Date('2026-05-10'),
+    stats: { downloads: '3210', users: '1480', rating: 4.7 },
+  },
+  {
+    id: 'mock_nutrition', recipeName: 'Panduan Nutrisi Kanak-Kanak', recipeDescription: 'Child nutrition screening and dietary guidance for rural clinics',
+    recipeIcon: '\u{1F966}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Health',
+    selectedLanguages: ['ms', 'en', 'id'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
+    screens: [{} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-03-15'), updatedAt: new Date('2026-05-08'),
+    stats: { downloads: '1870', users: '920', rating: 4.5 },
+  },
+];
+
+const TRENDING_ORG: Record<string, string> = {
+  'mock_thai': 'Bangkok SME Network',
+  'mock_sawit': 'FELDA Malaysia',
+  'mock_viet': 'Mekong Delta Co-op',
+  'mock_khmer': 'Cambodia Rural Dev',
+  'mock_myanmar': 'Mandalay Health Dept',
+};
+
+const MOCK_TRENDING_RECIPES: RecipeWithId[] = [
+  {
+    id: 'mock_thai', recipeName: '\u{0E1C}\u{0E39}\u{0E49}\u{0E0A}\u{0E48}\u{0E27}\u{0E22}\u{0E23}\u{0E49}\u{0E32}\u{0E19}\u{0E04}\u{0E49}\u{0E32}', recipeDescription: 'Shop management assistant for small Thai retailers',
+    recipeIcon: '\u{1F3EA}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Business',
+    selectedLanguages: ['th', 'en'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
+    screens: [{} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-03-10'), updatedAt: new Date('2026-05-12'),
+    stats: { downloads: '862', users: '410', rating: 4.8 },
+  },
+  {
+    id: 'mock_viet', recipeName: 'Tr\u{1EE3} L\u{00FD} N\u{00F4}ng Nghi\u{1EC7}p', recipeDescription: 'Agriculture assistant for Vietnamese farmers',
+    recipeIcon: '\u{1F33E}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
+    selectedLanguages: ['vi', 'en', 'km'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
+    screens: [{} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-02-28'), updatedAt: new Date('2026-05-09'),
+    stats: { downloads: '634', users: '290', rating: 4.3 },
+  },
+  {
+    id: 'mock_khmer', recipeName: '\u{1780}\u{179F}\u{17B7}\u{1780}\u{1798}\u{17D2}\u{1798}\u{1786}\u{17D2}\u{179B}\u{17B6}\u{178F}', recipeDescription: 'Smart farming guide for Cambodian smallholders',
+    recipeIcon: '\u{1F331}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
+    selectedLanguages: ['km', 'en', 'th'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
+    screens: [{} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-04-05'), updatedAt: new Date('2026-05-11'),
+    stats: { downloads: '392', users: '180', rating: 4.1 },
+  },
+  {
+    id: 'mock_sawit', recipeName: 'Pakar Sawit', recipeDescription: 'Palm oil cultivation expert for Malaysian smallholders',
+    recipeIcon: '\u{1F334}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
+    selectedLanguages: ['ms', 'en', 'id', 'th'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
+    screens: [{} as any, {} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-01-20'), updatedAt: new Date('2026-05-14'),
+    stats: { downloads: '710', users: '340', rating: 5.0 },
+  },
+  {
+    id: 'mock_myanmar', recipeName: '\u{101B}\u{103D}\u{102C}\u{1000}\u{103B}\u{1014}\u{103A}\u{1038}\u{1019}\u{102C}\u{101B}\u{1031}\u{1038}', recipeDescription: 'Village health guide for rural Myanmar communities',
+    recipeIcon: '\u{1F3E5}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Health',
+    selectedLanguages: ['my', 'en'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
+    screens: [{} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-04-15'), updatedAt: new Date('2026-05-13'),
+    stats: { downloads: '285', users: '130', rating: 4.2 },
+  },
+];
+
+const LIVE_FEED = [
+  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Midwife in Kelantan opened Bidan Pintar', time: '2m ago' },
+  { flag: '\u{1F1EE}\u{1F1E9}', text: 'Health worker in Surabaya used Rural Triage', time: '4m ago' },
+  { flag: '\u{1F1F9}\u{1F1ED}', text: 'Nurse in Chiang Mai completed First Aid drill', time: '7m ago' },
+  { flag: '\u{1F1F5}\u{1F1ED}', text: 'CHW in Cebu checked Maternal Health Guide', time: '11m ago' },
+  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Clinic in Sabah downloaded Bidan Pintar', time: '14m ago' },
+  { flag: '\u{1F1FB}\u{1F1F3}', text: 'Community worker in Da Nang used Dengue Prevention', time: '18m ago' },
+  { flag: '\u{1F1EE}\u{1F1E9}', text: 'Midwife in Bandung opened Bidan Pintar', time: '22m ago' },
+  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Hospital in Penang shared First Aid Response', time: '25m ago' },
+];
 
 const HEATMAP_REGION_COORDS: Record<string, { x: number; y: number; name: string }> = {
   ID: { name: 'Indonesia', x: 118.0, y: 2.5 },
@@ -71,6 +196,7 @@ export function Dashboard() {
   const [seeding, setSeeding] = useState(false);
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
   const [regionCounts, setRegionCounts] = useState<RegionCount[]>([]);
+  const [feedIndex, setFeedIndex] = useState(0);
 
   const fetchRecipes = () => {
     setLoading(true);
@@ -81,6 +207,10 @@ export function Dashboard() {
   };
 
   useEffect(() => { fetchRecipes(); }, []);
+  useEffect(() => {
+    const t = setInterval(() => setFeedIndex(i => (i + 1) % LIVE_FEED.length), 3500);
+    return () => clearInterval(t);
+  }, []);
   useEffect(() => {
     seedMockPings().then(() => {
       fetchPlatformStats().then(setPlatformStats).catch(() => {});
@@ -132,16 +262,16 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="p-6 max-w-[1400px] mx-auto h-[calc(100dvh)] overflow-hidden flex flex-col">
+    <div className="p-6 max-w-[1400px] mx-auto flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div>
           <h1 className="text-3xl font-bold text-stone-900">Welcome back, Jing Yen</h1>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-lg">{'\u{1F33E}'}</span>
-            <span className="text-sm text-stone-600">Ministry of Agriculture, Malaysia</span>
+            <span className="text-lg">{'\u{1F3E5}'}</span>
+            <span className="text-sm text-stone-600">Ministry of Health, Malaysia</span>
             <BadgeCheck size={16} style={{ color: '#C45A3A' }} />
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded" style={{ color: '#C45A3A', background: '#C45A3A10' }}>Verified</span>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded" style={{ color: '#C45A3A', background: '#C45A3A10' }}>Verified Publisher</span>
           </div>
         </div>
         <button
@@ -152,6 +282,23 @@ export function Dashboard() {
           <Plus size={16} />
           Create New Recipe
         </button>
+      </div>
+
+      {/* Impact banner */}
+      <div className="rounded-xl px-5 py-2.5 mb-3 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, #C45A3A10 0%, #1A8A6A08 100%)', border: '1px solid #C45A3A15' }}>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#C45A3A18' }}>
+            <Activity size={16} style={{ color: '#C45A3A' }} />
+          </div>
+          <p className="text-sm text-stone-700">
+            Your recipes are helping <span className="font-bold text-stone-900">{platformStats ? formatCount(platformStats.uniqueDevices) : '—'} healthcare workers</span> across <span className="font-bold text-stone-900">{platformStats?.countriesReached || '—'} countries</span> this month
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-stone-500">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="shrink-0">{LIVE_FEED[feedIndex].flag} {LIVE_FEED[feedIndex].text}</span>
+          <span className="text-stone-400">· {LIVE_FEED[feedIndex].time}</span>
+        </div>
       </div>
 
       {/* Stats cards */}
@@ -231,111 +378,127 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Recipes table */}
-        <div className="bg-white rounded-xl border border-stone-200 shadow-card flex flex-col overflow-hidden">
-          <div className="px-5 py-3 border-b border-stone-200 shrink-0">
-            <h2 className="text-sm font-semibold text-stone-900">Your Recipes</h2>
-          </div>
+        {/* Recipes panels */}
+        <div className="flex flex-col gap-3">
+          {/* Your Recipes — Health/Emergency */}
+          {(() => {
+            const YOUR_CATEGORIES = new Set(['Health', 'Emergency']);
+            const seen = new Set<string>();
+            const deduped: RecipeWithId[] = [];
+            for (const r of recipes) {
+              if (r.recipeName.startsWith('E2E Test')) continue;
+              if (seen.has(r.recipeName)) continue;
+              seen.add(r.recipeName);
+              deduped.push(r);
+            }
+            const allHealth = [...deduped.filter(r => YOUR_CATEGORIES.has(r.category)), ...MOCK_HEALTH_RECIPES];
+            const healthSeen = new Set<string>();
+            const uniqueHealth = allHealth.filter(r => {
+              if (healthSeen.has(r.recipeName)) return false;
+              healthSeen.add(r.recipeName);
+              return true;
+            });
+            const visible = uniqueHealth
+              .sort((a, b) => (parseInt(b.stats?.downloads || '0') || 0) - (parseInt(a.stats?.downloads || '0') || 0))
+              .slice(0, 4);
+            const trending = MOCK_TRENDING_RECIPES
+              .sort((a, b) => (parseInt(b.stats?.downloads || '0') || 0) - (parseInt(a.stats?.downloads || '0') || 0))
+              .slice(0, 5);
 
-          <div className="flex-1 overflow-y-auto min-h-0">
-        {loading ? (
-          <div className="divide-y divide-stone-100">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="px-5 py-3 flex items-center gap-3 animate-pulse">
-                <div className="w-7 h-7 rounded-lg bg-stone-100" />
-                <div className="flex-1">
-                  <div className="h-3.5 w-28 bg-stone-200 rounded" />
-                  <div className="h-2.5 w-16 bg-stone-100 rounded mt-1" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : recipes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-10 gap-3">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#C45A3A10' }}>
-              <FileText size={22} style={{ color: '#C45A3A' }} />
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-medium text-stone-700">No recipes yet</p>
-              <p className="text-xs text-stone-500 mt-0.5">Create or import demo recipes</p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => navigate('/studio')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-medium hover:opacity-90"
-                style={{ background: '#C45A3A' }}
-              >
-                <Plus size={14} /> Create
-              </button>
-              <button
-                onClick={handleSeedDemo}
-                disabled={seeding}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 text-xs font-medium text-stone-700 hover:bg-stone-50"
-              >
-                {seeding ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                Import Demo
-              </button>
-            </div>
-          </div>
-        ) : (
-          <table className="w-full">
-            <thead className="sticky top-0 bg-white">
-              <tr className="border-b border-stone-100">
-                <th className="text-left text-[11px] font-medium text-stone-500 uppercase tracking-wider px-5 py-2">Recipe</th>
-                <th className="text-left text-[11px] font-medium text-stone-500 uppercase tracking-wider px-3 py-2">Category</th>
-                <th className="text-left text-[11px] font-medium text-stone-500 uppercase tracking-wider px-3 py-2">Languages</th>
-                <th className="text-right text-[11px] font-medium text-stone-500 uppercase tracking-wider px-3 py-2">Users</th>
-                <th className="text-right text-[11px] font-medium text-stone-500 uppercase tracking-wider px-3 py-2">Downloads</th>
-                <th className="text-right text-[11px] font-medium text-stone-500 uppercase tracking-wider px-3 py-2">Rating</th>
-                <th className="w-6"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {recipes.map((recipe) => {
-                const dl = parseInt(recipe.stats?.downloads || '0') || 0;
-                const users = parseInt(recipe.stats?.users || '0') || 0;
-                const rating = recipe.stats?.rating || 0;
-                return (
-                <tr
-                  key={recipe.id}
+            const RecipeRow = ({ recipe, rank }: { recipe: RecipeWithId; rank?: number }) => {
+              const dl = parseInt(recipe.stats?.downloads || '0') || 0;
+              const rating = recipe.stats?.rating || 0;
+              const subtitle = RECIPE_EN_SUBTITLE[recipe.recipeName];
+              const org = TRENDING_ORG[recipe.id];
+              return (
+                <div
                   onClick={() => setSelectedRecipe(recipe)}
-                  className="border-b border-stone-100 last:border-0 hover:bg-stone-50 transition-colors cursor-pointer group"
+                  className="px-4 py-2.5 hover:bg-stone-50 transition-colors cursor-pointer group flex items-center gap-3"
                 >
-                  <td className="px-5 py-2">
+                  {rank != null && (
+                    <span className="text-[11px] font-bold text-stone-500 w-4 text-center shrink-0">#{rank}</span>
+                  )}
+                  <span className="text-xl">{RECIPE_ICON_OVERRIDE[recipe.recipeName] || recipe.recipeIcon}</span>
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-base">{recipe.recipeIcon}</span>
-                      <div>
-                        <span className="text-sm font-medium text-stone-900 block leading-tight">{recipe.recipeName}</span>
-                        <span className="text-[10px] text-stone-400">{recipe.screens.length} screens · {relativeTime(recipe.updatedAt)}</span>
-                      </div>
+                      <span className="text-sm font-semibold text-stone-900">{recipe.recipeName}</span>
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0" style={{ background: CATEGORY_COLORS[recipe.category]?.bg || '#E7E0D818', color: CATEGORY_COLORS[recipe.category]?.text || '#57534E' }}>
+                        {recipe.category}
+                      </span>
                     </div>
-                  </td>
-                  <td className="px-3 py-2">
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: CATEGORY_COLORS[recipe.category]?.bg || '#E7E0D818', color: CATEGORY_COLORS[recipe.category]?.text || '#57534E' }}>
-                      {recipe.category}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2 text-[11px] text-stone-600">{recipe.selectedLanguages.map(l => l.toUpperCase()).join(', ')}</td>
-                  <td className="px-3 py-2 text-xs text-stone-600 text-right font-medium">{users > 0 ? users.toLocaleString() : '—'}</td>
-                  <td className="px-3 py-2 text-xs text-stone-600 text-right font-medium">{dl > 0 ? dl.toLocaleString() : '—'}</td>
-                  <td className="px-3 py-2 text-right">
-                    {rating > 0 ? (
-                      <span className="inline-flex items-center gap-0.5 text-xs font-medium text-stone-700">
-                        <Star size={10} className="text-amber-400 fill-amber-400" />
+                    {subtitle && <p className="text-[13px] text-stone-500 mt-0.5">{subtitle}</p>}
+                    {org && <p className="text-[11px] text-stone-400 mt-0.5">{org}</p>}
+                  </div>
+                  <div className="shrink-0 text-right flex flex-col items-end gap-0.5">
+                    {rating > 0 && (
+                      <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-stone-700">
+                        <Star size={11} className="text-amber-400 fill-amber-400" />
                         {rating.toFixed(1)}
                       </span>
-                    ) : <span className="text-xs text-stone-400">—</span>}
-                  </td>
-                  <td className="px-2 py-2">
-                    <ChevronRight size={14} className="text-stone-300 group-hover:text-stone-500 transition-colors" />
-                  </td>
-                </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-          </div>
+                    )}
+                    <div className="flex items-center gap-1.5 text-[11px] text-stone-400">
+                      <span className="text-[12px]">{langFlags(recipe.selectedLanguages, 5)}</span>
+                      <span className="text-stone-300">&middot;</span>
+                      <span className="inline-flex items-center gap-0.5 font-medium">
+                        <Download size={9} />
+                        {dl >= 1000 ? `${(dl / 1000).toFixed(1)}K` : dl}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight size={14} className="text-stone-300 group-hover:text-stone-500 transition-colors shrink-0" />
+                </div>
+              );
+            };
+
+            return loading ? (
+              <div className="bg-white rounded-xl border border-stone-200 shadow-card p-5">
+                <div className="flex items-center gap-3 animate-pulse">
+                  <div className="w-8 h-8 rounded-lg bg-stone-100" />
+                  <div className="flex-1"><div className="h-3.5 w-28 bg-stone-200 rounded" /><div className="h-2.5 w-40 bg-stone-100 rounded mt-1.5" /></div>
+                </div>
+              </div>
+            ) : recipes.length === 0 ? (
+              <div className="bg-white rounded-xl border border-stone-200 shadow-card flex flex-col items-center justify-center py-8 gap-3">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#C45A3A10' }}>
+                  <FileText size={22} style={{ color: '#C45A3A' }} />
+                </div>
+                <p className="text-sm font-medium text-stone-700">No recipes yet</p>
+                <div className="flex gap-2">
+                  <button onClick={() => navigate('/studio')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-medium hover:opacity-90" style={{ background: '#C45A3A' }}>
+                    <Plus size={14} /> Create
+                  </button>
+                  <button onClick={handleSeedDemo} disabled={seeding} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 text-xs font-medium text-stone-700 hover:bg-stone-50">
+                    {seeding ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                    Import Demo
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="bg-white rounded-xl border border-stone-200 shadow-card overflow-hidden">
+                  <div className="px-4 py-2 border-b border-stone-100 flex items-center justify-between">
+                    <h2 className="text-xs font-semibold text-stone-900 uppercase tracking-wider">Your Recipes</h2>
+                    <span className="text-[10px] text-stone-400">{visible.length} published</span>
+                  </div>
+                  <div className="divide-y divide-stone-100">
+                    {visible.map(r => <RecipeRow key={r.id} recipe={r} />)}
+                  </div>
+                </div>
+
+                {trending.length > 0 && (
+                  <div className="bg-white rounded-xl border border-stone-200 shadow-card overflow-hidden">
+                    <div className="px-4 py-2 border-b border-stone-100 flex items-center justify-between">
+                      <h2 className="text-xs font-semibold text-stone-900 uppercase tracking-wider">Trending on Bina</h2>
+                      <span className="text-[10px] text-stone-400">{trending.length} recipes</span>
+                    </div>
+                    <div className="divide-y divide-stone-100">
+                      {trending.map((r, i) => <RecipeRow key={r.id} recipe={r} rank={i + 1} />)}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
 
@@ -349,7 +512,10 @@ export function Dashboard() {
                 <span className="text-2xl">{selectedRecipe.recipeIcon}</span>
                 <div>
                   <h3 className="text-lg font-semibold text-stone-900">{selectedRecipe.recipeName}</h3>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: CATEGORY_COLORS[selectedRecipe.category]?.bg || '#E7E0D818', color: CATEGORY_COLORS[selectedRecipe.category]?.text || '#57534E' }}>{selectedRecipe.category}</span>
+                  <div className="flex items-center gap-2">
+                    {RECIPE_EN_SUBTITLE[selectedRecipe.recipeName] && <span className="text-xs text-stone-500">{RECIPE_EN_SUBTITLE[selectedRecipe.recipeName]}</span>}
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: CATEGORY_COLORS[selectedRecipe.category]?.bg || '#E7E0D818', color: CATEGORY_COLORS[selectedRecipe.category]?.text || '#57534E' }}>{selectedRecipe.category}</span>
+                  </div>
                 </div>
               </div>
               <button onClick={() => setSelectedRecipe(null)} className="min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-400 hover:text-stone-600" aria-label="Close">

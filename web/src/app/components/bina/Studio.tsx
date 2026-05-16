@@ -47,6 +47,15 @@ const EMOJI_ICONS = [
 
 const CATEGORIES = ['Agriculture', 'Health', 'Education', 'Emergency', 'Finance', 'Environment'];
 
+const LANG_FLAGS: Record<string, string> = {
+  en: '\u{1F1EC}\u{1F1E7}', ms: '\u{1F1F2}\u{1F1FE}', zh: '\u{1F1E8}\u{1F1F3}', ta: '\u{1F1EE}\u{1F1F3}', th: '\u{1F1F9}\u{1F1ED}',
+  id: '\u{1F1EE}\u{1F1E9}', tl: '\u{1F1F5}\u{1F1ED}', ar: '\u{1F1F8}\u{1F1E6}', vi: '\u{1F1FB}\u{1F1F3}', km: '\u{1F1F0}\u{1F1ED}',
+  my: '\u{1F1F2}\u{1F1F2}', lo: '\u{1F1F1}\u{1F1E6}', bn: '\u{1F1E7}\u{1F1E9}', hi: '\u{1F1EE}\u{1F1F3}', ja: '\u{1F1EF}\u{1F1F5}',
+  ko: '\u{1F1F0}\u{1F1F7}', pt: '\u{1F1E7}\u{1F1F7}', es: '\u{1F1EA}\u{1F1F8}', fr: '\u{1F1EB}\u{1F1F7}', de: '\u{1F1E9}\u{1F1EA}',
+  ru: '\u{1F1F7}\u{1F1FA}', sw: '\u{1F1F0}\u{1F1EA}', am: '\u{1F1EA}\u{1F1F9}', ne: '\u{1F1F3}\u{1F1F5}', si: '\u{1F1F1}\u{1F1F0}',
+  ur: '\u{1F1F5}\u{1F1F0}', ml: '\u{1F1EE}\u{1F1F3}', te: '\u{1F1EE}\u{1F1F3}', kn: '\u{1F1EE}\u{1F1F3}', gu: '\u{1F1EE}\u{1F1F3}',
+};
+
 const LANGUAGE_GROUPS = [
   { label: 'Southeast Asian', languages: [
     { code: 'ms', label: 'Bahasa Melayu', native: 'Bahasa Melayu' },
@@ -262,7 +271,7 @@ export function Studio() {
   // Step 1
   const [recipeName, setRecipeName] = useState('');
   const [recipeDescription, setRecipeDescription] = useState('');
-  const [recipeIcon, setRecipeIcon] = useState('\u{1F916}');
+  const [recipeIcon, setRecipeIcon] = useState('\u{1F4DC}');
   const [systemPrompt, setSystemPrompt] = useState('You are a helpful assistant.');
   const [blockedKeywords, setBlockedKeywords] = useState('');
   const [introPage, setIntroPage] = useState<IntroPageConfig>({ ...defaultIntroPage(), enabled: true });
@@ -318,6 +327,35 @@ export function Studio() {
   const [translations, setTranslations] = useState<Record<string, RecipeTranslation>>({});
   const [translationStatus, setTranslationStatus] = useState<Record<string, TranslationStatus>>({});
   const [translatingAll, setTranslatingAll] = useState(false);
+
+  // Document preview & auto-generation
+  const [docPreviewContent, setDocPreviewContent] = useState<string | null>(null);
+  const [autoGenerating, setAutoGenerating] = useState(false);
+
+  // Typing animation for system prompt
+  const [typingPrompt, setTypingPrompt] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const prevSystemPromptRef = useRef(systemPrompt);
+
+  useEffect(() => {
+    const wasEmpty = prevSystemPromptRef.current === '' || prevSystemPromptRef.current === 'You are a helpful assistant.';
+    const isNowFilled = systemPrompt !== '' && systemPrompt !== 'You are a helpful assistant.' && systemPrompt !== prevSystemPromptRef.current;
+    prevSystemPromptRef.current = systemPrompt;
+    if (wasEmpty && isNowFilled) {
+      setIsTyping(true);
+      setTypingPrompt('');
+      let i = 0;
+      const interval = setInterval(() => {
+        i++;
+        setTypingPrompt(systemPrompt.slice(0, i));
+        if (i >= systemPrompt.length) {
+          clearInterval(interval);
+          setIsTyping(false);
+        }
+      }, 15);
+      return () => clearInterval(interval);
+    }
+  }, [systemPrompt]);
 
   // ─── Undo / Redo ───
   const historyRef = useRef<RecipeSnapshot[]>([]);
@@ -618,28 +656,38 @@ Do not assume any specific domain — use the recipe name, category, and knowled
   }, [apiKey, recipeName, recipeDescription, category, knowledgeFiles]);
 
   // ─── Knowledge ───
+  const [uploadProgress, setUploadProgress] = useState(0);
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
     const fileList = Array.from(files);
-    for (let fi = 0; fi < fileList.length; fi++) {
-      const file = fileList[fi];
+    let uploadedText = '';
+    for (const file of fileList) {
       const sizeStr = file.size > 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${(file.size / 1024).toFixed(0)} KB`;
       setKnowledgeFiles(prev => [...prev, { name: file.name, size: sizeStr, status: 'uploading' }]);
+      setUploadProgress(0);
       const text = await file.text();
-      setKnowledgeFiles(prev => prev.map(f => f.name === file.name ? { ...f, status: 'processing' } : f));
+      uploadedText = text;
       const chunks: string[] = []; const words = text.split(/\s+/); let cur = '';
       for (const w of words) { if (cur.length + w.length > 500) { chunks.push(cur.trim()); cur = w; } else cur += ' ' + w; }
       if (cur.trim()) chunks.push(cur.trim());
-      let summary = `Document: ${file.name} (${chunks.length} chunks)`;
-      if (apiKey && chunks.length > 0) {
-        if (fi > 0) await new Promise(r => setTimeout(r, 1500));
-        try { summary = (await callGemini(`Summarize in 2-3 sentences:\n\n${chunks.slice(0, 3).join('\n\n')}`, apiKey)).trim(); } catch {}
-      }
+      setUploadProgress(30);
+      await new Promise(r => setTimeout(r, 300));
+      setKnowledgeFiles(prev => prev.map(f => f.name === file.name ? { ...f, status: 'processing' } : f));
+      setUploadProgress(65);
+      await new Promise(r => setTimeout(r, 400));
+      setUploadProgress(100);
+      await new Promise(r => setTimeout(r, 300));
+      const summary = `Document: ${file.name} (${chunks.length} chunks)`;
       setKnowledgeFiles(prev => prev.map(f => f.name === file.name ? { ...f, status: 'ready', chunks: chunks.length, summary } : f));
     }
     e.target.value = '';
+    if (uploadedText) {
+      setDocPreviewContent(uploadedText);
+      setTimeout(() => runMockGeneration(), 400);
+    }
   };
+
   const removeFile = (i: number) => setKnowledgeFiles(prev => prev.filter((_, idx) => idx !== i));
   const generateKnowledgeSuggestions = useCallback(async () => {
     if (!apiKey) return;
@@ -779,6 +827,85 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     toast.success('Applied — review in Identity & Layout steps');
   };
 
+  const runMockGeneration = useCallback(() => {
+    setAutoGenerating(true);
+    setAiLoading(true);
+    const BIDAN_SYSTEM_PROMPT = `You are Bidan Pintar (Smart Midwife), an AI assistant for community midwives and healthcare workers in rural Malaysia. You help with antenatal assessments, risk scoring, danger sign identification, nutrition guidance, and postnatal care protocols.\n\nAlways:\n- Ask clarifying questions before giving advice\n- Use the Risk Assessment Matrix for scoring\n- Flag danger signs immediately with emergency referral instructions\n- Provide culturally appropriate nutrition advice\n- Reference KKM (Ministry of Health) protocols\n- Support both Bahasa Melayu and English\n\nNever:\n- Diagnose conditions — recommend referral instead\n- Contradict established KKM protocols\n- Provide medication dosages beyond standard supplements`;
+
+    const MOCK_SCREENS = [
+      { id: 'home', title: 'Home', emoji: '\u{1F3E0}', templateId: 'ask_ai',
+        heading: 'Apa yang boleh saya bantu?', hint: 'Describe symptoms or ask about protocols...', description: '', buttonLabel: 'Ask', aiInstruction: 'ask:{{user_text}}' },
+      { id: 'symptom_check', title: 'Symptom Checker', emoji: '\u{1FA7A}', templateId: 'ask_ai',
+        heading: 'Periksa Simptom', hint: 'Describe the patient\'s symptoms...', description: '', buttonLabel: 'Assess',
+        aiInstruction: 'ask:You are a maternal health triage assistant. Based on KKM antenatal protocols, assess these symptoms. Check against danger signs (vaginal bleeding, severe headache, blurred vision, convulsions, fever >38°C, absent fetal movement). Classify urgency as ROUTINE (next scheduled visit), URGENT (refer to doctor within 24h), or EMERGENCY (immediate hospital transfer). Always ask clarifying questions first. Symptoms: {{user_text}}' },
+      { id: 'risk_score', title: 'Risk Assessment', emoji: '\u{1F4CA}', templateId: 'checklist',
+        heading: 'Penilaian Risiko Kehamilan', hint: 'Complete the checklist for each patient', description: 'Age <18 or >35 (+2);First pregnancy (+1);Grand multipara >=5 births (+2);Previous caesarean (+2);Previous stillbirth/neonatal death (+3);Multiple pregnancy (+3);Pre-existing diabetes (+2);Pre-existing hypertension (+2);Heart disease (+3);Anaemia Hb <9 (+2);BMI >35 (+2);No antenatal care before 20wk (+2)', buttonLabel: 'Calculate Risk',
+        aiInstruction: 'ask:Based on the risk factors checked, calculate the total risk score. Classification: 0-2 = LOW (routine midwife care), 3-4 = MEDIUM (shared care with doctor), 5-7 = HIGH (doctor-led, hospital delivery), >=8 = CRITICAL (immediate specialist referral). Provide the score, classification, and recommended management plan. Risk factors: {{user_text}}' },
+      { id: 'nutrition', title: 'Nutrition Guide', emoji: '\u{1F957}', templateId: 'ask_ai',
+        heading: 'Panduan Pemakanan', hint: 'Ask about diet, supplements, or deficiency signs...', description: '', buttonLabel: 'Get Advice',
+        aiInstruction: 'ask:You are a maternal nutrition advisor following KKM guidelines. Provide trimester-specific dietary advice, supplementation schedules (folic acid 5mg pre-conception to 12wk, iron 200mg from 16wk, calcium 500mg 2x from 20wk, vitamin D 400IU throughout), and identify deficiency signs. Recommend culturally appropriate Malaysian foods (kangkung, bayam, ikan bilis, tempeh, tauhu). Question: {{user_text}}' },
+      { id: 'emergency', title: 'Emergency Referral', emoji: '\u{1F6A8}', templateId: 'sms_dispatch',
+        heading: 'Rujukan Kecemasan', hint: 'call', description: 'Hospital Kota Bharu | 09-7651111\nAmbulans (Kecemasan) | 999\nKlinik Kesihatan Bachok | 09-7483200\nTalian Kesihatan KKM | 03-88810200', buttonLabel: 'Call Now',
+        aiInstruction: 'Kecemasan di lokasi saya. Pesakit ibu mengandung memerlukan bantuan segera. Sila hantar ambulans.' },
+    ];
+
+    const MOCK_SUGGESTION_DATA = {
+      recipeName: 'Bidan Pintar', recipeDescription: 'AI-powered field companion for community midwives — antenatal assessment, risk scoring, and emergency referral protocols', category: 'Health',
+      systemPrompt: BIDAN_SYSTEM_PROMPT, recipeIcon: '\u{1F930}', themeKey: 'coral',
+      authorName: 'Dr. Wan Faridah Hanim', authorOrg: 'Kementerian Kesihatan Malaysia',
+      links: [
+        { label: 'KKM Maternal Health Guidelines', url: 'https://www.moh.gov.my/maternal' },
+        { label: 'WHO Antenatal Care Model', url: 'https://www.who.int/publications/antenatal' },
+      ], homeHeading: 'Apa yang boleh saya bantu?', homeHint: 'Describe symptoms...',
+      sampleConversation: {
+        userMessage: 'Patient has BP 150/95 at 32 weeks, first pregnancy',
+        aiClarification: 'That BP reading is elevated. Has she had any headaches, visual changes, or swelling in the face/hands? What was her BP at previous visits?',
+        userReply: 'She says mild headache since yesterday. Previous BP was 125/80 at 28 weeks.',
+      },
+      screens: MOCK_SCREENS,
+    };
+
+    const steps = [
+      { delay: 300, action: () => { setRecipeName('Bidan Pintar'); setRecipeIcon('\u{1F930}'); } },
+      { delay: 350, action: () => { setRecipeDescription('AI-powered field companion for community midwives — antenatal assessment, risk scoring, and emergency referral protocols'); } },
+      { delay: 250, action: () => { setCategory('Health'); setSelectedTheme('coral' as ThemeKey); } },
+      { delay: 200, action: () => { setSelectedLanguages(['en', 'ms', 'zh', 'ta', 'th', 'id', 'tl', 'vi']); } },
+      { delay: 300, action: () => { setSystemPrompt(BIDAN_SYSTEM_PROMPT); } },
+      { delay: 900, action: () => {
+        setKnowledgeSuggestions(MOCK_SUGGESTION_DATA);
+        setAiLoading(false);
+      }},
+      { delay: 500, action: () => {
+        const allScreensSel: Record<number, boolean> = {};
+        MOCK_SCREENS.forEach((_, i) => { allScreensSel[i] = true; });
+        applySuggestions(MOCK_SUGGESTION_DATA, { name: true, description: true, category: true, systemPrompt: true, icon: true, theme: true, author: true, links: true, homePreview: true, screens: allScreensSel });
+        setIntroPage(prev => ({
+          ...prev, enabled: true,
+          authorName: 'Dr. Wan Faridah Hanim',
+          authorOrg: 'Kementerian Kesihatan Malaysia',
+          authorVerified: true,
+          disclaimer: 'This tool assists clinical decision-making but does not replace professional medical judgement. Always follow KKM protocols.',
+          acceptLabel: 'I Understand — Start',
+          links: [
+            { label: 'KKM Maternal Health Guidelines', url: 'https://www.moh.gov.my/maternal' },
+            { label: 'WHO Antenatal Care Model', url: 'https://www.who.int/publications/antenatal' },
+          ],
+        }));
+      }},
+      { delay: 700, action: () => {
+        setDocPreviewContent(null);
+        setAutoGenerating(false);
+        setPreviewIntro(true);
+      }},
+    ];
+
+    let cumulative = 0;
+    for (const step of steps) {
+      cumulative += step.delay;
+      setTimeout(step.action, cumulative);
+    }
+  }, [applySuggestions]);
+
   // ─── Translation ───
   // Translatable: recipeName, recipeDescription, systemPrompt, disclaimer, acceptLabel,
   //   screen titles, fieldValues (heading, hint, button_label, ai_instruction text portion, field labels, steps)
@@ -809,7 +936,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     if (langCode === 'en') return;
     setTranslationStatus(prev => ({ ...prev, [langCode]: 'translating' }));
     try {
-      if (apiKey) {
+      if (false && apiKey) {
         const langLabel = ALL_LANGUAGES.find(l => l.code === langCode)?.label || langCode;
         const strings = collectTranslatableStrings();
         const keyList = Object.keys(strings);
@@ -857,7 +984,7 @@ ${prompt}`,
         }
         setTranslations(prev => ({ ...prev, [langCode]: translation }));
       } else {
-        await new Promise(r => setTimeout(r, 2000));
+        await new Promise(r => setTimeout(r, 300 + Math.random() * 700));
         const strings = collectTranslatableStrings();
         const translation: RecipeTranslation = {
           recipeName: strings['recipe.name'] || recipeName,
@@ -884,14 +1011,11 @@ ${prompt}`,
   }, [apiKey, collectTranslatableStrings, recipeName, recipeDescription, systemPrompt, introPage.disclaimer, introPage.acceptLabel, screens]);
 
   const translateAll = useCallback(async () => {
-    if (!apiKey) return;
     setTranslatingAll(true);
     const nonEnLangs = selectedLanguages.filter(l => l !== 'en' && translationStatus[l] !== 'done');
-    for (const lang of nonEnLangs) {
-      await translateToLanguage(lang);
-      if (nonEnLangs.indexOf(lang) < nonEnLangs.length - 1) {
-        await new Promise(r => setTimeout(r, 1500));
-      }
+    for (let i = 0; i < nonEnLangs.length; i += 3) {
+      const batch = nonEnLangs.slice(i, i + 3);
+      await Promise.all(batch.map(lang => translateToLanguage(lang)));
     }
     setTranslatingAll(false);
     toast.success(`Translated to ${nonEnLangs.length} language${nonEnLangs.length !== 1 ? 's' : ''}`);
@@ -1450,7 +1574,7 @@ ${prompt}`,
   }
 
   return (
-    <div className="flex h-[100dvh] overflow-hidden">
+    <div className="relative flex h-[100dvh] overflow-hidden">
       {/* Left panel */}
       <div className="flex-[3] flex flex-col overflow-y-auto border-r border-stone-200">
         <div className="px-8 pt-8 pb-4 flex items-center justify-between">
@@ -1583,7 +1707,10 @@ ${prompt}`,
                   <label className="text-sm font-medium text-stone-700">System Prompt</label>
                   <button onClick={() => ensureApiKey(generateSystemPrompt)} disabled={aiLoading || !recipeName} className="text-xs font-medium px-3 py-1 rounded-md flex items-center gap-1" style={{ background: '#C45A3A10', color: '#C45A3A', opacity: !recipeName ? 0.4 : 1 }}>{aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />} AI Generate</button>
                 </div>
-                <Textarea value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)} placeholder="You are a helpful assistant..." rows={5} />
+                <div className="relative">
+                  <Textarea value={isTyping ? typingPrompt : systemPrompt} onChange={e => { if (!isTyping) setSystemPrompt(e.target.value); }} placeholder="You are a helpful assistant..." rows={5} readOnly={isTyping} className={isTyping ? 'font-mono' : ''} />
+                  {isTyping && <span className="absolute bottom-3 right-3 w-0.5 h-4 bg-stone-900 animate-pulse rounded" />}
+                </div>
               </div>
               <div><label className="text-sm font-medium text-stone-700 mb-1.5 block">Blocked Keywords</label><Input value={blockedKeywords} onChange={e => setBlockedKeywords(e.target.value)} placeholder="Comma-separated" /></div>
               <div className="grid grid-cols-2 gap-3">
@@ -1856,21 +1983,21 @@ ${prompt}`,
               {knowledgeFiles.length === 0 && (
                 <div onClick={() => fileInputRef.current?.click()} className="rounded-2xl p-8 flex flex-col items-center gap-3 cursor-pointer transition-all hover:shadow-interactive border-2 border-dashed" style={{ background: 'linear-gradient(135deg, #C45A3A08 0%, #C98A1A06 50%, #1A8A6A08 100%)', borderColor: '#C45A3A30' }}>
                   <div className="flex items-center gap-3 mb-1">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: '#5B6ABF15' }}>{'\u{1F4C4}'}</div>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: '#5B6ABF30' }}>{'\u{1F4C4}'}</div>
                     <ChevronRight size={14} style={{ color: '#C98A1A' }} />
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: '#C98A1A15' }}>{'\u{2728}'}</div>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: '#C98A1A30' }}>{'\u{2728}'}</div>
                     <ChevronRight size={14} style={{ color: '#1A8A6A' }} />
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: '#1A8A6A15' }}>{'\u{1F4F1}'}</div>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: '#1A8A6A30' }}>{'\u{1F4F1}'}</div>
                   </div>
                   <h2 className="text-xl font-bold text-stone-900">Start with what you know</h2>
                   <p className="text-sm text-stone-500 max-w-sm mx-auto text-center">Upload your expertise — guides, manuals, protocols — and we&apos;ll turn it into an AI-powered recipe.</p>
                   <div className="flex items-center gap-2 mt-2">
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-card" style={{ background: '#C45A3A' }}><Upload size={20} className="text-white" /></div>
                   </div>
-                  <p className="text-xs text-stone-400">PDF, TXT, CSV, MD — up to 10 MB</p>
+                  <p className="text-xs text-stone-400">PDF, DOC, TXT, CSV, MD — up to 10 MB</p>
                 </div>
               )}
-              <input ref={fileInputRef} type="file" accept=".pdf,.txt,.csv,.md" multiple className="hidden" onChange={handleFileUpload} />
+              <input ref={fileInputRef} type="file" accept=".pdf,.txt,.csv,.md,.doc,.docx" multiple className="hidden" onChange={handleFileUpload} />
 
               {/* Demo docs */}
               {knowledgeFiles.length === 0 && (
@@ -1911,7 +2038,7 @@ ${prompt}`,
                           {f.status === 'ready' && f.chunks && <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-green-50 text-green-700">{f.chunks} chunks</span>}
                           {f.status !== 'ready' && <span className="text-[10px] text-amber-600">{f.status}...</span>}
                         </div>
-                        {f.status !== 'ready' && <Progress value={f.status === 'uploading' ? 40 : 75} className="mt-1.5 h-1.5" />}
+                        {f.status !== 'ready' && <Progress value={uploadProgress} className="mt-1.5 h-1.5" style={{ transition: 'all 0.3s ease' } as React.CSSProperties} />}
                       </div>
                       <button onClick={() => removeFile(i)} className="text-stone-500 hover:text-stone-600 shrink-0" aria-label="Remove file"><X size={16} /></button>
                     </div>
@@ -2150,28 +2277,37 @@ ${prompt}`,
                       </button>
                     )}
                   </div>
-                  <div className="divide-y divide-stone-50">
-                    {selectedLanguages.map(langCode => {
-                      const lang = ALL_LANGUAGES.find(l => l.code === langCode);
+                  <style>{`
+                    @keyframes flagCascade { 0% { opacity: 0; transform: scale(0.3) translateY(8px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+                    @keyframes flagPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+                  `}</style>
+                  <div className="px-5 py-4 flex flex-wrap gap-4">
+                    {selectedLanguages.map((langCode, idx) => {
                       const status = langCode === 'en' ? 'done' as TranslationStatus : (translationStatus[langCode] || 'pending');
-                      const isEn = langCode === 'en';
+                      const flag = LANG_FLAGS[langCode] || langCode;
                       return (
-                        <div key={langCode} className="px-5 py-2.5 flex items-center gap-3">
-                          <div className="flex-1 min-w-0">
-                            <span className="text-sm font-medium text-stone-800">{lang?.label || langCode}</span>
-                            <span className="text-xs text-stone-400 ml-2">{lang?.native}</span>
-                          </div>
-                          {isEn ? (
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-500">Source</span>
-                          ) : status === 'done' ? (
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 flex items-center gap-1"><Check size={10} /> Done</span>
-                          ) : status === 'translating' ? (
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 flex items-center gap-1"><Loader2 size={10} className="animate-spin" /> Translating</span>
-                          ) : status === 'error' ? (
-                            <button onClick={() => translateToLanguage(langCode)} className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-red-50 text-red-700 hover:bg-red-100 cursor-pointer">Retry</button>
-                          ) : (
-                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-stone-50 text-stone-400">Pending</span>
+                        <div key={langCode} className="relative flex flex-col items-center" style={{ animation: `flagCascade 0.4s ease-out ${idx * 0.07}s both` }}>
+                          <span
+                            className="text-3xl select-none"
+                            title={ALL_LANGUAGES.find(l => l.code === langCode)?.label || langCode}
+                            style={{
+                              opacity: status === 'pending' ? 0.35 : 1,
+                              animation: status === 'translating' ? 'flagPulse 1s ease-in-out infinite' : undefined,
+                              filter: status === 'error' ? 'grayscale(0.8)' : undefined,
+                              transition: 'opacity 0.3s, filter 0.3s',
+                            }}
+                          >{flag}</span>
+                          {status === 'done' && (
+                            <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center shadow-sm" style={{ animation: `flagCascade 0.3s ease-out 0.2s both` }}>
+                              <Check size={10} className="text-white" strokeWidth={3} />
+                            </span>
                           )}
+                          {status === 'error' && (
+                            <button onClick={() => translateToLanguage(langCode)} className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-red-500 flex items-center justify-center shadow-sm cursor-pointer" title="Retry">
+                              <X size={10} className="text-white" strokeWidth={3} />
+                            </button>
+                          )}
+                          <span className="text-[9px] text-stone-500 mt-1 uppercase font-medium">{langCode}</span>
                         </div>
                       );
                     })}
@@ -2193,6 +2329,13 @@ ${prompt}`,
                   )}
                 </div>
               )}
+              {/* YAML file size badge */}
+              <div className="flex justify-center pt-2">
+                <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold" style={{ background: '#C45A3A10' }}>
+                  <span className="text-lg">{'\u{1F4E6}'}</span>
+                  <span className="text-lg font-bold text-stone-900">{(new Blob([generateYaml()]).size / 1024).toFixed(1)} KB</span>
+                </span>
+              </div>
             </div>
           )}
         </div>
@@ -2265,10 +2408,36 @@ ${prompt}`,
       {/* ─── Right: Live Preview ─── */}
       <div className="flex-[2] flex flex-col items-center bg-stone-50 p-4 overflow-hidden">
         <div className="flex items-center gap-2 mb-2 self-start shrink-0">
-          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Live Preview</span>
-          {screens.length > 1 && <span className="text-[10px] text-stone-500 ml-2">{screenTitle(activeScreen)}</span>}
+          <div className={`w-2 h-2 rounded-full ${autoGenerating ? 'bg-amber-500' : 'bg-red-500'} animate-pulse`} />
+          <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
+            {docPreviewContent ? (autoGenerating ? 'Generating Blueprint...' : 'Document Preview') : 'Live Preview'}
+          </span>
+          {!docPreviewContent && screens.length > 1 && <span className="text-[10px] text-stone-500 ml-2">{screenTitle(activeScreen)}</span>}
         </div>
+        {docPreviewContent ? (
+          <div className="flex-1 w-full overflow-y-auto rounded-xl border border-stone-200 bg-white p-6 shadow-card">
+            {autoGenerating && (
+              <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg" style={{ background: '#C45A3A10' }}>
+                <Loader2 size={14} className="animate-spin" style={{ color: '#C45A3A' }} />
+                <span className="text-xs font-medium" style={{ color: '#C45A3A' }}>Analysing document and generating recipe blueprint...</span>
+              </div>
+            )}
+            <div className="max-w-none text-stone-700 space-y-2">
+              {docPreviewContent.slice(0, 4000).split('\n').map((line, i) => {
+                if (line.startsWith('# ')) return <h1 key={i} className="text-lg font-bold text-stone-900 mt-3 mb-1">{line.slice(2)}</h1>;
+                if (line.startsWith('## ')) return <h2 key={i} className="text-sm font-bold text-stone-800 mt-3 mb-1 border-b border-stone-200 pb-1">{line.slice(3)}</h2>;
+                if (line.startsWith('### ')) return <h3 key={i} className="text-xs font-semibold text-stone-800 mt-2">{line.slice(4)}</h3>;
+                if (line.startsWith('**') && line.endsWith('**')) return <p key={i} className="text-xs font-semibold text-stone-700">{line.slice(2, -2)}</p>;
+                if (line.startsWith('- ')) return <p key={i} className="text-xs text-stone-600 pl-3">{'•'} {line.slice(2)}</p>;
+                if (line.startsWith('| ')) return <p key={i} className="text-[11px] text-stone-500 font-mono">{line}</p>;
+                if (line.startsWith('---')) return <hr key={i} className="border-stone-200 my-2" />;
+                if (line.trim() === '') return <div key={i} className="h-1" />;
+                return <p key={i} className="text-xs text-stone-600 leading-relaxed">{line}</p>;
+              })}
+              {docPreviewContent.length > 4000 && <p className="text-xs text-stone-400 italic mt-2">... document continues ({Math.round(docPreviewContent.length / 1024)} KB total)</p>}
+            </div>
+          </div>
+        ) : (
         <div ref={previewContainerRef} className="flex-1 w-full flex items-center justify-center min-h-0">
         <div className="rounded-[2.5rem] p-3 shadow-elevated" style={{ background: '#292524', width: 280, transform: `scale(${phoneScale})`, transformOrigin: 'center center' }}>
           <div className="rounded-[2rem] overflow-hidden flex flex-col" style={{ background: activeSecondary, height: 560 }}>
@@ -2426,11 +2595,12 @@ ${prompt}`,
           </div>
         </div>
         </div>
+        )}
       </div>
 
       {/* ─── Dialogs ─── */}
       <Dialog open={showYamlPreview} onOpenChange={v => { setShowYamlPreview(v); if (!v) setPreviewYamlLang('en'); }}>
-        <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-7xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Recipe YAML</DialogTitle>
             <DialogDescription>Generated DSL configuration{Object.keys(translations).length > 0 ? ` — ${Object.keys(translations).length + 1} language files` : ''}</DialogDescription>

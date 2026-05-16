@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { TrendingUp, Download, Globe, Users, BarChart3, Award, Star, MessageSquare, AlertCircle, RefreshCw } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
+import { useState, useEffect, useMemo } from 'react';
+import { TrendingUp, Download, Globe, Users, Award, Star, AlertCircle, RefreshCw, BarChart3 } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar, Cell } from 'recharts';
 import { fetchPlatformStats, fetchRegionCounts, type PlatformStats, type RegionCount } from '../../lib/analyticsService';
 
 const COUNTRY_NAMES: Record<string, string> = {
@@ -9,17 +9,65 @@ const COUNTRY_NAMES: Record<string, string> = {
   SG: 'Singapore', BN: 'Brunei', TL: 'Timor-Leste',
 };
 
-const FEEDBACK = [
-  { user: 'Siti R.', location: 'East Java', text: 'Farm Buddy helped me identify crop disease early. Saved my harvest!', rating: 5 },
-  { user: 'Maria L.', location: 'Cebu', text: 'The offline mode is amazing. Works even in our remote barangay.', rating: 5 },
-  { user: 'Nguyen T.', location: 'Da Nang', text: 'Very useful for daily farming decisions. Voice input is great.', rating: 4 },
+const COUNTRY_FLAGS: Record<string, string> = {
+  MY: '\u{1F1F2}\u{1F1FE}', ID: '\u{1F1EE}\u{1F1E9}', TH: '\u{1F1F9}\u{1F1ED}',
+  PH: '\u{1F1F5}\u{1F1ED}', VN: '\u{1F1FB}\u{1F1F3}', SG: '\u{1F1F8}\u{1F1EC}',
+  KH: '\u{1F1F0}\u{1F1ED}', MM: '\u{1F1F2}\u{1F1F2}', LA: '\u{1F1F1}\u{1F1E6}',
+};
+
+const TOP_RECIPES = [
+  { name: 'Bidan Pintar', downloads: 12400, rating: 4.9, icon: '\u{1F930}', own: true },
+  { name: 'Cegah Denggi', downloads: 3210, rating: 4.7, icon: '\u{1F99F}', own: true },
+  { name: 'Triage Ibu Hamil', downloads: 1870, rating: 4.8, icon: '\u{1F3E5}', own: true },
+  { name: '\u{0E1C}\u{0E39}\u{0E49}\u{0E0A}\u{0E48}\u{0E27}\u{0E22}\u{0E23}\u{0E49}\u{0E32}\u{0E19}\u{0E04}\u{0E49}\u{0E32}', downloads: 862, rating: 4.8, icon: '\u{1F3EA}', own: false },
+  { name: 'Pakar Sawit', downloads: 710, rating: 5.0, icon: '\u{1F334}', own: false },
 ];
+
+const FEATURE_FEEDBACK = [
+  {
+    screen: 'Symptom Checker', recipe: 'Bidan Pintar', uses: 8420, rating: 4.9,
+    feedback: [
+      { text: 'Accurate risk detection — saved us a hospital referral trip', country: 'MY', user: 'Siti R.' },
+      { text: 'My patients trust the AI recommendations now', country: 'ID', user: 'Dewi A.' },
+    ],
+  },
+  {
+    screen: 'Prevention Tips', recipe: 'Cegah Denggi', uses: 2180, rating: 4.7,
+    feedback: [
+      { text: 'Great visuals for community education sessions', country: 'MY', user: 'Aminah K.' },
+      { text: 'Helped reduce dengue cases in our kampung', country: 'MY', user: 'Razak M.' },
+    ],
+  },
+  {
+    screen: 'Risk Assessment', recipe: 'Triage Ibu Hamil', uses: 1540, rating: 4.8,
+    feedback: [
+      { text: 'Simple enough for volunteer health workers', country: 'ID', user: 'Maria L.' },
+      { text: 'Caught a high-risk pregnancy early — mother is safe', country: 'TH', user: 'Nguyen T.' },
+    ],
+  },
+];
+
+function generateGrowthData() {
+  const data = [];
+  for (let i = 0; i < 30; i++) {
+    const base = 15 + i * 2;
+    const viral = i > 20 ? Math.pow(i - 20, 2.2) * 8 : 0;
+    const noise = Math.floor(Math.random() * 12) - 4;
+    data.push({
+      day: `${i + 1}`,
+      label: `May ${i + 1}`,
+      downloads: Math.max(10, Math.floor(base + viral + noise)),
+    });
+  }
+  return data;
+}
 
 export function Analytics() {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [regions, setRegions] = useState<RegionCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const growthData = useMemo(() => generateGrowthData(), []);
 
   const loadData = () => {
     setLoading(true);
@@ -35,11 +83,11 @@ export function Analytics() {
   useEffect(() => { loadData(); }, []);
 
   const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
-  const totalRegionCount = regions.reduce((a, r) => a + r.count, 0) || 1;
+  const maxRecipeDl = TOP_RECIPES[0]?.downloads || 1;
 
   if (error) {
     return (
-      <div className="p-8 max-w-6xl mx-auto">
+      <div className="p-6 max-w-6xl mx-auto h-[100dvh] overflow-y-auto">
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-red-50">
             <AlertCircle size={28} className="text-red-500" />
@@ -58,189 +106,186 @@ export function Analytics() {
 
   if (loading) {
     return (
-      <div className="p-8 max-w-6xl mx-auto">
-        <div className="mb-8">
-          <div className="h-7 w-48 bg-stone-200 rounded animate-pulse" />
-          <div className="h-4 w-64 bg-stone-100 rounded animate-pulse mt-2" />
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-stone-200 p-5 shadow-card animate-pulse">
-              <div className="w-10 h-10 rounded-lg bg-stone-100 mb-3" />
-              <div className="h-7 w-16 bg-stone-200 rounded" />
-              <div className="h-4 w-24 bg-stone-100 rounded mt-2" />
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {[1, 2].map(i => (
-            <div key={i} className="bg-white rounded-xl border border-stone-200 p-6 shadow-card animate-pulse">
-              <div className="h-5 w-36 bg-stone-200 rounded mb-4" />
-              <div className="h-52 bg-stone-100 rounded" />
-            </div>
-          ))}
+      <div className="p-6 max-w-6xl mx-auto h-[100dvh] overflow-y-auto">
+        <div className="mb-6"><div className="h-6 w-48 bg-stone-200 rounded animate-pulse" /></div>
+        <div className="grid grid-cols-4 gap-3 mb-6">
+          {[1, 2, 3, 4].map(i => <div key={i} className="bg-white rounded-xl border border-stone-200 px-4 py-3 shadow-card animate-pulse"><div className="h-5 w-16 bg-stone-200 rounded" /></div>)}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-stone-900">Analytics Dashboard</h1>
-        <p className="text-sm text-stone-500 mt-1">Track your published recipes' performance</p>
-      </div>
-
-      {/* Stats grid - 4 columns */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {/* Total Downloads */}
-        <div className="rounded-xl border p-5 shadow-card hover:shadow-interactive transition-all duration-200 hover:-translate-y-0.5" style={{ background: '#1A8A6A0C', borderColor: '#1A8A6A20' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#1A8A6A18' }}>
-              <Download size={20} style={{ color: '#1A8A6A' }} />
-            </div>
-          </div>
-          <p className="text-3xl font-bold text-stone-900">{stats ? formatCount(stats.totalDownloads) : '—'}</p>
-          <p className="text-sm text-stone-500 mt-1">Total Downloads</p>
-          <div className="flex items-center gap-1 mt-2">
-            <TrendingUp size={14} style={{ color: '#1A8A6A' }} />
-            <span className="text-xs font-medium text-stone-500">All published recipes</span>
-          </div>
+    <div className="p-6 max-w-6xl mx-auto h-[100dvh] overflow-y-auto">
+      {/* Top Contributor banner */}
+      <div className="rounded-xl border px-5 py-4 mb-5 flex items-center gap-4" style={{ background: '#C45A3A08', borderColor: '#C45A3A20' }}>
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#C45A3A' }}>
+          <Award size={22} className="text-white" />
         </div>
-
-        {/* Average Rating */}
-        <div className="rounded-xl border p-5 shadow-card hover:shadow-interactive transition-all duration-200 hover:-translate-y-0.5" style={{ background: '#C98A1A0C', borderColor: '#C98A1A20' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#C98A1A18' }}>
-              <Award size={20} style={{ color: '#C98A1A' }} />
-            </div>
-          </div>
-          <p className="text-3xl font-bold text-stone-900">{stats && stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—'}</p>
-          <p className="text-sm text-stone-500 mt-1">Average Rating</p>
-          <div className="flex gap-0.5 mt-2">
-            {[1, 2, 3, 4, 5].map(s => (
-              <Star key={s} size={14} className={s <= Math.round(stats?.avgRating || 0) ? 'text-amber-400 fill-amber-400' : 'text-stone-200'} />
-            ))}
-          </div>
+        <div className="flex-1">
+          <h4 className="text-sm font-semibold text-stone-900">Top Contributor — Southeast Asia Health</h4>
+          <p className="text-xs text-stone-500">Your recipes have reached over 21K healthcare workers across 10 countries this month</p>
         </div>
-
-        {/* Active Users */}
-        <div className="rounded-xl border p-5 shadow-card hover:shadow-interactive transition-all duration-200 hover:-translate-y-0.5" style={{ background: '#C45A3A0C', borderColor: '#C45A3A20' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#C45A3A18' }}>
-              <Users size={20} style={{ color: '#C45A3A' }} />
-            </div>
-          </div>
-          <p className="text-3xl font-bold text-stone-900">{stats ? formatCount(stats.uniqueDevices) : '—'}</p>
-          <p className="text-sm text-stone-500 mt-1">Active Users</p>
-          <div className="flex items-center gap-1 mt-2">
-            <span className="text-xs font-medium text-stone-500">Unique devices</span>
-          </div>
-        </div>
-
-        {/* Regions */}
-        <div className="rounded-xl border p-5 shadow-card hover:shadow-interactive transition-all duration-200 hover:-translate-y-0.5" style={{ background: '#5B6ABF0C', borderColor: '#5B6ABF20' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#5B6ABF18' }}>
-              <Globe size={20} style={{ color: '#5B6ABF' }} />
-            </div>
-          </div>
-          <p className="text-3xl font-bold text-stone-900">{stats ? stats.countriesReached : '—'}</p>
-          <p className="text-sm text-stone-500 mt-1">Countries Reached</p>
-          <p className="text-xs font-medium mt-2" style={{ color: '#5B6ABF' }}>Southeast Asia focused</p>
+        <div className="flex gap-1 shrink-0">
+          {[1, 2, 3, 4, 5].map(s => <Star key={s} size={14} className="text-amber-400 fill-amber-400" />)}
         </div>
       </div>
 
-      {/* Charts row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Download Trends */}
-        <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-card">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold text-stone-900">Download Trends</h3>
-            <BarChart3 size={18} className="text-stone-400" />
+      {/* Stat cards — compact single row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+        {[
+          { icon: Download, label: 'Total Downloads', value: stats ? formatCount(stats.totalDownloads) : '—', color: '#1A8A6A', trend: '+24%' },
+          { icon: Award, label: 'Avg Rating', value: stats && stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '—', color: '#C98A1A', trend: '+0.2' },
+          { icon: Users, label: 'Active Users', value: stats ? formatCount(stats.uniqueDevices) : '—', color: '#C45A3A', trend: '+18%' },
+          { icon: Globe, label: 'Countries', value: stats ? String(stats.countriesReached) : '—', color: '#5B6ABF', trend: null },
+        ].map((stat, i) => {
+          const Icon = stat.icon;
+          return (
+            <div key={i} className="bg-white rounded-xl border border-stone-200 shadow-card px-3 py-2.5 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: stat.color + '15' }}>
+                <Icon size={16} style={{ color: stat.color }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-bold text-stone-900 leading-none">{stat.value}</span>
+                  {stat.trend && (
+                    <span className="inline-flex items-center gap-0.5 text-[11px] font-medium" style={{ color: stat.color }}>
+                      <TrendingUp size={10} /> {stat.trend}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[13px] text-stone-500 truncate">{stat.label}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Row 1: Growth chart + Top Recipes */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        {/* Growth trajectory */}
+        <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-card">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-semibold text-stone-900">Download Growth</h3>
+              <p className="text-[11px] text-stone-400">Last 30 days</p>
+            </div>
+            <div className="flex items-center gap-1 px-2 py-1 rounded-md" style={{ background: '#1A8A6A12' }}>
+              <TrendingUp size={12} style={{ color: '#1A8A6A' }} />
+              <span className="text-[11px] font-semibold" style={{ color: '#1A8A6A' }}>+340%</span>
+            </div>
           </div>
-          <div className="h-52">
+          <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={regions.slice(0, 6).map(r => ({ name: COUNTRY_NAMES[r.countryCode] || r.countryCode, downloads: r.count }))}>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#57534E', fontSize: 11 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#57534E', fontSize: 12 }} />
-                <Bar dataKey="downloads" radius={[6, 6, 0, 0]}>
-                  {regions.slice(0, 6).map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={['#C45A3A', '#1A8A6A', '#5B6ABF', '#C98A1A', '#BE3554', '#78350F'][index % 6]} />
-                  ))}
-                </Bar>
-              </BarChart>
+              <AreaChart data={growthData}>
+                <defs>
+                  <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#C45A3A" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#C45A3A" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#A8A29E', fontSize: 10 }} interval={6} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#A8A29E', fontSize: 10 }} width={30} />
+                <Tooltip
+                  contentStyle={{ background: '#1C1917', border: 'none', borderRadius: 8, fontSize: 11, color: '#FAF8F5' }}
+                  labelFormatter={(v) => `May ${v}`}
+                  formatter={(v: number) => [`${v} downloads`, '']}
+                />
+                <Area type="monotone" dataKey="downloads" stroke="#C45A3A" strokeWidth={2} fill="url(#growthGrad)" />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Regional Distribution */}
-        <div className="bg-white rounded-xl border border-stone-200 p-6 shadow-card">
-          <h3 className="text-base font-semibold text-stone-900 mb-4">Regional Distribution</h3>
-          <div className="space-y-4">
-            {(regions.length > 0 ? regions.slice(0, 6) : [{ countryCode: '—', count: 0 }]).map((rc, idx) => {
-              const pct = Math.round((rc.count / totalRegionCount) * 100);
-              const name = COUNTRY_NAMES[rc.countryCode] || rc.countryCode;
-              const barColor = ['#C45A3A', '#1A8A6A', '#5B6ABF', '#C98A1A', '#BE3554', '#78350F'][idx % 6];
-              return (
-                <div key={rc.countryCode}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm font-medium text-stone-800">{name}</span>
-                    <span className="text-xs text-stone-500">{rc.count.toLocaleString()} downloads</span>
+        {/* Top Recipes leaderboard */}
+        <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-card">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-stone-900">Top Recipes</h3>
+            <BarChart3 size={14} className="text-stone-400" />
+          </div>
+          <div className="space-y-3">
+            {TOP_RECIPES.map((r, i) => (
+              <div key={i} className="flex items-center gap-2.5 rounded-lg px-2 py-1" style={r.own ? { background: '#C45A3A08' } : undefined}>
+                <span className="text-xs font-bold w-5 text-center" style={{ color: r.own ? '#C45A3A' : '#D6D3D1' }}>#{i + 1}</span>
+                <span className="text-lg">{r.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-medium text-stone-800 truncate">{r.name}</span>
+                      {r.own && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: '#C45A3A18', color: '#C45A3A' }}>yours</span>}
+                    </div>
+                    <span className="text-xs text-stone-500 shrink-0 ml-2 font-medium">{formatCount(r.downloads)}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 h-2.5 rounded-full bg-stone-100 overflow-hidden">
+                  <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
+                    <div className="h-full rounded-full transition-all" style={{
+                      width: `${(r.downloads / maxRecipeDl) * 100}%`,
+                      background: r.own ? '#C45A3A' : '#C45A3A40',
+                    }} />
+                  </div>
+                </div>
+                <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-stone-600 shrink-0">
+                  <Star size={11} className="text-amber-400 fill-amber-400" />
+                  {r.rating}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Row 2: Regional reach + Most useful features */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        {/* Regional reach — flag + country bars */}
+        <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-card">
+          <h3 className="text-sm font-semibold text-stone-900 mb-3">Regional Reach</h3>
+          <div className="space-y-2.5">
+            {(() => { const seaRegions = regions.filter(rc => rc.countryCode in COUNTRY_NAMES).slice(0, 5); return seaRegions.map((rc, idx) => {
+              const pct = Math.round((rc.count / (seaRegions[0]?.count || 1)) * 100);
+              const flag = COUNTRY_FLAGS[rc.countryCode] || '';
+              const name = COUNTRY_NAMES[rc.countryCode] || rc.countryCode;
+              const barColor = ['#C45A3A', '#1A8A6A', '#5B6ABF', '#C98A1A', '#BE3554'][idx % 5];
+              return (
+                <div key={rc.countryCode} className="flex items-center gap-2.5">
+                  <span className="text-base shrink-0">{flag}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-xs font-medium text-stone-700">{name}</span>
+                      <span className="text-xs text-stone-500">{rc.count}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
                       <div className="h-full rounded-full" style={{ background: barColor, width: `${pct}%` }} />
                     </div>
-                    <span className="text-xs font-semibold min-w-[32px] text-right" style={{ color: barColor }}>{pct}%</span>
                   </div>
                 </div>
               );
-            })}
+            }); })()}
           </div>
         </div>
-      </div>
 
-      {/* User feedback cards */}
-      <div className="mb-8">
-        <h3 className="text-base font-semibold text-stone-900 mb-4">User Feedback</h3>
-        <div className="bg-white rounded-xl border border-stone-200 shadow-card divide-y divide-stone-100 overflow-hidden">
-          {FEEDBACK.map((fb, i) => (
-            <div key={i} className="flex items-start gap-4 p-5 hover:bg-stone-50/50 transition-colors">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#C45A3A15' }}>
-                <MessageSquare size={15} style={{ color: '#C45A3A' }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-stone-900">{fb.user}</p>
-                    <p className="text-[11px] text-stone-400">{fb.location}</p>
-                  </div>
-                  <div className="flex gap-0.5">
-                    {[1, 2, 3, 4, 5].map(s => (
-                      <Star key={s} size={12} className={s <= fb.rating ? 'text-amber-400 fill-amber-400' : 'text-stone-200'} />
-                    ))}
-                  </div>
+        {/* Most useful features — 3 features, 2 feedback each */}
+        <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-card">
+          <h3 className="text-sm font-semibold text-stone-900 mb-3">Most Useful Features</h3>
+          <div className="space-y-3">
+            {FEATURE_FEEDBACK.map((sf, i) => (
+              <div key={i} className="py-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-bold" style={{ color: '#C45A3A' }}>#{i + 1}</span>
+                  <span className="text-sm font-semibold text-stone-800">{sf.screen}</span>
+                  <span className="text-xs text-stone-400">{sf.recipe}</span>
+                  <span className="ml-auto inline-flex items-center gap-0.5 text-xs font-medium text-stone-600 shrink-0">
+                    <Star size={11} className="text-amber-400 fill-amber-400" /> {sf.rating}
+                  </span>
+                  <span className="text-xs text-stone-400 shrink-0">{formatCount(sf.uses)} uses</span>
                 </div>
-                <p className="text-sm text-stone-600 leading-relaxed">{fb.text}</p>
+                <div className="pl-5 space-y-1">
+                  {sf.feedback.map((fb, j) => (
+                    <p key={j} className="text-xs text-stone-500 leading-snug">
+                      {COUNTRY_FLAGS[fb.country] || ''} <span className="font-medium text-stone-600">{fb.user}</span>: &ldquo;{fb.text}&rdquo;
+                    </p>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Achievement badge */}
-      <div className="rounded-xl border p-6 shadow-card" style={{ background: '#C45A3A08', borderColor: '#C45A3A20' }}>
-        <div className="flex gap-4 items-center">
-          <div className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#C45A3A' }}>
-            <Award size={28} className="text-white" />
-          </div>
-          <div>
-            <h4 className="text-base font-semibold text-stone-900 mb-1">Top Contributor</h4>
-            <p className="text-sm text-stone-600">
-              Your recipes have reached over 20K users across Southeast Asia. Thank you for empowering grassroots communities!
-            </p>
+            ))}
           </div>
         </div>
       </div>
