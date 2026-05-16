@@ -14,6 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -38,11 +40,11 @@ fun RecipeStats(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        StatCell(value = "%.1f KB".format(sizeKb), label = "Recipe Size", modifier = Modifier.weight(1f))
+        StatCell(value = "%.1f KB".format(sizeKb), label = stringResource(R.string.stat_recipe_size), modifier = Modifier.weight(1f))
         Divider()
-        StatCell(value = availableFeatures.toString(), label = "Features Available", modifier = Modifier.weight(1f))
+        StatCell(value = availableFeatures.toString(), label = stringResource(R.string.stat_features), modifier = Modifier.weight(1f))
         Divider()
-        StatCell(value = dialect.ifBlank { "—" }, label = "Dialect", modifier = Modifier.weight(1f))
+        StatCell(value = dialect.ifBlank { "—" }, label = stringResource(R.string.stat_dialect), modifier = Modifier.weight(1f))
     }
 }
 

@@ -19,7 +19,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.bina.ai.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.ViewModelProvider
@@ -71,8 +73,8 @@ fun HubScreen(
             is HubUiState.Loaded -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 96.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    contentPadding = PaddingValues(bottom = 72.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     item { HubHeader() }
                     if (s.featured.isNotEmpty()) {
@@ -91,6 +93,26 @@ fun HubScreen(
                         )
                     }
                     if (s.selectedCategory == "All") {
+                        if (s.yourRecipes.isNotEmpty()) {
+                            item {
+                                CategoryRail(
+                                    title = stringResource(R.string.hub_your_recipes),
+                                    recipes = s.yourRecipes,
+                                    installedIds = s.installedIds,
+                                    onRecipeClick = { sheetRecipe = it }
+                                )
+                            }
+                        }
+                        if (s.trending.isNotEmpty()) {
+                            item {
+                                CategoryRail(
+                                    title = stringResource(R.string.hub_trending),
+                                    recipes = s.trending,
+                                    installedIds = s.installedIds,
+                                    onRecipeClick = { sheetRecipe = it }
+                                )
+                            }
+                        }
                         items(s.rails, key = { it.title }) { rail ->
                             CategoryRail(
                                 title = rail.title,
@@ -99,12 +121,12 @@ fun HubScreen(
                                 onRecipeClick = { sheetRecipe = it }
                             )
                         }
-                        if (s.rails.isEmpty()) {
-                            item { EmptyHub("No recipes available.") }
+                        if (s.rails.isEmpty() && s.yourRecipes.isEmpty() && s.trending.isEmpty()) {
+                            item { EmptyHub(stringResource(R.string.hub_empty_all)) }
                         }
                     } else {
                         if (s.allRecipes.isEmpty()) {
-                            item { EmptyHub("No recipes in this category.") }
+                            item { EmptyHub(stringResource(R.string.hub_empty_category)) }
                         } else {
                             items(s.allRecipes, key = { it.id }) { recipe ->
                                 Box(modifier = Modifier.padding(horizontal = 16.dp)) {

@@ -13,6 +13,8 @@ sealed interface HubUiState {
         val categories: List<String>,
         val selectedCategory: String,
         val rails: List<Rail>,
-        val installedIds: Set<String>
+        val installedIds: Set<String>,
+        val yourRecipes: List<MiniApp> = emptyList(),
+        val trending: List<MiniApp> = emptyList()
     ) : HubUiState
 }

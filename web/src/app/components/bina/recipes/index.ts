@@ -1,3 +1,4 @@
+import { DOKTOR_POKOK_RECIPE } from './doktorPokok';
 import { FARM_BUDDY_RECIPE } from './farmBuddy';
 import { MATERNAL_HEALTH_RECIPE } from './maternalHealth';
 import { FLOOD_RESPONSE_RECIPE } from './floodResponse';
@@ -9,6 +10,7 @@ import { PAKAR_TANI_RECIPE } from './pakarTani';
 import type { RecipeConfig } from './types';
 
 export const RECIPES: Record<string, RecipeConfig> = {
+  'Doktor Pokok': DOKTOR_POKOK_RECIPE,
   'Farm Buddy': FARM_BUDDY_RECIPE,
   'Maternal Health Guide': MATERNAL_HEALTH_RECIPE,
   'Flood Response': FLOOD_RESPONSE_RECIPE,

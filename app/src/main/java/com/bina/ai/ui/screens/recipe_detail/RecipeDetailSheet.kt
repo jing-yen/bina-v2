@@ -90,7 +90,7 @@ fun RecipeDetailSheet(
                 if (miniApp.author.verified && miniApp.author.organisation.isNotBlank()) {
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "✓ Verified by ${miniApp.author.organisation}",
+                        "✓ ${stringResource(R.string.recipe_verified_by, miniApp.author.organisation)}",
                         fontSize = 12.sp,
                         color = BinaGreen,
                         fontWeight = FontWeight.Medium
@@ -98,7 +98,7 @@ fun RecipeDetailSheet(
                 }
                 if (miniApp.description.isNotBlank()) {
                     Spacer(Modifier.height(10.dp))
-                    Text(miniApp.description, fontSize = 13.sp, color = BinaGrayText)
+                    Text(com.bina.ai.ui.localizedDescription(miniApp.id, miniApp.description), fontSize = 13.sp, color = BinaGrayText)
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -126,13 +126,13 @@ fun RecipeDetailSheet(
 
                 if (miniApp.category.isNotBlank()) {
                     Spacer(Modifier.height(8.dp))
-                    Text("Domain: ${miniApp.category}", fontSize = 12.sp, color = BinaGrayText)
+                    Text(stringResource(R.string.recipe_domain, miniApp.category), fontSize = 12.sp, color = BinaGrayText)
                 }
 
                 if (miniApp.features.isNotEmpty()) {
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        "Features in this recipe",
+                        stringResource(R.string.recipe_features_title),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = BinaGrayText

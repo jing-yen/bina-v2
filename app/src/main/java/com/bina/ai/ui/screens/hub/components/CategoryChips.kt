@@ -29,11 +29,12 @@ fun CategoryChips(
 ) {
     LazyRow(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         items(categories) { cat ->
-            Chip(label = cat, isActive = cat == selected, onClick = { onSelect(cat) })
+            val displayLabel = com.bina.ai.ui.localizedCategory(cat)
+            Chip(label = displayLabel, isActive = cat == selected, onClick = { onSelect(cat) })
         }
     }
 }
@@ -53,7 +54,7 @@ private fun Chip(label: String, isActive: Boolean, onClick: () -> Unit) {
         text = label,
         modifier = bg
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 6.dp),
         fontSize = 12.sp,
         fontWeight = FontWeight.SemiBold,
         color = if (isActive) Color.White else BinaStone950

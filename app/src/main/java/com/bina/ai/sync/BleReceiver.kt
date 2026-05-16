@@ -131,6 +131,10 @@ class BleReceiver(
             g.discoverServices()
         }
 
+        override fun onServiceChanged(g: BluetoothGatt) {
+            g.discoverServices()
+        }
+
         override fun onServicesDiscovered(g: BluetoothGatt, status: Int) {
             val service = g.getService(serviceUuid) ?: run {
                 _state.value = ReceiverState.Failed("Sender's service UUID not found")

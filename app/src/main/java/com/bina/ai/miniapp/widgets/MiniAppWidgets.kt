@@ -13,10 +13,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -28,6 +28,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
@@ -73,6 +74,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import com.bina.ai.miniapp.model.DataSet
 import com.bina.ai.miniapp.model.Widget
 import com.bina.ai.miniapp.runtime.VariableStore
@@ -200,10 +203,12 @@ private fun parseInlineMarkdown(text: String) = buildAnnotatedString {
 @Composable
 fun TextInputWidget(widget: Widget.TextInput, store: VariableStore, themeColor: Color) {
     val value = store[widget.bind]
+    val hint = store.interpolate(widget.hint)
+    val label = store.interpolate(widget.label)
 
-    if (widget.label.isNotEmpty()) {
+    if (label.isNotEmpty() && widget.inputType != "toggle") {
         Text(
-            widget.label,
+            label,
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
             color = Color(0xFF1C1917),
@@ -231,7 +236,7 @@ fun TextInputWidget(widget: Widget.TextInput, store: VariableStore, themeColor: 
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            value.ifEmpty { widget.hint.ifEmpty { "Select..." } },
+                            value.ifEmpty { hint.ifEmpty { "Select..." } },
                             fontSize = 14.sp,
                             color = if (value.isEmpty()) BinaGrayText else Color(0xFF1C1917)
                         )
@@ -271,7 +276,7 @@ fun TextInputWidget(widget: Widget.TextInput, store: VariableStore, themeColor: 
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    widget.label.ifEmpty { widget.hint },
+                    label.ifEmpty { hint },
                     fontSize = 14.sp,
                     color = Color(0xFF1C1917)
                 )
@@ -289,7 +294,7 @@ fun TextInputWidget(widget: Widget.TextInput, store: VariableStore, themeColor: 
             OutlinedTextField(
                 value = value,
                 onValueChange = { store[widget.bind] = it },
-                placeholder = { Text(widget.hint, color = BinaGrayText, fontSize = 14.sp) },
+                placeholder = { Text(hint, color = BinaGrayText, fontSize = 14.sp) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -441,54 +446,55 @@ fun VoiceInputWidget(
         if (granted) startRecording()
     }
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(
+                when {
+                    recording -> Color(0xFFDC2626)
+                    transcribing -> themeColor.copy(alpha = 0.15f)
+                    else -> themeColor.copy(alpha = 0.10f)
+                }
+            )
+            .clickable(enabled = !transcribing) {
+                if (recording) {
+                    stopAndTranscribe()
+                    return@clickable
+                }
+                val hasPermission = ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.RECORD_AUDIO
+                ) == PackageManager.PERMISSION_GRANTED
+                if (hasPermission) {
+                    startRecording()
+                } else {
+                    permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+            },
+        contentAlignment = Alignment.Center
     ) {
-        if (recording) {
-            Text("Recording...", fontSize = 13.sp, color = Color(0xFFDC2626), modifier = Modifier.weight(1f))
-        } else if (transcribing) {
-            Text("Transcribing...", fontSize = 13.sp, color = BinaGrayText, modifier = Modifier.weight(1f))
-        } else {
-            Spacer(Modifier.weight(1f))
-        }
-
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    when {
-                        recording -> Color(0xFFDC2626)
-                        transcribing -> themeColor.copy(alpha = 0.4f)
-                        else -> themeColor
-                    }
-                )
-                .clickable(enabled = !transcribing) {
-                    if (recording) {
-                        stopAndTranscribe()
-                        return@clickable
-                    }
-                    val hasPermission = ContextCompat.checkSelfPermission(
-                        context, Manifest.permission.RECORD_AUDIO
-                    ) == PackageManager.PERMISSION_GRANTED
-                    if (hasPermission) {
-                        startRecording()
-                    } else {
-                        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                    }
-                },
-            contentAlignment = Alignment.Center
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             when {
-                transcribing -> CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = Color.White,
-                    strokeWidth = 2.dp
-                )
-                recording -> Icon(Icons.Filled.Stop, contentDescription = "Stop recording", tint = Color.White)
-                else -> Icon(Icons.Filled.Mic, contentDescription = "Voice", tint = Color.White)
+                transcribing -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        color = themeColor,
+                        strokeWidth = 2.dp
+                    )
+                    Text("Transcribing...", fontSize = 14.sp, color = themeColor)
+                }
+                recording -> {
+                    Icon(Icons.Filled.Stop, contentDescription = "Stop recording", tint = Color.White, modifier = Modifier.size(20.dp))
+                    Text("Tap to stop", fontSize = 14.sp, color = Color.White)
+                }
+                else -> {
+                    Icon(Icons.Filled.Mic, contentDescription = "Voice", tint = themeColor, modifier = Modifier.size(20.dp))
+                    Text(store.interpolate(widget.hint).ifEmpty { "Voice input" }, fontSize = 14.sp, color = themeColor)
+                }
             }
         }
     }
@@ -601,47 +607,60 @@ fun CameraInputWidget(widget: Widget.CameraInput, store: VariableStore, themeCol
 
 // ── MacroGrid ──────────────────────────────────────────────
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MacroGridWidget(
     widget: Widget.MacroGrid,
+    store: VariableStore,
     themeColor: Color,
     onAction: (String) -> Unit
 ) {
-    FlowRow(
+    val cols = widget.columns.coerceAtLeast(1)
+    val rows = widget.buttons.chunked(cols)
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        maxItemsInEachRow = widget.columns
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        widget.buttons.forEach { button ->
-            Box(
+        rows.forEach { rowButtons ->
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .heightIn(min = 48.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(themeColor)
-                    .clickable(role = androidx.compose.ui.semantics.Role.Button) { onAction(button.action) }
-                    .padding(vertical = 14.dp, horizontal = 10.dp),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    if (button.icon.isNotEmpty()) {
-                        Text(
-                            button.icon,
-                            fontSize = 22.sp,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
+                rowButtons.forEach { button ->
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .heightIn(min = 48.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(themeColor)
+                            .clickable(role = androidx.compose.ui.semantics.Role.Button) { onAction(button.action) }
+                            .padding(vertical = 14.dp, horizontal = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            if (button.icon.isNotEmpty()) {
+                                Text(
+                                    button.icon,
+                                    fontSize = 22.sp,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            }
+                            Text(
+                                store.interpolate(button.label),
+                                fontSize = 13.sp,
+                                fontFamily = OutfitFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 4.dp)
+                            )
+                        }
                     }
-                    Text(
-                        button.label,
-                        fontSize = 13.sp,
-                        fontFamily = OutfitFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
+                }
+                repeat(cols - rowButtons.size) {
+                    Spacer(Modifier.weight(1f))
                 }
             }
         }
@@ -653,14 +672,17 @@ fun MacroGridWidget(
 @Composable
 fun SliderWidget(widget: Widget.Slider, store: VariableStore, themeColor: Color) {
     val current = store.getNumber(widget.bind).toFloat().coerceIn(widget.min, widget.max)
+    val sliderLabel = store.interpolate(widget.label)
+    val sliderLeftLabel = store.interpolate(widget.leftLabel)
+    val sliderRightLabel = store.interpolate(widget.rightLabel)
 
     Column(Modifier.fillMaxWidth()) {
-        if (widget.label.isNotEmpty()) {
+        if (sliderLabel.isNotEmpty()) {
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(widget.label, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text(sliderLabel, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 if (widget.showValue) {
                     Text(
                         current.toInt().toString(),
@@ -684,10 +706,10 @@ fun SliderWidget(widget: Widget.Slider, store: VariableStore, themeColor: Color)
             modifier = Modifier.fillMaxWidth()
         )
 
-        if (widget.leftLabel.isNotEmpty() || widget.rightLabel.isNotEmpty()) {
+        if (sliderLeftLabel.isNotEmpty() || sliderRightLabel.isNotEmpty()) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(widget.leftLabel, fontSize = 11.sp, color = BinaGrayText)
-                Text(widget.rightLabel, fontSize = 11.sp, color = BinaGrayText)
+                Text(sliderLeftLabel, fontSize = 11.sp, color = BinaGrayText)
+                Text(sliderRightLabel, fontSize = 11.sp, color = BinaGrayText)
             }
         }
     }
@@ -703,7 +725,8 @@ fun ActionButtonWidget(
     isLoading: Boolean,
     onAction: (String) -> Unit
 ) {
-    val label = if (widget.icon.isNotEmpty()) "${widget.icon} ${widget.label}" else widget.label
+    val resolvedLabel = store.interpolate(widget.label)
+    val label = if (widget.icon.isNotEmpty()) "${widget.icon} $resolvedLabel" else resolvedLabel
     var showConfirm by remember { mutableStateOf(false) }
 
     val handleClick: () -> Unit = {
@@ -906,6 +929,18 @@ fun GeoDisplayWidget(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (hasLocation) {
+            val isMalay = store["active_language"] == "ms"
+            val locationTimeStr = store["user_location_time"]
+            val minsAgo = if (locationTimeStr.isNotBlank()) {
+                val elapsed = System.currentTimeMillis() - (locationTimeStr.toLongOrNull() ?: 0L)
+                (elapsed / 60_000).toInt()
+            } else null
+            val timeLabel = when {
+                minsAgo == null -> ""
+                minsAgo < 1 -> if (isMalay) "Baru sahaja" else "Just now"
+                else -> if (isMalay) "$minsAgo minit lalu" else "$minsAgo min ago"
+            }
+            val locationPrefix = if (isMalay) "Anda" else "You"
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -916,12 +951,21 @@ fun GeoDisplayWidget(
             ) {
                 Text("📍", fontSize = 16.sp)
                 Spacer(Modifier.width(8.dp))
-                Text(
-                    "You: ${String.format("%.4f", userLat)}, ${String.format("%.4f", userLng)}",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = themeColor
-                )
+                Column {
+                    Text(
+                        "$locationPrefix: ${String.format("%.4f", userLat)}, ${String.format("%.4f", userLng)}",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = themeColor
+                    )
+                    if (timeLabel.isNotEmpty()) {
+                        Text(
+                            timeLabel,
+                            fontSize = 11.sp,
+                            color = BinaGrayText
+                        )
+                    }
+                }
             }
         }
 
@@ -969,6 +1013,25 @@ fun GeoDisplayWidget(
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = themeColor
+                    )
+                }
+                if (point.phone.isNotBlank()) {
+                    Spacer(Modifier.width(8.dp))
+                    Icon(
+                        Icons.Filled.Phone,
+                        contentDescription = "Call",
+                        tint = themeColor,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable {
+                                val intent = android.content.Intent(
+                                    android.content.Intent.ACTION_DIAL,
+                                    android.net.Uri.parse("tel:${point.phone}")
+                                )
+                                context.startActivity(intent)
+                            }
+                            .padding(2.dp)
                     )
                 }
             }
@@ -1077,7 +1140,7 @@ fun ChecklistItemsWidget(widget: Widget.ChecklistItems, store: VariableStore, th
                 }
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    item.label,
+                    store.interpolate(item.label),
                     fontSize = 14.sp,
                     fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Normal,
                     color = when {

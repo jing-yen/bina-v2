@@ -107,6 +107,7 @@ class ActionDispatcher(
                     store["ai_response"] = sb.toString().ifEmpty { "Error: ${e.message}" }
                 }
                 .collect()
+            store["last_result"] = sb.toString()
         } finally {
             store["is_loading"] = "false"
         }
@@ -145,6 +146,7 @@ class ActionDispatcher(
                     store["ai_response"] = sb.toString().ifEmpty { "Error: ${e.message}" }
                 }
                 .collect()
+            store["last_result"] = sb.toString()
         } finally {
             store["is_loading"] = "false"
         }
@@ -164,9 +166,11 @@ class ActionDispatcher(
             val location = locationProvider?.getCurrentLocation()
             if (location != null) {
                 store["user_location"] = "${location.first},${location.second}"
+                store["user_location_time"] = com.bina.ai.platform.Clock.now().toString()
                 Logger.d(TAG, "Got location: ${location.first}, ${location.second}")
             } else {
                 store["user_location"] = DEFAULT_LOCATION
+                store["user_location_time"] = com.bina.ai.platform.Clock.now().toString()
                 Logger.w(TAG, "Location unavailable, using default coords")
             }
         } catch (e: Exception) {
@@ -210,6 +214,12 @@ class ActionDispatcher(
     private fun buildSystemPrompt(): String = buildString {
         appendLine("Be concise. Give a clear diagnosis or answer with actionable steps. Use short bullet points. No filler or preamble.")
         appendLine()
+        val lang = store["active_language"]
+        if (lang.isNotBlank()) {
+            val langName = LANG_NAMES[lang] ?: lang
+            appendLine("IMPORTANT: Reply in $langName ($lang).")
+            appendLine()
+        }
         if (miniApp.knowledge.alwaysLoaded.isNotBlank()) {
             appendLine("## Reference Knowledge")
             appendLine(miniApp.knowledge.alwaysLoaded)
@@ -221,5 +231,17 @@ class ActionDispatcher(
     companion object {
         private const val TAG = "ActionDispatcher"
         private const val DEFAULT_LOCATION = "3.139,101.687"
+        private val LANG_NAMES = mapOf(
+            "ms" to "Bahasa Melayu", "en" to "English",
+            "id" to "Bahasa Indonesia", "zh" to "中文 (Chinese)",
+            "ta" to "தமிழ் (Tamil)", "th" to "ไทย (Thai)",
+            "vi" to "Tiếng Việt (Vietnamese)", "tl" to "Filipino",
+            "my" to "မြန်မာ (Burmese)", "km" to "ខ្មែរ (Khmer)",
+            "lo" to "ລາວ (Lao)", "ja" to "日本語 (Japanese)",
+            "ko" to "한국어 (Korean)", "ar" to "العربية (Arabic)",
+            "hi" to "हिन्दी (Hindi)", "bn" to "বাংলা (Bengali)",
+            "fr" to "Français (French)", "es" to "Español (Spanish)",
+            "pt" to "Português (Portuguese)", "sw" to "Kiswahili (Swahili)",
+        )
     }
 }

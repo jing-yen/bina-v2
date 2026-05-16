@@ -3,12 +3,27 @@
     <string name="app_name">Bina</string>
 
     <!-- Top bar -->
-    <string name="topbar_title">Bina</string>
-    <string name="topbar_subtitle">AI that works offline</string>
+    <string name="topbar_title">Hi, Encik Jing Yen 👋</string>
+    <string name="topbar_subtitle">Your AI is ready, even offline.</string>
 
     <!-- Hub -->
-    <string name="hub_title">Your AI Toolbox</string>
-    <string name="hub_subtitle">Smart tools built for your community</string>
+    <string name="hub_title">Expert Recipes</string>
+    <string name="hub_subtitle">Built for SEA communities. No internet needed.</string>
+    <string name="hub_your_recipes">Your Recipes</string>
+    <string name="hub_trending">Trending on Bina</string>
+    <string name="hub_empty_all">No recipes available.</string>
+    <string name="hub_empty_category">No recipes in this category.</string>
+
+    <!-- Bottom nav -->
+    <string name="nav_hub">Hub</string>
+    <string name="nav_pocket">My Pocket</string>
+    <string name="nav_sync">Offline Sync</string>
+    <string name="nav_analytics">Analytics</string>
+
+    <!-- Recipe stats -->
+    <string name="stat_recipe_size">Recipe Size</string>
+    <string name="stat_features">Features Available</string>
+    <string name="stat_dialect">Dialect</string>
 
     <!-- My Pocket -->
     <string name="pocket_title">My Pocket</string>
@@ -48,11 +63,31 @@
     <string name="miniapp_complete">Complete!</string>
     <string name="miniapp_step_of">Step %1$d of %2$d</string>
     <string name="miniapp_your_location">You: %1$s, %2$s</string>
+    <string name="miniapp_location_mins_ago">%d min ago</string>
+    <string name="miniapp_location_just_now">Just now</string>
 
     <!-- Triage chat -->
     <string name="triage_greeting">Hi! I\'m %s. How can I help you today?</string>
     <string name="triage_placeholder">Describe what you need&#8230;</string>
     <string name="triage_send">Send</string>
+
+    <!-- Categories -->
+    <string name="cat_all">All</string>
+    <string name="cat_agriculture">Agriculture</string>
+    <string name="cat_health">Health</string>
+    <string name="cat_business">Business</string>
+    <string name="cat_finance">Finance</string>
+    <string name="cat_education">Education</string>
+
+    <!-- Mock recipe descriptions -->
+    <string name="desc_mock_plant_doctor">AI crop diagnosis — snap a photo of your plant, get instant disease identification and treatment</string>
+    <string name="desc_mock_dengue">Dengue prevention awareness chatbot for community health campaigns</string>
+    <string name="desc_mock_nutrition">Child nutrition screening and dietary guidance for rural clinics</string>
+    <string name="desc_mock_thai">Shop management assistant for small Thai retailers</string>
+    <string name="desc_mock_viet">Agriculture assistant for Vietnamese farmers</string>
+    <string name="desc_mock_khmer">Smart farming guide for Cambodian smallholders</string>
+    <string name="desc_mock_sawit">Palm oil cultivation expert for Malaysian smallholders</string>
+    <string name="desc_mock_myanmar">Village health guide for rural Myanmar communities</string>
 
     <!-- General -->
     <string name="confirm">Confirm</string>

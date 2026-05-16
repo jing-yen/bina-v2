@@ -1,0 +1,334 @@
+id: mock_plant_doctor
+name: "Doktor Pokok"
+description: "AI crop diagnosis — snap a photo of your plant, get instant disease identification and treatment"
+icon: "\U0001F33F"
+version: "1.0.0"
+category: "Agriculture"
+featured: true
+tags:
+  - farming
+  - crops
+  - diagnosis
+author:
+  name: "Jabatan Pertanian Malaysia"
+  organisation: "Jabatan Pertanian Malaysia"
+  verified: true
+theme:
+  primary: "#2D7D46"
+  secondary: "#F0F7F2"
+localisation:
+  supported:
+    - ms
+    - en
+  default: ms
+  labels:
+    ms:
+      home_heading: "Apa masalah tanaman anda?"
+      grid_diagnose: "Diagnos Penyakit"
+      grid_soil: "Semak Tanah"
+      grid_crop: "Panduan Tanaman"
+      grid_shops: "Kedai Terdekat"
+      diagnose_title: "Diagnos Penyakit"
+      diagnose_text_hint: "Terangkan simptom tanaman (daun kuning, bintik coklat...)"
+      diagnose_voice_hint: "Terangkan simptom tanaman..."
+      diagnose_button: "Diagnos"
+      soil_title: "Semakan Tanah"
+      soil_heading: "Penilaian Tanah & Baja"
+      soil_ph_label: "pH Tanah"
+      soil_ph_left: "Berasid"
+      soil_ph_right: "Beralkali"
+      soil_type_hint: "Jenis tanah"
+      soil_crop_hint: "Jenis tanaman"
+      soil_drainage: "Masalah saliran"
+      soil_flooding: "Banjir baru-baru ini"
+      soil_failure: "Kegagalan tanaman sebelum"
+      soil_button: "Analisis Tanah"
+      crop_title: "Panduan Tanaman"
+      crop_select_hint: "Pilih tanaman"
+      crop_text_hint: "Soalan tentang penanaman, tuaian, racun perosak..."
+      crop_button: "Dapatkan Nasihat"
+      shops_title: "Kedai Agro Terdekat"
+      shops_subtext: "Cari bekalan pertanian berhampiran"
+      shops_locate: "📍 Dapatkan Lokasi Saya"
+      shops_sms_hotline: "📩 SMS Jabatan Pertanian"
+      shops_call_hotline: "📞 Hubungi Jabatan Pertanian"
+    en:
+      home_heading: "What's wrong with your plant?"
+      grid_diagnose: "Diagnose Disease"
+      grid_soil: "Soil Check"
+      grid_crop: "Crop Guide"
+      grid_shops: "Nearby Shops"
+      diagnose_title: "Disease Diagnosis"
+      diagnose_text_hint: "Describe plant symptoms (yellow leaves, brown spots...)"
+      diagnose_voice_hint: "Describe plant symptoms..."
+      diagnose_button: "Diagnose"
+      soil_title: "Soil Check"
+      soil_heading: "Soil & Fertilizer Assessment"
+      soil_ph_label: "Soil pH"
+      soil_ph_left: "Acidic"
+      soil_ph_right: "Alkaline"
+      soil_type_hint: "Soil type"
+      soil_crop_hint: "Crop type"
+      soil_drainage: "Drainage issues"
+      soil_flooding: "Recent flooding"
+      soil_failure: "Previous crop failure"
+      soil_button: "Analyze Soil"
+      crop_title: "Crop Guide"
+      crop_select_hint: "Select crop"
+      crop_text_hint: "Questions about planting, harvest, pesticides..."
+      crop_button: "Get Advice"
+      shops_title: "Nearby Agro Shops"
+      shops_subtext: "Find agricultural supplies nearby"
+      shops_locate: "📍 Get My Location"
+      shops_sms_hotline: "📩 SMS Agriculture Dept"
+      shops_call_hotline: "📞 Call Agriculture Dept"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are Doktor Pokok (Plant Doctor), an AI agricultural assistant for smallholder farmers in Southeast Asia. You help diagnose plant diseases from photos and descriptions, assess soil conditions, recommend fertilizers, and provide crop management advice.
+
+    Always:
+    - Be concise — farmers need quick, actionable answers
+    - When analyzing a plant photo, identify the most likely disease first, then give treatment steps
+    - Recommend locally available treatments and pesticides
+    - Consider tropical climate and Southeast Asian crop varieties
+    - Use bullet points and bold for key information
+
+    Never:
+    - Recommend banned or restricted pesticides
+    - Ignore signs of serious crop disease that could spread
+    - Give advice outside agriculture
+safety:
+  blocked_keywords:
+    - harmful
+  disclaimer: "Alat ini membantu diagnosis tanaman tetapi tidak menggantikan nasihat pakar pertanian profesional."
+setup:
+  intro_page:
+    accept_label: "Saya Faham — Mula"
+    disclaimer: "Alat ini membantu diagnosis tanaman tetapi tidak menggantikan nasihat pakar pertanian profesional. Sentiasa rujuk pegawai pertanian untuk kes kritikal."
+    author:
+      name: "Jabatan Pertanian Malaysia"
+      organisation: "Jabatan Pertanian Malaysia"
+      verified: true
+    links:
+      - label: "Portal Jabatan Pertanian"
+        url: "https://www.doa.gov.my"
+      - label: "Panduan Tanaman MARDI"
+        url: "https://www.mardi.gov.my"
+screen_catalog:
+  - id: home
+    title: "Home"
+    icon: "\U0001F3E0"
+  - id: diagnose
+    title: "Diagnos"
+    icon: "\U0001F4F8"
+  - id: soil
+    title: "Tanah"
+    icon: "\U0001F9EA"
+  - id: crop_guide
+    title: "Tanaman"
+    icon: "\U0001F331"
+  - id: shops
+    title: "Kedai"
+    icon: "\U0001F3EA"
+data:
+  agro_shops:
+    items:
+      - name: "Kedai Baja & Racun Kota Bharu"
+        lat: 6.1335
+        lng: 102.2384
+        info: "Baja, racun perosak, benih"
+        phone: "+60139876543"
+      - name: "Agro Mart Bachok"
+        lat: 6.0712
+        lng: 102.3988
+        info: "Peralatan ladang & baja"
+        phone: "+60121234567"
+      - name: "Pusat Pertanian Tumpat"
+        lat: 6.2014
+        lng: 102.1655
+        info: "Benih, baja, alatan"
+        phone: "+60149876543"
+      - name: "Kedai Pertanian Pasir Mas"
+        lat: 6.0467
+        lng: 102.1397
+        info: "Racun & baja borong"
+        phone: "+60161234567"
+      - name: "FELDA Agro Supply Tanah Merah"
+        lat: 5.8102
+        lng: 102.1481
+        info: "Bekalan pertanian FELDA"
+        phone: "+60171234567"
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  photo_path: { type: string, default: "" }
+  soil_ph: { type: number, default: "6" }
+  soil_type: { type: string, default: "" }
+  crop_type: { type: string, default: "" }
+  soil_drainage: { type: string, default: "false" }
+  soil_flooding: { type: string, default: "false" }
+  soil_failure: { type: string, default: "false" }
+  crop_select: { type: string, default: "" }
+  last_result: { type: string, default: "" }
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_diagnose}}"
+              icon: "\U0001F4F8"
+              action: "go:diagnose"
+            - label: "{{l10n.grid_soil}}"
+              icon: "\U0001F9EA"
+              action: "go:soil"
+            - label: "{{l10n.grid_crop}}"
+              icon: "\U0001F331"
+              action: "go:crop_guide"
+            - label: "{{l10n.grid_shops}}"
+              icon: "\U0001F3EA"
+              action: "go:shops"
+  - id: diagnose
+    title: "{{l10n.diagnose_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.diagnose_title}}"
+          style: subheading
+      - camera_input:
+          bind: photo_path
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.diagnose_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.diagnose_text_hint}}"
+      - action_button:
+          label: "{{l10n.diagnose_button}}"
+          action: "vision_ask:You are a plant pathologist. Analyze this photo of a crop/plant. Identify: 1) The plant species if visible, 2) The disease or pest affecting it, 3) Severity (mild/moderate/severe), 4) Recommended treatment using locally available products in Southeast Asia, 5) Prevention measures. If the image is unclear, ask for a better photo. Additional context from farmer: {{user_text}}"
+          style: primary
+          visible_if: "photo_path"
+      - action_button:
+          label: "{{l10n.diagnose_button}}"
+          action: "ask:You are a plant pathologist. Based on the farmer's description, identify the most likely disease or pest. Give: 1) Most probable diagnosis, 2) Severity assessment, 3) Treatment using locally available products in Southeast Asia, 4) Prevention measures. Ask one clarifying question if needed. Description: {{user_text}}"
+          style: primary
+          hidden_if: "photo_path"
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: soil
+    title: "{{l10n.soil_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.soil_heading}}"
+          style: subheading
+      - slider:
+          bind: soil_ph
+          min: 3
+          max: 10
+          step: 1
+          label: "{{l10n.soil_ph_label}}"
+          left_label: "{{l10n.soil_ph_left}}"
+          right_label: "{{l10n.soil_ph_right}}"
+          show_value: true
+      - text_input:
+          bind: soil_type
+          hint: "{{l10n.soil_type_hint}}"
+          input_type: dropdown
+          options:
+            - "Tanah Liat (Clay)"
+            - "Tanah Berpasir (Sandy)"
+            - "Tanah Loam"
+            - "Tanah Gambut (Peat)"
+      - text_input:
+          bind: crop_type
+          hint: "{{l10n.soil_crop_hint}}"
+          input_type: dropdown
+          options:
+            - "Padi (Rice)"
+            - "Sawit (Palm Oil)"
+            - "Getah (Rubber)"
+            - "Sayur-sayuran (Vegetables)"
+            - "Buah-buahan (Fruits)"
+            - "Jagung (Corn)"
+            - "Ubi Kayu (Cassava)"
+      - text_input:
+          bind: soil_drainage
+          label: "{{l10n.soil_drainage}}"
+          input_type: toggle
+      - text_input:
+          bind: soil_flooding
+          label: "{{l10n.soil_flooding}}"
+          input_type: toggle
+      - text_input:
+          bind: soil_failure
+          label: "{{l10n.soil_failure}}"
+          input_type: toggle
+      - action_button:
+          label: "{{l10n.soil_button}}"
+          action: "ask:You are a soil scientist advising a Southeast Asian farmer. Analyze: Soil pH: {{soil_ph}}, Soil type: {{soil_type}}, Crop: {{crop_type}}, Drainage issues: {{soil_drainage}}, Recent flooding: {{soil_flooding}}, Previous crop failure: {{soil_failure}}. Provide: 1) Soil health assessment, 2) pH correction if needed (lime or sulfur amounts), 3) Fertilizer recommendation (NPK ratio and local brands), 4) Organic amendment suggestions, 5) Planting readiness verdict."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: crop_guide
+    title: "{{l10n.crop_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.crop_title}}"
+          style: subheading
+      - text_input:
+          bind: crop_select
+          hint: "{{l10n.crop_select_hint}}"
+          input_type: dropdown
+          options:
+            - "Padi (Rice)"
+            - "Sawit (Palm Oil)"
+            - "Getah (Rubber)"
+            - "Durian"
+            - "Cili (Chili)"
+            - "Tomato"
+            - "Jagung (Corn)"
+            - "Ubi Kayu (Cassava)"
+            - "Kangkung"
+            - "Bayam (Spinach)"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.crop_text_hint}}"
+      - action_button:
+          label: "{{l10n.crop_button}}"
+          action: "ask:You are a crop management advisor for Southeast Asian smallholders. Crop: {{crop_select}}. Provide advice on this question. Include local varieties, tropical climate considerations, planting calendar for Malaysia, common pests and organic solutions. Question: {{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: shops
+    title: "{{l10n.shops_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.shops_title}}"
+          style: subheading
+      - text_label:
+          text: "{{l10n.shops_subtext}}"
+          style: body
+      - action_button:
+          label: "{{l10n.shops_locate}}"
+          action: "geolocate"
+          style: secondary
+      - geo_display:
+          data: "agro_shops"
+          limit: 5
+          show_distance: true
+      - action_button:
+          label: "{{l10n.shops_sms_hotline}}"
+          action: "sms:+60197654321:Salam, saya petani perlukan bantuan. Diagnosis AI: {{last_result}}. Tanaman: {{crop_type}}. Lokasi: {{user_location}}. — Dihantar dari Doktor Pokok"
+          style: primary
+      - action_button:
+          label: "{{l10n.shops_call_hotline}}"
+          action: "tel:+60197654321"
+          style: danger

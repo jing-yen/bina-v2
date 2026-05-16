@@ -10,14 +10,14 @@ export interface DemoDocument {
 
 export const DEMO_DOCUMENTS: DemoDocument[] = [
   {
-    name: 'Crop Disease Guide',
+    name: 'Panduan Penyakit Tanaman',
     category: 'Agriculture',
-    emoji: '\u{1F33E}',
-    author: 'Dr. Anh Nguyen',
-    org: 'ASEAN Agricultural Extension Network',
+    emoji: '\u{1F33F}',
+    author: 'Jabatan Pertanian Malaysia (Dept. of Agriculture)',
+    org: 'Jabatan Pertanian Malaysia (Dept. of Agriculture)',
     links: [
-      { label: 'FAO Crop Manual', url: 'https://www.fao.org/crop-management' },
-      { label: 'IRRI Rice Knowledge Bank', url: 'https://www.irri.org/rice-knowledge-bank' },
+      { label: 'Portal Jabatan Pertanian', url: 'https://www.doa.gov.my' },
+      { label: 'Panduan Tanaman MARDI', url: 'https://www.mardi.gov.my' },
     ],
     content: `Common Crop Diseases in Southeast Asia
 

@@ -1,6 +1,7 @@
 package com.bina.ai.ui.screens.pocket
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +47,7 @@ import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaBgCard
+import com.bina.ai.ui.theme.BinaGrayBorder
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaGreen
 import com.bina.ai.ui.theme.BinaIndigo
@@ -70,20 +72,22 @@ fun MyPocketScreen(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         item {
             Text(
                 stringResource(R.string.pocket_title),
                 fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
+                fontSize = 20.sp,
+                lineHeight = 24.sp,
                 color = BinaStone950
             )
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(2.dp))
             Text(
                 stringResource(R.string.pocket_subtitle),
-                fontSize = 14.sp,
+                fontSize = 13.sp,
+                lineHeight = 17.sp,
                 color = BinaGrayText
             )
         }
@@ -118,11 +122,10 @@ fun MyPocketScreen(
         }
 
         item {
-            Spacer(Modifier.height(4.dp))
             Text(
                 stringResource(R.string.pocket_saved_recipes),
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp,
+                fontSize = 15.sp,
                 color = BinaStone950
             )
         }
@@ -186,25 +189,27 @@ private fun StatCard(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
             .background(BinaBgCard.copy(alpha = 0.92f))
-            .padding(12.dp)
+            .padding(10.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
             Icon(
                 icon,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(20.dp)
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(4.dp))
             Text(
                 value,
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
+                fontSize = 18.sp,
+                lineHeight = 20.sp,
                 color = color
             )
             Text(
                 label,
-                fontSize = 11.sp,
+                fontSize = 10.sp,
+                lineHeight = 13.sp,
                 color = BinaGrayText
             )
         }
@@ -222,39 +227,42 @@ private fun PocketMiniAppCard(app: MiniApp, onClick: () -> Unit, onAddToHome: ()
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, BinaGrayBorder, RoundedCornerShape(16.dp))
             .background(BinaBgCard.copy(alpha = 0.92f))
             .clickable(onClick = onClick)
-            .padding(16.dp)
+            .padding(12.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(56.dp)
-                    .clip(RoundedCornerShape(16.dp))
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .background(themeColor.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(app.icon, fontSize = 28.sp)
+                Text(app.icon, fontSize = 24.sp)
             }
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     app.name,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
+                    fontSize = 15.sp,
+                    lineHeight = 18.sp,
                     color = BinaStone950
                 )
                 Text(
                     app.description,
-                    fontSize = 13.sp,
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
                     color = BinaGrayText,
                     maxLines = 2
                 )
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(3.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -263,13 +271,13 @@ private fun PocketMiniAppCard(app: MiniApp, onClick: () -> Unit, onAddToHome: ()
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
                             .background(BinaGreen.copy(alpha = 0.12f))
-                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                            .padding(horizontal = 6.dp, vertical = 1.dp)
                     ) {
-                        Text(stringResource(R.string.pocket_offline_ready), fontSize = 11.sp, fontWeight = FontWeight.Medium, color = BinaGreen)
+                        Text(stringResource(R.string.pocket_offline_ready), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = BinaGreen)
                     }
                     Text(
                         stringResource(R.string.pocket_screens_count, app.screens.size),
-                        fontSize = 11.sp,
+                        fontSize = 10.sp,
                         color = BinaGrayText
                     )
                 }
@@ -280,7 +288,7 @@ private fun PocketMiniAppCard(app: MiniApp, onClick: () -> Unit, onAddToHome: ()
                     Icons.Outlined.AddToHomeScreen,
                     contentDescription = stringResource(R.string.pocket_add_home),
                     tint = BinaAccent,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }

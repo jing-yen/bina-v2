@@ -28,8 +28,11 @@ function langFlags(codes: string[], max = 8): string {
 }
 
 const RECIPE_EN_SUBTITLE: Record<string, string> = {
-  'Bidan Pintar': 'Smart Midwife Assistant',
+  'Doktor Pokok': 'Plant Doctor — AI Crop Diagnosis',
   'Pakar Sawit': 'Palm Oil Expert',
+  'Panduan Padi': 'Rice Cultivation Guide',
+  'Kalkulator Baja': 'Fertilizer Calculator',
+  'Bidan Pintar': 'Smart Midwife Assistant',
   'Pakar Tani': 'Farming Expert',
   'Buku Kira-Kira': 'Micro-Business Ledger',
   'Kira Mikro': 'Micro-Finance Calculator',
@@ -58,20 +61,36 @@ const RECIPE_ICON_OVERRIDE: Record<string, string> = {
 
 const MOCK_HEALTH_RECIPES: RecipeWithId[] = [
   {
-    id: 'mock_dengue', recipeName: 'Cegah Denggi', recipeDescription: 'Dengue prevention awareness chatbot for community health campaigns',
-    recipeIcon: '\u{1F99F}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Health',
-    selectedLanguages: ['ms', 'en', 'ta', 'zh'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
-    screens: [{} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
-    createdAt: new Date('2026-04-20'), updatedAt: new Date('2026-05-10'),
-    stats: { downloads: '3210', users: '1480', rating: 4.7 },
+    id: 'mock_plant_doctor', recipeName: 'Doktor Pokok', recipeDescription: 'AI crop diagnosis — snap a photo, get instant disease identification and treatment',
+    recipeIcon: '\u{1F33F}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
+    selectedLanguages: ['ms', 'en'], selectedTheme: 'forest' as any, customPrimary: '#2D7D46', customSecondary: '#F0F7F2',
+    screens: [{} as any, {} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-04-20'), updatedAt: new Date('2026-05-14'),
+    stats: { downloads: '4820', users: '2310', rating: 4.9 },
   },
   {
-    id: 'mock_nutrition', recipeName: 'Panduan Nutrisi Kanak-Kanak', recipeDescription: 'Child nutrition screening and dietary guidance for rural clinics',
-    recipeIcon: '\u{1F966}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Health',
-    selectedLanguages: ['ms', 'en', 'id'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
-    screens: [{} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
-    createdAt: new Date('2026-03-15'), updatedAt: new Date('2026-05-08'),
-    stats: { downloads: '1870', users: '920', rating: 4.5 },
+    id: 'mock_sawit_2', recipeName: 'Pakar Sawit', recipeDescription: 'Palm oil cultivation expert — Ganoderma diagnosis, treatment checklists, supply ordering',
+    recipeIcon: '\u{1F334}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
+    selectedLanguages: ['ms', 'en', 'id'], selectedTheme: 'forest' as any, customPrimary: '#15803D', customSecondary: '#BBF7D0',
+    screens: [{} as any, {} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-03-15'), updatedAt: new Date('2026-05-12'),
+    stats: { downloads: '2870', users: '1320', rating: 4.7 },
+  },
+  {
+    id: 'mock_padi', recipeName: 'Panduan Padi', recipeDescription: 'Rice cultivation guide — planting calendar, pest control, harvest optimization',
+    recipeIcon: '\u{1F33E}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
+    selectedLanguages: ['ms', 'en'], selectedTheme: 'forest' as any, customPrimary: '#2D7D46', customSecondary: '#F0F7F2',
+    screens: [{} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-02-10'), updatedAt: new Date('2026-05-08'),
+    stats: { downloads: '1940', users: '890', rating: 4.6 },
+  },
+  {
+    id: 'mock_baja', recipeName: 'Kalkulator Baja', recipeDescription: 'Fertilizer calculator — soil type, crop, area input for precise NPK recommendations',
+    recipeIcon: '\u{1F9EA}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
+    selectedLanguages: ['ms', 'en'], selectedTheme: 'forest' as any, customPrimary: '#2D7D46', customSecondary: '#F0F7F2',
+    screens: [{} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-01-25'), updatedAt: new Date('2026-05-05'),
+    stats: { downloads: '1210', users: '560', rating: 4.4 },
   },
 ];
 
@@ -127,14 +146,14 @@ const MOCK_TRENDING_RECIPES: RecipeWithId[] = [
 ];
 
 const LIVE_FEED = [
-  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Midwife in Kelantan opened Bidan Pintar', time: '2m ago' },
-  { flag: '\u{1F1EE}\u{1F1E9}', text: 'Health worker in Surabaya used Rural Triage', time: '4m ago' },
-  { flag: '\u{1F1F9}\u{1F1ED}', text: 'Nurse in Chiang Mai completed First Aid drill', time: '7m ago' },
-  { flag: '\u{1F1F5}\u{1F1ED}', text: 'CHW in Cebu checked Maternal Health Guide', time: '11m ago' },
-  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Clinic in Sabah downloaded Bidan Pintar', time: '14m ago' },
-  { flag: '\u{1F1FB}\u{1F1F3}', text: 'Community worker in Da Nang used Dengue Prevention', time: '18m ago' },
-  { flag: '\u{1F1EE}\u{1F1E9}', text: 'Midwife in Bandung opened Bidan Pintar', time: '22m ago' },
-  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Hospital in Penang shared First Aid Response', time: '25m ago' },
+  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Farmer in Kelantan diagnosed leaf blight with Doktor Pokok', time: '2m ago' },
+  { flag: '\u{1F1EE}\u{1F1E9}', text: 'Smallholder in Java used Pakar Sawit for Ganoderma check', time: '4m ago' },
+  { flag: '\u{1F1F9}\u{1F1ED}', text: 'Rice farmer in Chiang Mai checked soil pH', time: '7m ago' },
+  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Pekebun in Pahang ordered supplies via Doktor Pokok', time: '11m ago' },
+  { flag: '\u{1F1FB}\u{1F1F3}', text: 'Cooperative in Mekong Delta used crop guide', time: '14m ago' },
+  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Petani in Sabah shared diagnosis with extension officer', time: '18m ago' },
+  { flag: '\u{1F1EE}\u{1F1E9}', text: 'Farmer in Sulawesi ran soil analysis', time: '22m ago' },
+  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Agro shop in Terengganu received SMS order from Doktor Pokok', time: '25m ago' },
 ];
 
 const HEATMAP_REGION_COORDS: Record<string, { x: number; y: number; name: string }> = {
@@ -266,12 +285,12 @@ export function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h1 className="text-3xl font-bold text-stone-900">Welcome back, Jing Yen</h1>
+          <h1 className="text-3xl font-bold text-stone-900">Welcome back, Pn. Aminah</h1>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-lg">{'\u{1F3E5}'}</span>
-            <span className="text-sm text-stone-600">Ministry of Health, Malaysia</span>
-            <BadgeCheck size={16} style={{ color: '#C45A3A' }} />
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded" style={{ color: '#C45A3A', background: '#C45A3A10' }}>Verified Publisher</span>
+            <span className="text-lg">{'\u{1F33F}'}</span>
+            <span className="text-sm text-stone-600">Jabatan Pertanian Malaysia (Dept. of Agriculture)</span>
+            <BadgeCheck size={16} style={{ color: '#1A8A6A' }} />
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded" style={{ color: '#1A8A6A', background: '#1A8A6A10' }}>Verified Publisher</span>
           </div>
         </div>
         <button
@@ -291,7 +310,7 @@ export function Dashboard() {
             <Activity size={16} style={{ color: '#C45A3A' }} />
           </div>
           <p className="text-sm text-stone-700">
-            Your recipes are helping <span className="font-bold text-stone-900">{platformStats ? formatCount(platformStats.uniqueDevices) : '—'} healthcare workers</span> across <span className="font-bold text-stone-900">{platformStats?.countriesReached || '—'} countries</span> this month
+            Your recipes are helping <span className="font-bold text-stone-900">{platformStats ? formatCount(platformStats.uniqueDevices) : '—'} farmers</span> across <span className="font-bold text-stone-900">{platformStats?.countriesReached || '—'} countries</span> this month
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-stone-500">
@@ -382,7 +401,7 @@ export function Dashboard() {
         <div className="flex flex-col gap-3">
           {/* Your Recipes — Health/Emergency */}
           {(() => {
-            const YOUR_CATEGORIES = new Set(['Health', 'Emergency']);
+            const YOUR_CATEGORIES = new Set(['Agriculture']);
             const seen = new Set<string>();
             const deduped: RecipeWithId[] = [];
             for (const r of recipes) {

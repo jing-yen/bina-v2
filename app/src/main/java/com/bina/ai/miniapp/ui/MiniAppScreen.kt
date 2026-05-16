@@ -1,9 +1,11 @@
 package com.bina.ai.miniapp.ui
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.speech.tts.TextToSpeech
 import java.util.Locale
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -48,7 +50,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,6 +67,8 @@ import com.bina.ai.miniapp.runtime.FormulaEngine
 import com.bina.ai.miniapp.runtime.TriageEngine
 import com.bina.ai.miniapp.runtime.TriageResult
 import com.bina.ai.miniapp.runtime.VariableStore
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import com.bina.ai.miniapp.widgets.RenderWidget
 import com.bina.ai.miniapp.widgets.parseColor
 import com.bina.ai.ui.theme.BinaGrayText
@@ -88,11 +95,17 @@ fun MiniAppScreen(
             vs.onChange = {
                 val editor = storePrefs.edit()
                 backingMap.forEach { (k, v) ->
-                    if (k != "ai_response" && k != "is_loading" && k != "photo_path") {
+                    if (k != "ai_response" && k != "is_loading" && k != "photo_path" && !k.startsWith("l10n.")) {
                         editor.putString(k, v)
                     }
                 }
                 editor.apply()
+            }
+            val defaultLang = miniApp.localisation.defaultLanguage.ifEmpty {
+                miniApp.localisation.supported.firstOrNull() ?: "en"
+            }
+            miniApp.localisation.labels[defaultLang]?.forEach { (key, value) ->
+                backingMap["l10n.$key"] = value
             }
         }
     }
@@ -110,15 +123,24 @@ fun MiniAppScreen(
     val introAcceptedKey = "accepted_${miniApp.id}"
     var showIntro by remember { mutableStateOf(hasIntro && !introPrefs.getBoolean(introAcceptedKey, false)) }
     val scope = rememberCoroutineScope()
+    val supportedLangs = miniApp.localisation.supported.ifEmpty { listOf(miniApp.localisation.defaultLanguage) }
+    var currentLang by remember { mutableStateOf(miniApp.localisation.defaultLanguage.ifEmpty { supportedLangs.first() }) }
+    LaunchedEffect(currentLang) {
+        store["active_language"] = currentLang
+        miniApp.localisation.labels[currentLang]?.forEach { (key, value) ->
+            store["l10n.$key"] = value
+        }
+    }
     val tts = remember {
         var engine: TextToSpeech? = null
         engine = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                engine?.language = Locale("ms", "MY")
+                engine?.language = langToLocale(currentLang)
             }
         }
         engine
     }
+    LaunchedEffect(currentLang) { tts?.language = langToLocale(currentLang) }
     androidx.compose.runtime.DisposableEffect(Unit) {
         onDispose { tts?.shutdown() }
     }
@@ -210,22 +232,81 @@ fun MiniAppScreen(
         return
     }
 
+    val view = LocalView.current
+    SideEffect {
+        (view.context as? Activity)?.window?.statusBarColor = secondaryColor.toArgb()
+    }
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose {
+            (view.context as? Activity)?.window?.statusBarColor = android.graphics.Color.TRANSPARENT
+        }
+    }
+
     Column(
         Modifier
             .fillMaxSize()
             .background(secondaryColor)
             .navigationBarsPadding()
     ) {
-        // Nav bar — matches web preview: icon + title, back chevron on sub-screens only
         val isHomeScreen = currentScreenId == miniApp.screens.firstOrNull()?.id
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (!isHomeScreen) {
+        BackHandler(enabled = !isHomeScreen) {
+            switchScreen(miniApp.screens.first().id)
+        }
+
+        if (isHomeScreen) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Text(miniApp.icon, fontSize = 48.sp)
+                Spacer(Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f).padding(bottom = 4.dp)) {
+                    Text(
+                        store.interpolate(currentScreen.title.ifEmpty { miniApp.name }),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1C1917)
+                    )
+                    if (miniApp.author.organisation.isNotBlank()) {
+                        Text(
+                            "by ${miniApp.author.organisation}",
+                            fontSize = 11.sp,
+                            color = Color(0xFF78716C)
+                        )
+                    }
+                }
+                val homeLangs = supportedLangs.filter { it == "ms" || it == "en" }
+                if (homeLangs.size > 1) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(0.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    ) {
+                        homeLangs.forEach { lang ->
+                            val flag = LANG_FLAGS[lang] ?: lang.uppercase()
+                            val isActive = lang == currentLang
+                            Text(
+                                flag,
+                                fontSize = if (isActive) 16.sp else 13.sp,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .clickable { currentLang = lang }
+                                    .padding(horizontal = 3.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
@@ -235,23 +316,22 @@ fun MiniAppScreen(
                         .clickable { switchScreen(miniApp.screens.first().id) }
                 )
                 Spacer(Modifier.width(8.dp))
-            }
-            Text(
-                if (isHomeScreen) miniApp.icon else {
-                    val screenEntry = miniApp.screenCatalog.find { it.id == currentScreenId }
-                    screenEntry?.icon?.ifEmpty { null } ?: miniApp.icon
-                },
-                fontSize = 22.sp
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                currentScreen.title.ifEmpty { miniApp.name },
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF1C1917),
-                modifier = Modifier.weight(1f)
-            )
-            if (!isHomeScreen) {
+                Text(
+                    run {
+                        val screenEntry = miniApp.screenCatalog.find { it.id == currentScreenId }
+                        screenEntry?.icon?.ifEmpty { null } ?: miniApp.icon
+                    },
+                    fontSize = 22.sp
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    store.interpolate(currentScreen.title.ifEmpty { miniApp.name }),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1C1917),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.width(8.dp))
                 Icon(
                     Icons.Filled.Refresh,
                     contentDescription = "Reset screen",
@@ -380,13 +460,15 @@ fun MiniAppScreen(
             ) {
                 Box(
                     modifier = Modifier
+                        .height(28.dp)
                         .clip(RoundedCornerShape(20.dp))
                         .background(Color.White.copy(alpha = 0.6f))
                         .clickable {
                             if (isHomeScreen) onBack()
                             else switchScreen(miniApp.screens.first().id)
                         }
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                        .padding(horizontal = 10.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
@@ -400,16 +482,19 @@ fun MiniAppScreen(
                     val isHome = screen.id == miniApp.screens.first().id
                     val catalogEntry = miniApp.screenCatalog.find { it.id == screen.id }
                     val emoji = catalogEntry?.icon?.ifEmpty { null }
-                    val label = if (isHome) "Home"
-                        else screen.title.ifEmpty { catalogEntry?.title ?: screen.id }
+                    val label = if (isHome) {
+                            if (store["active_language"] == "ms") "Utama" else "Home"
+                        } else store.interpolate(screen.title.ifEmpty { catalogEntry?.title ?: screen.id })
 
                     Box(
                         modifier = Modifier
+                            .height(28.dp)
                             .clip(RoundedCornerShape(20.dp))
                             .background(if (isActive) themeColor else Color.White.copy(alpha = 0.6f))
                             .clickable(role = androidx.compose.ui.semantics.Role.Tab) { switchScreen(screen.id) }
-                            .padding(horizontal = if (isActive) 14.dp else 10.dp, vertical = 6.dp)
-                            .animateContentSize()
+                            .padding(horizontal = if (isActive) 14.dp else 10.dp)
+                            .animateContentSize(),
+                        contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if (isHome) {
@@ -609,6 +694,42 @@ private fun IntroPageScreen(
             Spacer(Modifier.height(16.dp))
         }
     }
+}
+
+private val LANG_FLAGS = mapOf(
+    "ms" to "🇲🇾", "en" to "🇬🇧",
+    "id" to "🇮🇩", "zh" to "🇨🇳",
+    "ta" to "🇮🇳", "th" to "🇹🇭",
+    "vi" to "🇻🇳", "tl" to "🇵🇭",
+    "my" to "🇲🇲", "km" to "🇰🇭",
+    "lo" to "🇱🇦", "ja" to "🇯🇵",
+    "ko" to "🇰🇷", "ar" to "🇸🇦",
+    "hi" to "🇮🇳", "bn" to "🇧🇩",
+    "fr" to "🇫🇷", "es" to "🇪🇸",
+    "pt" to "🇧🇷", "sw" to "🇰🇪",
+)
+
+private fun langToLocale(code: String): Locale = when (code) {
+    "ms" -> Locale("ms", "MY")
+    "id" -> Locale("in", "ID")
+    "zh" -> Locale("zh", "CN")
+    "ta" -> Locale("ta", "IN")
+    "th" -> Locale("th", "TH")
+    "vi" -> Locale("vi", "VN")
+    "tl" -> Locale("fil", "PH")
+    "my" -> Locale("my", "MM")
+    "km" -> Locale("km", "KH")
+    "lo" -> Locale("lo", "LA")
+    "ja" -> Locale("ja", "JP")
+    "ko" -> Locale("ko", "KR")
+    "ar" -> Locale("ar", "SA")
+    "hi" -> Locale("hi", "IN")
+    "bn" -> Locale("bn", "BD")
+    "fr" -> Locale("fr", "FR")
+    "es" -> Locale("es", "ES")
+    "pt" -> Locale("pt", "BR")
+    "sw" -> Locale("sw", "KE")
+    else -> Locale(code)
 }
 
 data class TriageChatMessage(val text: String, val isUser: Boolean)

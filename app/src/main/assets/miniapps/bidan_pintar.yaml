@@ -1,0 +1,406 @@
+id: mock_bidan
+name: "Bidan Pintar"
+description: "AI field companion for community midwives — antenatal assessment, risk scoring, emergency referral"
+icon: "\U0001F930"
+version: "1.0.0"
+category: "Health"
+featured: true
+tags:
+  - maternal
+  - midwife
+  - antenatal
+author:
+  name: "Dr. Wan Faridah Hanim"
+  organisation: "Kementerian Kesihatan Malaysia"
+  verified: true
+theme:
+  primary: "#C45A3A"
+  secondary: "#FFF5F0"
+localisation:
+  supported:
+    - ms
+    - en
+  default: ms
+  labels:
+    ms:
+      home_heading: "Apa yang boleh saya bantu?"
+      grid_symptom: "Periksa Simptom"
+      grid_risk: "Skor Risiko"
+      grid_nutrition: "Panduan Nutrisi"
+      grid_visit: "Lawatan Pesakit"
+      grid_emergency: "Kecemasan"
+      home_voice_hint: "Tekan untuk bercakap..."
+      home_text_hint: "...atau taipkan soalan"
+      home_button: "Tanya"
+      symptom_title: "Periksa Simptom"
+      symptom_voice_hint: "Terangkan simptom pesakit..."
+      symptom_text_hint: "...atau taipkan simptom"
+      symptom_button: "Periksa"
+      risk_title: "Penilaian Risiko"
+      risk_heading: "Penilaian Risiko Kehamilan"
+      risk_gest_label: "Umur Kandungan (minggu)"
+      risk_gest_left: "4mg"
+      risk_gest_right: "42mg"
+      risk_gravida_hint: "Bilangan kehamilan"
+      risk_age: "Umur <18 atau >35"
+      risk_csec: "Caesarean sebelum"
+      risk_multi: "Kehamilan kembar"
+      risk_diab: "Diabetes sedia ada"
+      risk_hyper: "Hipertensi"
+      risk_anemia: "Anemia (Hb <9)"
+      risk_button: "Kira Risiko"
+      nutrition_title: "Panduan Pemakanan"
+      nutrition_trimester_hint: "Pilih trimester"
+      nutrition_text_hint: "Soalan tentang diet atau suplemen..."
+      nutrition_button: "Dapatkan Nasihat"
+      visit_title: "Lawatan Pesakit"
+      visit_step1: "Ambil sejarah perubatan"
+      visit_step2: "Ukur tanda vital (BP, berat)"
+      visit_step3: "Ukur tinggi fundus"
+      visit_step4: "Periksa degupan jantung janin"
+      visit_step5: "Ujian urin (protein, glukosa)"
+      visit_step6: "Kaunseling & temujanji seterusnya"
+      visit_next: "Langkah Seterusnya"
+      visit_summary: "Jana Ringkasan Lawatan"
+      emergency_title: "Rujukan Kecemasan"
+      emergency_subtext: "Hubungi perkhidmatan kecemasan terdekat"
+      emergency_call_999: "Hubungi 999"
+      emergency_call_hospital: "Hospital Kota Bharu"
+      emergency_sms: "Hantar SMS Kecemasan"
+    en:
+      home_heading: "How can I help you?"
+      grid_symptom: "Check Symptoms"
+      grid_risk: "Risk Score"
+      grid_nutrition: "Nutrition Guide"
+      grid_visit: "Patient Visit"
+      grid_emergency: "Emergency"
+      home_voice_hint: "Tap to speak..."
+      home_text_hint: "...or type a question"
+      home_button: "Ask"
+      symptom_title: "Symptom Check"
+      symptom_voice_hint: "Describe patient symptoms..."
+      symptom_text_hint: "...or type symptoms"
+      symptom_button: "Assess"
+      risk_title: "Risk Assessment"
+      risk_heading: "Pregnancy Risk Assessment"
+      risk_gest_label: "Gestational Age (weeks)"
+      risk_gest_left: "4wk"
+      risk_gest_right: "42wk"
+      risk_gravida_hint: "Number of pregnancies"
+      risk_age: "Age <18 or >35"
+      risk_csec: "Previous C-section"
+      risk_multi: "Multiple pregnancy"
+      risk_diab: "Pre-existing diabetes"
+      risk_hyper: "Hypertension"
+      risk_anemia: "Anemia (Hb <9)"
+      risk_button: "Calculate Risk"
+      nutrition_title: "Nutrition Guide"
+      nutrition_trimester_hint: "Select trimester"
+      nutrition_text_hint: "Questions about diet or supplements..."
+      nutrition_button: "Get Advice"
+      visit_title: "Patient Visit"
+      visit_step1: "Take medical history"
+      visit_step2: "Measure vitals (BP, weight)"
+      visit_step3: "Measure fundal height"
+      visit_step4: "Check fetal heartbeat"
+      visit_step5: "Urine test (protein, glucose)"
+      visit_step6: "Counselling & next appointment"
+      visit_next: "Next Step"
+      visit_summary: "Generate Visit Summary"
+      emergency_title: "Emergency Referral"
+      emergency_subtext: "Contact the nearest emergency service"
+      emergency_call_999: "Call 999"
+      emergency_call_hospital: "Hospital Kota Bharu"
+      emergency_sms: "Send Emergency SMS"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are Bidan Pintar (Smart Midwife), an AI assistant for community midwives and healthcare workers in rural Malaysia. You help with antenatal assessments, risk scoring, danger sign identification, nutrition guidance, and postnatal care protocols.
+
+    Always:
+    - Be concise and actionable — field workers need quick answers
+    - Ask ONE clarifying question before giving advice
+    - Flag danger signs immediately with clear next steps
+    - Reference KKM (Ministry of Health Malaysia) protocols
+    - Use bullet points and bold for key information
+
+    Never:
+    - Diagnose conditions — recommend referral instead
+    - Contradict established KKM protocols
+    - Provide medication dosages beyond standard supplements
+safety:
+  blocked_keywords:
+    - harmful
+  disclaimer: "Alat ini membantu membuat keputusan klinikal tetapi tidak menggantikan pertimbangan perubatan profesional."
+setup:
+  intro_page:
+    accept_label: "Saya Faham — Mula"
+    disclaimer: "Alat ini membantu membuat keputusan klinikal tetapi tidak menggantikan pertimbangan perubatan profesional. Sentiasa ikut protokol KKM."
+    author:
+      name: "Dr. Wan Faridah Hanim"
+      organisation: "Kementerian Kesihatan Malaysia"
+      verified: true
+    links:
+      - label: "Garis Panduan Kesihatan Ibu KKM"
+        url: "https://www.moh.gov.my/maternal"
+      - label: "Model Penjagaan Antenatal WHO"
+        url: "https://www.who.int/publications/antenatal"
+screen_catalog:
+  - id: home
+    title: "Home"
+    icon: "\U0001F3E0"
+  - id: symptom_check
+    title: "Simptom"
+    icon: "\U0001FA7A"
+  - id: risk_score
+    title: "Risiko"
+    icon: "⚖️"
+  - id: nutrition
+    title: "Nutrisi"
+    icon: "\U0001F957"
+  - id: patient_visit
+    title: "Lawatan"
+    icon: "\U0001F4CB"
+  - id: emergency
+    title: "Kecemasan"
+    icon: "\U0001F6A8"
+data:
+  hospitals:
+    items:
+      - name: "Hospital Raja Perempuan Zainab II"
+        lat: 6.1248
+        lng: 102.2451
+        info: "Hospital Besar, Kota Bharu"
+      - name: "Hospital USM Kubang Kerian"
+        lat: 6.1286
+        lng: 102.2923
+        info: "Hospital Pengajaran"
+      - name: "Klinik Kesihatan Bachok"
+        lat: 6.0667
+        lng: 102.3952
+        info: "Klinik Primer"
+      - name: "Klinik Kesihatan Tumpat"
+        lat: 6.1983
+        lng: 102.1618
+        info: "Klinik Primer"
+      - name: "Hospital Tanah Merah"
+        lat: 5.8073
+        lng: 102.1436
+        info: "Hospital Daerah"
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  photo_path: { type: string, default: "" }
+  gest_age: { type: number, default: "20" }
+  gravida: { type: string, default: "" }
+  risk_age: { type: string, default: "false" }
+  risk_csec: { type: string, default: "false" }
+  risk_multi: { type: string, default: "false" }
+  risk_diab: { type: string, default: "false" }
+  risk_hyper: { type: string, default: "false" }
+  risk_anemia: { type: string, default: "false" }
+  trimester: { type: string, default: "" }
+  visit_step: { type: number, default: "0" }
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_symptom}}"
+              icon: "\U0001FA7A"
+              action: "go:symptom_check"
+            - label: "{{l10n.grid_risk}}"
+              icon: "⚖️"
+              action: "go:risk_score"
+            - label: "{{l10n.grid_nutrition}}"
+              icon: "\U0001F957"
+              action: "go:nutrition"
+            - label: "{{l10n.grid_visit}}"
+              icon: "\U0001F4CB"
+              action: "go:patient_visit"
+            - label: "{{l10n.grid_emergency}}"
+              icon: "\U0001F6A8"
+              action: "go:emergency"
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.home_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.home_text_hint}}"
+      - action_button:
+          label: "{{l10n.home_button}}"
+          action: "ask:{{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: symptom_check
+    title: "{{l10n.symptom_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.symptom_title}}"
+          style: subheading
+      - camera_input:
+          bind: photo_path
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.symptom_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.symptom_text_hint}}"
+      - action_button:
+          label: "{{l10n.symptom_button}}"
+          action: "ask:You are a maternal health triage assistant following KKM protocols. Assess these symptoms. Check for danger signs: vaginal bleeding, severe headache, blurred vision, seizures, fever >38C, absent fetal movement. Classify as ROUTINE (next scheduled visit), URGENT (refer doctor within 24h), or EMERGENCY (immediate hospital transfer). Ask one clarifying question first. Symptoms: {{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: risk_score
+    title: "{{l10n.risk_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.risk_heading}}"
+          style: subheading
+      - slider:
+          bind: gest_age
+          min: 4
+          max: 42
+          step: 1
+          label: "{{l10n.risk_gest_label}}"
+          left_label: "{{l10n.risk_gest_left}}"
+          right_label: "{{l10n.risk_gest_right}}"
+          show_value: true
+      - text_input:
+          bind: gravida
+          hint: "{{l10n.risk_gravida_hint}}"
+          input_type: dropdown
+          options:
+            - "1 (Primigravida)"
+            - "2"
+            - "3"
+            - "4"
+            - "5+ (Grand multipara)"
+      - text_input:
+          bind: risk_age
+          label: "{{l10n.risk_age}}"
+          input_type: toggle
+      - text_input:
+          bind: risk_csec
+          label: "{{l10n.risk_csec}}"
+          input_type: toggle
+      - text_input:
+          bind: risk_multi
+          label: "{{l10n.risk_multi}}"
+          input_type: toggle
+      - text_input:
+          bind: risk_diab
+          label: "{{l10n.risk_diab}}"
+          input_type: toggle
+      - text_input:
+          bind: risk_hyper
+          label: "{{l10n.risk_hyper}}"
+          input_type: toggle
+      - text_input:
+          bind: risk_anemia
+          label: "{{l10n.risk_anemia}}"
+          input_type: toggle
+      - action_button:
+          label: "{{l10n.risk_button}}"
+          action: "ask:Calculate pregnancy risk score. Patient data — Gestational age: {{gest_age}} weeks, Gravida: {{gravida}}, Risk factors (true=present): Age extremes: {{risk_age}}, Previous C-section: {{risk_csec}}, Multiple pregnancy: {{risk_multi}}, Diabetes: {{risk_diab}}, Hypertension: {{risk_hyper}}, Anemia Hb<9: {{risk_anemia}}. Score each true factor (+2 points). Classify: 0-2=LOW (routine midwife care), 3-4=MODERATE (shared doctor care), 5-7=HIGH (hospital birth), 8+=CRITICAL (specialist referral). Give total score, classification, and management plan."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: nutrition
+    title: "{{l10n.nutrition_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.nutrition_title}}"
+          style: subheading
+      - text_input:
+          bind: trimester
+          hint: "{{l10n.nutrition_trimester_hint}}"
+          input_type: dropdown
+          options:
+            - "Trimester 1 (1-12 minggu)"
+            - "Trimester 2 (13-27 minggu)"
+            - "Trimester 3 (28-40 minggu)"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.nutrition_text_hint}}"
+      - action_button:
+          label: "{{l10n.nutrition_button}}"
+          action: "ask:You are a maternal nutrition advisor following KKM guidelines. Patient is in {{trimester}}. Provide: 1) Key nutrients needed this trimester, 2) Supplement schedule (folic acid 5mg pre-conception to 12wk, iron 200mg from 16wk, calcium 500mg 2x from 20wk, vitamin D 400IU throughout), 3) Recommended Malaysian foods (kangkung, bayam, ikan bilis, tempeh, tauhu, telur, susu). Question: {{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: patient_visit
+    title: "{{l10n.visit_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.visit_title}}"
+          style: subheading
+      - camera_input:
+          bind: photo_path
+      - checklist_items:
+          bind: visit_step
+          items:
+            - label: "{{l10n.visit_step1}}"
+              type: text
+            - label: "{{l10n.visit_step2}}"
+              type: text
+            - label: "{{l10n.visit_step3}}"
+              type: text
+            - label: "{{l10n.visit_step4}}"
+              type: text
+            - label: "{{l10n.visit_step5}}"
+              type: text
+            - label: "{{l10n.visit_step6}}"
+              type: text
+      - progress_bar:
+          bind: visit_step
+          total: 6
+      - action_button:
+          label: "{{l10n.visit_next}}"
+          action: "increment:visit_step"
+          style: primary
+      - action_button:
+          label: "{{l10n.visit_summary}}"
+          action: "ask:Generate a concise antenatal visit summary for medical records. Patient completed all 6 checkpoints: medical history taken, vitals measured, fundal height measured, fetal heart checked, urine tested, counselling done. Gestational age: {{gest_age}} weeks. Format as a clinical note with date, findings summary, and next visit recommendation."
+          style: secondary
+          visible_if: "visit_step >= 6"
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: emergency
+    title: "{{l10n.emergency_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.emergency_title}}"
+          style: subheading
+      - text_label:
+          text: "{{l10n.emergency_subtext}}"
+          style: body
+      - geo_display:
+          data: "hospitals"
+          limit: 5
+          show_distance: true
+      - action_button:
+          label: "{{l10n.emergency_call_999}}"
+          action: "tel:999"
+          style: danger
+      - action_button:
+          label: "{{l10n.emergency_call_hospital}}"
+          action: "tel:097651111"
+          style: danger
+      - action_button:
+          label: "{{l10n.emergency_sms}}"
+          action: "sms:999:Kecemasan obstetrik. Pesakit ibu mengandung memerlukan ambulans segera. Sila hantar bantuan."
+          style: secondary

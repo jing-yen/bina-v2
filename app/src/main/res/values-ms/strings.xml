@@ -2,11 +2,26 @@
 <resources>
     <string name="app_name">Bina</string>
 
-    <string name="topbar_title">Bina</string>
-    <string name="topbar_subtitle">AI yang berfungsi luar talian</string>
+    <string name="topbar_title">Hi, Encik Jing Yen 👋</string>
+    <string name="topbar_subtitle">AI anda sedia, walaupun luar talian.</string>
 
-    <string name="hub_title">Kotak Alat AI Anda</string>
-    <string name="hub_subtitle">Alat pintar untuk komuniti anda</string>
+    <string name="hub_title">Resipi Pakar</string>
+    <string name="hub_subtitle">Dibina untuk komuniti Asia Tenggara. Tanpa internet.</string>
+    <string name="hub_your_recipes">Resipi Anda</string>
+    <string name="hub_trending">Trending di Bina</string>
+    <string name="hub_empty_all">Tiada resipi tersedia.</string>
+    <string name="hub_empty_category">Tiada resipi dalam kategori ini.</string>
+
+    <!-- Bottom nav -->
+    <string name="nav_hub">Hub</string>
+    <string name="nav_pocket">Poket Saya</string>
+    <string name="nav_sync">Segerak Luar Talian</string>
+    <string name="nav_analytics">Analitik</string>
+
+    <!-- Recipe stats -->
+    <string name="stat_recipe_size">Saiz Resipi</string>
+    <string name="stat_features">Ciri Tersedia</string>
+    <string name="stat_dialect">Dialek</string>
 
     <string name="pocket_title">Poket Saya</string>
     <string name="pocket_subtitle">Resipi anda, sedia luar talian</string>
@@ -43,10 +58,30 @@
     <string name="miniapp_complete">Selesai!</string>
     <string name="miniapp_step_of">Langkah %1$d daripada %2$d</string>
     <string name="miniapp_your_location">Anda: %1$s, %2$s</string>
+    <string name="miniapp_location_mins_ago">%d minit lalu</string>
+    <string name="miniapp_location_just_now">Baru sahaja</string>
 
     <string name="triage_greeting">Hai! Saya %s. Apa yang boleh saya bantu?</string>
     <string name="triage_placeholder">Terangkan apa yang anda perlukan&#8230;</string>
     <string name="triage_send">Hantar</string>
+
+    <!-- Categories -->
+    <string name="cat_all">Semua</string>
+    <string name="cat_agriculture">Pertanian</string>
+    <string name="cat_health">Kesihatan</string>
+    <string name="cat_business">Perniagaan</string>
+    <string name="cat_finance">Kewangan</string>
+    <string name="cat_education">Pendidikan</string>
+
+    <!-- Mock recipe descriptions -->
+    <string name="desc_mock_plant_doctor">Diagnosis tanaman AI — ambil gambar pokok anda, dapatkan pengenalpastian penyakit dan rawatan segera</string>
+    <string name="desc_mock_dengue">Chatbot kesedaran pencegahan denggi untuk kempen kesihatan komuniti</string>
+    <string name="desc_mock_nutrition">Saringan nutrisi kanak-kanak dan panduan diet untuk klinik luar bandar</string>
+    <string name="desc_mock_thai">Pembantu pengurusan kedai untuk peruncit kecil Thailand</string>
+    <string name="desc_mock_viet">Pembantu pertanian untuk petani Vietnam</string>
+    <string name="desc_mock_khmer">Panduan pertanian pintar untuk petani kecil Kemboja</string>
+    <string name="desc_mock_sawit">Pakar penanaman sawit untuk pekebun kecil Malaysia</string>
+    <string name="desc_mock_myanmar">Panduan kesihatan kampung untuk komuniti luar bandar Myanmar</string>
 
     <string name="confirm">Sahkan</string>
     <string name="cancel">Batal</string>

@@ -1,0 +1,147 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Panduan Penyakit Tanaman — Jabatan Pertanian Malaysia</title>
+<style>
+body { font-family: Calibri, sans-serif; font-size: 11pt; line-height: 1.6; margin: 2cm; }
+h1 { font-size: 18pt; color: #2D7D46; border-bottom: 2px solid #2D7D46; padding-bottom: 6pt; }
+h2 { font-size: 14pt; color: #1a5c30; margin-top: 18pt; }
+h3 { font-size: 12pt; color: #44403C; margin-top: 12pt; }
+table { border-collapse: collapse; width: 100%; margin: 12pt 0; }
+td, th { border: 1px solid #ccc; padding: 6pt 8pt; font-size: 10pt; }
+th { background: #F0F7F2; font-weight: bold; }
+.header { text-align: center; margin-bottom: 24pt; }
+.header img { width: 60pt; }
+.header p { font-size: 9pt; color: #666; }
+.footer { font-size: 8pt; color: #999; border-top: 1px solid #ddd; padding-top: 6pt; margin-top: 36pt; }
+ul { margin: 6pt 0; padding-left: 18pt; }
+li { margin-bottom: 4pt; }
+.severity { display: inline-block; padding: 2pt 8pt; border-radius: 3pt; font-size: 9pt; font-weight: bold; }
+.severe { background: #FEE2E2; color: #991B1B; }
+.moderate { background: #FEF3C7; color: #92400E; }
+.mild { background: #DCFCE7; color: #166534; }
+</style>
+</head>
+<body>
+
+<div class="header">
+<p style="font-size: 14pt; font-weight: bold; color: #2D7D46;">JABATAN PERTANIAN MALAYSIA</p>
+<p style="font-size: 10pt;">Kementerian Pertanian dan Keterjaminan Makanan</p>
+<p>Dokumen Rujukan: JPM/TANAMAN/2026-03</p>
+</div>
+
+<h1>Panduan Penyakit Tanaman di Asia Tenggara</h1>
+<p><strong>Disediakan oleh:</strong> Bahagian Perlindungan Tanaman, Jabatan Pertanian Malaysia<br>
+<strong>Tarikh:</strong> Mac 2026 | <strong>Versi:</strong> 3.1</p>
+
+<h2>1. Penyakit Blas Padi (Magnaporthe oryzae)</h2>
+<h3>Simptom</h3>
+<ul>
+<li>Lesi berbentuk berlian pada daun — tengah kelabu-putih dengan sempadan gelap</li>
+<li>Reput leher tangkai menyebabkan gabah kosong</li>
+<li>Biasa muncul pada musim hujan (Oktober–Februari)</li>
+</ul>
+<h3>Rawatan</h3>
+<ul>
+<li>Sapu racun kulat tricyclazole pada tanda pertama</li>
+<li>Gunakan varieti tahan (MR219, MR220CL2, MARDI Siraj 297)</li>
+<li>Elakkan baja nitrogen berlebihan</li>
+</ul>
+<h3>Pencegahan</h3>
+<ul>
+<li>Jarak tanaman betul (25cm x 25cm)</li>
+<li>Pembajaan seimbang NPK 12:12:17</li>
+<li>Pengurusan air — elakkan sawah kering berpanjangan</li>
+</ul>
+<table>
+<tr><th>Keterukan</th><th>Tindakan</th><th>Kos Anggaran</th></tr>
+<tr><td><span class="severity mild">Ringan</span></td><td>Semburan pencegahan Beam 75WP</td><td>RM 45/hektar</td></tr>
+<tr><td><span class="severity moderate">Sederhana</span></td><td>Semburan rawatan + buang bahagian terjejas</td><td>RM 120/hektar</td></tr>
+<tr><td><span class="severity severe">Teruk</span></td><td>Hubungi pegawai pertanian daerah segera</td><td>RM 300+/hektar</td></tr>
+</table>
+
+<h2>2. Hawar Daun Bakteria (Xanthomonas oryzae)</h2>
+<h3>Simptom</h3>
+<ul>
+<li>Lesi berair pada tepi daun bertukar kuning-putih</li>
+<li>Daun kering dari hujung</li>
+<li>Cecair kuning pada waktu pagi (dew)</li>
+</ul>
+<h3>Rawatan</h3>
+<ul>
+<li>Tiada penawar kimia selepas jangkitan — toskan sawah, kurangkan nitrogen</li>
+<li>Sapu bakterisid berasaskan kuprum secara pencegahan</li>
+<li>Gunakan benih bersertifikat bebas penyakit</li>
+</ul>
+
+<h2>3. Bintik Daun (Cercospora / Helminthosporium)</h2>
+<h3>Simptom</h3>
+<ul>
+<li>Bintik coklat/hitam pada permukaan daun</li>
+<li>Biasa masa musim hujan dan kelembapan tinggi</li>
+<li>Boleh merebak cepat dalam keadaan padat</li>
+</ul>
+<h3>Rawatan</h3>
+<ul>
+<li>Mancozeb 80WP — semburan setiap 7-10 hari</li>
+<li>Buang dan bakar daun terjejas</li>
+<li>Pastikan pengudaraan baik (jarak tanaman)</li>
+</ul>
+
+<h2>4. Lalat Buah (Bactrocera dorsalis) — Mangga/Betik</h2>
+<h3>Simptom</h3>
+<ul>
+<li>Tanda tusukan kecil pada buah</li>
+<li>Larva di dalam buah, buah gugur pramatang</li>
+</ul>
+<h3>Rawatan</h3>
+<ul>
+<li>Perangkap protein bait dan metil eugenol</li>
+<li>Balut buah secara individu (bagging)</li>
+<li>Rawatan air panas selepas tuai (46°C selama 60 minit)</li>
+</ul>
+
+<h2>5. Kumbang Badak Kelapa (Oryctes rhinoceros)</h2>
+<h3>Simptom</h3>
+<ul>
+<li>Potongan berbentuk V pada pelepah</li>
+<li>Lubang gerek pada pucuk — pokok lemah dan hasil berkurangan</li>
+</ul>
+<h3>Rawatan</h3>
+<ul>
+<li>Buang tapak pembiakan (kayu reput, timbunan baja)</li>
+<li>Aplikasi virus Oryctes atau kulat Metarhizium anisopliae</li>
+<li>Cangkuk larva dari lubang gerek</li>
+<li>Perangkap feromon — 1 setiap 2 hektar</li>
+</ul>
+
+<h2>6. Panduan Tanah & Baja</h2>
+<table>
+<tr><th>Jenis Tanah</th><th>pH Ideal</th><th>Baja Disyorkan</th><th>Kekerapan</th></tr>
+<tr><td>Tanah Liat (Clay)</td><td>5.5 – 6.5</td><td>NPK 15:15:15 + Dolomit</td><td>2x/tahun</td></tr>
+<tr><td>Tanah Berpasir (Sandy)</td><td>5.8 – 6.8</td><td>NPK 12:12:17 + Kompos</td><td>3x/tahun</td></tr>
+<tr><td>Tanah Loam</td><td>6.0 – 7.0</td><td>NPK 15:15:15</td><td>2x/tahun</td></tr>
+<tr><td>Tanah Gambut (Peat)</td><td>4.5 – 5.5</td><td>Kapur + NPK + mikro</td><td>4x/tahun</td></tr>
+</table>
+
+<h2>7. Kedai Agro & Hotline</h2>
+<table>
+<tr><th>Nama</th><th>Lokasi</th><th>Telefon</th></tr>
+<tr><td>Kedai Baja & Racun Kota Bharu</td><td>Kota Bharu, Kelantan</td><td>+6013-987 6543</td></tr>
+<tr><td>Agro Mart Bachok</td><td>Bachok, Kelantan</td><td>+6012-123 4567</td></tr>
+<tr><td>Pusat Pertanian Tumpat</td><td>Tumpat, Kelantan</td><td>+6014-987 6543</td></tr>
+<tr><td>Kedai Pertanian Pasir Mas</td><td>Pasir Mas, Kelantan</td><td>+6016-123 4567</td></tr>
+<tr><td>FELDA Agro Supply Tanah Merah</td><td>Tanah Merah, Kelantan</td><td>+6017-123 4567</td></tr>
+</table>
+<p><strong>Hotline Jabatan Pertanian:</strong> +6019-765 4321<br>
+<strong>SMS Bantuan:</strong> Hantar mesej ke +6019-765 4321 dengan maklumat tanaman dan lokasi anda.</p>
+
+<div class="footer">
+<p>&copy; 2026 Jabatan Pertanian Malaysia. Hak cipta terpelihara.<br>
+Untuk maklumat lanjut: <a href="https://www.doa.gov.my">www.doa.gov.my</a> | <a href="https://www.mardi.gov.my">www.mardi.gov.my</a></p>
+</div>
+
+</body>
+</html>

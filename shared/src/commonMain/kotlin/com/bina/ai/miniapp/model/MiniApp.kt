@@ -68,7 +68,8 @@ data class ThemeConfig(
 
 @Serializable
 data class LocalisationConfig(
-    @SerialName("default_language") val defaultLanguage: String = "en",
+    val supported: List<String> = listOf("en"),
+    @SerialName("default") val defaultLanguage: String = "en",
     val labels: Map<String, Map<String, String>> = emptyMap()
 )
 
@@ -102,7 +103,8 @@ data class DataPoint(
     val name: String,
     val lat: Double = 0.0,
     val lng: Double = 0.0,
-    val info: String = ""
+    val info: String = "",
+    val phone: String = ""
 )
 
 @Serializable

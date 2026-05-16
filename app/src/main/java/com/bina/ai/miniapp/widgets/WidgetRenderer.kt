@@ -25,7 +25,7 @@ fun RenderWidget(
         is Widget.TextInput -> TextInputWidget(widget, store, themeColor)
         is Widget.VoiceInput -> VoiceInputWidget(widget, store, themeColor, inferenceEngine)
         is Widget.CameraInput -> CameraInputWidget(widget, store, themeColor)
-        is Widget.MacroGrid -> MacroGridWidget(widget, themeColor, onAction)
+        is Widget.MacroGrid -> MacroGridWidget(widget, store, themeColor, onAction)
         is Widget.Slider -> SliderWidget(widget, store, themeColor)
         is Widget.ActionButton -> ActionButtonWidget(widget, store, themeColor, isLoading, onAction)
         is Widget.MarkdownOutput -> MarkdownOutputWidget(widget, store, themeColor)

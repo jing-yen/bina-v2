@@ -683,7 +683,14 @@ Do not assume any specific domain — use the recipe name, category, and knowled
     }
     e.target.value = '';
     if (uploadedText) {
-      setDocPreviewContent(uploadedText);
+      const isHtml = uploadedText.trim().startsWith('<') && /<\/(html|body|div|p|h[1-6])>/i.test(uploadedText);
+      if (isHtml) {
+        const doc = new DOMParser().parseFromString(uploadedText, 'text/html');
+        const plainText = doc.body.textContent || doc.body.innerText || '';
+        setDocPreviewContent(plainText.replace(/\n{3,}/g, '\n\n').trim());
+      } else {
+        setDocPreviewContent(uploadedText);
+      }
       setTimeout(() => runMockGeneration(), 400);
     }
   };
@@ -830,47 +837,49 @@ Do not assume any specific domain — use the recipe name, category, and knowled
   const runMockGeneration = useCallback(() => {
     setAutoGenerating(true);
     setAiLoading(true);
-    const BIDAN_SYSTEM_PROMPT = `You are Bidan Pintar (Smart Midwife), an AI assistant for community midwives and healthcare workers in rural Malaysia. You help with antenatal assessments, risk scoring, danger sign identification, nutrition guidance, and postnatal care protocols.\n\nAlways:\n- Ask clarifying questions before giving advice\n- Use the Risk Assessment Matrix for scoring\n- Flag danger signs immediately with emergency referral instructions\n- Provide culturally appropriate nutrition advice\n- Reference KKM (Ministry of Health) protocols\n- Support both Bahasa Melayu and English\n\nNever:\n- Diagnose conditions — recommend referral instead\n- Contradict established KKM protocols\n- Provide medication dosages beyond standard supplements`;
+    const DOKTOR_POKOK_SYSTEM_PROMPT = `You are Doktor Pokok (Plant Doctor), an AI agricultural assistant for smallholder farmers in Southeast Asia. You help diagnose plant diseases from photos and descriptions, assess soil conditions, recommend fertilizers, and provide crop management advice.\n\nAlways:\n- Be concise — farmers need quick, actionable answers\n- When analyzing a plant photo, identify the most likely disease first, then give treatment steps\n- Recommend locally available treatments and pesticides\n- Consider tropical climate and Southeast Asian crop varieties\n- Use bullet points and bold for key information\n\nNever:\n- Recommend banned or restricted pesticides\n- Ignore signs of serious crop disease that could spread\n- Give advice outside agriculture`;
 
     const MOCK_SCREENS = [
       { id: 'home', title: 'Home', emoji: '\u{1F3E0}', templateId: 'ask_ai',
-        heading: 'Apa yang boleh saya bantu?', hint: 'Describe symptoms or ask about protocols...', description: '', buttonLabel: 'Ask', aiInstruction: 'ask:{{user_text}}' },
-      { id: 'symptom_check', title: 'Symptom Checker', emoji: '\u{1FA7A}', templateId: 'ask_ai',
-        heading: 'Periksa Simptom', hint: 'Describe the patient\'s symptoms...', description: '', buttonLabel: 'Assess',
-        aiInstruction: 'ask:You are a maternal health triage assistant. Based on KKM antenatal protocols, assess these symptoms. Check against danger signs (vaginal bleeding, severe headache, blurred vision, convulsions, fever >38°C, absent fetal movement). Classify urgency as ROUTINE (next scheduled visit), URGENT (refer to doctor within 24h), or EMERGENCY (immediate hospital transfer). Always ask clarifying questions first. Symptoms: {{user_text}}' },
-      { id: 'risk_score', title: 'Risk Assessment', emoji: '\u{1F4CA}', templateId: 'checklist',
-        heading: 'Penilaian Risiko Kehamilan', hint: 'Complete the checklist for each patient', description: 'Age <18 or >35 (+2);First pregnancy (+1);Grand multipara >=5 births (+2);Previous caesarean (+2);Previous stillbirth/neonatal death (+3);Multiple pregnancy (+3);Pre-existing diabetes (+2);Pre-existing hypertension (+2);Heart disease (+3);Anaemia Hb <9 (+2);BMI >35 (+2);No antenatal care before 20wk (+2)', buttonLabel: 'Calculate Risk',
-        aiInstruction: 'ask:Based on the risk factors checked, calculate the total risk score. Classification: 0-2 = LOW (routine midwife care), 3-4 = MEDIUM (shared care with doctor), 5-7 = HIGH (doctor-led, hospital delivery), >=8 = CRITICAL (immediate specialist referral). Provide the score, classification, and recommended management plan. Risk factors: {{user_text}}' },
-      { id: 'nutrition', title: 'Nutrition Guide', emoji: '\u{1F957}', templateId: 'ask_ai',
-        heading: 'Panduan Pemakanan', hint: 'Ask about diet, supplements, or deficiency signs...', description: '', buttonLabel: 'Get Advice',
-        aiInstruction: 'ask:You are a maternal nutrition advisor following KKM guidelines. Provide trimester-specific dietary advice, supplementation schedules (folic acid 5mg pre-conception to 12wk, iron 200mg from 16wk, calcium 500mg 2x from 20wk, vitamin D 400IU throughout), and identify deficiency signs. Recommend culturally appropriate Malaysian foods (kangkung, bayam, ikan bilis, tempeh, tauhu). Question: {{user_text}}' },
-      { id: 'emergency', title: 'Emergency Referral', emoji: '\u{1F6A8}', templateId: 'sms_dispatch',
-        heading: 'Rujukan Kecemasan', hint: 'call', description: 'Hospital Kota Bharu | 09-7651111\nAmbulans (Kecemasan) | 999\nKlinik Kesihatan Bachok | 09-7483200\nTalian Kesihatan KKM | 03-88810200', buttonLabel: 'Call Now',
-        aiInstruction: 'Kecemasan di lokasi saya. Pesakit ibu mengandung memerlukan bantuan segera. Sila hantar ambulans.' },
+        heading: 'What\'s wrong with your plant?', hint: 'Describe plant symptoms...', description: '', buttonLabel: 'Ask', aiInstruction: 'ask:{{user_text}}' },
+      { id: 'diagnose', title: 'Disease Diagnosis', emoji: '\u{1F4F8}', templateId: 'camera_analysis',
+        heading: 'Disease Diagnosis', hint: 'Describe symptoms (yellow leaves, brown spots...)',
+        description: 'SCREEN: Disease Diagnosis | FUNCTION: Camera + voice + text input for plant disease identification with vision AI',
+        buttonLabel: 'Diagnose',
+        aiInstruction: 'vision_ask:You are a plant pathologist. Analyze this photo of a crop/plant. Identify: 1) The plant species if visible, 2) The disease or pest affecting it, 3) Severity (mild/moderate/severe), 4) Recommended treatment using locally available products in Southeast Asia, 5) Prevention measures. Additional context from farmer: {{user_text}}' },
+      { id: 'soil', title: 'Soil Check', emoji: '\u{1F9EA}', templateId: 'ask_ai',
+        heading: 'Soil & Fertilizer Assessment', hint: 'Enter your soil type, pH, and crop...', description: '', buttonLabel: 'Analyze Soil',
+        aiInstruction: 'ask:You are a soil scientist advising a Southeast Asian farmer. Provide: 1) Soil health assessment, 2) pH correction if needed, 3) Fertilizer recommendation (NPK ratio and local brands), 4) Organic amendment suggestions, 5) Planting readiness verdict. Question: {{user_text}}' },
+      { id: 'crop_guide', title: 'Crop Guide', emoji: '\u{1F331}', templateId: 'ask_ai',
+        heading: 'Crop Guide', hint: 'Questions about planting, harvest, pesticides...', description: '', buttonLabel: 'Get Advice',
+        aiInstruction: 'ask:You are a crop management advisor for Southeast Asian smallholders. Include local varieties, tropical climate considerations, planting calendar for Malaysia, common pests and organic solutions. Question: {{user_text}}' },
+      { id: 'shops', title: 'Nearby Agro Shops', emoji: '\u{1F3EA}', templateId: 'nearby_places',
+        heading: 'Nearby Agro Shops', hint: '', description: 'SCREEN: Nearby Shops | FUNCTION: GPS-based shop finder with call buttons and ministry hotline SMS', buttonLabel: 'Find',
+        aiInstruction: '' },
     ];
 
     const MOCK_SUGGESTION_DATA = {
-      recipeName: 'Bidan Pintar', recipeDescription: 'AI-powered field companion for community midwives — antenatal assessment, risk scoring, and emergency referral protocols', category: 'Health',
-      systemPrompt: BIDAN_SYSTEM_PROMPT, recipeIcon: '\u{1F930}', themeKey: 'coral',
-      authorName: 'Dr. Wan Faridah Hanim', authorOrg: 'Kementerian Kesihatan Malaysia',
+      recipeName: 'Doktor Pokok', recipeDescription: 'AI crop diagnosis — snap a photo of your plant, get instant disease identification and treatment', category: 'Agriculture',
+      systemPrompt: DOKTOR_POKOK_SYSTEM_PROMPT, recipeIcon: '\u{1F33F}', themeKey: 'forest',
+      authorName: 'Jabatan Pertanian Malaysia (Dept. of Agriculture)', authorOrg: 'Jabatan Pertanian Malaysia (Dept. of Agriculture)',
       links: [
-        { label: 'KKM Maternal Health Guidelines', url: 'https://www.moh.gov.my/maternal' },
-        { label: 'WHO Antenatal Care Model', url: 'https://www.who.int/publications/antenatal' },
-      ], homeHeading: 'Apa yang boleh saya bantu?', homeHint: 'Describe symptoms...',
+        { label: 'DOA Portal', url: 'https://www.doa.gov.my' },
+        { label: 'MARDI Crop Guide', url: 'https://www.mardi.gov.my' },
+      ], homeHeading: 'What\'s wrong with your plant?', homeHint: 'Describe plant symptoms...',
       sampleConversation: {
-        userMessage: 'Patient has BP 150/95 at 32 weeks, first pregnancy',
-        aiClarification: 'That BP reading is elevated. Has she had any headaches, visual changes, or swelling in the face/hands? What was her BP at previous visits?',
-        userReply: 'She says mild headache since yesterday. Previous BP was 125/80 at 28 weeks.',
+        userMessage: 'My rice leaves have brown spots and are turning yellow',
+        aiClarification: 'That could be Rice Blast or Leaf Spot disease. Can you take a closer photo? Are the spots diamond-shaped or circular?',
+        userReply: 'Diamond-shaped with sharp tips. Started 2 weeks after planting.',
       },
       screens: MOCK_SCREENS,
     };
 
     const steps = [
-      { delay: 300, action: () => { setRecipeName('Bidan Pintar'); setRecipeIcon('\u{1F930}'); } },
-      { delay: 350, action: () => { setRecipeDescription('AI-powered field companion for community midwives — antenatal assessment, risk scoring, and emergency referral protocols'); } },
-      { delay: 250, action: () => { setCategory('Health'); setSelectedTheme('coral' as ThemeKey); } },
-      { delay: 200, action: () => { setSelectedLanguages(['en', 'ms', 'zh', 'ta', 'th', 'id', 'tl', 'vi']); } },
-      { delay: 300, action: () => { setSystemPrompt(BIDAN_SYSTEM_PROMPT); } },
+      { delay: 300, action: () => { setRecipeName('Doktor Pokok'); setRecipeIcon('\u{1F33F}'); } },
+      { delay: 350, action: () => { setRecipeDescription('AI crop diagnosis — snap a photo of your plant, get instant disease identification and treatment'); } },
+      { delay: 250, action: () => { setCategory('Agriculture'); setSelectedTheme('forest' as ThemeKey); } },
+      { delay: 200, action: () => { setSelectedLanguages(['en', 'ms', 'id', 'th', 'vi', 'km', 'my']); } },
+      { delay: 300, action: () => { setSystemPrompt(DOKTOR_POKOK_SYSTEM_PROMPT); } },
       { delay: 900, action: () => {
         setKnowledgeSuggestions(MOCK_SUGGESTION_DATA);
         setAiLoading(false);
@@ -881,14 +890,14 @@ Do not assume any specific domain — use the recipe name, category, and knowled
         applySuggestions(MOCK_SUGGESTION_DATA, { name: true, description: true, category: true, systemPrompt: true, icon: true, theme: true, author: true, links: true, homePreview: true, screens: allScreensSel });
         setIntroPage(prev => ({
           ...prev, enabled: true,
-          authorName: 'Dr. Wan Faridah Hanim',
-          authorOrg: 'Kementerian Kesihatan Malaysia',
+          authorName: 'Jabatan Pertanian Malaysia (Dept. of Agriculture)',
+          authorOrg: 'Jabatan Pertanian Malaysia (Dept. of Agriculture)',
           authorVerified: true,
-          disclaimer: 'This tool assists clinical decision-making but does not replace professional medical judgement. Always follow KKM protocols.',
+          disclaimer: 'This tool assists crop diagnosis but does not replace professional agricultural advice. Always consult your local agriculture officer for critical cases.',
           acceptLabel: 'I Understand — Start',
           links: [
-            { label: 'KKM Maternal Health Guidelines', url: 'https://www.moh.gov.my/maternal' },
-            { label: 'WHO Antenatal Care Model', url: 'https://www.who.int/publications/antenatal' },
+            { label: 'DOA Portal', url: 'https://www.doa.gov.my' },
+            { label: 'MARDI Crop Guide', url: 'https://www.mardi.gov.my' },
           ],
         }));
       }},

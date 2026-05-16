@@ -1,6 +1,7 @@
 package com.bina.ai.ui.screens.hub.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaBgCard
+import com.bina.ai.ui.theme.BinaGrayBorder
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaGreen
 import com.bina.ai.ui.theme.BinaIndigo
@@ -40,25 +45,25 @@ fun RecipeListItem(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, BinaGrayBorder, RoundedCornerShape(16.dp))
             .background(BinaBgCard)
             .clickable { onClick() }
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        RecipeCover(miniApp, modifier = Modifier.size(64.dp), cornerRadius = 12.dp, emojiFontSize = 28)
+        RecipeCover(miniApp, modifier = Modifier.size(56.dp), cornerRadius = 12.dp, emojiFontSize = 26)
         Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(miniApp.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950, maxLines = 1)
-                if (miniApp.author.verified) {
-                    Text("✓", fontSize = 12.sp, color = BinaGreen)
-                }
+                Icon(Icons.Filled.Verified, contentDescription = null, tint = BinaAccent, modifier = Modifier.size(14.dp))
             }
             if (miniApp.description.isNotBlank()) {
-                Text(miniApp.description, fontSize = 11.sp, color = BinaGrayText, maxLines = 2)
+                Text(com.bina.ai.ui.localizedDescription(miniApp.id, miniApp.description), fontSize = 11.sp, color = BinaGrayText, maxLines = 2)
             }
+            val translatedCategory = com.bina.ai.ui.localizedCategory(miniApp.category)
             val meta = listOfNotNull(
-                miniApp.category.takeIf { it.isNotBlank() },
+                translatedCategory.takeIf { it.isNotBlank() },
                 miniApp.dialect.takeIf { it.isNotBlank() }
             ).joinToString(" · ")
             if (meta.isNotBlank()) {

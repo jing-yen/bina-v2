@@ -29,14 +29,14 @@ fun CategoryRail(
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = title,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = BinaStone950
         )
         LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            contentPadding = PaddingValues(horizontal = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(recipes, key = { it.id }) { recipe ->
                 RecipeCard(
@@ -46,6 +46,6 @@ fun CategoryRail(
                 )
             }
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
     }
 }
