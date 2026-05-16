@@ -19,31 +19,29 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudDone
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Widgets
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material.icons.outlined.AddToHomeScreen
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bina.ai.install.InstallStore
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bina.ai.R
+import com.bina.ai.install.ShortcutHelper
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.ui.theme.BinaAccent
@@ -68,25 +66,7 @@ fun MyPocketScreen(
     }
     val totalScreens = miniApps.sumOf { it.screens.size }
     val totalWidgets = miniApps.sumOf { app -> app.screens.sumOf { it.body.size } }
-    val scope = rememberCoroutineScope()
-    var confirmDeleteApp by remember { mutableStateOf<MiniApp?>(null) }
-
-    confirmDeleteApp?.let { app ->
-        AlertDialog(
-            onDismissRequest = { confirmDeleteApp = null },
-            title = { Text("Remove ${app.name}?") },
-            text = { Text("This will remove the recipe from your pocket. You can reinstall it from the Hub anytime.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    scope.launch { installStore.uninstall(app.id) }
-                    confirmDeleteApp = null
-                }) { Text("Remove", color = Color(0xFFDC2626)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmDeleteApp = null }) { Text("Cancel") }
-            }
-        )
-    }
+    val context = LocalContext.current
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -95,14 +75,14 @@ fun MyPocketScreen(
     ) {
         item {
             Text(
-                "My Pocket",
+                stringResource(R.string.pocket_title),
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp,
                 color = BinaStone950
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                "Your saved recipes, ready offline",
+                stringResource(R.string.pocket_subtitle),
                 fontSize = 14.sp,
                 color = BinaGrayText
             )
@@ -114,22 +94,22 @@ fun MyPocketScreen(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 StatCard(
-                    label = "Saved",
+                    label = stringResource(R.string.pocket_stat_saved),
                     value = miniApps.size.toString(),
                     icon = Icons.Filled.Inventory2,
                     color = BinaAccent,
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
-                    label = "Screens",
+                    label = stringResource(R.string.pocket_stat_screens),
                     value = totalScreens.toString(),
                     icon = Icons.Filled.Widgets,
                     color = BinaTurmeric,
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
-                    label = "Status",
-                    value = "Ready",
+                    label = stringResource(R.string.pocket_stat_status),
+                    value = stringResource(R.string.pocket_stat_ready),
                     icon = Icons.Filled.CloudDone,
                     color = BinaIndigo,
                     modifier = Modifier.weight(1f)
@@ -140,7 +120,7 @@ fun MyPocketScreen(
         item {
             Spacer(Modifier.height(4.dp))
             Text(
-                "Saved Recipes",
+                stringResource(R.string.pocket_saved_recipes),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
                 color = BinaStone950
@@ -165,10 +145,10 @@ fun MyPocketScreen(
                             modifier = Modifier.size(48.dp)
                         )
                         Spacer(Modifier.height(12.dp))
-                        Text("No saved recipes yet", color = BinaGrayText, fontSize = 15.sp)
+                        Text(stringResource(R.string.pocket_empty_title), color = BinaGrayText, fontSize = 15.sp)
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            "Browse the Hub to save recipes to your pocket",
+                            stringResource(R.string.pocket_empty_subtitle),
                             color = BinaGrayText,
                             fontSize = 13.sp
                         )
@@ -181,7 +161,14 @@ fun MyPocketScreen(
             PocketMiniAppCard(
                 app,
                 onClick = { onMiniAppClick(app.id) },
-                onRemove = { confirmDeleteApp = app }
+                onAddToHome = {
+                    ShortcutHelper.pinRecipeToHomeScreen(
+                        context = context,
+                        recipeId = app.id,
+                        recipeName = app.name,
+                        emoji = app.icon
+                    )
+                }
             )
         }
     }
@@ -225,7 +212,7 @@ private fun StatCard(
 }
 
 @Composable
-private fun PocketMiniAppCard(app: MiniApp, onClick: () -> Unit, onRemove: () -> Unit = {}) {
+private fun PocketMiniAppCard(app: MiniApp, onClick: () -> Unit, onAddToHome: () -> Unit = {}) {
     val themeColor = try {
         Color(android.graphics.Color.parseColor(app.theme.primary))
     } catch (_: Exception) {
@@ -278,21 +265,21 @@ private fun PocketMiniAppCard(app: MiniApp, onClick: () -> Unit, onRemove: () ->
                             .background(BinaGreen.copy(alpha = 0.12f))
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
-                        Text("Offline Ready", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = BinaGreen)
+                        Text(stringResource(R.string.pocket_offline_ready), fontSize = 11.sp, fontWeight = FontWeight.Medium, color = BinaGreen)
                     }
                     Text(
-                        "${app.screens.size} screens",
+                        stringResource(R.string.pocket_screens_count, app.screens.size),
                         fontSize = 11.sp,
                         color = BinaGrayText
                     )
                 }
             }
 
-            IconButton(onClick = onRemove, modifier = Modifier.size(32.dp)) {
+            IconButton(onClick = onAddToHome, modifier = Modifier.size(32.dp)) {
                 Icon(
-                    Icons.Filled.Delete,
-                    contentDescription = "Remove recipe",
-                    tint = BinaGrayText,
+                    Icons.Outlined.AddToHomeScreen,
+                    contentDescription = stringResource(R.string.pocket_add_home),
+                    tint = BinaAccent,
                     modifier = Modifier.size(20.dp)
                 )
             }

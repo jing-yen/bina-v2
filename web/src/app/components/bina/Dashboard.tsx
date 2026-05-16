@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
-import { FileText, Users, Download, Star, Plus, ChevronRight, BadgeCheck, X, Copy, Trash2, Loader2, Sparkles } from 'lucide-react';
+import { FileText, Users, Download, Star, Plus, ChevronRight, BadgeCheck, X, Copy, Trash2, Loader2, Sparkles, TrendingUp, TrendingDown } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
@@ -9,7 +9,7 @@ import {
 } from '../ui/alert-dialog';
 import type { RecipeWithId } from './recipes';
 import { listRecipes, deleteRecipe, duplicateRecipe, createRecipe } from '../../lib/recipeService';
-import { fetchPlatformStats, fetchRegionCounts, type PlatformStats, type RegionCount } from '../../lib/analyticsService';
+import { fetchPlatformStats, fetchRegionCounts, seedMockPings, type PlatformStats, type RegionCount } from '../../lib/analyticsService';
 import { RECIPES } from './recipes';
 
 const HEATMAP_REGION_COORDS: Record<string, { x: number; y: number; name: string }> = {
@@ -82,8 +82,13 @@ export function Dashboard() {
 
   useEffect(() => { fetchRecipes(); }, []);
   useEffect(() => {
-    fetchPlatformStats().then(setPlatformStats).catch(() => {});
-    fetchRegionCounts().then(setRegionCounts).catch(() => {});
+    seedMockPings().then(() => {
+      fetchPlatformStats().then(setPlatformStats).catch(() => {});
+      fetchRegionCounts().then(setRegionCounts).catch(() => {});
+    }).catch(() => {
+      fetchPlatformStats().then(setPlatformStats).catch(() => {});
+      fetchRegionCounts().then(setRegionCounts).catch(() => {});
+    });
   }, []);
 
   const handleDelete = async () => {
@@ -120,88 +125,97 @@ export function Dashboard() {
 
   const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
   const stats = [
-    { label: 'Total Recipes', value: String(recipes.length), icon: FileText, color: '#C45A3A', tint: '#C45A3A0C' },
-    { label: 'Active Users', value: platformStats ? formatCount(platformStats.uniqueDevices) : '—', icon: Users, color: '#5B6ABF', tint: '#5B6ABF0C' },
-    { label: 'Downloads', value: platformStats ? formatCount(platformStats.totalDownloads) : '—', icon: Download, color: '#1A8A6A', tint: '#1A8A6A0C' },
-    { label: 'Avg Rating', value: platformStats ? (platformStats.avgRating > 0 ? platformStats.avgRating.toFixed(1) : '—') : '—', icon: Star, color: '#C98A1A', tint: '#C98A1A0C' },
+    { label: 'Total Recipes', value: String(recipes.length), icon: FileText, color: '#C45A3A', tint: '#C45A3A0C', trend: '+2', up: true },
+    { label: 'Active Users', value: platformStats ? formatCount(platformStats.uniqueDevices) : '—', icon: Users, color: '#5B6ABF', tint: '#5B6ABF0C', trend: '+18%', up: true },
+    { label: 'Downloads', value: platformStats ? formatCount(platformStats.totalDownloads) : '—', icon: Download, color: '#1A8A6A', tint: '#1A8A6A0C', trend: '+24%', up: true },
+    { label: 'Avg Rating', value: platformStats ? (platformStats.avgRating > 0 ? platformStats.avgRating.toFixed(1) : '—') : '—', icon: Star, color: '#C98A1A', tint: '#C98A1A0C', trend: '+0.2', up: true },
   ];
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="p-6 max-w-[1400px] mx-auto h-[calc(100dvh)] overflow-hidden flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-3xl font-bold text-stone-900">Welcome back, Jing Yen</h1>
-          <div className="flex items-center gap-2 mt-1.5">
+          <div className="flex items-center gap-2 mt-1">
             <span className="text-lg">{'\u{1F33E}'}</span>
             <span className="text-sm text-stone-600">Ministry of Agriculture, Malaysia</span>
             <BadgeCheck size={16} style={{ color: '#C45A3A' }} />
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ color: '#C45A3A', background: '#C45A3A10' }}>Verified</span>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded" style={{ color: '#C45A3A', background: '#C45A3A10' }}>Verified</span>
           </div>
         </div>
         <button
           onClick={() => navigate('/studio')}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-medium shadow-card hover:shadow-interactive transition-all duration-200"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-sm font-medium shadow-card hover:shadow-interactive transition-all duration-200"
           style={{ background: '#C45A3A' }}
         >
-          <Plus size={18} />
+          <Plus size={16} />
           Create New Recipe
         </button>
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-4 gap-3 mb-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="rounded-xl border p-5 shadow-card hover:shadow-interactive transition-all duration-200 hover:-translate-y-0.5" style={{ background: stat.tint, borderColor: stat.color + '20' }}>
-              <div className="flex items-center justify-between mb-3">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ background: stat.color + '18' }}
-                >
-                  <Icon size={20} style={{ color: stat.color }} />
-                </div>
+            <div key={stat.label} className="rounded-xl border px-4 py-2.5 shadow-card flex items-center gap-3" style={{ background: stat.tint, borderColor: stat.color + '20' }}>
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{ background: stat.color + '18' }}
+              >
+                <Icon size={16} style={{ color: stat.color }} />
               </div>
-              <p className="text-3xl font-bold text-stone-900">{stat.value}</p>
-              <p className="text-sm text-stone-500 mt-1">{stat.label}</p>
+              <div className="flex items-baseline gap-1.5 min-w-0">
+                <span className="text-xl font-bold text-stone-900 leading-none">{stat.value}</span>
+                <span className="text-[13px] text-stone-500 truncate">{stat.label}</span>
+              </div>
+              <div className={`ml-auto flex items-center gap-0.5 shrink-0 text-[11px] font-semibold ${stat.up ? 'text-emerald-600' : 'text-red-500'}`}>
+                {stat.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                {stat.trend}
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Download heatmap */}
-      <div className="rounded-xl border border-stone-200 shadow-card overflow-hidden mb-8">
-        <div className="px-6 pt-5 pb-4" style={{ background: 'linear-gradient(135deg, #5B6ABF08 0%, #1A8A6A06 100%)' }}>
-          <h2 className="text-lg font-semibold text-stone-900 mb-1">Download Heatmap</h2>
-          <p className="text-xs text-stone-500">Where your recipes are being used across Southeast Asia</p>
-        </div>
-        <div className="px-6 pb-6 bg-white">
-        <div className="relative bg-white rounded-xl overflow-hidden" style={{ height: 260 }}>
-          <svg viewBox="90 -30 53 43" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-            {SE_ASIA_PATHS.map(country => (
-              <path key={country.name} d={country.d} fill="#E7E0D8" stroke="#D6D3D1" strokeWidth="0.15" />
-            ))}
-            {(() => {
-              const maxCount = Math.max(1, ...regionCounts.map(r => r.count));
-              return regionCounts.map(rc => {
-                const coords = HEATMAP_REGION_COORDS[rc.countryCode];
-                if (!coords) return null;
-                const size = 6 + (rc.count / maxCount) * 14;
-                return (
-                  <g key={rc.countryCode}>
-                    <circle cx={coords.x} cy={coords.y} r={size / 3} fill="#C45A3A" opacity={0.15} />
-                    <circle cx={coords.x} cy={coords.y} r={size / 4.5} fill="#C45A3A" opacity={0.35} />
-                    <circle cx={coords.x} cy={coords.y} r={size / 8} fill="#C45A3A" opacity={0.7} />
-                    <text x={coords.x} y={coords.y + size / 3 + 1.8} textAnchor="middle" fontSize="1.8" fill="#44403C" fontWeight="500">
-                      {coords.name} ({rc.count})
-                    </text>
-                  </g>
-                );
-              });
-            })()}
-          </svg>
-          <div className="absolute bottom-3 right-3 flex items-center gap-3 rounded-lg px-3 py-1.5" style={{ background: 'rgba(250,248,245,0.92)' }}>
+      {/* Heatmap + Recipes side by side */}
+      <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
+        {/* Download heatmap */}
+        <div className="rounded-xl border border-stone-200 shadow-card overflow-hidden flex flex-col bg-white">
+          <div className="px-5 pt-4 pb-2" style={{ background: 'linear-gradient(135deg, #5B6ABF08 0%, #1A8A6A06 100%)' }}>
+            <h2 className="text-sm font-semibold text-stone-900">Download Heatmap</h2>
+            <p className="text-[11px] text-stone-500">Recipe usage across Southeast Asia</p>
+          </div>
+          <div className="px-4 flex-1 min-h-0">
+            <div className="relative bg-white rounded-xl overflow-hidden h-full">
+              <svg viewBox="90 -30 53 43" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+                {SE_ASIA_PATHS.map(country => (
+                  <path key={country.name} d={country.d} fill="#E7E0D8" stroke="#D6D3D1" strokeWidth="0.15" />
+                ))}
+                {(() => {
+                  const maxCount = Math.max(1, ...regionCounts.map(r => r.count));
+                  return regionCounts.map(rc => {
+                    const coords = HEATMAP_REGION_COORDS[rc.countryCode];
+                    if (!coords) return null;
+                    const size = 6 + (rc.count / maxCount) * 14;
+                    return (
+                      <g key={rc.countryCode}>
+                        <circle cx={coords.x} cy={coords.y} r={size / 3} fill="#C45A3A" opacity={0.15} />
+                        <circle cx={coords.x} cy={coords.y} r={size / 4.5} fill="#C45A3A" opacity={0.35} />
+                        <circle cx={coords.x} cy={coords.y} r={size / 8} fill="#C45A3A" opacity={0.7} />
+                        <text x={coords.x} y={coords.y + size / 3 + 1.2} textAnchor="middle" fontSize="1.1" fill="#44403C" fontWeight="500">
+                          {coords.name} ({rc.count})
+                        </text>
+                      </g>
+                    );
+                  });
+                })()}
+              </svg>
+            </div>
+          </div>
+          {/* Legend below the map */}
+          <div className="flex items-center justify-center gap-4 px-4 py-2 border-t border-stone-100">
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-[#C45A3A] opacity-30" />
               <span className="text-[10px] text-stone-500">Low</span>
@@ -216,99 +230,113 @@ export function Dashboard() {
             </div>
           </div>
         </div>
-        </div>
-      </div>
 
-      {/* Recipes table */}
-      <div className="bg-white rounded-xl border border-stone-200 shadow-card">
-        <div className="px-6 py-4 border-b border-stone-200">
-          <h2 className="text-lg font-semibold text-stone-900">Your Recipes</h2>
-        </div>
+        {/* Recipes table */}
+        <div className="bg-white rounded-xl border border-stone-200 shadow-card flex flex-col overflow-hidden">
+          <div className="px-5 py-3 border-b border-stone-200 shrink-0">
+            <h2 className="text-sm font-semibold text-stone-900">Your Recipes</h2>
+          </div>
 
+          <div className="flex-1 overflow-y-auto min-h-0">
         {loading ? (
           <div className="divide-y divide-stone-100">
             {[1, 2, 3].map(i => (
-              <div key={i} className="px-6 py-4 flex items-center gap-4 animate-pulse">
-                <div className="w-8 h-8 rounded-lg bg-stone-100" />
+              <div key={i} className="px-5 py-3 flex items-center gap-3 animate-pulse">
+                <div className="w-7 h-7 rounded-lg bg-stone-100" />
                 <div className="flex-1">
-                  <div className="h-4 w-32 bg-stone-200 rounded" />
-                  <div className="h-3 w-20 bg-stone-100 rounded mt-1.5" />
+                  <div className="h-3.5 w-28 bg-stone-200 rounded" />
+                  <div className="h-2.5 w-16 bg-stone-100 rounded mt-1" />
                 </div>
-                <div className="h-3 w-12 bg-stone-100 rounded" />
-                <div className="h-3 w-16 bg-stone-100 rounded" />
               </div>
             ))}
           </div>
         ) : recipes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-4">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#C45A3A10' }}>
-              <FileText size={28} style={{ color: '#C45A3A' }} />
+          <div className="flex flex-col items-center justify-center py-10 gap-3">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#C45A3A10' }}>
+              <FileText size={22} style={{ color: '#C45A3A' }} />
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-stone-700">No recipes yet</p>
-              <p className="text-xs text-stone-500 mt-1">Create your first recipe or import the demo</p>
+              <p className="text-xs text-stone-500 mt-0.5">Create or import demo recipes</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => navigate('/studio')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium hover:opacity-90"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-medium hover:opacity-90"
                 style={{ background: '#C45A3A' }}
               >
-                <Plus size={16} /> Create Recipe
+                <Plus size={14} /> Create
               </button>
               <button
                 onClick={handleSeedDemo}
                 disabled={seeding}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-stone-200 text-sm font-medium text-stone-700 hover:bg-stone-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 text-xs font-medium text-stone-700 hover:bg-stone-50"
               >
-                {seeding ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                Import Demo Recipe
+                {seeding ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                Import Demo
               </button>
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-stone-100">
-                  <th className="text-left text-xs font-medium text-stone-500 uppercase tracking-wider px-6 py-3">Recipe</th>
-                  <th className="text-left text-xs font-medium text-stone-500 uppercase tracking-wider px-6 py-3">Category</th>
-                  <th className="text-left text-xs font-medium text-stone-500 uppercase tracking-wider px-6 py-3">Screens</th>
-                  <th className="text-left text-xs font-medium text-stone-500 uppercase tracking-wider px-6 py-3">Languages</th>
-                  <th className="text-left text-xs font-medium text-stone-500 uppercase tracking-wider px-6 py-3">Updated</th>
-                  <th className="w-10"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {recipes.map((recipe) => (
-                  <tr
-                    key={recipe.id}
-                    onClick={() => setSelectedRecipe(recipe)}
-                    className="border-b border-stone-100 last:border-0 hover:bg-stone-50 transition-colors cursor-pointer group"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl">{recipe.recipeIcon}</span>
-                        <span className="text-sm font-medium text-stone-900">{recipe.recipeName}</span>
+          <table className="w-full">
+            <thead className="sticky top-0 bg-white">
+              <tr className="border-b border-stone-100">
+                <th className="text-left text-[11px] font-medium text-stone-500 uppercase tracking-wider px-5 py-2">Recipe</th>
+                <th className="text-left text-[11px] font-medium text-stone-500 uppercase tracking-wider px-3 py-2">Category</th>
+                <th className="text-left text-[11px] font-medium text-stone-500 uppercase tracking-wider px-3 py-2">Languages</th>
+                <th className="text-right text-[11px] font-medium text-stone-500 uppercase tracking-wider px-3 py-2">Users</th>
+                <th className="text-right text-[11px] font-medium text-stone-500 uppercase tracking-wider px-3 py-2">Downloads</th>
+                <th className="text-right text-[11px] font-medium text-stone-500 uppercase tracking-wider px-3 py-2">Rating</th>
+                <th className="w-6"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {recipes.map((recipe) => {
+                const dl = parseInt(recipe.stats?.downloads || '0') || 0;
+                const users = parseInt(recipe.stats?.users || '0') || 0;
+                const rating = recipe.stats?.rating || 0;
+                return (
+                <tr
+                  key={recipe.id}
+                  onClick={() => setSelectedRecipe(recipe)}
+                  className="border-b border-stone-100 last:border-0 hover:bg-stone-50 transition-colors cursor-pointer group"
+                >
+                  <td className="px-5 py-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">{recipe.recipeIcon}</span>
+                      <div>
+                        <span className="text-sm font-medium text-stone-900 block leading-tight">{recipe.recipeName}</span>
+                        <span className="text-[10px] text-stone-400">{recipe.screens.length} screens · {relativeTime(recipe.updatedAt)}</span>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: CATEGORY_COLORS[recipe.category]?.bg || '#E7E0D818', color: CATEGORY_COLORS[recipe.category]?.text || '#57534E' }}>
-                        {recipe.category}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2">
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: CATEGORY_COLORS[recipe.category]?.bg || '#E7E0D818', color: CATEGORY_COLORS[recipe.category]?.text || '#57534E' }}>
+                      {recipe.category}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-[11px] text-stone-600">{recipe.selectedLanguages.map(l => l.toUpperCase()).join(', ')}</td>
+                  <td className="px-3 py-2 text-xs text-stone-600 text-right font-medium">{users > 0 ? users.toLocaleString() : '—'}</td>
+                  <td className="px-3 py-2 text-xs text-stone-600 text-right font-medium">{dl > 0 ? dl.toLocaleString() : '—'}</td>
+                  <td className="px-3 py-2 text-right">
+                    {rating > 0 ? (
+                      <span className="inline-flex items-center gap-0.5 text-xs font-medium text-stone-700">
+                        <Star size={10} className="text-amber-400 fill-amber-400" />
+                        {rating.toFixed(1)}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-stone-600">{recipe.screens.length}</td>
-                    <td className="px-6 py-4 text-sm text-stone-600">{recipe.selectedLanguages.length}</td>
-                    <td className="px-6 py-4 text-sm text-stone-500">{relativeTime(recipe.updatedAt)}</td>
-                    <td className="px-6 py-3">
-                      <ChevronRight size={16} className="text-stone-300 group-hover:text-stone-500 transition-colors" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    ) : <span className="text-xs text-stone-400">—</span>}
+                  </td>
+                  <td className="px-2 py-2">
+                    <ChevronRight size={14} className="text-stone-300 group-hover:text-stone-500 transition-colors" />
+                  </td>
+                </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
+          </div>
+        </div>
       </div>
 
       {/* Recipe detail slide-over */}

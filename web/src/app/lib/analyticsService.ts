@@ -1,4 +1,4 @@
-import { collection, getDocs, query, where, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, updateDoc, query, where, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from './firebase';
 import { listRecipes } from './recipeService';
 
@@ -76,4 +76,53 @@ export async function fetchRecipeAnalytics(): Promise<RecipeAnalytics[]> {
     downloads: parseInt(r.stats?.downloads || '0') || 0,
     rating: r.stats?.rating || 0,
   })).sort((a, b) => b.downloads - a.downloads);
+}
+
+const MOCK_COUNTRIES = [
+  { code: 'MY', weight: 35 },
+  { code: 'ID', weight: 28 },
+  { code: 'TH', weight: 15 },
+  { code: 'PH', weight: 10 },
+  { code: 'VN', weight: 6 },
+  { code: 'SG', weight: 3 },
+  { code: 'KH', weight: 2 },
+  { code: 'MM', weight: 1 },
+];
+
+export async function seedMockPings(count = 120): Promise<void> {
+  const existing = await getDocs(pingsRef);
+  if (existing.size > 10) return;
+
+  const batch: Promise<unknown>[] = [];
+  for (let i = 0; i < count; i++) {
+    const rand = Math.random() * 100;
+    let cumulative = 0;
+    let cc = 'MY';
+    for (const c of MOCK_COUNTRIES) {
+      cumulative += c.weight;
+      if (rand < cumulative) { cc = c.code; break; }
+    }
+    const daysAgo = Math.floor(Math.random() * 30);
+    const ts = Timestamp.fromDate(new Date(Date.now() - daysAgo * 86400000));
+    batch.push(addDoc(pingsRef, {
+      device_hash: `mock_${Math.random().toString(36).slice(2, 10)}`,
+      country_code: cc,
+      timestamp: ts,
+      recipe_id: `demo_${Math.floor(Math.random() * 5)}`,
+    }));
+  }
+  await Promise.all(batch);
+
+  const recipes = await listRecipes();
+  const statUpdates = recipes.map(r => {
+    const dl = Math.floor(Math.random() * 800) + 50;
+    const users = Math.floor(dl * (0.4 + Math.random() * 0.4));
+    const rating = +(3.5 + Math.random() * 1.5).toFixed(1);
+    return updateDoc(doc(db, 'recipes', r.id), {
+      'stats.downloads': String(dl),
+      'stats.users': String(users),
+      'stats.rating': rating,
+    });
+  });
+  await Promise.all(statUpdates);
 }

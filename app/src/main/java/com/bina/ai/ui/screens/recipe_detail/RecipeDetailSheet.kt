@@ -31,9 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bina.ai.R
 import com.bina.ai.install.ShortcutHelper
 import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.ui.screens.hub.components.RecipeCover
@@ -147,7 +149,11 @@ fun RecipeDetailSheet(
                     colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
                 ) {
                     Text(
-                        if (isInstalled) "Open" else "Configure & Install",
+                        when {
+                            isInstalled -> stringResource(R.string.recipe_open)
+                            miniApp.features.isEmpty() -> stringResource(R.string.recipe_install_open)
+                            else -> stringResource(R.string.recipe_configure_install)
+                        },
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -178,7 +184,7 @@ fun RecipeDetailSheet(
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                "Add to Home Screen",
+                                stringResource(R.string.recipe_add_home),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = BinaStone950

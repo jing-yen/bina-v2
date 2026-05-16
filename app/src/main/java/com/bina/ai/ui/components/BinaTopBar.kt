@@ -1,8 +1,8 @@
 package com.bina.ai.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,11 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bina.ai.ui.theme.BinaAccent
+import com.bina.ai.R
 import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaStone950
@@ -35,32 +36,25 @@ fun BinaTopBar(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
-        Box(
+        Image(
+            painter = painterResource(R.drawable.ic_bina_mascot),
+            contentDescription = "Bina",
             modifier = Modifier
                 .size(40.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(BinaAccent),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "B",
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
-        }
+        )
 
         Spacer(Modifier.width(8.dp))
 
         Column {
             Text(
-                "Bina.ai",
+                stringResource(R.string.topbar_title),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = BinaStone950
             )
             Text(
-                "Edge-Native AI Platform",
+                stringResource(R.string.topbar_subtitle),
                 fontSize = 10.sp,
                 color = BinaGrayText
             )

@@ -56,6 +56,7 @@ import com.bina.ai.analytics.tracking.AnalyticsPinger
 import com.bina.ai.analytics.tracking.EventTracker
 import com.bina.ai.inference.InferenceEngine
 import com.bina.ai.miniapp.model.MiniApp
+import com.bina.ai.miniapp.model.Widget as MiniWidget
 import com.bina.ai.miniapp.runtime.ActionDispatcher
 import com.bina.ai.miniapp.runtime.FormulaEngine
 import com.bina.ai.miniapp.runtime.TriageEngine
@@ -316,6 +317,27 @@ fun MiniAppScreen(
                     scrollState.animateScrollTo(scrollState.maxValue)
                 }
             }
+
+            val completedIncrementActions = remember(currentScreenId) {
+                miniApp.screens.flatMap { screen ->
+                    screen.body.filterIsInstance<MiniWidget.ChecklistItems>().map { it.bind } +
+                    screen.body.filterIsInstance<MiniWidget.ProgressBar>().map { it.bind }
+                }
+            }.filter { bindVar ->
+                val current = (backingMap[bindVar] ?: "").toIntOrNull() ?: 0
+                val max = miniApp.screens.flatMap { it.body }.let { widgets ->
+                    widgets.filterIsInstance<MiniWidget.ChecklistItems>().find { it.bind == bindVar }?.items?.size
+                        ?: widgets.filterIsInstance<MiniWidget.ProgressBar>().find { it.bind == bindVar }?.total
+                }
+                max != null && current >= max
+            }.map { "increment:$it" }.toSet()
+
+            LaunchedEffect(completedIncrementActions.size) {
+                if (completedIncrementActions.isNotEmpty()) {
+                    scrollState.animateScrollTo(scrollState.maxValue)
+                }
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -326,6 +348,7 @@ fun MiniAppScreen(
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     currentScreen.body.forEach { widget ->
+                        if (widget is MiniWidget.ActionButton && widget.action in completedIncrementActions) return@forEach
                         RenderWidget(
                             widget = widget,
                             store = store,
@@ -338,7 +361,8 @@ fun MiniAppScreen(
                                     dispatcher.dispatch(action)
                                     isLoading = false
                                 }
-                            }
+                            },
+                            inferenceEngine = inferenceEngine
                         )
                     }
                     Spacer(Modifier.height(32.dp))
@@ -354,21 +378,22 @@ fun MiniAppScreen(
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
             ) {
-                if (!isHomeScreen) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(Color.White.copy(alpha = 0.6f))
-                            .clickable { onBack() }
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFF44403C),
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color.White.copy(alpha = 0.6f))
+                        .clickable {
+                            if (isHomeScreen) onBack()
+                            else switchScreen(miniApp.screens.first().id)
+                        }
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color(0xFF44403C),
+                        modifier = Modifier.size(16.dp)
+                    )
                 }
                 miniApp.screens.forEach { screen ->
                     val isActive = screen.id == currentScreenId

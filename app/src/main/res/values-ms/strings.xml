@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bina</string>
+
+    <string name="topbar_title">Bina</string>
+    <string name="topbar_subtitle">AI yang berfungsi luar talian</string>
+
+    <string name="hub_title">Kotak Alat AI Anda</string>
+    <string name="hub_subtitle">Alat pintar untuk komuniti anda</string>
+
+    <string name="pocket_title">Poket Saya</string>
+    <string name="pocket_subtitle">Resipi anda, sedia luar talian</string>
+    <string name="pocket_saved_recipes">Resipi Tersimpan</string>
+    <string name="pocket_empty_title">Belum ada resipi tersimpan</string>
+    <string name="pocket_empty_subtitle">Terokai Hub untuk cari alat komuniti anda</string>
+    <string name="pocket_offline_ready">Sedia Luar Talian</string>
+    <string name="pocket_screens_count">%d skrin</string>
+    <string name="pocket_stat_saved">Simpan</string>
+    <string name="pocket_stat_screens">Skrin</string>
+    <string name="pocket_stat_status">Status</string>
+    <string name="pocket_stat_ready">Sedia</string>
+    <string name="pocket_add_home">Tambah ke skrin utama</string>
+
+    <string name="recipe_open">Buka</string>
+    <string name="recipe_install_open">Pasang &amp; Buka</string>
+    <string name="recipe_configure_install">Tetapkan &amp; Pasang</string>
+    <string name="recipe_add_home">Tambah ke Skrin Utama</string>
+    <string name="recipe_verified_by">Disahkan oleh %s</string>
+    <string name="recipe_domain">Domain: %s</string>
+    <string name="recipe_features_title">Ciri dalam resipi ini</string>
+
+    <string name="miniapp_back">Kembali</string>
+    <string name="miniapp_home">Utama</string>
+    <string name="miniapp_reset">Set semula skrin</string>
+    <string name="miniapp_recording">Merakam&#8230;</string>
+    <string name="miniapp_transcribing">Menyalin&#8230;</string>
+    <string name="miniapp_model_not_loaded">Model tidak dimuatkan.</string>
+    <string name="miniapp_all_steps_done">Semua langkah selesai!</string>
+    <string name="miniapp_steps_done">%1$d daripada %2$d langkah selesai</string>
+    <string name="miniapp_reset_checklist">Set Semula Senarai</string>
+    <string name="miniapp_take_photo">Ambil gambar</string>
+    <string name="miniapp_retake">Ketik untuk ambil semula</string>
+    <string name="miniapp_complete">Selesai!</string>
+    <string name="miniapp_step_of">Langkah %1$d daripada %2$d</string>
+    <string name="miniapp_your_location">Anda: %1$s, %2$s</string>
+
+    <string name="triage_greeting">Hai! Saya %s. Apa yang boleh saya bantu?</string>
+    <string name="triage_placeholder">Terangkan apa yang anda perlukan&#8230;</string>
+    <string name="triage_send">Hantar</string>
+
+    <string name="confirm">Sahkan</string>
+    <string name="cancel">Batal</string>
+</resources>

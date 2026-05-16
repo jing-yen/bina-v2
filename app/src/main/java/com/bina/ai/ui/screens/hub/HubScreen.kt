@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.ViewModelProvider
 import com.bina.ai.hub.FirestoreRecipeSource
 import com.bina.ai.install.InstallStore
+import com.bina.ai.install.model.InstallRecord
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.ui.screens.hub.components.CategoryChips
@@ -34,6 +36,7 @@ import com.bina.ai.ui.screens.hub.components.RecipeListItem
 import com.bina.ai.ui.screens.hub.model.HubUiState
 import com.bina.ai.ui.screens.recipe_detail.RecipeDetailSheet
 import com.bina.ai.ui.theme.BinaGrayText
+import kotlinx.coroutines.launch
 
 @Composable
 fun HubScreen(
@@ -56,6 +59,7 @@ fun HubScreen(
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     var sheetRecipe by remember { mutableStateOf<MiniApp?>(null) }
+    val scope = rememberCoroutineScope()
 
     Box(modifier = modifier.fillMaxSize()) {
         when (val s = state) {
@@ -131,7 +135,21 @@ fun HubScreen(
                 sizeKb = baseSizeKb,
                 onConfigureInstall = {
                     sheetRecipe = null
-                    onConfigureRecipe(recipe.id)
+                    if (recipe.features.isEmpty()) {
+                        scope.launch {
+                            try {
+                                miniAppRepository.persistRecipeLocally(recipe.id)
+                                installStore.install(InstallRecord(
+                                    recipeId = recipe.id,
+                                    installedAt = System.currentTimeMillis(),
+                                    enabledFeatureIds = emptySet()
+                                ))
+                            } catch (_: Exception) { }
+                            onOpenRecipe(recipe.id)
+                        }
+                    } else {
+                        onConfigureRecipe(recipe.id)
+                    }
                 },
                 onOpen = {
                     sheetRecipe = null

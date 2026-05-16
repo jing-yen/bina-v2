@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bina</string>
+
+    <string name="topbar_title">Bina</string>
+    <string name="topbar_subtitle">离线运行的AI</string>
+
+    <string name="hub_title">你的AI工具箱</string>
+    <string name="hub_subtitle">为你的社区打造的智能工具</string>
+
+    <string name="pocket_title">我的口袋</string>
+    <string name="pocket_subtitle">已保存的配方，随时离线使用</string>
+    <string name="pocket_saved_recipes">已保存配方</string>
+    <string name="pocket_empty_title">还没有保存配方</string>
+    <string name="pocket_empty_subtitle">浏览中心找到适合你社区的工具</string>
+    <string name="pocket_offline_ready">离线就绪</string>
+    <string name="pocket_screens_count">%d 个页面</string>
+    <string name="pocket_stat_saved">已存</string>
+    <string name="pocket_stat_screens">页面</string>
+    <string name="pocket_stat_status">状态</string>
+    <string name="pocket_stat_ready">就绪</string>
+    <string name="pocket_add_home">添加到主屏幕</string>
+
+    <string name="recipe_open">打开</string>
+    <string name="recipe_install_open">安装并打开</string>
+    <string name="recipe_configure_install">配置并安装</string>
+    <string name="recipe_add_home">添加到主屏幕</string>
+    <string name="recipe_verified_by">由 %s 验证</string>
+    <string name="recipe_domain">领域：%s</string>
+    <string name="recipe_features_title">此配方的功能</string>
+
+    <string name="miniapp_back">返回</string>
+    <string name="miniapp_home">首页</string>
+    <string name="miniapp_reset">重置页面</string>
+    <string name="miniapp_recording">录音中&#8230;</string>
+    <string name="miniapp_transcribing">转录中&#8230;</string>
+    <string name="miniapp_model_not_loaded">模型未加载。</string>
+    <string name="miniapp_all_steps_done">所有步骤已完成！</string>
+    <string name="miniapp_steps_done">已完成 %1$d / %2$d 步</string>
+    <string name="miniapp_reset_checklist">重置清单</string>
+    <string name="miniapp_take_photo">拍照</string>
+    <string name="miniapp_retake">点击重拍</string>
+    <string name="miniapp_complete">完成！</string>
+    <string name="miniapp_step_of">第 %1$d 步，共 %2$d 步</string>
+    <string name="miniapp_your_location">你的位置：%1$s, %2$s</string>
+
+    <string name="triage_greeting">你好！我是%s。我能帮你什么？</string>
+    <string name="triage_placeholder">描述你需要什么&#8230;</string>
+    <string name="triage_send">发送</string>
+
+    <string name="confirm">确认</string>
+    <string name="cancel">取消</string>
+</resources>

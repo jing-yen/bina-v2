@@ -22,11 +22,14 @@ export default function Root() {
       >
         <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(196,90,58,0.12) 0%, transparent 100%)' }} />
         <div>
-          <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-3'} pt-2 pb-6`}>
-            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: '#C45A3A' }}>
-              <span className="text-white font-bold text-lg">B</span>
+          <div className={`flex ${collapsed ? 'items-center justify-center' : 'items-center px-3 gap-3'} pt-2 pb-6`}>
+            <div
+              className={`${collapsed ? 'w-10 h-10 rounded-xl' : 'w-[64px] h-[64px] rounded-2xl'} shrink-0 overflow-hidden`}
+              style={{ boxShadow: '0 0 20px rgba(255,255,255,0.25), 0 0 40px rgba(196,90,58,0.15)' }}
+            >
+              <img src="/bina-icon.png" alt="Bina" className="w-full h-full object-cover scale-[1.25]" />
             </div>
-            {!collapsed && <span className="text-white font-semibold text-lg tracking-tight">Bina.ai</span>}
+            {!collapsed && <span className="text-white font-bold text-4xl" style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.02em' }}>Bina</span>}
           </div>
 
           <nav className="flex flex-col gap-1">

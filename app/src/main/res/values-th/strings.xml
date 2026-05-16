@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bina</string>
+
+    <string name="topbar_title">Bina</string>
+    <string name="topbar_subtitle">AI ที่ทำงานแบบออฟไลน์</string>
+
+    <string name="hub_title">กล่องเครื่องมือ AI ของคุณ</string>
+    <string name="hub_subtitle">เครื่องมืออัจฉริยะสำหรับชุมชนของคุณ</string>
+
+    <string name="pocket_title">กระเป๋าของฉัน</string>
+    <string name="pocket_subtitle">สูตรที่บันทึกไว้ พร้อมใช้งานออฟไลน์</string>
+    <string name="pocket_saved_recipes">สูตรที่บันทึกไว้</string>
+    <string name="pocket_empty_title">ยังไม่มีสูตรที่บันทึกไว้</string>
+    <string name="pocket_empty_subtitle">เรียกดูฮับเพื่อค้นหาเครื่องมือสำหรับชุมชนของคุณ</string>
+    <string name="pocket_offline_ready">พร้อมใช้งานออฟไลน์</string>
+    <string name="pocket_screens_count">%d หน้าจอ</string>
+    <string name="pocket_stat_saved">บันทึก</string>
+    <string name="pocket_stat_screens">หน้าจอ</string>
+    <string name="pocket_stat_status">สถานะ</string>
+    <string name="pocket_stat_ready">พร้อม</string>
+    <string name="pocket_add_home">เพิ่มไปยังหน้าจอหลัก</string>
+
+    <string name="recipe_open">เปิด</string>
+    <string name="recipe_install_open">ติดตั้งและเปิด</string>
+    <string name="recipe_configure_install">ตั้งค่าและติดตั้ง</string>
+    <string name="recipe_add_home">เพิ่มไปยังหน้าจอหลัก</string>
+    <string name="recipe_verified_by">ยืนยันโดย %s</string>
+    <string name="recipe_domain">หมวด: %s</string>
+    <string name="recipe_features_title">ฟีเจอร์ในสูตรนี้</string>
+
+    <string name="miniapp_back">กลับ</string>
+    <string name="miniapp_home">หน้าหลัก</string>
+    <string name="miniapp_reset">รีเซ็ตหน้าจอ</string>
+    <string name="miniapp_recording">กำลังบันทึก&#8230;</string>
+    <string name="miniapp_transcribing">กำลังถอดเสียง&#8230;</string>
+    <string name="miniapp_model_not_loaded">ยังไม่ได้โหลดโมเดล</string>
+    <string name="miniapp_all_steps_done">ทำครบทุกขั้นตอนแล้ว!</string>
+    <string name="miniapp_steps_done">ทำแล้ว %1$d จาก %2$d ขั้นตอน</string>
+    <string name="miniapp_reset_checklist">รีเซ็ตรายการ</string>
+    <string name="miniapp_take_photo">ถ่ายรูป</string>
+    <string name="miniapp_retake">แตะเพื่อถ่ายใหม่</string>
+    <string name="miniapp_complete">เสร็จสิ้น!</string>
+    <string name="miniapp_step_of">ขั้นที่ %1$d จาก %2$d</string>
+    <string name="miniapp_your_location">คุณ: %1$s, %2$s</string>
+
+    <string name="triage_greeting">สวัสดี! ฉันคือ %s มีอะไรให้ช่วยไหม?</string>
+    <string name="triage_placeholder">อธิบายสิ่งที่คุณต้องการ&#8230;</string>
+    <string name="triage_send">ส่ง</string>
+
+    <string name="confirm">ยืนยัน</string>
+    <string name="cancel">ยกเลิก</string>
+</resources>

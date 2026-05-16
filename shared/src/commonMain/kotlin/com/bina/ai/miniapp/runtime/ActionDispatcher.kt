@@ -188,7 +188,23 @@ class ActionDispatcher(
     private fun handleIncrement(variableName: String) {
         if (variableName.isBlank()) return
         val current = store[variableName].toIntOrNull() ?: 0
+        val max = findChecklistMax(variableName)
+        if (max != null && current >= max) return
         store[variableName] = (current + 1).toString()
+    }
+
+    private fun findChecklistMax(variableName: String): Int? {
+        for (screen in miniApp.screens) {
+            for (widget in screen.body) {
+                if (widget is com.bina.ai.miniapp.model.Widget.ChecklistItems && widget.bind == variableName) {
+                    return widget.items.size
+                }
+                if (widget is com.bina.ai.miniapp.model.Widget.ProgressBar && widget.bind == variableName) {
+                    return widget.total
+                }
+            }
+        }
+        return null
     }
 
     private fun buildSystemPrompt(): String = buildString {

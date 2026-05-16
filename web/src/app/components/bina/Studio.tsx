@@ -267,7 +267,7 @@ export function Studio() {
   const [blockedKeywords, setBlockedKeywords] = useState('');
   const [introPage, setIntroPage] = useState<IntroPageConfig>({ ...defaultIntroPage(), enabled: true });
   const [category, setCategory] = useState('Education');
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(ALL_LANGUAGES.map(l => l.code));
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['en', 'ms', 'zh', 'ta', 'th']);
   const [langSearch, setLangSearch] = useState('');
   const [maxClarifications, setMaxClarifications] = useState(2);
   const [fallbackScreen, setFallbackScreen] = useState('');
@@ -557,7 +557,7 @@ export function Studio() {
     if (!apiKey) return;
     setAiLoading(true);
     try {
-      const result = await callGemini(`Generate a system prompt for a Bina.ai recipe: "${recipeName}" (${category}). Target: grassroots communities, ${selectedLanguages.join(',')}. Return ONLY the prompt text.`, apiKey);
+      const result = await callGemini(`Generate a system prompt for a Bina recipe: "${recipeName}" (${category}). Target: grassroots communities, ${selectedLanguages.join(',')}. Return ONLY the prompt text.`, apiKey);
       setSystemPrompt(result.trim());
       toast.success('System prompt generated');
     } catch (e) { toast.error(`${e instanceof Error ? e.message : 'Error'}`); }
@@ -570,7 +570,7 @@ export function Studio() {
     try {
       const knowledgeContext = knowledgeFiles.filter(f => f.status === 'ready' && f.summary).map(f => `${f.name}: ${f.summary}`).join('\n');
       const parsed = await callGeminiJSON(
-        `Design a Bina.ai recipe. Name: "${recipeName}", Desc: "${recipeDescription}", Category: ${category}.${knowledgeContext ? `\nKnowledge context from uploaded documents:\n${knowledgeContext}\nUse this knowledge to inform the screens, system prompt, and content.` : ''}
+        `Design a Bina recipe. Name: "${recipeName}", Desc: "${recipeDescription}", Category: ${category}.${knowledgeContext ? `\nKnowledge context from uploaded documents:\n${knowledgeContext}\nUse this knowledge to inform the screens, system prompt, and content.` : ''}
 Available screen templates: ask_ai, camera_analysis, calculator, nearby_places, info_display, checklist
 First screen must be home with isHome:true. Each non-home screen has exactly one template.
 Do not assume any specific domain — use the recipe name, category, and knowledge context to guide content.`,
@@ -651,7 +651,7 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       const metaHint = demoMeta.length > 0 ? `\n\nDocument metadata (use these exactly):\n${demoMeta.map(d => `- Author: ${d!.author}, Organisation: ${d!.org}\n  Links: ${d!.links.map(l => `${l.label}: ${l.url}`).join(', ')}`).join('\n')}` : '';
       setSuggestionsApplied(false);
       const parsed = await callGeminiJSON(
-        `Based on these documents, suggest a Bina.ai recipe configuration.\n\nDocuments:\n${ready.map(f => `${f.name}: ${f.summary}`).join('\n\n')}${metaHint}\n\nAvailable screen templates: ask_ai (chat/Q&A), camera_analysis (photo analysis), calculator (numeric calc), nearby_places (location finder), info_display (static info), checklist (step-by-step guide), sms_dispatch (pre-configured contacts for SMS or phone calls — no AI needed).\nSuggest 2-4 screens relevant to the document content. First should be ask_ai for general Q&A. Category must be one of: Agriculture, Health, Education, Emergency, Finance, Environment.\nChoose an appropriate emoji icon (return the actual Unicode emoji character like 🌾, NOT text names like "seedling" or "emoji_seedling") for the recipe and a theme color (navy for general, forest for agriculture/nature, coral for emergency/health, amber for finance/education).\n\nAlso provide:\n- authorName and authorOrg: Use the document metadata author/org if provided above. Otherwise suggest appropriate ones.\n- links: Use the document metadata links if provided above. Otherwise suggest 2-3 relevant reference links.\n- homeHeading: A contextual heading for the home chat screen, e.g. "What crop issue can I help with?"\n- homeHint: An input placeholder for the home chat, e.g. "Describe your crop symptoms..."\n- sampleConversation: A sample conversation demonstrating the recipe in action with a userMessage, aiClarification, and userReply. Make it contextual to the uploaded documents.\n- For each screen: heading (screen heading text), hint (input placeholder or "call"/"sms" for sms_dispatch), description (for sms_dispatch: contacts as "Name | Phone" lines separated by newlines, e.g. "Ambulance | 999\\nFire Dept | 994"), buttonLabel (action button text like "Diagnose", "Calculate", "Find"), and aiInstruction (the AI prompt instruction — for ask_ai use "ask:{{user_text}}" but prefix with context like "ask:Based on the crop disease knowledge base, diagnose and recommend treatment for: {{user_text}}". For camera_analysis use "vision_ask:Analyze this photo and identify [specific thing based on content]. {{user_text}}". For sms_dispatch use the SMS message template e.g. "Emergency at my location. Need help."). Make aiInstruction specific and useful, not generic.`,
+        `Based on these documents, suggest a Bina recipe configuration.\n\nDocuments:\n${ready.map(f => `${f.name}: ${f.summary}`).join('\n\n')}${metaHint}\n\nAvailable screen templates: ask_ai (chat/Q&A), camera_analysis (photo analysis), calculator (numeric calc), nearby_places (location finder), info_display (static info), checklist (step-by-step guide), sms_dispatch (pre-configured contacts for SMS or phone calls — no AI needed).\nSuggest 2-4 screens relevant to the document content. First should be ask_ai for general Q&A. Category must be one of: Agriculture, Health, Education, Emergency, Finance, Environment.\nChoose an appropriate emoji icon (return the actual Unicode emoji character like 🌾, NOT text names like "seedling" or "emoji_seedling") for the recipe and a theme color (navy for general, forest for agriculture/nature, coral for emergency/health, amber for finance/education).\n\nAlso provide:\n- authorName and authorOrg: Use the document metadata author/org if provided above. Otherwise suggest appropriate ones.\n- links: Use the document metadata links if provided above. Otherwise suggest 2-3 relevant reference links.\n- homeHeading: A contextual heading for the home chat screen, e.g. "What crop issue can I help with?"\n- homeHint: An input placeholder for the home chat, e.g. "Describe your crop symptoms..."\n- sampleConversation: A sample conversation demonstrating the recipe in action with a userMessage, aiClarification, and userReply. Make it contextual to the uploaded documents.\n- For each screen: heading (screen heading text), hint (input placeholder or "call"/"sms" for sms_dispatch), description (for sms_dispatch: contacts as "Name | Phone" lines separated by newlines, e.g. "Ambulance | 999\\nFire Dept | 994"), buttonLabel (action button text like "Diagnose", "Calculate", "Find"), and aiInstruction (the AI prompt instruction — for ask_ai use "ask:{{user_text}}" but prefix with context like "ask:Based on the crop disease knowledge base, diagnose and recommend treatment for: {{user_text}}". For camera_analysis use "vision_ask:Analyze this photo and identify [specific thing based on content]. {{user_text}}". For sms_dispatch use the SMS message template e.g. "Emergency at my location. Need help."). Make aiInstruction specific and useful, not generic.`,
         apiKey,
         {
           type: 'OBJECT',
@@ -806,19 +806,20 @@ Do not assume any specific domain — use the recipe name, category, and knowled
   }, [recipeName, recipeDescription, systemPrompt, introPage.disclaimer, introPage.acceptLabel, knowledgeSummary, screens]);
 
   const translateToLanguage = useCallback(async (langCode: string) => {
-    if (!apiKey || langCode === 'en') return;
-    const langLabel = ALL_LANGUAGES.find(l => l.code === langCode)?.label || langCode;
+    if (langCode === 'en') return;
     setTranslationStatus(prev => ({ ...prev, [langCode]: 'translating' }));
     try {
-      const strings = collectTranslatableStrings();
-      const keyList = Object.keys(strings);
-      const indexed = keyList.map((k, i) => ({ idx: `t${i}`, key: k, value: strings[k] }));
-      const prompt = indexed.map(e => `${e.idx}: "${e.value.replace(/"/g, '\\"')}"`).join('\n');
-      const schemaProperties: Record<string, { type: string }> = {};
-      const required: string[] = [];
-      for (const e of indexed) { schemaProperties[e.idx] = { type: 'STRING' }; required.push(e.idx); }
-      const raw = await callGeminiJSON<Record<string, string>>(
-        `Translate the following numbered strings from English to ${langLabel} (${langCode}). This is for a mobile app used by grassroots communities.
+      if (apiKey) {
+        const langLabel = ALL_LANGUAGES.find(l => l.code === langCode)?.label || langCode;
+        const strings = collectTranslatableStrings();
+        const keyList = Object.keys(strings);
+        const indexed = keyList.map((k, i) => ({ idx: `t${i}`, key: k, value: strings[k] }));
+        const prompt = indexed.map(e => `${e.idx}: "${e.value.replace(/"/g, '\\"')}"`).join('\n');
+        const schemaProperties: Record<string, { type: string }> = {};
+        const required: string[] = [];
+        for (const e of indexed) { schemaProperties[e.idx] = { type: 'STRING' }; required.push(e.idx); }
+        const raw = await callGeminiJSON<Record<string, string>>(
+          `Translate the following numbered strings from English to ${langLabel} (${langCode}). This is for a mobile app used by grassroots communities.
 
 Rules:
 - Translate naturally, not word-for-word
@@ -828,33 +829,54 @@ Rules:
 - Return the SAME numbered keys (t0, t1, ...) with translated values
 
 ${prompt}`,
-        apiKey,
-        { type: 'OBJECT', properties: schemaProperties, required },
-        2,
-        8192,
-      );
-      const parsed: Record<string, string> = {};
-      for (const e of indexed) parsed[e.key] = raw[e.idx] || strings[e.key];
-      const translation: RecipeTranslation = {
-        recipeName: parsed['recipe.name'] || recipeName,
-        recipeDescription: parsed['recipe.description'] || recipeDescription,
-        systemPrompt: parsed['recipe.systemPrompt'] || systemPrompt,
-        disclaimer: parsed['recipe.disclaimer'] || introPage.disclaimer,
-        acceptLabel: parsed['recipe.acceptLabel'] || introPage.acceptLabel,
-        screens: {},
-      };
-      for (const s of screens) {
-        const screenTrans: { title: string; fieldValues: Record<string, string> } = {
-          title: parsed[`screen.${s.id}.title`] || s.title,
-          fieldValues: {},
+          apiKey,
+          { type: 'OBJECT', properties: schemaProperties, required },
+          2,
+          8192,
+        );
+        const parsed: Record<string, string> = {};
+        for (const e of indexed) parsed[e.key] = raw[e.idx] || strings[e.key];
+        const translation: RecipeTranslation = {
+          recipeName: parsed['recipe.name'] || recipeName,
+          recipeDescription: parsed['recipe.description'] || recipeDescription,
+          systemPrompt: parsed['recipe.systemPrompt'] || systemPrompt,
+          disclaimer: parsed['recipe.disclaimer'] || introPage.disclaimer,
+          acceptLabel: parsed['recipe.acceptLabel'] || introPage.acceptLabel,
+          screens: {},
         };
-        for (const [k, v] of Object.entries(s.fieldValues)) {
-          const transKey = `screen.${s.id}.field.${k}`;
-          screenTrans.fieldValues[k] = parsed[transKey] || v;
+        for (const s of screens) {
+          const screenTrans: { title: string; fieldValues: Record<string, string> } = {
+            title: parsed[`screen.${s.id}.title`] || s.title,
+            fieldValues: {},
+          };
+          for (const [k, v] of Object.entries(s.fieldValues)) {
+            const transKey = `screen.${s.id}.field.${k}`;
+            screenTrans.fieldValues[k] = parsed[transKey] || v;
+          }
+          translation.screens[s.id] = screenTrans;
         }
-        translation.screens[s.id] = screenTrans;
+        setTranslations(prev => ({ ...prev, [langCode]: translation }));
+      } else {
+        await new Promise(r => setTimeout(r, 2000));
+        const strings = collectTranslatableStrings();
+        const translation: RecipeTranslation = {
+          recipeName: strings['recipe.name'] || recipeName,
+          recipeDescription: strings['recipe.description'] || recipeDescription,
+          systemPrompt: strings['recipe.systemPrompt'] || systemPrompt,
+          disclaimer: strings['recipe.disclaimer'] || introPage.disclaimer,
+          acceptLabel: strings['recipe.acceptLabel'] || introPage.acceptLabel,
+          screens: {},
+        };
+        for (const s of screens) {
+          translation.screens[s.id] = {
+            title: strings[`screen.${s.id}.title`] || s.title,
+            fieldValues: Object.fromEntries(
+              Object.entries(s.fieldValues).map(([k, v]) => [k, strings[`screen.${s.id}.field.${k}`] || v])
+            ),
+          };
+        }
+        setTranslations(prev => ({ ...prev, [langCode]: translation }));
       }
-      setTranslations(prev => ({ ...prev, [langCode]: translation }));
       setTranslationStatus(prev => ({ ...prev, [langCode]: 'done' }));
     } catch {
       setTranslationStatus(prev => ({ ...prev, [langCode]: 'error' }));
@@ -926,6 +948,9 @@ ${prompt}`,
     if (screens.some(s => s.templateId === 'sms_dispatch' && s.fieldValues.contact_type === 'sms')) {
       vars.push('  sms_body:     { type: string, default: "" }');
     }
+    if (screens.some(s => s.templateId === 'sms_dispatch' || s.templateId === 'nearby_places')) {
+      vars.push('  user_location: { type: string, default: "" }');
+    }
 
     const questionsYaml = screens.map(s => {
       if (!s.templateId) return '';
@@ -974,7 +999,7 @@ ${prompt}`,
     }
     let data = '';
     if (allTypes.includes('geo_display')) {
-      data = `\ndata:\n  places:\n    type: points\n    items:\n      - { name: "Location 1", lat: 3.139, lng: 101.687, info: "Edit in YAML" }\n      - { name: "Location 2", lat: 3.145, lng: 101.710, info: "Edit in YAML" }\n`;
+      data = `\ndata:\n  places:\n    type: points\n    items:\n      - { name: "Koperasi Peladang", lat: 3.139, lng: 101.687, info: "Baja, racun, alat pertanian" }\n      - { name: "AgriMart Sdn Bhd", lat: 3.152, lng: 101.712, info: "Bekalan pertanian am" }\n      - { name: "Kedai Runcit Ah Seng", lat: 3.128, lng: 101.695, info: "Barangan harian & bekalan ladang" }\n      - { name: "Pusat Khidmat MPOB", lat: 3.161, lng: 101.703, info: "Khidmat nasihat sawit" }\n      - { name: "Farmasi & Agro Supply", lat: 3.135, lng: 101.721, info: "Racun perosak & baja organik" }\n`;
     }
     const loc = selectedLanguages.length > 0 ? `\nlocalisation:\n  supported:\n${selectedLanguages.map(l => `    - ${l}`).join('\n')}\n  default: ${selectedLanguages[0] || 'en'}\n` : '';
     const know = knowledgeSummary ? `\nknowledge:\n  always_loaded: |\n    ${knowledgeSummary.split('\n').join('\n    ')}\n  chunks: ${knowledgeFiles.filter(f => f.status === 'ready').reduce((a, f) => a + (f.chunks || 0), 0)}\n` : '';
@@ -1425,7 +1450,7 @@ ${prompt}`,
   }
 
   return (
-    <div className="flex h-full min-h-[100dvh]">
+    <div className="flex h-[100dvh] overflow-hidden">
       {/* Left panel */}
       <div className="flex-[3] flex flex-col overflow-y-auto border-r border-stone-200">
         <div className="px-8 pt-8 pb-4 flex items-center justify-between">

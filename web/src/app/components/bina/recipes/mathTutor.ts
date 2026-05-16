@@ -61,7 +61,7 @@ export const MATH_TUTOR_RECIPE: RecipeConfig = {
     ...defaultIntroPage('Educational tool to supplement learning. Not a replacement for classroom teaching.'),
     enabled: true,
     authorName: 'Bina Education',
-    authorOrg: 'Bina.ai',
+    authorOrg: 'Bina',
     authorVerified: true,
     links: [],
   },

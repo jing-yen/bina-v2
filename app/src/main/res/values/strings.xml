@@ -1,4 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Bina.ai</string>
+    <string name="app_name">Bina</string>
+
+    <!-- Top bar -->
+    <string name="topbar_title">Bina</string>
+    <string name="topbar_subtitle">AI that works offline</string>
+
+    <!-- Hub -->
+    <string name="hub_title">Your AI Toolbox</string>
+    <string name="hub_subtitle">Smart tools built for your community</string>
+
+    <!-- My Pocket -->
+    <string name="pocket_title">My Pocket</string>
+    <string name="pocket_subtitle">Your saved recipes, ready offline</string>
+    <string name="pocket_saved_recipes">Saved Recipes</string>
+    <string name="pocket_empty_title">No saved recipes yet</string>
+    <string name="pocket_empty_subtitle">Browse the Hub to find tools for your community</string>
+    <string name="pocket_offline_ready">Offline Ready</string>
+    <string name="pocket_screens_count">%d screens</string>
+    <string name="pocket_stat_saved">Saved</string>
+    <string name="pocket_stat_screens">Screens</string>
+    <string name="pocket_stat_status">Status</string>
+    <string name="pocket_stat_ready">Ready</string>
+    <string name="pocket_add_home">Add to home screen</string>
+
+    <!-- Recipe detail -->
+    <string name="recipe_open">Open</string>
+    <string name="recipe_install_open">Install &amp; Open</string>
+    <string name="recipe_configure_install">Configure &amp; Install</string>
+    <string name="recipe_add_home">Add to Home Screen</string>
+    <string name="recipe_verified_by">Verified by %s</string>
+    <string name="recipe_domain">Domain: %s</string>
+    <string name="recipe_features_title">Features in this recipe</string>
+
+    <!-- MiniApp -->
+    <string name="miniapp_back">Back</string>
+    <string name="miniapp_home">Home</string>
+    <string name="miniapp_reset">Reset screen</string>
+    <string name="miniapp_recording">Recording&#8230;</string>
+    <string name="miniapp_transcribing">Transcribing&#8230;</string>
+    <string name="miniapp_model_not_loaded">Model not loaded.</string>
+    <string name="miniapp_all_steps_done">All steps completed!</string>
+    <string name="miniapp_steps_done">%1$d of %2$d steps done</string>
+    <string name="miniapp_reset_checklist">Reset Checklist</string>
+    <string name="miniapp_take_photo">Take a photo</string>
+    <string name="miniapp_retake">Tap to retake</string>
+    <string name="miniapp_complete">Complete!</string>
+    <string name="miniapp_step_of">Step %1$d of %2$d</string>
+    <string name="miniapp_your_location">You: %1$s, %2$s</string>
+
+    <!-- Triage chat -->
+    <string name="triage_greeting">Hi! I\'m %s. How can I help you today?</string>
+    <string name="triage_placeholder">Describe what you need&#8230;</string>
+    <string name="triage_send">Send</string>
+
+    <!-- General -->
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
 </resources>

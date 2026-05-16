@@ -14,14 +14,13 @@ export function TopHeader({ userMode, onToggleMode }: TopHeaderProps) {
         <div className="flex items-center gap-2">
           <motion.div
             whileTap={{ scale: 0.9 }}
-            className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-interactive"
-            style={{ background: '#C45A3A' }}
+            className="w-10 h-10 rounded-2xl overflow-hidden shadow-interactive"
           >
-            <span className="text-white font-bold" style={{ fontSize: '18px' }}>B</span>
+            <img src="/bina-icon.png" alt="Bina" className="w-full h-full object-cover" />
           </motion.div>
           <div>
-            <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#1C1917', margin: 0 }}>Bina.ai</h1>
-            <p style={{ fontSize: '10px', color: '#78716C', margin: 0 }}>Edge-Native AI Platform</p>
+            <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#1C1917', margin: 0 }}>Bina</h1>
+            <p style={{ fontSize: '10px', color: '#78716C', margin: 0 }}>AI that works offline</p>
           </div>
         </div>
 

@@ -7,11 +7,41 @@ import com.charleskorn.kaml.YamlConfiguration
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import java.io.File
 
-class FirestoreRecipeSource {
+class FirestoreRecipeSource(private val cacheDir: File? = null) {
 
     private val db = FirebaseFirestore.getInstance()
     private val yaml = Yaml(configuration = YamlConfiguration(strictMode = false))
+    private val json = Json { ignoreUnknownKeys = true }
+    private val cacheFile = cacheDir?.let { File(it, "cloud_recipes_cache.json") }
+
+    fun loadCached(): List<Pair<MiniApp, String>> {
+        val file = cacheFile ?: return emptyList()
+        if (!file.exists()) return emptyList()
+        return try {
+            val yamlStrings = json.decodeFromString(
+                ListSerializer(String.serializer()), file.readText()
+            )
+            yamlStrings.mapNotNull { text ->
+                try {
+                    yaml.decodeFromString(MiniApp.serializer(), text) to text
+                } catch (_: Exception) { null }
+            }
+        } catch (_: Exception) { emptyList() }
+    }
+
+    private fun saveCache(recipes: List<Pair<MiniApp, String>>) {
+        val file = cacheFile ?: return
+        try {
+            file.writeText(json.encodeToString(
+                ListSerializer(String.serializer()), recipes.map { it.second }
+            ))
+        } catch (_: Exception) {}
+    }
 
     suspend fun fetchRecipes(): List<MiniApp> =
         fetchRecipesWithYaml().map { it.first }
@@ -23,7 +53,7 @@ class FirestoreRecipeSource {
                 .get()
                 .await()
 
-            snapshot.documents.mapNotNull { doc ->
+            val result = snapshot.documents.mapNotNull { doc ->
                 val yamlText = doc.getString("generatedYaml")
                 if (yamlText.isNullOrBlank()) {
                     Logger.d(TAG, "Skipping ${doc.id}: no generatedYaml field")
@@ -36,6 +66,8 @@ class FirestoreRecipeSource {
                     null
                 }
             }
+            if (result.isNotEmpty()) saveCache(result)
+            result
         } catch (e: Exception) {
             Logger.e(TAG, "Firestore fetch failed", e)
             emptyList()

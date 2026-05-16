@@ -42,27 +42,29 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                     modelPath = modelPath,
                     backend = Backend.CPU(),
                     visionBackend = Backend.GPU(),
+                    audioBackend = Backend.CPU(),
                     maxNumImages = 1,
                     cacheDir = context.cacheDir.path
                 )
                 engine = Engine(config)
                 engine!!.initialize()
                 isReady = true
-                Log.d(TAG, "Engine initialized with GPU vision backend")
+                Log.d(TAG, "Engine initialized with GPU vision + CPU audio backend")
             } catch (e: Exception) {
-                Log.w(TAG, "GPU vision backend failed, retrying with CPU: ${e.message}")
+                Log.w(TAG, "GPU vision backend failed, retrying all CPU: ${e.message}")
                 try {
                     val cpuConfig = EngineConfig(
                         modelPath = modelPath,
                         backend = Backend.CPU(),
                         visionBackend = Backend.CPU(),
+                        audioBackend = Backend.CPU(),
                         maxNumImages = 1,
                         cacheDir = context.cacheDir.path
                     )
                     engine = Engine(cpuConfig)
                     engine!!.initialize()
                     isReady = true
-                    Log.d(TAG, "Engine initialized with CPU vision backend")
+                    Log.d(TAG, "Engine initialized with all-CPU backends")
                 } catch (e2: Exception) {
                     Log.e(TAG, "Failed to initialize engine", e2)
                     engine = null
@@ -133,6 +135,39 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
             }
         }.flowOn(Dispatchers.IO).catch { e ->
             Log.e(TAG, "Vision generate error", e)
+            emit("Error: ${e.message}")
+        }
+    }
+
+    override fun generateWithAudio(
+        prompt: String,
+        audioPath: String,
+        systemPrompt: String
+    ): Flow<String> {
+        val eng = engine ?: return fallbackFlow(prompt)
+
+        return flow {
+            val audioFile = File(audioPath)
+            if (!audioFile.exists()) {
+                emit("Error: Audio file not found at $audioPath")
+                return@flow
+            }
+            Log.d(TAG, "Audio: loading from $audioPath (${audioFile.length()} bytes)")
+            val conversation = createConversation(eng, systemPrompt)
+            try {
+                val audioBytes = audioFile.readBytes()
+                Log.d(TAG, "Audio: ${audioBytes.size} bytes")
+                val contents = Contents.of(
+                    Content.AudioBytes(audioBytes),
+                    Content.Text(prompt)
+                )
+                val response = conversation.sendMessage(contents)
+                emit(response.toString())
+            } finally {
+                conversation.close()
+            }
+        }.flowOn(Dispatchers.IO).catch { e ->
+            Log.e(TAG, "Audio generate error", e)
             emit("Error: ${e.message}")
         }
     }

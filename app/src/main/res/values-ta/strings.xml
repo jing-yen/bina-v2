@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bina</string>
+
+    <string name="topbar_title">Bina</string>
+    <string name="topbar_subtitle">ஆஃப்லைனில் செயல்படும் AI</string>
+
+    <string name="hub_title">உங்கள் AI கருவிப்பெட்டி</string>
+    <string name="hub_subtitle">உங்கள் சமூகத்திற்கான ஸ்மார்ட் கருவிகள்</string>
+
+    <string name="pocket_title">எனது பாக்கெட்</string>
+    <string name="pocket_subtitle">சேமித்த செய்முறைகள், ஆஃப்லைனில் தயார்</string>
+    <string name="pocket_saved_recipes">சேமித்த செய்முறைகள்</string>
+    <string name="pocket_empty_title">இன்னும் செய்முறைகள் சேமிக்கப்படவில்லை</string>
+    <string name="pocket_empty_subtitle">உங்கள் சமூக கருவிகளைக் கண்டறிய ஹப் உலாவுக</string>
+    <string name="pocket_offline_ready">ஆஃப்லைன் தயார்</string>
+    <string name="pocket_screens_count">%d திரைகள்</string>
+    <string name="pocket_stat_saved">சேமிப்பு</string>
+    <string name="pocket_stat_screens">திரைகள்</string>
+    <string name="pocket_stat_status">நிலை</string>
+    <string name="pocket_stat_ready">தயார்</string>
+    <string name="pocket_add_home">முகப்புத் திரையில் சேர்</string>
+
+    <string name="recipe_open">திற</string>
+    <string name="recipe_install_open">நிறுவி திற</string>
+    <string name="recipe_configure_install">அமைத்து நிறுவு</string>
+    <string name="recipe_add_home">முகப்புத் திரையில் சேர்</string>
+    <string name="recipe_verified_by">%s மூலம் சரிபார்க்கப்பட்டது</string>
+    <string name="recipe_domain">துறை: %s</string>
+    <string name="recipe_features_title">இந்த செய்முறையின் அம்சங்கள்</string>
+
+    <string name="miniapp_back">பின்</string>
+    <string name="miniapp_home">முகப்பு</string>
+    <string name="miniapp_reset">திரையை மீட்டமை</string>
+    <string name="miniapp_recording">பதிவு செய்கிறது&#8230;</string>
+    <string name="miniapp_transcribing">எழுத்தாக்கம்&#8230;</string>
+    <string name="miniapp_model_not_loaded">மாடல் ஏற்றப்படவில்லை.</string>
+    <string name="miniapp_all_steps_done">அனைத்து படிகளும் முடிந்தன!</string>
+    <string name="miniapp_steps_done">%2$d இல் %1$d படிகள் முடிந்தன</string>
+    <string name="miniapp_reset_checklist">சரிபார்ப்பு பட்டியலை மீட்டமை</string>
+    <string name="miniapp_take_photo">புகைப்படம் எடு</string>
+    <string name="miniapp_retake">மீண்டும் எடுக்க தொடவும்</string>
+    <string name="miniapp_complete">முடிந்தது!</string>
+    <string name="miniapp_step_of">படி %1$d / %2$d</string>
+    <string name="miniapp_your_location">நீங்கள்: %1$s, %2$s</string>
+
+    <string name="triage_greeting">வணக்கம்! நான் %s. உங்களுக்கு எப்படி உதவ முடியும்?</string>
+    <string name="triage_placeholder">உங்களுக்கு என்ன தேவை என்று விவரிக்கவும்&#8230;</string>
+    <string name="triage_send">அனுப்பு</string>
+
+    <string name="confirm">உறுதிப்படுத்து</string>
+    <string name="cancel">ரத்துசெய்</string>
+</resources>

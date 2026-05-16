@@ -85,7 +85,7 @@ export const FLOOD_RESPONSE_RECIPE: RecipeConfig = {
     ...defaultIntroPage('For life-threatening emergencies, call your local emergency number immediately.'),
     enabled: true,
     authorName: 'Bina Emergency',
-    authorOrg: 'Bina.ai',
+    authorOrg: 'Bina',
     authorVerified: true,
     links: [],
   },

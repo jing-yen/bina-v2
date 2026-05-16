@@ -1,11 +1,8 @@
 package com.bina.ai.miniapp.widgets
 
 import android.Manifest
-import android.app.Activity
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.speech.RecognizerIntent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -33,6 +30,7 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -50,9 +48,11 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,6 +71,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import com.bina.ai.miniapp.model.DataSet
 import com.bina.ai.miniapp.model.Widget
 import com.bina.ai.miniapp.runtime.VariableStore
@@ -308,21 +310,127 @@ fun TextInputWidget(widget: Widget.TextInput, store: VariableStore, themeColor: 
 // ── VoiceInput ─────────────────────────────────────────────
 
 @Composable
-fun VoiceInputWidget(widget: Widget.VoiceInput, store: VariableStore, themeColor: Color) {
+fun VoiceInputWidget(
+    widget: Widget.VoiceInput,
+    store: VariableStore,
+    themeColor: Color,
+    inferenceEngine: com.bina.ai.inference.InferenceEngine? = null
+) {
     val value = store[widget.bind]
     val context = LocalContext.current
-    var listening by remember { mutableStateOf(false) }
+    var recording by remember { mutableStateOf(false) }
+    var transcribing by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val recorderRef = remember { mutableStateOf<android.media.AudioRecord?>(null) }
+    val audioFileRef = remember { mutableStateOf<java.io.File?>(null) }
 
-    val speechLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        listening = false
-        if (result.resultCode == Activity.RESULT_OK) {
-            val spoken = result.data
-                ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                ?.firstOrNull() ?: ""
-            if (spoken.isNotEmpty()) {
-                store[widget.bind] = spoken
+    DisposableEffect(Unit) {
+        onDispose {
+            recorderRef.value?.release()
+            recorderRef.value = null
+        }
+    }
+
+    @android.annotation.SuppressLint("MissingPermission")
+    fun startRecording() {
+        val sampleRate = 16000
+        val channelConfig = android.media.AudioFormat.CHANNEL_IN_MONO
+        val audioFormat = android.media.AudioFormat.ENCODING_PCM_FLOAT
+        val bufferSize = android.media.AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
+            .coerceAtLeast(sampleRate * 4)
+
+        val recorder = android.media.AudioRecord(
+            android.media.MediaRecorder.AudioSource.MIC,
+            sampleRate, channelConfig, audioFormat, bufferSize
+        )
+        if (recorder.state != android.media.AudioRecord.STATE_INITIALIZED) {
+            recorder.release()
+            android.widget.Toast.makeText(context, "Could not initialize audio recorder", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val audioFile = java.io.File(context.cacheDir, "voice_${System.currentTimeMillis()}.wav")
+        audioFileRef.value = audioFile
+        recorderRef.value = recorder
+        recording = true
+        recorder.startRecording()
+
+        scope.launch(Dispatchers.IO) {
+            val buffer = FloatArray(1024)
+            java.io.RandomAccessFile(audioFile, "rw").use { raf ->
+                // Write WAV header placeholder (44 bytes)
+                // Format: RIFF/WAVE, 16kHz, mono, 32-bit float (IEEE)
+                val sr = 16000
+                val channels = 1
+                val bitsPerSample = 32
+                val byteRate = sr * channels * bitsPerSample / 8
+                val blockAlign = channels * bitsPerSample / 8
+                val headerBuf = java.nio.ByteBuffer.allocate(44).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+                headerBuf.put("RIFF".toByteArray())
+                headerBuf.putInt(0) // file size - 8 (filled later)
+                headerBuf.put("WAVE".toByteArray())
+                headerBuf.put("fmt ".toByteArray())
+                headerBuf.putInt(16) // fmt chunk size
+                headerBuf.putShort(3) // audio format: 3 = IEEE float
+                headerBuf.putShort(channels.toShort())
+                headerBuf.putInt(sr)
+                headerBuf.putInt(byteRate)
+                headerBuf.putShort(blockAlign.toShort())
+                headerBuf.putShort(bitsPerSample.toShort())
+                headerBuf.put("data".toByteArray())
+                headerBuf.putInt(0) // data size (filled later)
+                raf.write(headerBuf.array())
+
+                var dataSize = 0L
+                val sampleBuf = java.nio.ByteBuffer.allocate(buffer.size * 4).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+                while (recording) {
+                    val read = recorder.read(buffer, 0, buffer.size, android.media.AudioRecord.READ_BLOCKING)
+                    if (read > 0) {
+                        sampleBuf.clear()
+                        for (i in 0 until read) sampleBuf.putFloat(buffer[i])
+                        raf.write(sampleBuf.array(), 0, read * 4)
+                        dataSize += read * 4
+                    }
+                }
+
+                // Patch WAV header with actual sizes
+                raf.seek(4)
+                val fileSizeBuf = java.nio.ByteBuffer.allocate(4).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+                fileSizeBuf.putInt((36 + dataSize).toInt())
+                raf.write(fileSizeBuf.array())
+                raf.seek(40)
+                val dataSizeBuf = java.nio.ByteBuffer.allocate(4).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+                dataSizeBuf.putInt(dataSize.toInt())
+                raf.write(dataSizeBuf.array())
+            }
+        }
+    }
+
+    fun stopAndTranscribe() {
+        recording = false
+        recorderRef.value?.stop()
+        recorderRef.value?.release()
+        recorderRef.value = null
+
+        val audioFile = audioFileRef.value ?: return
+        val engine = inferenceEngine
+        if (engine == null || !engine.isReady) {
+            android.widget.Toast.makeText(context, "AI model not ready", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        transcribing = true
+        scope.launch {
+            try {
+                engine.generateWithAudio("Transcribe this audio.", audioFile.absolutePath)
+                    .collect { result ->
+                        store[widget.bind] = result.trim()
+                    }
+            } catch (e: Exception) {
+                android.widget.Toast.makeText(context, "Transcription failed: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+            } finally {
+                transcribing = false
+                audioFile.delete()
             }
         }
     }
@@ -330,14 +438,7 @@ fun VoiceInputWidget(widget: Widget.VoiceInput, store: VariableStore, themeColor
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
-        if (granted) {
-            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                putExtra(RecognizerIntent.EXTRA_PROMPT, widget.hint.ifEmpty { "Speak now..." })
-            }
-            listening = true
-            speechLauncher.launch(intent)
-        }
+        if (granted) startRecording()
     }
 
     Row(
@@ -345,49 +446,49 @@ fun VoiceInputWidget(widget: Widget.VoiceInput, store: VariableStore, themeColor
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = { store[widget.bind] = it },
-            placeholder = { Text(widget.hint, color = BinaGrayText, fontSize = 14.sp) },
-            modifier = Modifier.weight(1f),
-            shape = RoundedCornerShape(14.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = themeColor,
-                cursorColor = themeColor
-            ),
-            singleLine = true
-        )
+        if (recording) {
+            Text("Recording...", fontSize = 13.sp, color = Color(0xFFDC2626), modifier = Modifier.weight(1f))
+        } else if (transcribing) {
+            Text("Transcribing...", fontSize = 13.sp, color = BinaGrayText, modifier = Modifier.weight(1f))
+        } else {
+            Spacer(Modifier.weight(1f))
+        }
 
         Box(
             modifier = Modifier
                 .size(52.dp)
                 .clip(RoundedCornerShape(14.dp))
-                .background(if (listening) themeColor.copy(alpha = 0.6f) else themeColor)
-                .clickable {
+                .background(
+                    when {
+                        recording -> Color(0xFFDC2626)
+                        transcribing -> themeColor.copy(alpha = 0.4f)
+                        else -> themeColor
+                    }
+                )
+                .clickable(enabled = !transcribing) {
+                    if (recording) {
+                        stopAndTranscribe()
+                        return@clickable
+                    }
                     val hasPermission = ContextCompat.checkSelfPermission(
                         context, Manifest.permission.RECORD_AUDIO
                     ) == PackageManager.PERMISSION_GRANTED
                     if (hasPermission) {
-                        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                            putExtra(RecognizerIntent.EXTRA_PROMPT, widget.hint.ifEmpty { "Speak now..." })
-                        }
-                        listening = true
-                        speechLauncher.launch(intent)
+                        startRecording()
                     } else {
                         permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 },
             contentAlignment = Alignment.Center
         ) {
-            if (listening) {
-                CircularProgressIndicator(
+            when {
+                transcribing -> CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     color = Color.White,
                     strokeWidth = 2.dp
                 )
-            } else {
-                Icon(Icons.Filled.Mic, contentDescription = "Voice", tint = Color.White)
+                recording -> Icon(Icons.Filled.Stop, contentDescription = "Stop recording", tint = Color.White)
+                else -> Icon(Icons.Filled.Mic, contentDescription = "Voice", tint = Color.White)
             }
         }
     }
@@ -405,7 +506,9 @@ fun CameraInputWidget(widget: Widget.CameraInput, store: VariableStore, themeCol
     var photoUri by remember { mutableStateOf<android.net.Uri?>(null) }
 
     fun createPhotoFile(): Pair<java.io.File, android.net.Uri> {
-        val file = java.io.File(context.cacheDir, "camera_capture_${System.currentTimeMillis()}.jpg")
+        val photoDir = java.io.File(context.filesDir, "photos").also { it.mkdirs() }
+        photoDir.listFiles()?.filter { it.name.startsWith("camera_capture_") }?.forEach { it.delete() }
+        val file = java.io.File(photoDir, "camera_capture_${System.currentTimeMillis()}.jpg")
         val uri = androidx.core.content.FileProvider.getUriForFile(
             context, "${context.packageName}.fileprovider", file
         )
@@ -772,6 +875,7 @@ fun GeoDisplayWidget(
     dataSet: DataSet?,
     themeColor: Color
 ) {
+    val context = LocalContext.current
     val locationStr = store["user_location"]
     if (dataSet == null) return
 
@@ -789,23 +893,60 @@ fun GeoDisplayWidget(
 
     val sorted = if (hasLocation) {
         dataSet.items
+            .filter { it.lat != 0.0 || it.lng != 0.0 }
             .map { it to haversine(userLat, userLng, it.lat, it.lng) }
             .sortedBy { it.second }
             .take(widget.limit)
     } else {
-        dataSet.items.take(widget.limit).map { it to -1.0 }
+        dataSet.items.filter { it.lat != 0.0 || it.lng != 0.0 }.take(widget.limit).map { it to -1.0 }
     }
 
     Column(
         Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        if (hasLocation) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(themeColor.copy(alpha = 0.08f))
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("📍", fontSize = 16.sp)
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "You: ${String.format("%.4f", userLat)}, ${String.format("%.4f", userLng)}",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = themeColor
+                )
+            }
+        }
+
         sorted.forEach { (point, distance) ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color.White)
+                    .clickable {
+                        try {
+                            val uri = android.net.Uri.parse(
+                                "geo:${point.lat},${point.lng}?q=${point.lat},${point.lng}(${android.net.Uri.encode(point.name)})"
+                            )
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, uri).apply {
+                                setPackage("com.google.android.apps.maps")
+                            }
+                            context.startActivity(intent)
+                        } catch (_: Exception) {
+                            val webUri = android.net.Uri.parse(
+                                "https://maps.google.com/?q=${point.lat},${point.lng}"
+                            )
+                            context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, webUri))
+                        }
+                    }
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -841,6 +982,7 @@ fun GeoDisplayWidget(
 fun ProgressBarWidget(widget: Widget.ProgressBar, store: VariableStore, themeColor: Color) {
     val current = store[widget.bind].toIntOrNull() ?: 0
     val progress = (current.toFloat() / widget.total.coerceAtLeast(1)).coerceIn(0f, 1f)
+    val isComplete = current >= widget.total
 
     Column(Modifier.fillMaxWidth()) {
         Row(
@@ -848,10 +990,10 @@ fun ProgressBarWidget(widget: Widget.ProgressBar, store: VariableStore, themeCol
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                "Step $current of ${widget.total}",
+                if (isComplete) "Complete!" else "Step $current of ${widget.total}",
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF1C1917)
+                color = if (isComplete) themeColor else Color(0xFF1C1917)
             )
             Text(
                 "${(progress * 100).toInt()}%",
@@ -878,6 +1020,7 @@ fun ProgressBarWidget(widget: Widget.ProgressBar, store: VariableStore, themeCol
 @Composable
 fun ChecklistItemsWidget(widget: Widget.ChecklistItems, store: VariableStore, themeColor: Color) {
     val currentStep = store[widget.bind].toIntOrNull() ?: 0
+    val isComplete = currentStep >= widget.items.size
 
     Column(
         Modifier.fillMaxWidth(),
@@ -885,7 +1028,7 @@ fun ChecklistItemsWidget(widget: Widget.ChecklistItems, store: VariableStore, th
     ) {
         widget.items.forEachIndexed { index, item ->
             val isDone = index < currentStep
-            val isCurrent = index == currentStep
+            val isCurrent = index == currentStep && !isComplete
             val isFuture = index > currentStep
 
             Row(
@@ -944,6 +1087,41 @@ fun ChecklistItemsWidget(widget: Widget.ChecklistItems, store: VariableStore, th
                     },
                     textDecoration = if (isDone) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
                 )
+            }
+        }
+
+        if (isComplete) {
+            Spacer(Modifier.height(12.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(themeColor.copy(alpha = 0.08f))
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("🎉", fontSize = 40.sp)
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "All steps completed!",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = themeColor
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "${widget.items.size} of ${widget.items.size} steps done",
+                    fontSize = 13.sp,
+                    color = BinaGrayText
+                )
+                Spacer(Modifier.height(16.dp))
+                OutlinedButton(
+                    onClick = { store[widget.bind] = "0" },
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, themeColor)
+                ) {
+                    Text("Reset Checklist", color = themeColor, fontWeight = FontWeight.Medium)
+                }
             }
         }
     }

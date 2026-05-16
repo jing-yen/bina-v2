@@ -81,10 +81,14 @@ class MainActivity : ComponentActivity() {
         }
 
         val installStore = InstallStore.create(applicationContext)
-        val firestoreRecipeSource = try { FirestoreRecipeSource() } catch (_: Exception) { null }
+        val firestoreRecipeSource = try { FirestoreRecipeSource(filesDir) } catch (_: Exception) { null }
         val analyticsPinger = try { AnalyticsPinger(applicationContext) } catch (_: Exception) { null }
 
         if (firestoreRecipeSource != null) {
+            val cached = firestoreRecipeSource.loadCached()
+            if (cached.isNotEmpty()) {
+                miniAppRepository.registerCloudRecipesWithYaml(cached)
+            }
             lifecycleScope.launch {
                 try {
                     val recipes = firestoreRecipeSource.fetchRecipesWithYaml()

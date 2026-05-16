@@ -72,7 +72,7 @@ export const MATERNAL_HEALTH_RECIPE: RecipeConfig = {
     ...defaultIntroPage('This app provides general health information only. Always consult a healthcare professional for medical decisions.'),
     enabled: true,
     authorName: 'Bina Health',
-    authorOrg: 'Bina.ai',
+    authorOrg: 'Bina',
     authorVerified: true,
     links: [{ label: 'WHO Maternal Health', url: 'https://www.who.int/health-topics/maternal-health' }],
   },

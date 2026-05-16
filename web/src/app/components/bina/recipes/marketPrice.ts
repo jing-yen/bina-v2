@@ -69,7 +69,7 @@ export const MARKET_PRICE_RECIPE: RecipeConfig = {
     ...defaultIntroPage('Prices are estimates. Always verify with local market conditions.'),
     enabled: true,
     authorName: 'Bina Agri',
-    authorOrg: 'Bina.ai',
+    authorOrg: 'Bina',
     authorVerified: true,
     links: [],
   },
