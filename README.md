@@ -218,7 +218,7 @@ Deletes all existing recipes in Firestore and uploads all 12 YAML files from [`r
 
 ## Authors
 
-- **Lee Ing Zhen** — Software Engineer, Telekom Malaysia
+- **Lee Ing Zhen** — Software Engineer, Maxis
 - **Tong Jing Yen** — Computer Engineering, National University of Singapore
 
 ## License
