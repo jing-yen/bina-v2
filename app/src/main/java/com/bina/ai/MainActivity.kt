@@ -53,18 +53,12 @@ class MainActivity : AppCompatActivity() {
         val userDir = java.io.File(applicationContext.filesDir, "miniapps")
         val miniAppRepository = MiniAppRepository(
             loadYamlFiles = {
-                val assetFiles = applicationContext.assets.list("miniapps") ?: emptyArray()
-                val fromAssets = assetFiles.filter { it.endsWith(".yaml") || it.endsWith(".yml") }
-                    .map { it to applicationContext.assets.open("miniapps/$it").bufferedReader().readText() }
-
-                val fromUser = if (userDir.isDirectory) {
+                if (userDir.isDirectory) {
                     userDir.listFiles()
                         ?.filter { it.extension in listOf("yaml", "yml") }
                         ?.map { it.name to it.readText() }
                         ?: emptyList()
                 } else emptyList()
-
-                fromAssets + fromUser
             },
             persistYaml = { filename, yamlText ->
                 userDir.mkdirs()

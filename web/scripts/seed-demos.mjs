@@ -16,7 +16,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const recipesRef = collection(db, 'recipes');
 
-const ASSETS_DIR = join(import.meta.dirname, '../../app/src/main/assets/miniapps');
+const ASSETS_DIR = join(import.meta.dirname, '../../recipes');
 
 const META = {
   mock_bidan:        { icon: '👩‍⚕️', category: 'Health' },

@@ -550,7 +550,7 @@ private fun IntroPageScreen(
     val intro = miniApp.setup.introPage
     val author = intro.author ?: miniApp.author
     val secondaryColor = if (miniApp.theme.secondary.isNotEmpty()) parseColor(miniApp.theme.secondary) else themeColor.copy(alpha = 0.3f)
-    val lang = miniApp.localisation.defaultLanguage.ifEmpty { miniApp.localisation.supported.firstOrNull() ?: "en" }
+    val lang = com.bina.ai.ui.resolveAppLang(miniApp)
     val labels = miniApp.localisation.labels[lang].orEmpty()
     val interpolate = { text: String ->
         Regex("\\{\\{(\\w+(?:\\.\\w+)?)\\}\\}").replace(text) { m ->
@@ -591,7 +591,7 @@ private fun IntroPageScreen(
             Text(miniApp.icon, fontSize = 48.sp)
             Spacer(Modifier.height(12.dp))
             Text(
-                miniApp.name,
+                labels["recipe_name"] ?: miniApp.name,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1C1917)
@@ -599,7 +599,7 @@ private fun IntroPageScreen(
             if (miniApp.description.isNotEmpty()) {
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    miniApp.description,
+                    labels["recipe_desc"] ?: miniApp.description,
                     fontSize = 13.sp,
                     color = BinaGrayText,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -693,7 +693,7 @@ private fun IntroPageScreen(
             if (intro.disclaimer.isNotEmpty()) {
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    intro.disclaimer,
+                    interpolate(intro.disclaimer),
                     fontSize = 13.sp,
                     color = BinaGrayText,
                     lineHeight = 18.sp,
@@ -709,7 +709,7 @@ private fun IntroPageScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = themeColor)
             ) {
                 Text(
-                    intro.acceptLabel.ifEmpty { stringResource(R.string.miniapp_i_understand) },
+                    interpolate(intro.acceptLabel).ifEmpty { stringResource(R.string.miniapp_i_understand) },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White

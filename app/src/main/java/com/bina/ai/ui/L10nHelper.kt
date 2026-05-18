@@ -24,10 +24,14 @@ fun localizedCategory(category: String): String {
 fun resolveAppLang(miniApp: MiniApp): String {
     val appLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags().split(",").firstOrNull()?.take(2) ?: ""
     val supported = miniApp.localisation.supported
+    // Also check system locale as fallback when app locale is not explicitly set
+    val systemLocale = java.util.Locale.getDefault().language.take(2)
+    val effectiveLocale = appLocale.ifEmpty { systemLocale }
     return when {
-        appLocale in supported -> appLocale
-        appLocale == "id" && "in" in supported -> "in"
-        appLocale == "in" && "id" in supported -> "id"
+        effectiveLocale in supported -> effectiveLocale
+        effectiveLocale == "id" && "in" in supported -> "in"
+        effectiveLocale == "in" && "id" in supported -> "id"
+        "en" in supported -> "en"
         else -> miniApp.localisation.defaultLanguage.ifEmpty { supported.firstOrNull() ?: "en" }
     }
 }

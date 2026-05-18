@@ -201,11 +201,13 @@ class ActionDispatcher(
     }
 
     private fun handleSet(payload: String) {
-        val eqIndex = payload.indexOf('=')
-        if (eqIndex > 0) {
-            val key = payload.substring(0, eqIndex)
-            val value = payload.substring(eqIndex + 1)
-            store[key] = value
+        for (pair in payload.split('|')) {
+            val eqIndex = pair.indexOf('=')
+            if (eqIndex > 0) {
+                val key = pair.substring(0, eqIndex).trim()
+                val value = pair.substring(eqIndex + 1).trim()
+                store[key] = value
+            }
         }
     }
 
@@ -234,18 +236,19 @@ class ActionDispatcher(
     private fun buildSystemPrompt(): String = buildString {
         appendLine("Be concise. Give a clear diagnosis or answer with actionable steps. Use short bullet points. No filler or preamble.")
         appendLine()
-        val lang = store["active_language"]
-        if (lang.isNotBlank()) {
-            val langName = LANG_NAMES[lang] ?: lang
-            appendLine("IMPORTANT: Reply in $langName ($lang).")
-            appendLine()
-        }
         if (miniApp.knowledge.alwaysLoaded.isNotBlank()) {
             appendLine("## Reference Knowledge")
             appendLine(miniApp.knowledge.alwaysLoaded)
             appendLine()
         }
         append(miniApp.model.systemPrompt)
+        val lang = store["active_language"]
+        if (lang.isNotBlank()) {
+            val langName = LANG_NAMES[lang] ?: lang
+            appendLine()
+            appendLine()
+            appendLine("CRITICAL INSTRUCTION: You MUST reply entirely in $langName ($lang). Every word of your response must be in $langName. Do NOT use any other language.")
+        }
     }
 
     companion object {
