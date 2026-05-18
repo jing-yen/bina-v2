@@ -2,11 +2,19 @@ package com.bina.ai.ui.navigation
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,7 +24,6 @@ import com.bina.ai.analytics.tracking.AnalyticsPinger
 import com.bina.ai.analytics.tracking.EventTracker
 import com.bina.ai.hub.FirestoreRecipeSource
 import com.bina.ai.inference.InferenceEngine
-import com.bina.ai.install.CapabilityChecker
 import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.miniapp.ui.MiniAppScreen
@@ -30,7 +37,6 @@ fun BinaNavGraph(
     navController: NavHostController,
     miniAppRepository: MiniAppRepository,
     installStore: InstallStore,
-    capabilityChecker: CapabilityChecker,
     inferenceEngine: InferenceEngine? = null,
     eventTracker: EventTracker,
     analyticsRepository: com.bina.ai.analytics.data.AnalyticsRepository,
@@ -50,9 +56,6 @@ fun BinaNavGraph(
                 miniAppRepository = miniAppRepository,
                 installStore = installStore,
                 firestoreRecipeSource = firestoreRecipeSource,
-                onConfigureRecipe = { id ->
-                    navController.navigate(Screen.Configurator.createRoute(id))
-                },
                 onOpenRecipe = { id ->
                     navController.navigate(Screen.MiniAppView.createRoute(id))
                 }
@@ -78,7 +81,7 @@ fun BinaNavGraph(
                 installStore = installStore,
                 onScan = { navController.navigate(Screen.SyncScan.route) },
                 onShare = { recipeId -> navController.navigate(Screen.SyncShare.createRoute(recipeId)) },
-                onConfigureRecipe = { id -> navController.navigate(Screen.Configurator.createRoute(id)) }
+                onOpenRecipe = { id -> navController.navigate(Screen.MiniAppView.createRoute(id)) }
             )
         }
 
@@ -137,42 +140,19 @@ fun BinaNavGraph(
                     analyticsPinger = analyticsPinger,
                     onBack = { navController.popBackStack() }
                 )
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(stringResource(R.string.recipe_not_available))
+                    TextButton(onClick = { navController.popBackStack() }) {
+                        Text(stringResource(R.string.go_back))
+                    }
+                }
             }
         }
 
-        composable(
-            route = Screen.Configurator.route,
-            arguments = listOf(navArgument("miniAppId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val miniAppId = backStackEntry.arguments?.getString("miniAppId") ?: return@composable
-            val context = LocalContext.current
-            val cv by miniAppRepository.cloudVersion.collectAsState()
-            val recipe = remember(miniAppId, cv) { miniAppRepository.getById(miniAppId) }
-            val baseSizeKb = remember(recipe) {
-                if (recipe != null) {
-                    val yaml = miniAppRepository.getYamlById(recipe.id)
-                    if (yaml != null) yaml.length / 1024f
-                    else try {
-                        context.assets.openFd("miniapps/${recipe.id}.yaml").use { it.length / 1024f }
-                    } catch (e: Exception) {
-                        1.0f
-                    }
-                } else 0f
-            }
-            com.bina.ai.ui.screens.configurator.ConfiguratorScreen(
-                miniAppId = miniAppId,
-                miniAppRepository = miniAppRepository,
-                installStore = installStore,
-                capabilityChecker = capabilityChecker,
-                baseSizeKb = baseSizeKb,
-                onInstalled = { _ ->
-                    navController.navigate(Screen.MyPocket.route) {
-                        popUpTo(Screen.Hub.route) { inclusive = false }
-                        launchSingleTop = true
-                    }
-                },
-                onBack = { navController.popBackStack() }
-            )
-        }
     }
 }

@@ -1,0 +1,607 @@
+id: mock_nutrition
+name: "Panduan Nutrisi Kanak-Kanak"
+description: "Child nutrition screening and dietary guidance for rural clinics"
+icon: "\U0001F966"
+version: "1.0.0"
+category: "Health"
+featured: false
+tags:
+  - child health
+  - nutrition
+  - stunting
+  - rural clinic
+author:
+  name: "Jing Yen"
+  organisation: "Ministry of Health, Malaysia"
+  verified: true
+theme:
+  primary: "#C45A3A"
+  secondary: "#FFF5F0"
+localisation:
+  supported:
+    - ms
+    - en
+    - id
+    - vi
+    - th
+    - km
+    - my
+    - ta
+    - zh
+  default: ms
+  labels:
+    ms:
+      recipe_name: "Panduan Nutrisi Kanak-Kanak"
+      recipe_desc: "Saringan nutrisi dan panduan pemakanan kanak-kanak untuk klinik luar bandar"
+      greeting: "Hai! Saya {{l10n.recipe_name}}. Apa yang boleh saya bantu?"
+      home_heading: "Panduan Nutrisi untuk Anak Anda"
+      grid_screen: "Saringan Nutrisi"
+      grid_diet: "Panduan Makan"
+      grid_growth: "Rekod Pertumbuhan"
+      grid_hotline: "Hubungi Klinik"
+      screen_title: "Saringan Nutrisi Kanak-Kanak"
+      screen_heading: "Maklumat Kanak-Kanak"
+      screen_age_hint: "Umur kanak-kanak (bulan)"
+      screen_age_left: "0 bln"
+      screen_age_right: "60 bln"
+      screen_weight_hint: "Berat badan (kg)"
+      screen_height_hint: "Tinggi badan (cm)"
+      screen_sex_hint: "Jantina"
+      screen_breastfeed: "Masih menyusu badan"
+      screen_button: "Semak Status Nutrisi"
+      diet_title: "Panduan Pemakanan"
+      diet_age_hint: "Umur kanak-kanak"
+      diet_concern_hint: "Kebimbangan / soalan tentang pemakanan anak..."
+      diet_button: "Dapatkan Cadangan"
+      growth_title: "Rekod Pertumbuhan"
+      growth_heading: "Pantau Pertumbuhan Anak"
+      growth_step1: "Timbang berat badan anak"
+      growth_step2: "Ukur ketinggian/panjang badan"
+      growth_step3: "Plot pada carta pertumbuhan WHO"
+      growth_step4: "Semak MUAC (ukuran lengan atas)"
+      growth_step5: "Rekod dalam buku kesihatan anak"
+      growth_step6: "Buat temujanji susulan jika perlu"
+      growth_next: "Langkah Seterusnya"
+      growth_summary: "Jana Laporan Pertumbuhan"
+      hotline_title: "Hubungi Klinik"
+      hotline_subtext: "Dapatkan bantuan profesional dari klinik berdekatan"
+      hotline_locate: "📍 Cari Klinik Berdekatan"
+      hotline_call: "📞 Hubungi Klinik Kesihatan"
+    en:
+      recipe_name: "Child Nutrition Guide"
+      recipe_desc: "Child nutrition screening and dietary guidance for rural clinics"
+      greeting: "Hi! I'm {{l10n.recipe_name}}. How can I help you today?"
+      home_heading: "Child Nutrition Guide"
+      grid_screen: "Nutrition Screening"
+      grid_diet: "Dietary Guide"
+      grid_growth: "Growth Tracking"
+      grid_hotline: "Contact Clinic"
+      screen_title: "Child Nutrition Screening"
+      screen_heading: "Child Information"
+      screen_age_hint: "Child's age (months)"
+      screen_age_left: "0 mo"
+      screen_age_right: "60 mo"
+      screen_weight_hint: "Body weight (kg)"
+      screen_height_hint: "Height/length (cm)"
+      screen_sex_hint: "Sex"
+      screen_breastfeed: "Still breastfeeding"
+      screen_button: "Check Nutrition Status"
+      diet_title: "Dietary Guide"
+      diet_age_hint: "Child's age"
+      diet_concern_hint: "Concerns or questions about child's diet..."
+      diet_button: "Get Recommendations"
+      growth_title: "Growth Tracking"
+      growth_heading: "Monitor Your Child's Growth"
+      growth_step1: "Weigh the child"
+      growth_step2: "Measure height/length"
+      growth_step3: "Plot on WHO growth chart"
+      growth_step4: "Check MUAC (mid-upper arm circumference)"
+      growth_step5: "Record in child health book"
+      growth_step6: "Schedule follow-up if needed"
+      growth_next: "Next Step"
+      growth_summary: "Generate Growth Report"
+      hotline_title: "Contact Clinic"
+      hotline_subtext: "Get professional help from a nearby clinic"
+      hotline_locate: "📍 Find Nearby Clinic"
+      hotline_call: "📞 Call Health Clinic"
+    id:
+      recipe_name: "Panduan Nutrisi Anak"
+      recipe_desc: "Skrining nutrisi dan panduan makan anak untuk klinik pedesaan"
+      greeting: "Halo! Saya {{l10n.recipe_name}}. Apa yang bisa saya bantu?"
+      home_heading: "Panduan Nutrisi Anak"
+      grid_screen: "Skrining Nutrisi"
+      grid_diet: "Panduan Makan"
+      grid_growth: "Rekam Tumbuh Kembang"
+      grid_hotline: "Hubungi Klinik"
+      screen_title: "Skrining Nutrisi Anak"
+      screen_heading: "Informasi Anak"
+      screen_age_hint: "Usia anak (bulan)"
+      screen_age_left: "0 bln"
+      screen_age_right: "60 bln"
+      screen_weight_hint: "Berat badan (kg)"
+      screen_height_hint: "Tinggi badan (cm)"
+      screen_sex_hint: "Jenis kelamin"
+      screen_breastfeed: "Masih ASI"
+      screen_button: "Cek Status Nutrisi"
+      diet_title: "Panduan Makan"
+      diet_age_hint: "Usia anak"
+      diet_concern_hint: "Kekhawatiran tentang makan anak..."
+      diet_button: "Dapatkan Rekomendasi"
+      growth_title: "Rekam Tumbuh Kembang"
+      growth_heading: "Pantau Pertumbuhan Anak"
+      growth_step1: "Timbang berat badan anak"
+      growth_step2: "Ukur tinggi/panjang badan"
+      growth_step3: "Plot pada grafik pertumbuhan WHO"
+      growth_step4: "Cek MUAC (lingkar lengan atas)"
+      growth_step5: "Catat di buku KIA"
+      growth_step6: "Buat janji tindak lanjut bila perlu"
+      growth_next: "Langkah Berikutnya"
+      growth_summary: "Buat Laporan Pertumbuhan"
+      hotline_title: "Hubungi Klinik"
+      hotline_subtext: "Dapatkan bantuan profesional dari klinik terdekat"
+      hotline_locate: "📍 Cari Klinik Terdekat"
+      hotline_call: "📞 Hubungi Puskesmas"
+    vi:
+      recipe_name: "Hướng Dẫn Dinh Dưỡng Trẻ Em"
+      recipe_desc: "Sàng lọc dinh dưỡng và hướng dẫn chế độ ăn cho trẻ em tại phòng khám nông thôn"
+      greeting: "Xin chào! Tôi là {{l10n.recipe_name}}. Tôi có thể giúp gì cho bạn?"
+      home_heading: "Hướng dẫn dinh dưỡng trẻ em"
+      grid_screen: "Sàng lọc dinh dưỡng"
+      grid_diet: "Hướng dẫn ăn uống"
+      grid_growth: "Theo dõi tăng trưởng"
+      grid_hotline: "Liên hệ phòng khám"
+      screen_title: "Sàng lọc dinh dưỡng trẻ em"
+      screen_heading: "Thông tin trẻ em"
+      screen_age_hint: "Tuổi của trẻ (tháng)"
+      screen_age_left: "0 tháng"
+      screen_age_right: "60 tháng"
+      screen_weight_hint: "Cân nặng (kg)"
+      screen_height_hint: "Chiều cao/chiều dài (cm)"
+      screen_sex_hint: "Giới tính"
+      screen_breastfeed: "Vẫn đang cho bú"
+      screen_button: "Kiểm tra tình trạng dinh dưỡng"
+      diet_title: "Hướng dẫn ăn uống"
+      diet_age_hint: "Tuổi của trẻ"
+      diet_concern_hint: "Lo lắng hoặc câu hỏi về chế độ ăn của trẻ..."
+      diet_button: "Nhận khuyến nghị"
+      growth_title: "Theo dõi tăng trưởng"
+      growth_heading: "Theo dõi sự phát triển của trẻ"
+      growth_step1: "Cân trẻ"
+      growth_step2: "Đo chiều cao/chiều dài"
+      growth_step3: "Vẽ trên biểu đồ tăng trưởng WHO"
+      growth_step4: "Kiểm tra MUAC (chu vi cánh tay)"
+      growth_step5: "Ghi vào sổ sức khỏe trẻ em"
+      growth_step6: "Đặt lịch tái khám nếu cần"
+      growth_next: "Bước tiếp theo"
+      growth_summary: "Tạo báo cáo tăng trưởng"
+      hotline_title: "Liên hệ phòng khám"
+      hotline_subtext: "Nhận hỗ trợ chuyên môn từ phòng khám gần nhất"
+      hotline_locate: "📍 Tìm phòng khám gần nhất"
+      hotline_call: "📞 Gọi trạm y tế"
+    th:
+      recipe_name: "คู่มือโภชนาการเด็ก"
+      recipe_desc: "การคัดกรองโภชนาการและคำแนะนำด้านอาหารสำหรับคลินิกชนบท"
+      greeting: "สวัสดี! ฉันคือ {{l10n.recipe_name}} ฉันช่วยอะไรได้บ้าง?"
+      home_heading: "คู่มือโภชนาการเด็ก"
+      grid_screen: "คัดกรองโภชนาการ"
+      grid_diet: "คู่มืออาหาร"
+      grid_growth: "ติดตามการเจริญเติบโต"
+      grid_hotline: "ติดต่อคลินิก"
+      screen_title: "การคัดกรองโภชนาการเด็ก"
+      screen_heading: "ข้อมูลเด็ก"
+      screen_age_hint: "อายุเด็ก (เดือน)"
+      screen_age_left: "0 เดือน"
+      screen_age_right: "60 เดือน"
+      screen_weight_hint: "น้ำหนักตัว (กก.)"
+      screen_height_hint: "ส่วนสูง/ความยาว (ซม.)"
+      screen_sex_hint: "เพศ"
+      screen_breastfeed: "ยังกินนมแม่อยู่"
+      screen_button: "ตรวจสอบสถานะโภชนาการ"
+      diet_title: "คู่มืออาหาร"
+      diet_age_hint: "อายุเด็ก"
+      diet_concern_hint: "ความกังวลหรือคำถามเกี่ยวกับอาหารของเด็ก..."
+      diet_button: "รับคำแนะนำ"
+      growth_title: "ติดตามการเจริญเติบโต"
+      growth_heading: "ติดตามพัฒนาการของเด็ก"
+      growth_step1: "ชั่งน้ำหนักเด็ก"
+      growth_step2: "วัดส่วนสูง/ความยาว"
+      growth_step3: "พล็อตบนกราฟการเจริญเติบโต WHO"
+      growth_step4: "วัด MUAC (รอบวงแขนกลาง)"
+      growth_step5: "บันทึกในสมุดสุขภาพเด็ก"
+      growth_step6: "นัดติดตามผลหากจำเป็น"
+      growth_next: "ขั้นตอนถัดไป"
+      growth_summary: "สร้างรายงานการเจริญเติบโต"
+      hotline_title: "ติดต่อคลินิก"
+      hotline_subtext: "รับความช่วยเหลือจากคลินิกใกล้เคียง"
+      hotline_locate: "📍 ค้นหาคลินิกใกล้เคียง"
+      hotline_call: "📞 โทรหาคลินิกสุขภาพ"
+    km:
+      recipe_name: "មគ្គុទ្ទេសក៍អាហារូបត្ថម្ភកុមារ"
+      recipe_desc: "ការតម្រងអាហារូបត្ថម្ភកុមារនិងមគ្គុទ្ទេសក៍អាហារសម្រាប់គ្លីនិកជនបទ"
+      greeting: "សួស្តី! ខ្ញុំជា {{l10n.recipe_name}}។ តើខ្ញុំអាចជួយអ្វីបាន?"
+      home_heading: "មគ្គុទ្ទេសក៍អាហារូបត្ថម្ភកុមារ"
+      grid_screen: "ការតម្រងអាហារូបត្ថម្ភ"
+      grid_diet: "មគ្គុទ្ទេសក៍អាហារ"
+      grid_growth: "ការតាមដានការលូតលាស់"
+      grid_hotline: "ទំនាក់ទំនងគ្លីនិក"
+      screen_title: "ការតម្រងអាហារូបត្ថម្ភកុមារ"
+      screen_heading: "ព័ត៌មានកុមារ"
+      screen_age_hint: "អាយុកុមារ (ខែ)"
+      screen_age_left: "0 ខែ"
+      screen_age_right: "60 ខែ"
+      screen_weight_hint: "ទំងន់រាងកាយ (គីឡូក្រាម)"
+      screen_height_hint: "កម្ពស់/បណ្ដោយ (សង់ទីម៉ែត្រ)"
+      screen_sex_hint: "ភេទ"
+      screen_breastfeed: "នៅតែញ៉ាំដោះឡើយ"
+      screen_button: "ពិនិត្យស្ថានភាពអាហារូបត្ថម្ភ"
+      diet_title: "មគ្គុទ្ទេសក៍អាហារ"
+      diet_age_hint: "អាយុកុមារ"
+      diet_concern_hint: "ការព្រួយបារម្ភ ឬ សំណួរអំពីរបបអាហាររបស់កុមារ..."
+      diet_button: "ទទួលការណែនាំ"
+      growth_title: "ការតាមដានការលូតលាស់"
+      growth_heading: "តាមដានការលូតលាស់របស់កូន"
+      growth_step1: "ថ្លឹងទំងន់កុមារ"
+      growth_step2: "វាស់កម្ពស់/បណ្ដោយ"
+      growth_step3: "គូសលើតារាងការលូតលាស់ WHO"
+      growth_step4: "វាស់ MUAC (រង្វង់ស្មា)"
+      growth_step5: "កត់ត្រាក្នុងសៀវភៅសុខភាព"
+      growth_step6: "ធ្វើការណាត់ជួបតាមដានប្រសិនបើចាំបាច់"
+      growth_next: "ជំហានបន្ទាប់"
+      growth_summary: "បង្កើតរបាយការណ៍ការលូតលាស់"
+      hotline_title: "ទំនាក់ទំនងគ្លីនិក"
+      hotline_subtext: "ទទួលជំនួយជំនាញពីគ្លីនិកជិតបំផុត"
+      hotline_locate: "📍 ស្វែងរកគ្លីនិកជិតបំផុត"
+      hotline_call: "📞 ហៅគ្លីនិកសុខភាព"
+    my:
+      recipe_name: "ကလေး အာဟာရ လမ်းညွှန်"
+      recipe_desc: "ကျေးလက်ဆေးခန်းများအတွက် ကလေးအာဟာရစစ်ဆေးခြင်းနှင့် အစားအစာလမ်းညွှန်"
+      greeting: "မင်္ဂလာပါ! ကျွန်တော်/ကျွန်မ {{l10n.recipe_name}} ပါ။ ဘာကူညီပေးရမလဲ?"
+      home_heading: "ကလေး အာဟာရ လမ်းညွှန်"
+      grid_screen: "အာဟာရ စစ်ဆေးခြင်း"
+      grid_diet: "အစားအသောက် လမ်းညွှန်"
+      grid_growth: "ကြီးထွားမှု မှတ်တမ်း"
+      grid_hotline: "ဆေးရုံ ဆက်သွယ်ရန်"
+      screen_title: "ကလေး အာဟာရ စစ်ဆေးခြင်း"
+      screen_heading: "ကလေး၏ သတင်းအချက်အလက်"
+      screen_age_hint: "ကလေး အသက် (လ)"
+      screen_age_left: "0 လ"
+      screen_age_right: "60 လ"
+      screen_weight_hint: "ကိုယ်အလေးချိန် (ကီလို)"
+      screen_height_hint: "အရပ်/အရှည် (စင်တီမီတာ)"
+      screen_sex_hint: "လိင်"
+      screen_breastfeed: "နို့ မတိုက်ကွာသေး"
+      screen_button: "အာဟာရ အခြေအနေ စစ်ဆေးရန်"
+      diet_title: "အစားအသောက် လမ်းညွှန်"
+      diet_age_hint: "ကလေး အသက်"
+      diet_concern_hint: "ကလေး၏ အစားအသောက်နှင့် ပတ်သတ်သော စိုးရိမ်မှု သို့မဟုတ် မေးခွန်းများ..."
+      diet_button: "အကြံဉာဏ် ရယူရန်"
+      growth_title: "ကြီးထွားမှု မှတ်တမ်း"
+      growth_heading: "ကလေး ကြီးထွားမှု စောင့်ကြည့်ခြင်း"
+      growth_step1: "ကလေး ချိန်ဆပါ"
+      growth_step2: "အရပ်/အရှည် တိုင်းတာပါ"
+      growth_step3: "WHO ကြီးထွားမှုဇယားတွင် ရေးထည့်ပါ"
+      growth_step4: "MUAC (ပခုံး အလယ် အဝိုင်း) တိုင်းတာပါ"
+      growth_step5: "ကျန်းမာရေးစာအုပ်တွင် မှတ်တမ်းတင်ပါ"
+      growth_step6: "လိုအပ်ပါက ဆက်ဆံရေး ချိန်းဆိုပါ"
+      growth_next: "နောက်တစ်ဆင့်"
+      growth_summary: "ကြီးထွားမှု အစီရင်ခံစာ ထုတ်ရန်"
+      hotline_title: "ဆေးရုံ ဆက်သွယ်ရန်"
+      hotline_subtext: "အနီးဆုံး ဆေးရုံမှ ကျွမ်းကျင်သည့် ကူညီမှု ရယူပါ"
+      hotline_locate: "📍 အနီးဆုံး ဆေးရုံ ရှာရန်"
+      hotline_call: "📞 ကျန်းမာရေးဌာန ဖုန်းခေါ်ရန်"
+    ta:
+      recipe_name: "குழந்தை ஊட்டச்சத்து வழிகாட்டி"
+      recipe_desc: "கிராமப்புற கிளினிக்குகளுக்கான குழந்தை ஊட்டச்சத்து சரிபார்ப்பு மற்றும் உணவு வழிகாட்டுதல்"
+      greeting: "வணக்கம்! நான் {{l10n.recipe_name}}. நான் எப்படி உதவ முடியும்?"
+      home_heading: "குழந்தை ஊட்டச்சத்து வழிகாட்டி"
+      grid_screen: "ஊட்டச்சத்து சரிபார்ப்பு"
+      grid_diet: "உணவு வழிகாட்டி"
+      grid_growth: "வளர்ச்சி கண்காணிப்பு"
+      grid_hotline: "கிளினிக் தொடர்பு"
+      screen_title: "குழந்தை ஊட்டச்சத்து சரிபார்ப்பு"
+      screen_heading: "குழந்தையின் தகவல்"
+      screen_age_hint: "குழந்தையின் வயது (மாதங்கள்)"
+      screen_age_left: "0 மா"
+      screen_age_right: "60 மா"
+      screen_weight_hint: "உடல் எடை (கிலோ)"
+      screen_height_hint: "உயரம்/நீளம் (செமீ)"
+      screen_sex_hint: "பாலினம்"
+      screen_breastfeed: "இன்னும் தாய்ப்பால் கொடுக்கிறார்"
+      screen_button: "ஊட்டச்சத்து நிலை சரிபார்க்க"
+      diet_title: "உணவு வழிகாட்டி"
+      diet_age_hint: "குழந்தையின் வயது"
+      diet_concern_hint: "குழந்தையின் உணவு பற்றிய கவலைகள் அல்லது கேள்விகள்..."
+      diet_button: "பரிந்துரைகள் பெறுக"
+      growth_title: "வளர்ச்சி கண்காணிப்பு"
+      growth_heading: "உங்கள் குழந்தையின் வளர்ச்சியை கண்காணிக்கவும்"
+      growth_step1: "குழந்தையை நிறுக்கவும்"
+      growth_step2: "உயரம்/நீளம் அளவிடவும்"
+      growth_step3: "WHO வளர்ச்சி விளக்கப்படத்தில் குறிக்கவும்"
+      growth_step4: "MUAC (நடுத்தோள் வட்டளவு) சரிபார்க்கவும்"
+      growth_step5: "குழந்தை சுகாதார புத்தகத்தில் பதிவிடவும்"
+      growth_step6: "தேவைப்பட்டால் தொடர்தடவை நியமனம் செய்யவும்"
+      growth_next: "அடுத்த படி"
+      growth_summary: "வளர்ச்சி அறிக்கை உருவாக்கவும்"
+      hotline_title: "கிளினிக் தொடர்பு"
+      hotline_subtext: "அருகிலுள்ள கிளினிக்கில் இருந்து தொழில்முறை உதவி பெறுங்கள்"
+      hotline_locate: "📍 அருகிலுள்ள கிளினிக் கண்டுபிடிக்க"
+      hotline_call: "📞 சுகாதார கிளினிக் அழைக்க"
+    zh:
+      recipe_name: "儿童营养指南"
+      recipe_desc: "农村诊所的儿童营养筛查与饮食指导"
+      greeting: "你好！我是{{l10n.recipe_name}}。我能帮你什么？"
+      home_heading: "儿童营养指南"
+      grid_screen: "营养筛查"
+      grid_diet: "饮食指南"
+      grid_growth: "生长追踪"
+      grid_hotline: "联系诊所"
+      screen_title: "儿童营养筛查"
+      screen_heading: "儿童信息"
+      screen_age_hint: "儿童年龄（月）"
+      screen_age_left: "0 月"
+      screen_age_right: "60 月"
+      screen_weight_hint: "体重（公斤）"
+      screen_height_hint: "身高/身长（厘米）"
+      screen_sex_hint: "性别"
+      screen_breastfeed: "仍在母乳喂养"
+      screen_button: "检查营养状况"
+      diet_title: "饮食指南"
+      diet_age_hint: "儿童年龄"
+      diet_concern_hint: "关于儿童饮食的担忧或问题..."
+      diet_button: "获取建议"
+      growth_title: "生长追踪"
+      growth_heading: "监测您孩子的生长"
+      growth_step1: "给孩子称重"
+      growth_step2: "测量身高/身长"
+      growth_step3: "在WHO生长曲线图上标记"
+      growth_step4: "检查MUAC（上臂围）"
+      growth_step5: "记录在儿童健康本上"
+      growth_step6: "如需要安排随访预约"
+      growth_next: "下一步"
+      growth_summary: "生成生长报告"
+      hotline_title: "联系诊所"
+      hotline_subtext: "从附近诊所获得专业帮助"
+      hotline_locate: "📍 查找附近诊所"
+      hotline_call: "📞 拨打健康诊所"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are a Child Nutrition Assistant for rural clinics in Malaysia. You help healthcare workers and parents assess a child's nutritional status, identify stunting/wasting/underweight, and provide culturally appropriate dietary guidance for children aged 0-60 months.
+
+    Your knowledge includes:
+    - WHO growth standards (weight-for-age, height-for-age, weight-for-height Z-scores)
+    - SAM (Severe Acute Malnutrition) and MAM (Moderate Acute Malnutrition) identification
+    - MUAC cut-offs: <11.5cm = SAM, 11.5-12.5cm = MAM, >12.5cm = OK (for 6-59 months)
+    - KKM (Malaysia Ministry of Health) infant feeding guidelines
+    - Complementary feeding: start at 6 months, texture progression, meal frequency by age
+    - Common Malaysian foods suitable for children (bubur nasi, ikan bilis, tauhu, bayam, labu)
+    - Stunting risk factors: low birth weight, recurrent infection, poor complementary feeding
+
+    Always:
+    - Classify nutritional status clearly (Normal / Underweight / Wasting / Stunting / Overweight)
+    - Flag SAM immediately — requires urgent clinic referral
+    - Give practical food recommendations using affordable local ingredients
+    - Include meal frequency and portion guidance by age group
+    - Be sensitive to poverty and food insecurity realities in rural areas
+
+    Never:
+    - Calculate exact Z-scores without the full data — estimate range and recommend clinic measurement
+    - Recommend formula milk over breastfeeding for infants under 6 months
+safety:
+  blocked_keywords:
+    - harmful
+  disclaimer: "Alat ini membantu saringan awal nutrisi kanak-kanak tetapi bukan pengganti penilaian klinikal oleh doktor atau jururawat."
+setup:
+  intro_page:
+    accept_label: "Faham — Mula Saringan"
+    disclaimer: "Panduan Nutrisi Kanak-Kanak membantu mengenal pasti risiko kekurangan zat makanan. Untuk penilaian lengkap termasuk plot carta pertumbuhan WHO, sila rujuk klinik kesihatan berdekatan."
+    author:
+      name: "Jing Yen"
+      organisation: "Ministry of Health, Malaysia"
+      verified: true
+    links:
+      - label: "Garis Panduan Pemakanan Bayi KKM"
+        url: "https://www.moh.gov.my/nutrition"
+      - label: "Carta Pertumbuhan WHO"
+        url: "https://www.who.int/tools/child-growth-standards"
+screen_catalog:
+  - id: home
+    title: "Home"
+    icon: "\U0001F3E0"
+  - id: screening
+    title: "Saringan"
+    icon: "\U0001F4CA"
+  - id: diet_guide
+    title: "Pemakanan"
+    icon: "\U0001F957"
+  - id: growth_track
+    title: "Pertumbuhan"
+    icon: "\U0001F4C8"
+  - id: hotline
+    title: "Klinik"
+    icon: "\U0001F3E5"
+data:
+  health_clinics:
+    items:
+      - name: "Klinik Kesihatan Kuala Kangsar"
+        lat: 4.7677
+        lng: 100.9350
+        info: "Klinik Primer KKM"
+        phone: "+60154321234"
+      - name: "Klinik Kesihatan Grik"
+        lat: 5.4195
+        lng: 101.1237
+        info: "Klinik Primer KKM"
+        phone: "+60159876543"
+      - name: "Hospital Taiping"
+        lat: 4.8500
+        lng: 100.7333
+        info: "Hospital Daerah"
+        phone: "+60154321000"
+      - name: "Klinik Kesihatan Lenggong"
+        lat: 5.0990
+        lng: 100.9673
+        info: "Klinik Primer KKM"
+        phone: "+60154567890"
+      - name: "Klinik Kesihatan Pengkalan Hulu"
+        lat: 5.5300
+        lng: 101.0967
+        info: "Klinik Primer KKM"
+        phone: "+60156789012"
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  child_age_months: { type: number, default: "24" }
+  child_weight: { type: string, default: "" }
+  child_height: { type: string, default: "" }
+  child_sex: { type: string, default: "" }
+  breastfeeding: { type: string, default: "false" }
+  diet_age: { type: string, default: "" }
+  growth_step: { type: number, default: "0" }
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_screen}}"
+              icon: "\U0001F4CA"
+              action: "go:screening"
+            - label: "{{l10n.grid_diet}}"
+              icon: "\U0001F957"
+              action: "go:diet_guide"
+            - label: "{{l10n.grid_growth}}"
+              icon: "\U0001F4C8"
+              action: "go:growth_track"
+            - label: "{{l10n.grid_hotline}}"
+              icon: "\U0001F3E5"
+              action: "go:hotline"
+  - id: screening
+    title: "{{l10n.screen_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.screen_heading}}"
+          style: subheading
+      - slider:
+          bind: child_age_months
+          min: 0
+          max: 60
+          step: 1
+          label: "{{l10n.screen_age_hint}}"
+          left_label: "{{l10n.screen_age_left}}"
+          right_label: "{{l10n.screen_age_right}}"
+          show_value: true
+      - text_input:
+          bind: child_weight
+          hint: "{{l10n.screen_weight_hint}}"
+      - text_input:
+          bind: child_height
+          hint: "{{l10n.screen_height_hint}}"
+      - text_input:
+          bind: child_sex
+          hint: "{{l10n.screen_sex_hint}}"
+          input_type: dropdown
+          options:
+            - "Lelaki (Male)"
+            - "Perempuan (Female)"
+      - text_input:
+          bind: breastfeeding
+          label: "{{l10n.screen_breastfeed}}"
+          input_type: toggle
+      - action_button:
+          label: "{{l10n.screen_button}}"
+          action: "ask:You are a child nutrition screener using WHO growth standards. Assess nutritional status for: Age: {{child_age_months}} months, Weight: {{child_weight}} kg, Height: {{child_height}} cm, Sex: {{child_sex}}, Still breastfeeding: {{breastfeeding}}. Provide: 1) Expected WHO median weight and height for this age/sex, 2) Estimated Z-score range (rough estimate), 3) Nutritional status classification (Normal / Underweight / Wasting / Stunting / Overweight), 4) If MUAC not provided, note it should be checked, 5) Recommended action (Monitor at home / Follow up in 1 month / Refer clinic urgently / SAM protocol). Note: If weight appears critically low for age, flag as SAM and advise immediate clinic referral."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: diet_guide
+    title: "{{l10n.diet_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.diet_title}}"
+          style: subheading
+      - text_input:
+          bind: diet_age
+          hint: "{{l10n.diet_age_hint}}"
+          input_type: dropdown
+          options:
+            - "0-6 bulan (0-6 months)"
+            - "6-9 bulan (6-9 months)"
+            - "9-12 bulan (9-12 months)"
+            - "1-2 tahun (1-2 years)"
+            - "2-5 tahun (2-5 years)"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.diet_concern_hint}}"
+      - action_button:
+          label: "{{l10n.diet_button}}"
+          action: "ask:You are a child dietitian for rural Malaysia. Child's age group: {{diet_age}}. Provide: 1) Recommended feeding pattern for this age (frequency, texture, portion size), 2) Key nutrients needed (iron, zinc, vitamin A, calcium), 3) Affordable Malaysian foods to include (bubur nasi, ikan bilis, sayur, tauhu, telur, buah-buahan tempatan), 4) Foods to avoid for this age, 5) Red flags to watch for (not eating, weight loss, listless). Answer parent's concern: {{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: growth_track
+    title: "{{l10n.growth_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.growth_heading}}"
+          style: subheading
+      - checklist_items:
+          bind: growth_step
+          items:
+            - label: "{{l10n.growth_step1}}"
+              type: text
+            - label: "{{l10n.growth_step2}}"
+              type: text
+            - label: "{{l10n.growth_step3}}"
+              type: text
+            - label: "{{l10n.growth_step4}}"
+              type: text
+            - label: "{{l10n.growth_step5}}"
+              type: text
+            - label: "{{l10n.growth_step6}}"
+              type: text
+      - progress_bar:
+          bind: growth_step
+          total: 6
+      - action_button:
+          label: "{{l10n.growth_next}}"
+          action: "increment:growth_step"
+          style: primary
+      - action_button:
+          label: "{{l10n.growth_summary}}"
+          action: "ask:Generate a brief child growth monitoring report. Child age: {{child_age_months}} months, Weight: {{child_weight}} kg, Height: {{child_height}} cm. All 6 monitoring steps completed. Provide: 1) Growth monitoring summary, 2) Nutritional status estimate, 3) Key dietary recommendations for this age, 4) Next visit recommendation (monthly/bi-monthly/urgent). Format as a brief clinic note."
+          style: secondary
+          visible_if: "growth_step >= 6"
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: hotline
+    title: "{{l10n.hotline_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.hotline_title}}"
+          style: subheading
+      - text_label:
+          text: "{{l10n.hotline_subtext}}"
+          style: body
+      - action_button:
+          label: "{{l10n.hotline_locate}}"
+          action: "geolocate"
+          style: secondary
+      - geo_display:
+          data: "health_clinics"
+          limit: 5
+          show_distance: true
+      - action_button:
+          label: "{{l10n.hotline_call}}"
+          action: "tel:+60154321234"
+          style: primary
+permissions:
+  - location

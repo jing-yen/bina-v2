@@ -301,6 +301,13 @@ export function resolveScreenWidgets(screen: ScreenConfig, allScreens: ScreenCon
   const widgets: WidgetConfig[] = [];
   const nonHomeScreens = allScreens.filter(s => !s.isHome);
   if (screen.isHome && nonHomeScreens.length > 0 && !screen.templateId) {
+    // Emit a heading text_label if the home screen has a heading field
+    if (screen.fieldValues?.heading) {
+      widgets.push({
+        type: 'text_label',
+        props: { text: screen.fieldValues.heading, style: 'subheading' },
+      });
+    }
     widgets.push({
       type: 'macro_grid',
       props: {

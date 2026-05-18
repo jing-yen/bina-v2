@@ -1,0 +1,657 @@
+id: pakar_sawit
+name: "Pakar Sawit"
+description: "Diagnos penyakit sawit, jadual baja & rawatan — AI untuk pekebun kecil"
+icon: "\U0001F334"
+version: "1.0.0"
+category: "Agriculture"
+featured: true
+tags:
+  - palm oil
+  - sawit
+  - agriculture
+  - smallholder
+author:
+  name: "En. Mohd Razali"
+  organisation: "MPOB (Lembaga Minyak Sawit Malaysia)"
+  verified: true
+theme:
+  primary: "#15803D"
+  secondary: "#DCFCE7"
+localisation:
+  supported:
+    - ms
+    - en
+    - id
+    - vi
+    - th
+    - km
+    - my
+    - ta
+    - zh
+  default: ms
+  labels:
+    ms:
+      recipe_name: "Pakar Sawit"
+      recipe_desc: "Diagnos penyakit sawit, jadual baja & rawatan — AI untuk pekebun kecil"
+      greeting: "Hai! Saya {{l10n.recipe_name}}. Apa yang boleh saya bantu?"
+      home_heading: "Pakar Sawit sedia membantu"
+      grid_diagnose: "Diagnos Daun"
+      grid_treatment: "Senarai Rawatan"
+      grid_schedule: "Jadual Baja"
+      grid_shops: "Kedai Agro"
+      grid_ask: "Tanya Pakar"
+      diagnose_title: "Diagnosis Penyakit Daun"
+      diagnose_hint: "Terangkan simptom pada daun sawit anda (bintik oren, layu, lubang...)"
+      diagnose_voice_hint: "Terangkan keadaan pokok sawit..."
+      diagnose_button: "Diagnos"
+      treatment_title: "Senarai Rawatan"
+      treatment_heading: "Protokol Rawatan"
+      treatment_step1: "Kenal pasti kawasan terjejas"
+      treatment_step2: "Buang pelepah yang dijangkiti"
+      treatment_step3: "Sapukan fungisida pada pangkal"
+      treatment_step4: "Pasang soil mound di sekeliling"
+      treatment_step5: "Pantau semula selepas 14 hari"
+      treatment_step6: "Rekod keputusan & lapor MPOB"
+      treatment_next: "Langkah Seterusnya"
+      treatment_summary: "Jana Laporan Rawatan"
+      schedule_title: "Jadual Pembajaan"
+      schedule_heading: "Perancangan Baja Tahunan"
+      schedule_age_hint: "Umur pokok (tahun)"
+      schedule_soil_hint: "Jenis tanah"
+      schedule_last_hint: "Tarikh baja terakhir"
+      schedule_button: "Jana Jadual"
+      shops_title: "Kedai Agro Berdekatan"
+      shops_subtext: "Cari bekalan sawit berhampiran"
+      shops_locate: "📍 Dapatkan Lokasi Saya"
+      shops_sms_mpob: "📩 SMS MPOB"
+      shops_call_mpob: "📞 Hubungi MPOB"
+      ask_title: "Tanya Pakar Sawit"
+      ask_voice_hint: "Tekan untuk bertanya..."
+      ask_text_hint: "...atau taipkan soalan tentang sawit"
+      ask_button: "Tanya"
+    en:
+      recipe_name: "Palm Oil Expert"
+      recipe_desc: "Palm disease diagnosis, fertilizer scheduling & treatment -- AI for smallholders"
+      greeting: "Hi! I'm {{l10n.recipe_name}}. How can I help you today?"
+      home_heading: "Pakar Sawit is ready to help"
+      grid_diagnose: "Leaf Diagnosis"
+      grid_treatment: "Treatment Plan"
+      grid_schedule: "Fertilizer Schedule"
+      grid_shops: "Agro Shops"
+      grid_ask: "Ask Expert"
+      diagnose_title: "Leaf Disease Diagnosis"
+      diagnose_hint: "Describe symptoms on your palm leaves (orange spots, wilting, holes...)"
+      diagnose_voice_hint: "Describe your palm tree's condition..."
+      diagnose_button: "Diagnose"
+      treatment_title: "Treatment Plan"
+      treatment_heading: "Treatment Protocol"
+      treatment_step1: "Identify affected area"
+      treatment_step2: "Remove infected fronds"
+      treatment_step3: "Apply fungicide at trunk base"
+      treatment_step4: "Install soil mound around trunk"
+      treatment_step5: "Re-inspect after 14 days"
+      treatment_step6: "Record results & report to MPOB"
+      treatment_next: "Next Step"
+      treatment_summary: "Generate Treatment Report"
+      schedule_title: "Fertilizer Schedule"
+      schedule_heading: "Annual Fertilizer Planning"
+      schedule_age_hint: "Palm age (years)"
+      schedule_soil_hint: "Soil type"
+      schedule_last_hint: "Last fertilizer date"
+      schedule_button: "Generate Schedule"
+      shops_title: "Nearby Agro Shops"
+      shops_subtext: "Find palm oil supplies nearby"
+      shops_locate: "📍 Get My Location"
+      shops_sms_mpob: "📩 SMS MPOB"
+      shops_call_mpob: "📞 Call MPOB"
+      ask_title: "Ask Palm Expert"
+      ask_voice_hint: "Tap to ask..."
+      ask_text_hint: "...or type a question about palm oil"
+      ask_button: "Ask"
+    id:
+      recipe_name: "Pakar Sawit"
+      recipe_desc: "Diagnosis penyakit sawit, jadwal pupuk & perawatan — AI untuk petani kecil"
+      greeting: "Halo! Saya {{l10n.recipe_name}}. Apa yang bisa saya bantu?"
+      home_heading: "Pakar Sawit siap membantu"
+      grid_diagnose: "Diagnosis Daun"
+      grid_treatment: "Rencana Perawatan"
+      grid_schedule: "Jadwal Pupuk"
+      grid_shops: "Toko Pertanian"
+      grid_ask: "Tanya Ahli"
+      diagnose_title: "Diagnosis Penyakit Daun"
+      diagnose_hint: "Jelaskan gejala pada daun sawit (bintik oranye, layu, berlubang...)"
+      diagnose_voice_hint: "Jelaskan kondisi pohon sawit..."
+      diagnose_button: "Diagnosis"
+      treatment_title: "Rencana Perawatan"
+      treatment_heading: "Protokol Perawatan"
+      treatment_step1: "Identifikasi area terdampak"
+      treatment_step2: "Potong pelepah terinfeksi"
+      treatment_step3: "Aplikasikan fungisida di pangkal"
+      treatment_step4: "Pasang gundukan tanah"
+      treatment_step5: "Inspeksi ulang setelah 14 hari"
+      treatment_step6: "Catat hasil & laporkan"
+      treatment_next: "Langkah Berikutnya"
+      treatment_summary: "Buat Laporan Perawatan"
+      schedule_title: "Jadwal Pemupukan"
+      schedule_heading: "Perencanaan Pupuk Tahunan"
+      schedule_age_hint: "Usia pohon (tahun)"
+      schedule_soil_hint: "Jenis tanah"
+      schedule_last_hint: "Tanggal pupuk terakhir"
+      schedule_button: "Buat Jadwal"
+      shops_title: "Toko Pertanian Terdekat"
+      shops_subtext: "Cari perlengkapan sawit terdekat"
+      shops_locate: "📍 Dapatkan Lokasi"
+      shops_sms_mpob: "📩 SMS Dinas Pertanian"
+      shops_call_mpob: "📞 Hubungi Dinas Pertanian"
+      ask_title: "Tanya Ahli Sawit"
+      ask_voice_hint: "Ketuk untuk bertanya..."
+      ask_text_hint: "...atau ketik pertanyaan tentang sawit"
+      ask_button: "Tanya"
+    vi:
+      recipe_name: "Chuyên Gia Cọ Dầu"
+      recipe_desc: "Chẩn đoán bệnh cọ dầu, lịch bón phân & điều trị — AI cho nông dân nhỏ"
+      greeting: "Xin chào! Tôi là {{l10n.recipe_name}}. Tôi có thể giúp gì cho bạn?"
+      home_heading: "Pakar Sawit sẵn sàng hỗ trợ"
+      grid_diagnose: "Chẩn đoán lá"
+      grid_treatment: "Kế hoạch điều trị"
+      grid_schedule: "Lịch bón phân"
+      grid_shops: "Cửa hàng nông nghiệp"
+      grid_ask: "Hỏi chuyên gia"
+      diagnose_title: "Chẩn đoán bệnh lá"
+      diagnose_hint: "Mô tả triệu chứng trên lá cọ (đốm cam, héo, lỗ thủng...)"
+      diagnose_voice_hint: "Mô tả tình trạng cây cọ của bạn..."
+      diagnose_button: "Chẩn đoán"
+      treatment_title: "Kế hoạch điều trị"
+      treatment_heading: "Quy trình điều trị"
+      treatment_step1: "Xác định khu vực bị ảnh hưởng"
+      treatment_step2: "Loại bỏ tàu lá bị nhiễm bệnh"
+      treatment_step3: "Bôi thuốc diệt nấm vào gốc thân"
+      treatment_step4: "Đắp đất xung quanh gốc"
+      treatment_step5: "Kiểm tra lại sau 14 ngày"
+      treatment_step6: "Ghi kết quả & báo cáo MPOB"
+      treatment_next: "Bước tiếp theo"
+      treatment_summary: "Tạo báo cáo điều trị"
+      schedule_title: "Lịch bón phân"
+      schedule_heading: "Lập kế hoạch bón phân hàng năm"
+      schedule_age_hint: "Tuổi cây (năm)"
+      schedule_soil_hint: "Loại đất"
+      schedule_last_hint: "Ngày bón phân lần cuối"
+      schedule_button: "Tạo lịch"
+      shops_title: "Cửa hàng nông nghiệp gần nhất"
+      shops_subtext: "Tìm vật tư cọ dầu gần bạn"
+      shops_locate: "📍 Lấy vị trí của tôi"
+      shops_sms_mpob: "📩 SMS MPOB"
+      shops_call_mpob: "📞 Gọi MPOB"
+      ask_title: "Hỏi chuyên gia cọ dầu"
+      ask_voice_hint: "Nhấn để hỏi..."
+      ask_text_hint: "...hoặc gõ câu hỏi về cọ dầu"
+      ask_button: "Hỏi"
+    th:
+      recipe_name: "ผู้เชี่ยวชาญปาล์มน้ำมัน"
+      recipe_desc: "วินิจฉัยโรคปาล์ม ตารางปุ๋ยและการรักษา — AI สำหรับเกษตรกรรายย่อย"
+      greeting: "สวัสดี! ฉันคือ {{l10n.recipe_name}} ฉันช่วยอะไรได้บ้าง?"
+      home_heading: "Pakar Sawit พร้อมช่วยเหลือ"
+      grid_diagnose: "วินิจฉัยใบ"
+      grid_treatment: "แผนการรักษา"
+      grid_schedule: "ตารางปุ๋ย"
+      grid_shops: "ร้านเกษตร"
+      grid_ask: "ถามผู้เชี่ยวชาญ"
+      diagnose_title: "วินิจฉัยโรคใบ"
+      diagnose_hint: "อธิบายอาการบนใบปาล์ม (จุดสีส้ม เหี่ยว รูพรุน...)"
+      diagnose_voice_hint: "อธิบายสภาพต้นปาล์มของคุณ..."
+      diagnose_button: "วินิจฉัย"
+      treatment_title: "แผนการรักษา"
+      treatment_heading: "ขั้นตอนการรักษา"
+      treatment_step1: "ระบุพื้นที่ที่ได้รับผลกระทบ"
+      treatment_step2: "ตัดทางใบที่ติดเชื้อออก"
+      treatment_step3: "ทายาฆ่าเชื้อราที่โคนต้น"
+      treatment_step4: "กองดินรอบโคนต้น"
+      treatment_step5: "ตรวจสอบซ้ำหลัง 14 วัน"
+      treatment_step6: "บันทึกผลและรายงาน MPOB"
+      treatment_next: "ขั้นตอนถัดไป"
+      treatment_summary: "สร้างรายงานการรักษา"
+      schedule_title: "ตารางปุ๋ย"
+      schedule_heading: "การวางแผนปุ๋ยรายปี"
+      schedule_age_hint: "อายุต้นปาล์ม (ปี)"
+      schedule_soil_hint: "ประเภทดิน"
+      schedule_last_hint: "วันที่ใส่ปุ๋ยครั้งล่าสุด"
+      schedule_button: "สร้างตาราง"
+      shops_title: "ร้านเกษตรใกล้เคียง"
+      shops_subtext: "ค้นหาวัสดุปาล์มน้ำมันใกล้คุณ"
+      shops_locate: "📍 รับตำแหน่งของฉัน"
+      shops_sms_mpob: "📩 SMS MPOB"
+      shops_call_mpob: "📞 โทร MPOB"
+      ask_title: "ถามผู้เชี่ยวชาญปาล์ม"
+      ask_voice_hint: "กดเพื่อถาม..."
+      ask_text_hint: "...หรือพิมพ์คำถามเกี่ยวกับปาล์มน้ำมัน"
+      ask_button: "ถาม"
+    km:
+      recipe_name: "អ្នកជំនាញដំណាំម្នាស់"
+      recipe_desc: "វិនិច្ឆ័យជំងឺដំណាំម្នាស់ កាលវិភាគជី និងការព្យាបាល — AI សម្រាប់កសិករខ្នាតតូច"
+      greeting: "សួស្តី! ខ្ញុំជា {{l10n.recipe_name}}។ តើខ្ញុំអាចជួយអ្វីបាន?"
+      home_heading: "Pakar Sawit ត្រៀមជួយ"
+      grid_diagnose: "ពិនិត្យស្លឹក"
+      grid_treatment: "ផែនការព្យាបាល"
+      grid_schedule: "កាលវិភាគជី"
+      grid_shops: "ហាងកសិកម្ម"
+      grid_ask: "សួរអ្នកជំនាញ"
+      diagnose_title: "ពិនិត្យជំងឺស្លឹក"
+      diagnose_hint: "ពិពណ៌នារោគសញ្ញានៅស្លឹកម្នាស់ (ចំណុចទឹកក្រូច, លាន, ពន្លឺ...)"
+      diagnose_voice_hint: "ពិពណ៌នាស្ថានភាពដំណាំម្នាស់..."
+      diagnose_button: "ពិនិត្យ"
+      treatment_title: "ផែនការព្យាបាល"
+      treatment_heading: "ពិធីការព្យាបាល"
+      treatment_step1: "ពិនិត្យផ្ទៃដីដែលរងផលប៉ះពាល់"
+      treatment_step2: "ដកចេញស្លឹកទំពត់ (ជំងឺ)"
+      treatment_step3: "ស្រោចថ្នាំ fungicide នៅជើងដើម"
+      treatment_step4: "ដំឡើងទំនប់ដីជុំវិញ"
+      treatment_step5: "ត្រួតពិនិត្យម្ដងទៀតបន្ទាប់ 14 ថ្ងៃ"
+      treatment_step6: "ចុះបញ្ជីលទ្ធផល & រាយការណ៍ MPOB"
+      treatment_next: "ជំហានបន្ទាប់"
+      treatment_summary: "បង្កើតរបាយការណ៍ព្យាបាល"
+      schedule_title: "កាលវិភាគជី"
+      schedule_heading: "ការគ្រោងការណ៍ជីប្រចាំឆ្នាំ"
+      schedule_age_hint: "អាយុដំណាំ (ឆ្នាំ)"
+      schedule_soil_hint: "ប្រភេទដី"
+      schedule_last_hint: "ថ្ងៃចុងក្រោយនៃការដាក់ជី"
+      schedule_button: "បង្កើតកាលវិភាគ"
+      shops_title: "ហាងកសិកម្មជិតបំផុត"
+      shops_subtext: "ស្វែងរកវត្ថុបណ្ដុំម្នាស់ជិតអ្នក"
+      shops_locate: "📍 ទទួលទីតាំងរបស់ខ្ញុំ"
+      shops_sms_mpob: "📩 SMS MPOB"
+      shops_call_mpob: "📞 ហៅ MPOB"
+      ask_title: "សួរអ្នកជំនាញដំណាំម្នាស់"
+      ask_voice_hint: "ចុចដើម្បីសួរ..."
+      ask_text_hint: "...ឬបញ្ចូលសំណួរអំពីដំណាំម្នាស់"
+      ask_button: "សួរ"
+    my:
+      recipe_name: "ဆီပင် ကျွမ်းကျင်သူ"
+      recipe_desc: "ဆီပင်ရောဂါစစ်ဆေးခြင်း၊ မြေဩဇာအချိန်ဇယားနှင့် ကုသခြင်း — လယ်သမားငယ်များအတွက် AI"
+      greeting: "မင်္ဂလာပါ! ကျွန်တော်/ကျွန်မ {{l10n.recipe_name}} ပါ။ ဘာကူညီပေးရမလဲ?"
+      home_heading: "Pakar Sawit အကူအညီပေးရန် အဆင်သင့်ဖြစ်ပါသည်"
+      grid_diagnose: "ရွက် စစ်ဆေးရန်"
+      grid_treatment: "ကုသရေး အစီအစဉ်"
+      grid_schedule: "မြေဩဇာ အချိန်ဇယား"
+      grid_shops: "စိုက်ပျိုးရေးဆိုင်"
+      grid_ask: "ကျွမ်းကျင်သူကို မေးရန်"
+      diagnose_title: "ရွက် ရောဂါ စစ်ဆေးခြင်း"
+      diagnose_hint: "ဆီပင်ရွက်ပေါ်ရှိ လက္ခဏာများ ဖော်ပြပါ (လိမ်မော်ရောင်အစက်၊ ညောင်းမော၊ ပေါက်ပြဲ...)"
+      diagnose_voice_hint: "သင့်ဆီပင်၏ အခြေအနေ ဖော်ပြပါ..."
+      diagnose_button: "စစ်ဆေးရန်"
+      treatment_title: "ကုသရေး အစီအစဉ်"
+      treatment_heading: "ကုသရေး နည်းစနစ်"
+      treatment_step1: "ထိခိုက်ထားသောနေရာ ဖော်ထုတ်ပါ"
+      treatment_step2: "ရောဂါကူးသောဆီပင်ရွက် ဖယ်ရှားပါ"
+      treatment_step3: "ပင်ကြောင်းတွင် မှိုသတ်ဆေး ပူးပေးပါ"
+      treatment_step4: "ပတ်ဝန်းကျင်တွင် မြေတောင်မြှောက်ပါ"
+      treatment_step5: "14 ရက်နောက်မှ ပြန်လည်စစ်ဆေးပါ"
+      treatment_step6: "ရလဒ်မှတ်တမ်းတင်ပြီး MPOB ကို အကြောင်းကြားပါ"
+      treatment_next: "နောက်တစ်ဆင့်"
+      treatment_summary: "ကုသရေး အစီရင်ခံစာ ထုတ်ရန်"
+      schedule_title: "မြေဩဇာ အချိန်ဇယား"
+      schedule_heading: "နှစ်စဉ် မြေဩဇာ စီစဉ်ခြင်း"
+      schedule_age_hint: "ဆီပင် အသက် (နှစ်)"
+      schedule_soil_hint: "မြေ အမျိုးအစား"
+      schedule_last_hint: "နောက်ဆုံး မြေဩဇာ ထည့်သောနေ့"
+      schedule_button: "အချိန်ဇယား ထုတ်ရန်"
+      shops_title: "အနီးဆုံး စိုက်ပျိုးရေးဆိုင်"
+      shops_subtext: "ဆီပင် ရောင်းချမှုပစ္စည်းများ ရှာရန်"
+      shops_locate: "📍 ကျွန်ုပ်တည်နေရာ ရယူရန်"
+      shops_sms_mpob: "📩 SMS MPOB"
+      shops_call_mpob: "📞 MPOB ဖုန်းခေါ်ရန်"
+      ask_title: "ဆီပင် ကျွမ်းကျင်သူကို မေးရန်"
+      ask_voice_hint: "မေးရန် နှိပ်ပါ..."
+      ask_text_hint: "...သို့မဟုတ် ဆီပင်နှင့်ပတ်သတ်သောမေးခွန်း ရိုက်ထည့်ပါ"
+      ask_button: "မေးရန်"
+    ta:
+      recipe_name: "பனை எண்ணெய் நிபுணர்"
+      recipe_desc: "பனை நோய் கண்டறிதல், உர அட்டவணை & சிகிச்சை — சிறு விவசாயிகளுக்கான AI"
+      greeting: "வணக்கம்! நான் {{l10n.recipe_name}}. நான் எப்படி உதவ முடியும்?"
+      home_heading: "Pakar Sawit உதவ தயார்"
+      grid_diagnose: "இலை கண்டறிதல்"
+      grid_treatment: "சிகிச்சை திட்டம்"
+      grid_schedule: "உர அட்டவணை"
+      grid_shops: "விவசாய கடைகள்"
+      grid_ask: "நிபுணரிடம் கேளுங்கள்"
+      diagnose_title: "இலை நோய் கண்டறிதல்"
+      diagnose_hint: "பனை இலைகளில் உள்ள அறிகுறிகளை விவரிக்கவும் (ஆரஞ்சு புள்ளிகள், வாடல், ஓட்டைகள்...)"
+      diagnose_voice_hint: "உங்கள் பனை மரத்தின் நிலையை விவரிக்கவும்..."
+      diagnose_button: "கண்டறி"
+      treatment_title: "சிகிச்சை திட்டம்"
+      treatment_heading: "சிகிச்சை நெறிமுறை"
+      treatment_step1: "பாதிக்கப்பட்ட பகுதியை அடையாளம் காணவும்"
+      treatment_step2: "நோயுற்ற மட்டைகளை அகற்றவும்"
+      treatment_step3: "தண்டின் அடிப்பகுதியில் பூஞ்சைக்கொல்லி தடவவும்"
+      treatment_step4: "தண்டை சுற்றி மண் குவிக்கவும்"
+      treatment_step5: "14 நாட்களுக்கு பிறகு மீண்டும் சரிபார்க்கவும்"
+      treatment_step6: "முடிவுகளை பதிவு செய்து MPOB-க்கு அறிக்கையிடவும்"
+      treatment_next: "அடுத்த படி"
+      treatment_summary: "சிகிச்சை அறிக்கை உருவாக்கவும்"
+      schedule_title: "உர அட்டவணை"
+      schedule_heading: "ஆண்டு உர திட்டமிடல்"
+      schedule_age_hint: "பனை வயது (ஆண்டுகள்)"
+      schedule_soil_hint: "மண் வகை"
+      schedule_last_hint: "கடைசியாக உரம் இட்ட தேதி"
+      schedule_button: "அட்டவணை உருவாக்கவும்"
+      shops_title: "அருகிலுள்ள விவசாய கடைகள்"
+      shops_subtext: "அருகிலுள்ள பனை வளர்ப்பு பொருட்கள் கண்டுபிடிக்கவும்"
+      shops_locate: "📍 என் இருப்பிடம் பெறுக"
+      shops_sms_mpob: "📩 SMS MPOB"
+      shops_call_mpob: "📞 MPOB அழைக்க"
+      ask_title: "பனை நிபுணரிடம் கேளுங்கள்"
+      ask_voice_hint: "கேட்க தட்டவும்..."
+      ask_text_hint: "...அல்லது பனை எண்ணெய் பற்றிய கேள்வி தட்டச்சு செய்யுங்கள்"
+      ask_button: "கேளுங்கள்"
+    zh:
+      recipe_name: "棕榈油专家"
+      recipe_desc: "棕榈病害诊断、施肥计划与治疗——小农户的AI助手"
+      greeting: "你好！我是{{l10n.recipe_name}}。我能帮你什么？"
+      home_heading: "Pakar Sawit 随时为您服务"
+      grid_diagnose: "叶片诊断"
+      grid_treatment: "治疗方案"
+      grid_schedule: "施肥计划"
+      grid_shops: "农业店铺"
+      grid_ask: "咨询专家"
+      diagnose_title: "叶片病害诊断"
+      diagnose_hint: "描述棕榈叶片上的症状（橙色斑点、萎蔫、孔洞...）"
+      diagnose_voice_hint: "描述您的棕榈树情况..."
+      diagnose_button: "诊断"
+      treatment_title: "治疗方案"
+      treatment_heading: "治疗规程"
+      treatment_step1: "确定受影响区域"
+      treatment_step2: "去除受感染的叶片"
+      treatment_step3: "在主干基部涂抹杀菌剂"
+      treatment_step4: "在主干周围堆土"
+      treatment_step5: "14天后重新检查"
+      treatment_step6: "记录结果并向MPOB报告"
+      treatment_next: "下一步"
+      treatment_summary: "生成治疗报告"
+      schedule_title: "施肥计划"
+      schedule_heading: "年度施肥规划"
+      schedule_age_hint: "棕榈树树龄（年）"
+      schedule_soil_hint: "土壤类型"
+      schedule_last_hint: "上次施肥日期"
+      schedule_button: "生成计划"
+      shops_title: "附近农业店铺"
+      shops_subtext: "在您附近寻找棕榈种植物资"
+      shops_locate: "📍 获取我的位置"
+      shops_sms_mpob: "📩 短信 MPOB"
+      shops_call_mpob: "📞 拨打 MPOB"
+      ask_title: "咨询棕榈专家"
+      ask_voice_hint: "点击提问..."
+      ask_text_hint: "...或输入关于棕榈油的问题"
+      ask_button: "提问"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are Pakar Sawit (Palm Oil Expert), an AI assistant for smallholder palm oil farmers in Malaysia and Indonesia. You specialize in oil palm cultivation, disease diagnosis, fertilizer management, and pest control.
+
+    Your knowledge includes:
+    - Ganoderma Basal Stem Rot (BSR) — the #1 killer of oil palms
+    - Rhinoceros beetle (Oryctes rhinoceros) damage
+    - Bunch rot, crown disease, and nutrient deficiency symptoms
+    - MPOB (Malaysian Palm Oil Board) recommended practices
+    - Fertilizer schedules: N-P-K-Mg-B ratios by palm age
+    - Harvest cycle timing and fruit ripeness indicators
+    - Replanting economics and decision frameworks
+
+    Always:
+    - Be concise — farmers need quick, actionable answers in the field
+    - When analyzing leaf/trunk photos, identify disease first, severity second, action third
+    - Recommend MPOB-approved treatments and locally available products
+    - Include timing (e.g., "apply within 3 days", "re-check in 2 weeks")
+    - Mention cost estimates in RM where possible
+
+    Never:
+    - Recommend banned pesticides (paraquat, etc.)
+    - Minimize Ganoderma — always flag it as serious
+    - Give advice outside palm oil cultivation
+    - Ignore signs that could indicate spread to neighboring palms
+safety:
+  blocked_keywords:
+    - paraquat
+    - racun terlarang
+    - tebang semua
+  escalation_message: "Pakar Sawit tidak boleh mengesyorkan racun terlarang. Sila hubungi pegawai MPOB untuk bantuan lanjut."
+  disclaimer: "Alat bantuan diagnosis sawit. Untuk penyakit kritikal, sila hubungi pegawai MPOB."
+setup:
+  intro_page:
+    accept_label: "Saya Faham — Mula"
+    disclaimer: "Pakar Sawit membantu mengenal pasti penyakit dan merancang rawatan. Untuk jangkitan Ganoderma yang teruk atau penyakit merebak, sila hubungi pegawai MPOB kawasan anda."
+    author:
+      name: "En. Mohd Razali"
+      organisation: "MPOB (Lembaga Minyak Sawit Malaysia)"
+      verified: true
+    links:
+      - label: "Portal MPOB"
+        url: "https://www.mpob.gov.my"
+      - label: "Panduan Sawit FELDA"
+        url: "https://www.felda.gov.my"
+screen_catalog:
+  - id: home
+    title: "Home"
+    icon: "\U0001F3E0"
+  - id: diagnose
+    title: "Diagnos"
+    icon: "\U0001F4F8"
+  - id: treatment
+    title: "Rawatan"
+    icon: "\U0001F489"
+  - id: schedule
+    title: "Jadual"
+    icon: "\U0001F4C5"
+  - id: shops
+    title: "Kedai"
+    icon: "\U0001F3EA"
+  - id: ask_expert
+    title: "Tanya"
+    icon: "\U0001F4AC"
+data:
+  agro_shops:
+    items:
+      - name: "MPOB Mini Estate Office Sandakan"
+        lat: 5.8394
+        lng: 118.1172
+        info: "Pejabat estet kecil MPOB"
+        phone: "+60899876543"
+      - name: "Kedai Baja Sawit Lahad Datu"
+        lat: 5.0267
+        lng: 118.3270
+        info: "Baja sawit & racun perosak"
+        phone: "+60891234567"
+      - name: "Agro Mart Tawau"
+        lat: 4.2498
+        lng: 117.8871
+        info: "Peralatan ladang sawit"
+        phone: "+60897654321"
+      - name: "FELDA Agro Supply Kinabatangan"
+        lat: 5.5077
+        lng: 118.0026
+        info: "Bekalan pertanian FELDA"
+        phone: "+60891111222"
+      - name: "Pusat Pertanian Semporna"
+        lat: 4.4814
+        lng: 118.6133
+        info: "Benih, baja, peralatan"
+        phone: "+60893334444"
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  photo_path: { type: string, default: "" }
+  palm_age: { type: string, default: "" }
+  soil_type: { type: string, default: "" }
+  last_fertilizer: { type: string, default: "" }
+  treatment_step: { type: number, default: "0" }
+  last_diagnosis: { type: string, default: "" }
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_diagnose}}"
+              icon: "\U0001F4F8"
+              action: "go:diagnose"
+            - label: "{{l10n.grid_treatment}}"
+              icon: "\U0001F489"
+              action: "go:treatment"
+            - label: "{{l10n.grid_schedule}}"
+              icon: "\U0001F4C5"
+              action: "go:schedule"
+            - label: "{{l10n.grid_shops}}"
+              icon: "\U0001F3EA"
+              action: "go:shops"
+            - label: "{{l10n.grid_ask}}"
+              icon: "\U0001F4AC"
+              action: "go:ask_expert"
+  - id: diagnose
+    title: "{{l10n.diagnose_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.diagnose_title}}"
+          style: subheading
+      - camera_input:
+          bind: photo_path
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.diagnose_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.diagnose_hint}}"
+      - action_button:
+          label: "{{l10n.diagnose_button}}"
+          action: "vision_ask:You are a palm oil pathologist. Analyze this photo of an oil palm. Identify: 1) Disease name (Ganoderma BSR, Rhinoceros beetle, bunch rot, nutrient deficiency, etc.), 2) Severity (mild/moderate/severe/critical), 3) Affected part (frond/trunk/fruit bunch/root zone), 4) Immediate action required, 5) MPOB-recommended treatment with product names and dosage, 6) Timeline for follow-up. If Ganoderma: ALWAYS flag as HIGH PRIORITY. Additional farmer notes: {{user_text}}"
+          style: primary
+          visible_if: "photo_path"
+      - action_button:
+          label: "{{l10n.diagnose_button}}"
+          action: "ask:You are a palm oil pathologist. Based on the farmer's description, diagnose the most likely disease. Give: 1) Most probable diagnosis, 2) Severity, 3) Immediate action, 4) Treatment with MPOB-approved products, 5) Follow-up timeline. If symptoms suggest Ganoderma, flag as HIGH PRIORITY. Description: {{user_text}}"
+          style: primary
+          hidden_if: "photo_path"
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: treatment
+    title: "{{l10n.treatment_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.treatment_heading}}"
+          style: subheading
+      - checklist_items:
+          bind: treatment_step
+          items:
+            - label: "{{l10n.treatment_step1}}"
+              type: text
+            - label: "{{l10n.treatment_step2}}"
+              type: text
+            - label: "{{l10n.treatment_step3}}"
+              type: text
+            - label: "{{l10n.treatment_step4}}"
+              type: text
+            - label: "{{l10n.treatment_step5}}"
+              type: text
+            - label: "{{l10n.treatment_step6}}"
+              type: text
+      - progress_bar:
+          bind: treatment_step
+          total: 6
+      - action_button:
+          label: "{{l10n.treatment_next}}"
+          action: "increment:treatment_step"
+          style: primary
+      - action_button:
+          label: "{{l10n.treatment_summary}}"
+          action: "ask:Generate a treatment completion report for my oil palm. Treatment steps completed: Identified affected area, removed infected fronds, applied fungicide at base, installed soil mound, re-inspected after 14 days, recorded results. Provide: 1) Summary of treatment, 2) Effectiveness assessment, 3) Next steps if disease persists, 4) Prevention measures for surrounding palms. Format as a field report for MPOB records."
+          style: secondary
+          visible_if: "treatment_step >= 6"
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: schedule
+    title: "{{l10n.schedule_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.schedule_heading}}"
+          style: subheading
+      - text_input:
+          bind: palm_age
+          hint: "{{l10n.schedule_age_hint}}"
+          input_type: dropdown
+          options:
+            - "1-3 tahun (Immature)"
+            - "4-7 tahun (Young mature)"
+            - "8-15 tahun (Prime)"
+            - "16-25 tahun (Aging)"
+            - "25+ tahun (Replant candidate)"
+      - text_input:
+          bind: soil_type
+          hint: "{{l10n.schedule_soil_hint}}"
+          input_type: dropdown
+          options:
+            - "Tanah Liat (Clay)"
+            - "Tanah Berpasir (Sandy)"
+            - "Tanah Gambut (Peat)"
+            - "Tanah Aluvial (Alluvial)"
+            - "Laterit (Laterite)"
+      - text_input:
+          bind: last_fertilizer
+          hint: "{{l10n.schedule_last_hint}}"
+      - action_button:
+          label: "{{l10n.schedule_button}}"
+          action: "ask:Generate a complete annual fertilizer schedule for oil palm. Details — Palm age category: {{palm_age}}, Soil type: {{soil_type}}, Last fertilizer applied: {{last_fertilizer}}. Provide: 1) Fertilizer type and NPK ratio per round, 2) Application frequency (rounds per year), 3) Quantity per palm (kg), 4) Best months to apply (Malaysian weather), 5) Estimated cost per palm per year (RM), 6) Application method (broadcast/pocket/banding). Follow MPOB recommended rates."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: shops
+    title: "{{l10n.shops_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.shops_title}}"
+          style: subheading
+      - text_label:
+          text: "{{l10n.shops_subtext}}"
+          style: body
+      - action_button:
+          label: "{{l10n.shops_locate}}"
+          action: "geolocate"
+          style: secondary
+      - geo_display:
+          data: "agro_shops"
+          limit: 5
+          show_distance: true
+      - action_button:
+          label: "{{l10n.shops_sms_mpob}}"
+          action: "sms:+60321816601:Salam, saya pekebun kecil sawit perlukan bantuan. Diagnosis AI: {{last_diagnosis}}. Lokasi: {{user_location}}. — Dihantar dari Pakar Sawit"
+          style: primary
+      - action_button:
+          label: "{{l10n.shops_call_mpob}}"
+          action: "tel:+60321816601"
+          style: danger
+  - id: ask_expert
+    title: "{{l10n.ask_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.ask_title}}"
+          style: subheading
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.ask_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.ask_text_hint}}"
+      - action_button:
+          label: "{{l10n.ask_button}}"
+          action: "ask:{{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+permissions:
+  - camera
+  - location

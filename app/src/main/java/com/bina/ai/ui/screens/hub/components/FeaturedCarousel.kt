@@ -1,6 +1,8 @@
 package com.bina.ai.ui.screens.hub.components
 
 import androidx.compose.foundation.background
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -109,19 +111,19 @@ private fun FeaturedCard(miniApp: MiniApp, onClick: () -> Unit) {
                         .background(BinaRed)
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
-                    Text("EMERGENCY", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(stringResource(R.string.emergency_badge), fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(miniApp.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(com.bina.ai.ui.localizedName(miniApp), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 Icon(Icons.Filled.Verified, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
             }
             if (miniApp.description.isNotBlank()) {
                 Text(
-                    com.bina.ai.ui.localizedDescription(miniApp.id, miniApp.description),
+                    com.bina.ai.ui.localizedDescription(miniApp),
                     fontSize = 11.sp,
                     color = Color.White.copy(alpha = 0.85f),
                     maxLines = 2,

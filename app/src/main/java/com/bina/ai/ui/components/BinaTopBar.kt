@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,12 +40,33 @@ import com.bina.ai.ui.theme.BinaStone950
 private val APP_LANGS = listOf(
     "ms" to "🇲🇾",
     "en" to "🇬🇧",
+    "in" to "🇮🇩",
+    "vi" to "🇻🇳",
+    "th" to "🇹🇭",
+    "km" to "🇰🇭",
+    "my" to "🇲🇲",
+    "ta" to "🇮🇳",
+    "zh" to "🇨🇳",
+)
+
+private val LANG_NAMES = mapOf(
+    "ms" to "Bahasa Melayu",
+    "en" to "English",
+    "in" to "Bahasa Indonesia",
+    "vi" to "Tiếng Việt",
+    "th" to "ภาษาไทย",
+    "km" to "ភាសាខ្មែរ",
+    "my" to "မြန်မာဘာသာ",
+    "ta" to "தமிழ்",
+    "zh" to "中文",
 )
 
 @Composable
 fun BinaTopBar(modifier: Modifier = Modifier) {
     val currentLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags().ifEmpty { "ms" }
-    val appLang = if (currentLocale.startsWith("ms")) "ms" else if (currentLocale.startsWith("en")) "en" else "ms"
+    val appLang = APP_LANGS.map { it.first }.firstOrNull { currentLocale.startsWith(it) } ?: "ms"
+    val currentFlag = APP_LANGS.firstOrNull { it.first == appLang }?.second ?: "🇲🇾"
+    var expanded by remember { mutableStateOf(false) }
 
     Row(
         modifier = modifier
@@ -71,28 +99,44 @@ fun BinaTopBar(modifier: Modifier = Modifier) {
             )
         }
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(0.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            APP_LANGS.forEach { (code, flag) ->
-                val active = code == appLang
-                Text(
-                    flag,
-                    fontSize = if (active) 16.sp else 13.sp,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .then(
-                            if (active) Modifier.background(BinaAccent.copy(alpha = 0.12f))
-                            else Modifier
-                        )
-                        .clickable {
+        Box {
+            Text(
+                currentFlag,
+                fontSize = 22.sp,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(BinaAccent.copy(alpha = 0.12f))
+                    .clickable { expanded = true }
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                APP_LANGS.forEach { (code, flag) ->
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(flag, fontSize = 18.sp)
+                                Text(
+                                    LANG_NAMES[code] ?: code,
+                                    fontSize = 14.sp,
+                                    fontWeight = if (code == appLang) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (code == appLang) BinaAccent else BinaStone950
+                                )
+                            }
+                        },
+                        onClick = {
+                            expanded = false
                             AppCompatDelegate.setApplicationLocales(
                                 LocaleListCompat.forLanguageTags(code)
                             )
                         }
-                        .padding(horizontal = 3.dp, vertical = 2.dp)
-                )
+                    )
+                }
             }
         }
     }

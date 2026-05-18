@@ -2,6 +2,7 @@ package com.bina.ai.miniapp.ui
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.speech.tts.TextToSpeech
 import java.util.Locale
@@ -95,7 +96,7 @@ fun MiniAppScreen(
             vs.onChange = {
                 val editor = storePrefs.edit()
                 backingMap.forEach { (k, v) ->
-                    if (k != "ai_response" && k != "is_loading" && k != "photo_path" && !k.startsWith("l10n.")) {
+                    if (k !in VariableStore.TRANSIENT_VARS && !k.startsWith("l10n.")) {
                         editor.putString(k, v)
                     }
                 }
@@ -124,12 +125,18 @@ fun MiniAppScreen(
     var showIntro by remember { mutableStateOf(hasIntro && !introPrefs.getBoolean(introAcceptedKey, false)) }
     val scope = rememberCoroutineScope()
     val supportedLangs = miniApp.localisation.supported.ifEmpty { listOf(miniApp.localisation.defaultLanguage) }
-    var currentLang by remember { mutableStateOf(miniApp.localisation.defaultLanguage.ifEmpty { supportedLangs.first() }) }
-    LaunchedEffect(currentLang) {
-        store["active_language"] = currentLang
-        miniApp.localisation.labels[currentLang]?.forEach { (key, value) ->
+    var currentLang by remember { mutableStateOf(com.bina.ai.ui.resolveAppLang(miniApp)) }
+    fun applyLang(lang: String) {
+        store["active_language"] = lang
+        miniApp.localisation.labels[lang]?.forEach { (key, value) ->
             store["l10n.$key"] = value
         }
+    }
+    remember(currentLang) { applyLang(currentLang); true }
+    val langContext = remember(currentLang) {
+        val locale = langToLocale(currentLang)
+        val config = Configuration(context.resources.configuration).apply { setLocale(locale) }
+        context.createConfigurationContext(config)
     }
     val tts = remember {
         var engine: TextToSpeech? = null
@@ -206,7 +213,7 @@ fun MiniAppScreen(
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_TEXT, intent.text)
                             }
-                            context.startActivity(Intent.createChooser(shareIntent, "Kongsi"))
+                            context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share)))
                         } catch (_: Exception) {}
                     }
                 }
@@ -264,38 +271,42 @@ fun MiniAppScreen(
                 Text(miniApp.icon, fontSize = 48.sp)
                 Spacer(Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f).padding(bottom = 4.dp)) {
+                    val displayName = store["l10n.recipe_name"]?.takeIf { it.isNotBlank() } ?: miniApp.name
                     Text(
-                        store.interpolate(currentScreen.title.ifEmpty { miniApp.name }),
+                        store.interpolate(currentScreen.title.ifEmpty { displayName }),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1C1917)
                     )
                     if (miniApp.author.organisation.isNotBlank()) {
                         Text(
-                            "by ${miniApp.author.organisation}",
+                            stringResource(R.string.recipe_by, miniApp.author.organisation),
                             fontSize = 11.sp,
                             color = Color(0xFF78716C)
                         )
                     }
                 }
-                val homeLangs = supportedLangs.filter { it == "ms" || it == "en" }
-                if (homeLangs.size > 1) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(0.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                if (supportedLangs.size > 1) {
+                    Column(
+                        modifier = Modifier.padding(bottom = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        horizontalAlignment = Alignment.End
                     ) {
-                        homeLangs.forEach { lang ->
-                            val flag = LANG_FLAGS[lang] ?: lang.uppercase()
-                            val isActive = lang == currentLang
-                            Text(
-                                flag,
-                                fontSize = if (isActive) 16.sp else 13.sp,
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .clickable { currentLang = lang }
-                                    .padding(horizontal = 3.dp, vertical = 2.dp)
-                            )
+                        supportedLangs.chunked(5).forEach { row ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
+                                row.forEach { lang ->
+                                    val flag = LANG_FLAGS[lang] ?: lang.uppercase()
+                                    val isActive = lang == currentLang
+                                    Text(
+                                        flag,
+                                        fontSize = if (isActive) 16.sp else 13.sp,
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .clickable { currentLang = lang }
+                                            .padding(horizontal = 3.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -350,8 +361,12 @@ fun MiniAppScreen(
         val showTriage = isHomeScreen && triageEngine.isChatMode
 
         if (showTriage) {
+            val triageDisplayName = store["l10n.recipe_name"]?.takeIf { it.isNotBlank() } ?: miniApp.name
             TriageChatContent(
                 miniApp = miniApp,
+                displayName = triageDisplayName,
+                store = store,
+                langContext = langContext,
                 themeColor = themeColor,
                 messages = triageMessages.value,
                 input = triageInput,
@@ -380,7 +395,7 @@ fun MiniAppScreen(
                                 is TriageResult.Fallback -> {
                                     currentScreen.body.let { /* show grid fallback */ }
                                     triageMessages.value = triageMessages.value +
-                                        TriageChatMessage("Let me show you all available options.", isUser = false)
+                                        TriageChatMessage(context.getString(R.string.miniapp_triage_fallback), isUser = false)
                                 }
                             }
                         }
@@ -483,7 +498,7 @@ fun MiniAppScreen(
                     val catalogEntry = miniApp.screenCatalog.find { it.id == screen.id }
                     val emoji = catalogEntry?.icon?.ifEmpty { null }
                     val label = if (isHome) {
-                            if (store["active_language"] == "ms") "Utama" else "Home"
+                            langContext.getString(R.string.miniapp_home)
                         } else store.interpolate(screen.title.ifEmpty { catalogEntry?.title ?: screen.id })
 
                     Box(
@@ -535,6 +550,15 @@ private fun IntroPageScreen(
     val intro = miniApp.setup.introPage
     val author = intro.author ?: miniApp.author
     val secondaryColor = if (miniApp.theme.secondary.isNotEmpty()) parseColor(miniApp.theme.secondary) else themeColor.copy(alpha = 0.3f)
+    val lang = miniApp.localisation.defaultLanguage.ifEmpty { miniApp.localisation.supported.firstOrNull() ?: "en" }
+    val labels = miniApp.localisation.labels[lang].orEmpty()
+    val interpolate = { text: String ->
+        Regex("\\{\\{(\\w+(?:\\.\\w+)?)\\}\\}").replace(text) { m ->
+            val key = m.groupValues[1]
+            if (key.startsWith("l10n.")) labels[key.removePrefix("l10n.")] ?: m.value
+            else m.value
+        }
+    }
 
     Column(
         Modifier
@@ -656,7 +680,7 @@ private fun IntroPageScreen(
                             Text(screenIcon, fontSize = 16.sp)
                             Spacer(Modifier.width(10.dp))
                             Text(
-                                screen.title,
+                                interpolate(screen.title),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color(0xFF1C1917)
@@ -685,7 +709,7 @@ private fun IntroPageScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = themeColor)
             ) {
                 Text(
-                    intro.acceptLabel.ifEmpty { "I Understand" },
+                    intro.acceptLabel.ifEmpty { stringResource(R.string.miniapp_i_understand) },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White
@@ -712,6 +736,7 @@ private val LANG_FLAGS = mapOf(
 private fun langToLocale(code: String): Locale = when (code) {
     "ms" -> Locale("ms", "MY")
     "id" -> Locale("in", "ID")
+    "in" -> Locale("in", "ID")
     "zh" -> Locale("zh", "CN")
     "ta" -> Locale("ta", "IN")
     "th" -> Locale("th", "TH")
@@ -737,6 +762,9 @@ data class TriageChatMessage(val text: String, val isUser: Boolean)
 @Composable
 private fun TriageChatContent(
     miniApp: MiniApp,
+    displayName: String,
+    store: VariableStore,
+    langContext: android.content.Context,
     themeColor: Color,
     messages: List<TriageChatMessage>,
     input: String,
@@ -753,6 +781,9 @@ private fun TriageChatContent(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            val greeting = store["l10n.greeting"]
+                ?.let { store.interpolate(it) }
+                ?: langContext.getString(R.string.triage_greeting, displayName)
             Box(
                 modifier = Modifier
                     .align(Alignment.Start)
@@ -761,7 +792,7 @@ private fun TriageChatContent(
                     .padding(12.dp)
             ) {
                 Text(
-                    "Hi! I'm ${miniApp.name}. How can I help you today?",
+                    greeting,
                     fontSize = 14.sp,
                     color = Color(0xFF1C1917)
                 )
@@ -814,7 +845,7 @@ private fun TriageChatContent(
             androidx.compose.material3.OutlinedTextField(
                 value = input,
                 onValueChange = onInputChange,
-                placeholder = { Text("Describe what you need...", fontSize = 14.sp) },
+                placeholder = { Text(langContext.getString(R.string.triage_placeholder), fontSize = 14.sp) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(14.dp),
                 singleLine = true
@@ -826,7 +857,7 @@ private fun TriageChatContent(
                 colors = ButtonDefaults.buttonColors(containerColor = themeColor),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                Text("Send", color = Color.White, fontSize = 14.sp)
+                Text(langContext.getString(R.string.triage_send), color = Color.White, fontSize = 14.sp)
             }
         }
     }

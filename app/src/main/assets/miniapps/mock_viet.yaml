@@ -1,0 +1,484 @@
+id: mock_viet
+name: "Trợ Lý Nông Nghiệp"
+description: "Agriculture assistant for Vietnamese farmers"
+icon: "\U0001F33E"
+version: "1.0.0"
+category: "Agriculture"
+featured: false
+tags:
+  - agriculture
+  - vietnam
+  - rice
+  - mekong delta
+author:
+  name: "Mekong Delta Co-op"
+  organisation: "Mekong Delta Co-op"
+  verified: true
+theme:
+  primary: "#15803D"
+  secondary: "#F0FDF4"
+localisation:
+  supported:
+    - vi
+    - en
+    - km
+    - ms
+    - id
+    - th
+    - my
+    - ta
+    - zh
+  default: vi
+  labels:
+    vi:
+      recipe_name: "Trợ Lý Nông Nghiệp"
+      recipe_desc: "Trợ lý nông nghiệp cho nông dân Việt Nam"
+      greeting: "Xin chào! Tôi là {{l10n.recipe_name}}. Tôi có thể giúp gì cho bạn?"
+      home_heading: "Trợ lý nông nghiệp của bạn"
+      grid_diagnose: "Chẩn đoán cây"
+      grid_weather: "Lịch mùa vụ"
+      grid_market: "Giá thị trường"
+      grid_ask: "Hỏi chuyên gia"
+      diagnose_title: "Chẩn đoán bệnh cây trồng"
+      diagnose_heading: "Mô tả tình trạng cây trồng của bạn"
+      diagnose_voice_hint: "Mô tả triệu chứng bệnh..."
+      diagnose_text_hint: "Ví dụ: lá vàng, đốm nâu, thối rễ..."
+      diagnose_button: "Chẩn đoán"
+      season_title: "Lịch mùa vụ"
+      season_heading: "Lập kế hoạch canh tác"
+      season_crop_hint: "Loại cây trồng"
+      season_region_hint: "Vùng canh tác"
+      season_button: "Xem lịch mùa vụ"
+      market_title: "Giá thị trường"
+      market_heading: "Thông tin giá nông sản"
+      market_crop_hint: "Loại nông sản"
+      market_qty_hint: "Sản lượng dự kiến (tấn)"
+      market_button: "Phân tích giá"
+      ask_title: "Hỏi chuyên gia"
+      ask_voice_hint: "Nhấn để nói..."
+      ask_text_hint: "...hoặc gõ câu hỏi về nông nghiệp"
+      ask_button: "Hỏi"
+    en:
+      recipe_name: "Agriculture Assistant"
+      recipe_desc: "Agriculture assistant for Vietnamese farmers"
+      greeting: "Hi! I'm {{l10n.recipe_name}}. How can I help you today?"
+      home_heading: "Your Agriculture Assistant"
+      grid_diagnose: "Diagnose Crops"
+      grid_weather: "Seasonal Calendar"
+      grid_market: "Market Prices"
+      grid_ask: "Ask Expert"
+      diagnose_title: "Crop Disease Diagnosis"
+      diagnose_heading: "Describe your crop condition"
+      diagnose_voice_hint: "Describe disease symptoms..."
+      diagnose_text_hint: "E.g.: yellow leaves, brown spots, root rot..."
+      diagnose_button: "Diagnose"
+      season_title: "Seasonal Calendar"
+      season_heading: "Plan Your Farming Season"
+      season_crop_hint: "Crop type"
+      season_region_hint: "Farming region"
+      season_button: "View Seasonal Calendar"
+      market_title: "Market Prices"
+      market_heading: "Agricultural Price Information"
+      market_crop_hint: "Crop type"
+      market_qty_hint: "Expected yield (tonnes)"
+      market_button: "Analyze Prices"
+      ask_title: "Ask Expert"
+      ask_voice_hint: "Tap to speak..."
+      ask_text_hint: "...or type a farming question"
+      ask_button: "Ask"
+    km:
+      recipe_name: "ជំនួយការកសិកម្ម"
+      recipe_desc: "ជំនួយការកសិកម្មសម្រាប់កសិករវៀតណាម"
+      greeting: "សួស្តី! ខ្ញុំជា {{l10n.recipe_name}}។ តើខ្ញុំអាចជួយអ្វីបាន?"
+      home_heading: "ជំនួយការកសិកម្មរបស់អ្នក"
+      grid_diagnose: "រោគវិនិច្ឆ័យដំណាំ"
+      grid_weather: "ប្រតិទិនរដូវ"
+      grid_market: "តម្លៃទីផ្សារ"
+      grid_ask: "សួរអ្នកជំនាញ"
+      diagnose_title: "រោគវិនិច្ឆ័យដំណាំ"
+      diagnose_heading: "ពណ៌នាស្ថានភាពដំណាំរបស់អ្នក"
+      diagnose_voice_hint: "ពណ៌នាអំពីរោគ..."
+      diagnose_text_hint: "ឧទាហរណ៍: ស្លឹកលឿង, ចំណុចត្នោត..."
+      diagnose_button: "រោគវិនិច្ឆ័យ"
+      season_title: "ប្រតិទិនរដូវវប្បកម្ម"
+      season_heading: "គ្រោងការផ្សារដំណាំ"
+      season_crop_hint: "ប្រភេទដំណាំ"
+      season_region_hint: "តំបន់ដំណាំ"
+      season_button: "មើលប្រតិទិន"
+      market_title: "តម្លៃទីផ្សារ"
+      market_heading: "ព័ត៌មានតម្លៃផលិតផលកសិកម្ម"
+      market_crop_hint: "ប្រភេទផលិតផល"
+      market_qty_hint: "ផលិតផលដែលរំពឹងទុក (តោន)"
+      market_button: "វិភាគតម្លៃ"
+      ask_title: "សួរអ្នកជំនាញ"
+      ask_voice_hint: "ចុចដើម្បីនិយាយ..."
+      ask_text_hint: "...ឬបញ្ចូលសំណួរអំពីកសិកម្ម"
+      ask_button: "សួរ"
+    ms:
+      recipe_name: "Pembantu Pertanian"
+      recipe_desc: "Pembantu pertanian untuk petani Vietnam"
+      greeting: "Hai! Saya {{l10n.recipe_name}}. Apa yang boleh saya bantu?"
+      home_heading: "Pembantu Pertanian Anda"
+      grid_diagnose: "Diagnos Tanaman"
+      grid_weather: "Kalendar Musim"
+      grid_market: "Harga Pasaran"
+      grid_ask: "Tanya Pakar"
+      diagnose_title: "Diagnosis Penyakit Tanaman"
+      diagnose_heading: "Huraikan keadaan tanaman anda"
+      diagnose_voice_hint: "Huraikan gejala penyakit..."
+      diagnose_text_hint: "Cth: daun kuning, bintik perang, reput akar..."
+      diagnose_button: "Diagnos"
+      season_title: "Kalendar Musim"
+      season_heading: "Rancang Musim Penanaman"
+      season_crop_hint: "Jenis tanaman"
+      season_region_hint: "Kawasan pertanian"
+      season_button: "Lihat Kalendar Musim"
+      market_title: "Harga Pasaran"
+      market_heading: "Maklumat Harga Pertanian"
+      market_crop_hint: "Jenis hasil pertanian"
+      market_qty_hint: "Hasil jangkaan (tan)"
+      market_button: "Analisis Harga"
+      ask_title: "Tanya Pakar"
+      ask_voice_hint: "Tekan untuk bercakap..."
+      ask_text_hint: "...atau taip soalan tentang pertanian"
+      ask_button: "Tanya"
+    id:
+      recipe_name: "Asisten Pertanian"
+      recipe_desc: "Asisten pertanian untuk petani Vietnam"
+      greeting: "Halo! Saya {{l10n.recipe_name}}. Apa yang bisa saya bantu?"
+      home_heading: "Asisten Pertanian Anda"
+      grid_diagnose: "Diagnosis Tanaman"
+      grid_weather: "Kalender Musim"
+      grid_market: "Harga Pasar"
+      grid_ask: "Tanya Ahli"
+      diagnose_title: "Diagnosis Penyakit Tanaman"
+      diagnose_heading: "Jelaskan kondisi tanaman Anda"
+      diagnose_voice_hint: "Jelaskan gejala penyakit..."
+      diagnose_text_hint: "Mis: daun kuning, bercak coklat, busuk akar..."
+      diagnose_button: "Diagnosis"
+      season_title: "Kalender Musim"
+      season_heading: "Rencanakan Musim Tanam"
+      season_crop_hint: "Jenis tanaman"
+      season_region_hint: "Wilayah pertanian"
+      season_button: "Lihat Kalender Musim"
+      market_title: "Harga Pasar"
+      market_heading: "Informasi Harga Hasil Pertanian"
+      market_crop_hint: "Jenis komoditas"
+      market_qty_hint: "Perkiraan hasil (ton)"
+      market_button: "Analisis Harga"
+      ask_title: "Tanya Ahli"
+      ask_voice_hint: "Ketuk untuk bicara..."
+      ask_text_hint: "...atau ketik pertanyaan tentang pertanian"
+      ask_button: "Tanya"
+    th:
+      recipe_name: "ผู้ช่วยการเกษตร"
+      recipe_desc: "ผู้ช่วยการเกษตรสำหรับเกษตรกรเวียดนาม"
+      greeting: "สวัสดี! ฉันคือ {{l10n.recipe_name}} ฉันช่วยอะไรได้บ้าง?"
+      home_heading: "ผู้ช่วยการเกษตรของคุณ"
+      grid_diagnose: "วินิจฉัยพืช"
+      grid_weather: "ปฏิทินฤดูกาล"
+      grid_market: "ราคาตลาด"
+      grid_ask: "ถามผู้เชี่ยวชาญ"
+      diagnose_title: "วินิจฉัยโรคพืช"
+      diagnose_heading: "อธิบายสภาพพืชของคุณ"
+      diagnose_voice_hint: "อธิบายอาการโรค..."
+      diagnose_text_hint: "เช่น ใบเหลือง จุดน้ำตาล เน่าราก..."
+      diagnose_button: "วินิจฉัย"
+      season_title: "ปฏิทินฤดูกาล"
+      season_heading: "วางแผนฤดูกาลเพาะปลูก"
+      season_crop_hint: "ประเภทพืช"
+      season_region_hint: "พื้นที่เพาะปลูก"
+      season_button: "ดูปฏิทินฤดูกาล"
+      market_title: "ราคาตลาด"
+      market_heading: "ข้อมูลราคาผลิตผลการเกษตร"
+      market_crop_hint: "ประเภทพืชผล"
+      market_qty_hint: "ผลผลิตที่คาดไว้ (ตัน)"
+      market_button: "วิเคราะห์ราคา"
+      ask_title: "ถามผู้เชี่ยวชาญ"
+      ask_voice_hint: "กดเพื่อพูด..."
+      ask_text_hint: "...หรือพิมพ์คำถามเกี่ยวกับการเกษตร"
+      ask_button: "ถาม"
+    my:
+      recipe_name: "စိုက်ပျိုးရေး ကူညီသူ"
+      recipe_desc: "ဗီယက်နမ် လယ်သမားများအတွက် စိုက်ပျိုးရေး ကူညီသူ"
+      greeting: "မင်္ဂလာပါ! ကျွန်တော်/ကျွန်မ {{l10n.recipe_name}} ပါ။ ဘာကူညီပေးရမလဲ?"
+      home_heading: "သင့်စိုက်ပျိုးရေး ကူညီသူ"
+      grid_diagnose: "သီးနှံ စစ်ဆေးရန်"
+      grid_weather: "ရာသီပွင့်ဇယား"
+      grid_market: "ဈေးနှုန်းများ"
+      grid_ask: "ကျွမ်းကျင်သူကို မေးရန်"
+      diagnose_title: "သီးနှံရောဂါ စစ်ဆေးခြင်း"
+      diagnose_heading: "သင့်သီးနှံ၏ အခြေအနေကို ဖော်ပြပါ"
+      diagnose_voice_hint: "ရောဂါလက္ခဏာများ ဖော်ပြပါ..."
+      diagnose_text_hint: "ဥပမာ - ဝါသောရွက်၊ အညိုအစက်၊ အမြစ်ဂျပ်..."
+      diagnose_button: "စစ်ဆေးရန်"
+      season_title: "ရာသီပွင့်ဇယား"
+      season_heading: "စိုက်ပျိုးရာသီ စီစဉ်ရန်"
+      season_crop_hint: "သီးနှံ အမျိုးအစား"
+      season_region_hint: "စိုက်ပျိုးဒေသ"
+      season_button: "ရာသီဇယား ကြည့်ရန်"
+      market_title: "ဈေးနှုန်းများ"
+      market_heading: "စိုက်ပျိုးရေးထွက်ကုန် ဈေးနှုန်းသတင်းအချက်အလက်"
+      market_crop_hint: "သီးနှံ အမျိုးအစား"
+      market_qty_hint: "ခန့်မှန်းထွက်ကုန် (တန်)"
+      market_button: "ဈေးနှုန်း စစ်ဆေးရန်"
+      ask_title: "ကျွမ်းကျင်သူကို မေးရန်"
+      ask_voice_hint: "ပြောဆိုရန် နှိပ်ပါ..."
+      ask_text_hint: "...သို့မဟုတ် စိုက်ပျိုးရေးမေးခွန်း ရိုက်ထည့်ပါ"
+      ask_button: "မေးရန်"
+    ta:
+      recipe_name: "விவசாய உதவியாளர்"
+      recipe_desc: "வியட்நாம் விவசாயிகளுக்கான விவசாய உதவியாளர்"
+      greeting: "வணக்கம்! நான் {{l10n.recipe_name}}. நான் எப்படி உதவ முடியும்?"
+      home_heading: "உங்கள் விவசாய உதவியாளர்"
+      grid_diagnose: "பயிர் கண்டறிதல்"
+      grid_weather: "பருவகால அட்டவணை"
+      grid_market: "சந்தை விலைகள்"
+      grid_ask: "நிபுணரிடம் கேளுங்கள்"
+      diagnose_title: "பயிர் நோய் கண்டறிதல்"
+      diagnose_heading: "உங்கள் பயிரின் நிலையை விவரிக்கவும்"
+      diagnose_voice_hint: "நோய் அறிகுறிகளை விவரிக்கவும்..."
+      diagnose_text_hint: "எ.கா.: மஞ்சள் இலைகள், பழுப்பு புள்ளிகள், வேர் அழுகல்..."
+      diagnose_button: "கண்டறி"
+      season_title: "பருவகால அட்டவணை"
+      season_heading: "விவசாய பருவத்தை திட்டமிடுங்கள்"
+      season_crop_hint: "பயிர் வகை"
+      season_region_hint: "சாகுபடி பகுதி"
+      season_button: "பருவகால அட்டவணை பார்க்க"
+      market_title: "சந்தை விலைகள்"
+      market_heading: "விவசாய விலை தகவல்"
+      market_crop_hint: "பயிர் வகை"
+      market_qty_hint: "எதிர்பார்க்கப்படும் விளைச்சல் (டன்)"
+      market_button: "விலை பகுப்பாய்வு"
+      ask_title: "நிபுணரிடம் கேளுங்கள்"
+      ask_voice_hint: "பேசுவதற்கு தட்டவும்..."
+      ask_text_hint: "...அல்லது விவசாய கேள்வி தட்டச்சு செய்யுங்கள்"
+      ask_button: "கேளுங்கள்"
+    zh:
+      recipe_name: "农业助手"
+      recipe_desc: "越南农民的农业助手"
+      greeting: "你好！我是{{l10n.recipe_name}}。我能帮你什么？"
+      home_heading: "您的农业助手"
+      grid_diagnose: "作物诊断"
+      grid_weather: "季节日历"
+      grid_market: "市场价格"
+      grid_ask: "咨询专家"
+      diagnose_title: "作物病害诊断"
+      diagnose_heading: "描述您的作物情况"
+      diagnose_voice_hint: "描述病害症状..."
+      diagnose_text_hint: "例如：叶片发黄、棕色斑点、根腐..."
+      diagnose_button: "诊断"
+      season_title: "季节日历"
+      season_heading: "规划种植季节"
+      season_crop_hint: "作物类型"
+      season_region_hint: "种植区域"
+      season_button: "查看季节日历"
+      market_title: "市场价格"
+      market_heading: "农产品价格信息"
+      market_crop_hint: "作物类型"
+      market_qty_hint: "预期产量（吨）"
+      market_button: "分析价格"
+      ask_title: "咨询专家"
+      ask_voice_hint: "点击说话..."
+      ask_text_hint: "...或输入农业问题"
+      ask_button: "提问"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are Trợ Lý Nông Nghiệp (Agricultural Assistant), an AI for Vietnamese farmers, especially in the Mekong Delta region. You help with crop disease diagnosis, seasonal planting calendars, fertilizer advice, pest management, and market price analysis for key Vietnamese crops.
+
+    Your knowledge includes:
+    - Key Vietnamese crops: lúa (rice), cà phê (coffee), cao su (rubber), thanh long (dragon fruit), xoài (mango), nhãn (longan), tôm (shrimp), cá (fish)
+    - Mekong Delta seasons: Đông Xuân (Nov-Feb), Hè Thu (Apr-Aug), Thu Đông (Aug-Nov)
+    - Common rice diseases: đạo ôn (blast), khô vằn (sheath blight), vàng lá (yellow leaf), rầy nâu (brown planthopper)
+    - Vietnamese extension service: Trung tâm Khuyến nông
+    - VietGAP standards for export-quality produce
+    - ĐBSCL (Mekong Delta) specific conditions: salinity intrusion, flooding, heat stress
+
+    Always:
+    - Give advice in Vietnamese (vi) when the user writes in Vietnamese
+    - Be specific to Vietnamese conditions and locally available products
+    - Include timing and seasonal guidance
+    - Mention government extension services (khuyến nông) for serious issues
+
+    Never:
+    - Recommend banned pesticides
+    - Ignore signs of salinity intrusion — it is a major Mekong Delta threat
+safety:
+  blocked_keywords:
+    - harmful
+  disclaimer: "Công cụ này cung cấp hướng dẫn nông nghiệp tổng quát. Đối với dịch bệnh nghiêm trọng, hãy liên hệ Trung tâm Khuyến nông địa phương."
+setup:
+  intro_page:
+    accept_label: "Tôi hiểu — Bắt đầu"
+    disclaimer: "Trợ Lý Nông Nghiệp cung cấp hướng dẫn canh tác dựa trên AI. Đối với dịch bệnh nghiêm trọng hoặc quyết định đầu tư lớn, hãy tham khảo cán bộ khuyến nông địa phương."
+    author:
+      name: "Mekong Delta Co-op"
+      organisation: "Mekong Delta Co-op"
+      verified: true
+    links:
+      - label: "Trung tâm Khuyến nông Quốc gia"
+        url: "https://www.khuyennongvn.gov.vn"
+      - label: "Bộ Nông nghiệp và PTNT"
+        url: "https://www.mard.gov.vn"
+screen_catalog:
+  - id: home
+    title: "Trang chủ"
+    icon: "\U0001F3E0"
+  - id: diagnose
+    title: "Chẩn đoán"
+    icon: "\U0001F4F8"
+  - id: season
+    title: "Mùa vụ"
+    icon: "\U0001F4C5"
+  - id: market
+    title: "Giá"
+    icon: "\U0001F4B9"
+  - id: ask_expert
+    title: "Hỏi"
+    icon: "\U0001F4AC"
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  photo_path: { type: string, default: "" }
+  crop_type: { type: string, default: "" }
+  farming_region: { type: string, default: "" }
+  market_crop: { type: string, default: "" }
+  expected_yield: { type: string, default: "" }
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_diagnose}}"
+              icon: "\U0001F4F8"
+              action: "go:diagnose"
+            - label: "{{l10n.grid_weather}}"
+              icon: "\U0001F4C5"
+              action: "go:season"
+            - label: "{{l10n.grid_market}}"
+              icon: "\U0001F4B9"
+              action: "go:market"
+            - label: "{{l10n.grid_ask}}"
+              icon: "\U0001F4AC"
+              action: "go:ask_expert"
+  - id: diagnose
+    title: "{{l10n.diagnose_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.diagnose_heading}}"
+          style: subheading
+      - camera_input:
+          bind: photo_path
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.diagnose_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.diagnose_text_hint}}"
+      - action_button:
+          label: "{{l10n.diagnose_button}}"
+          action: "vision_ask:You are a Vietnamese crop pathologist. Analyze this photo and identify: 1) Crop species visible, 2) Disease or pest name (use both Vietnamese and scientific names), 3) Severity (nhẹ/trung bình/nặng), 4) Immediate treatment using locally available pesticides/fungicides sold in Vietnam, 5) Prevention for rest of field, 6) Whether to contact local khuyến nông. Farmer notes: {{user_text}}"
+          style: primary
+          visible_if: "photo_path"
+      - action_button:
+          label: "{{l10n.diagnose_button}}"
+          action: "ask:You are a Vietnamese crop pathologist. Based on the farmer's description, diagnose the most likely disease or pest problem. Use Vietnamese crop disease names. Give: 1) Most probable diagnosis, 2) Severity assessment, 3) Immediate treatment with locally available products in Vietnam, 4) Prevention measures, 5) Whether to contact khuyến nông. Description: {{user_text}}"
+          style: primary
+          hidden_if: "photo_path"
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: season
+    title: "{{l10n.season_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.season_heading}}"
+          style: subheading
+      - text_input:
+          bind: crop_type
+          hint: "{{l10n.season_crop_hint}}"
+          input_type: dropdown
+          options:
+            - "Lúa (Rice)"
+            - "Cà phê (Coffee)"
+            - "Cao su (Rubber)"
+            - "Thanh long (Dragon fruit)"
+            - "Xoài (Mango)"
+            - "Nhãn (Longan)"
+            - "Dừa (Coconut)"
+            - "Mía (Sugarcane)"
+            - "Rau màu (Vegetables)"
+      - text_input:
+          bind: farming_region
+          hint: "{{l10n.season_region_hint}}"
+          input_type: dropdown
+          options:
+            - "ĐBSCL — Đồng bằng sông Cửu Long (Mekong Delta)"
+            - "Đông Nam Bộ (Southeast)"
+            - "Tây Nguyên (Central Highlands)"
+            - "Đồng bằng sông Hồng (Red River Delta)"
+            - "Miền Trung (Central Vietnam)"
+      - action_button:
+          label: "{{l10n.season_button}}"
+          action: "ask:You are a Vietnamese agricultural extension advisor. Crop: {{crop_type}}, Region: {{farming_region}}. Provide a practical seasonal calendar: 1) Key growing seasons for this crop in this region, 2) Land preparation timing, 3) Planting window (optimal months), 4) Key crop management stages (irrigation, fertilizer, pest monitoring), 5) Harvest period, 6) Post-harvest storage tips, 7) Current month challenges if applicable (salinity, flooding, drought). Be specific to Vietnamese conditions."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: market
+    title: "{{l10n.market_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.market_heading}}"
+          style: subheading
+      - text_input:
+          bind: market_crop
+          hint: "{{l10n.market_crop_hint}}"
+          input_type: dropdown
+          options:
+            - "Lúa gạo (Rice)"
+            - "Cà phê (Coffee)"
+            - "Cao su (Rubber)"
+            - "Thanh long (Dragon fruit)"
+            - "Xoài (Mango)"
+            - "Tôm (Shrimp)"
+            - "Cá tra (Pangasius)"
+            - "Điều (Cashew)"
+      - text_input:
+          bind: expected_yield
+          hint: "{{l10n.market_qty_hint}}"
+      - action_button:
+          label: "{{l10n.market_button}}"
+          action: "ask:You are a Vietnamese agricultural market analyst. Crop: {{market_crop}}, Expected yield: {{expected_yield}} tonnes. Provide: 1) Typical farm-gate price range in Vietnam (VND/kg) — note these are estimated ranges, actual prices vary, 2) Key factors affecting this crop's price (export demand, season, quality grade), 3) Best time of year to sell for higher prices, 4) Selling channels (thương lái/middlemen vs. direct to co-op vs. export company), 5) Value-adding options (drying, processing, certification), 6) Contact: local Hợp tác xã (co-op) for price discovery."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: ask_expert
+    title: "{{l10n.ask_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.ask_title}}"
+          style: subheading
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.ask_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.ask_text_hint}}"
+      - action_button:
+          label: "{{l10n.ask_button}}"
+          action: "ask:{{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+permissions:
+  - camera

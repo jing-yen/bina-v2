@@ -2,11 +2,35 @@
 <resources>
     <string name="app_name">Bina</string>
 
-    <string name="topbar_title">Bina</string>
+    <string name="topbar_title">你好, Jing Yen 👋</string>
     <string name="topbar_subtitle">离线运行的AI</string>
 
     <string name="hub_title">你的AI工具箱</string>
     <string name="hub_subtitle">为你的社区打造的智能工具</string>
+    <string name="hub_your_recipes">你的配方</string>
+    <string name="hub_trending">Bina 热门</string>
+    <string name="hub_empty_all">暂无配方。</string>
+    <string name="hub_empty_category">此分类暂无配方。</string>
+    <string name="hub_all_recipes">所有配方</string>
+
+    <!-- Bottom nav -->
+    <string name="nav_hub">Hub</string>
+    <string name="nav_pocket">我的口袋</string>
+    <string name="nav_sync">离线同步</string>
+    <string name="nav_analytics">数据分析</string>
+
+    <!-- Recipe stats -->
+    <string name="stat_recipe_size">配方大小</string>
+    <string name="stat_features">可用功能</string>
+    <string name="stat_dialect">方言</string>
+
+    <!-- Categories -->
+    <string name="cat_all">全部</string>
+    <string name="cat_agriculture">农业</string>
+    <string name="cat_health">健康</string>
+    <string name="cat_business">商业</string>
+    <string name="cat_finance">金融</string>
+    <string name="cat_education">教育</string>
 
     <string name="pocket_title">我的口袋</string>
     <string name="pocket_subtitle">已保存的配方，随时离线使用</string>
@@ -23,7 +47,6 @@
 
     <string name="recipe_open">打开</string>
     <string name="recipe_install_open">安装并打开</string>
-    <string name="recipe_configure_install">配置并安装</string>
     <string name="recipe_add_home">添加到主屏幕</string>
     <string name="recipe_verified_by">由 %s 验证</string>
     <string name="recipe_domain">领域：%s</string>
@@ -43,6 +66,8 @@
     <string name="miniapp_complete">完成！</string>
     <string name="miniapp_step_of">第 %1$d 步，共 %2$d 步</string>
     <string name="miniapp_your_location">你的位置：%1$s, %2$s</string>
+    <string name="miniapp_location_mins_ago">%d 分钟前</string>
+    <string name="miniapp_location_just_now">刚刚</string>
 
     <string name="triage_greeting">你好！我是%s。我能帮你什么？</string>
     <string name="triage_placeholder">描述你需要什么&#8230;</string>
@@ -50,4 +75,118 @@
 
     <string name="confirm">确认</string>
     <string name="cancel">取消</string>
+
+    <!-- Offline Sync -->
+    <string name="sync_title">离线同步</string>
+    <string name="sync_subtitle">手机之间分享配方，无需网络。</string>
+    <string name="sync_scan_title">扫描接收</string>
+    <string name="sync_scan_subtitle">扫描另一部手机的QR码或粘贴YAML安装。</string>
+    <string name="sync_share_title">分享配方</string>
+    <string name="sync_share_subtitle">选择已安装的配方通过QR码分享。</string>
+    <string name="sync_share_picker_subtitle">选择已安装的配方。接收方扫描QR码即可安装。</string>
+    <string name="sync_share_empty">请先从Hub安装一个配方。</string>
+    <string name="sync_paste_title">粘贴配方YAML</string>
+    <string name="sync_paste_subtitle">粘贴从Studio（或其他手机）复制的YAML。安装前会先解析并预览。</string>
+    <string name="sync_paste_placeholder">id: my_recipe\nname: …</string>
+    <string name="sync_paste_clipboard">从剪贴板粘贴</string>
+    <string name="sync_paste_import">导入</string>
+    <string name="sync_receive_title">接收配方？</string>
+    <string name="sync_receive_by">来自 %s</string>
+    <string name="sync_receive_size">%d KB · id: %s</string>
+    <string name="sync_receive_connect">连接</string>
+    <string name="sync_receive_connecting">正在连接发送方…</string>
+    <string name="sync_receive_progress">接收中… %d%%</string>
+    <string name="sync_receive_retry">重试</string>
+    <string name="sync_camera_needed">需要相机权限</string>
+    <string name="sync_camera_hint">允许使用相机扫描QR码，或改为粘贴YAML。</string>
+    <string name="sync_try_again">再试一次</string>
+    <string name="sync_paste_instead">改为粘贴YAML</string>
+    <string name="sync_bt_permission">需要蓝牙权限</string>
+    <string name="sync_recipe_not_found">未找到配方</string>
+    <string name="sync_share_instructions">让对方手机打开同步 → 扫描接收。\n保持此屏幕开启直到对方连接。</string>
+    <string name="sync_bt_needed">通过QR码分享需要蓝牙权限。或复制下方YAML。</string>
+    <string name="sync_copy_yaml">复制YAML到剪贴板</string>
+    <string name="sync_done">完成</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">数据分析</string>
+    <string name="analytics_subtitle">您的创作与设备使用情况</string>
+    <string name="analytics_live_badge">实时 · 本地</string>
+    <string name="analytics_total_launches">总启动次数</string>
+    <string name="analytics_all_time">全部时间</string>
+    <string name="analytics_vs_prev_7d">对比前7天</string>
+    <string name="analytics_vs_prev_30d">对比前30天</string>
+    <string name="analytics_recipes_installed">已安装配方</string>
+    <string name="analytics_questions_asked">提问次数</string>
+    <string name="analytics_active_days">活跃天数</string>
+    <string name="analytics_streak">连续天数</string>
+    <string name="analytics_streak_none">暂无连续记录</string>
+    <string name="analytics_streak_one">连续1天</string>
+    <string name="analytics_streak_many">连续%d天</string>
+    <string name="analytics_achievements">成就</string>
+    <string name="analytics_unlocked">已解锁</string>
+    <string name="analytics_daily_activity">每日活动</string>
+    <string name="analytics_tap_day">点击某天查看详情</string>
+    <string name="analytics_less">较少</string>
+    <string name="analytics_more">较多</string>
+    <string name="analytics_most_used">最常用配方</string>
+    <string name="analytics_no_activity_window">此时段内暂无配方活动</string>
+    <string name="analytics_launches_asks">%1$d次启动 · %2$d次提问</string>
+    <string name="analytics_empty_title">暂无活动</string>
+    <string name="analytics_empty_subtitle">从Hub打开配方即可开始查看数据分析。</string>
+    <string name="analytics_open_hub">打开Hub</string>
+
+    <!-- Hub -->
+    <string name="hub_installed">已安装</string>
+
+    <!-- Achievements -->
+    <string name="achievement_collector_title">配方收集者</string>
+    <string name="achievement_collector_desc">从Hub安装3个配方</string>
+    <string name="achievement_curious_title">试驾员</string>
+    <string name="achievement_curious_desc">在你的配方中提问10个问题</string>
+    <string name="achievement_streak_title">连续使用</string>
+    <string name="achievement_streak_desc">连续3天使用Bina</string>
+    <string name="achievement_explorer_title">探险家</string>
+    <string name="achievement_explorer_desc">使用3个不同的配方</string>
+
+    <!-- New Analytics Strings -->
+    <string name="analytics_day_one">1 天</string>
+    <string name="analytics_day_many">%d 天</string>
+    <string name="analytics_recipes_in_pocket">口袋中有 %d 个配方</string>
+    <string name="analytics_questions_in_period">此时段 %d 个问题</string>
+    <string name="analytics_days_with_activity">%2$d 天中有 %1$d 天活跃</string>
+    <string name="analytics_by_recipe">按配方</string>
+    <string name="analytics_recent_active">最近活跃天数</string>
+    <string name="analytics_hint_install">浏览 Hub 安装配方。</string>
+    <string name="analytics_hint_no_usage">此时段内你还没有使用已安装的配方。</string>
+    <string name="analytics_hint_questions">向配方提问，记录将显示在这里。</string>
+    <string name="analytics_hint_active_days">启动配方或提问的日子计入你的连续记录。</string>
+    <string name="analytics_hint_streak">今天打开或提问配方开始连续记录。连续活跃天数累积。</string>
+    <string name="analytics_most_used_period">此时段最常用</string>
+
+    <!-- Share & Emergency -->
+    <string name="share">分享</string>
+    <string name="emergency_badge">EMERGENCY</string>
+    <string name="sos_badge">SOS</string>
+    <string name="recipe_by">来自 %s</string>
+    <string name="recipe_not_available">配方不可用</string>
+    <string name="go_back">返回</string>
+
+    <!-- MiniApp extras -->
+    <string name="miniapp_triage_fallback">让我为你显示所有可用选项。</string>
+    <string name="miniapp_voice_transcribing">转录中&#8230;</string>
+    <string name="miniapp_voice_tap_stop">点击停止</string>
+    <string name="miniapp_voice_input">语音输入</string>
+    <string name="miniapp_i_understand">我明白了</string>
+
+    <!-- Model download -->
+    <string name="model_title">需要AI模型</string>
+    <string name="model_subtitle">Bina 需要一个约 2.6 GB 的语言模型才能离线运行。下载一次，永久使用。</string>
+    <string name="model_usb_note">即将推出：为网络受限地区提供USB传输。</string>
+    <string name="model_download_button">Download Gemma 4 E2B</string>
+    <string name="model_downloading">下载中…请保持应用打开</string>
+    <string name="model_done">模型就绪！</string>
+    <string name="model_continue">继续</string>
+    <string name="model_retry">重试</string>
+    <string name="model_error_title">下载失败</string>
 </resources>

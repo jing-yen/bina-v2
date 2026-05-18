@@ -24,10 +24,6 @@ sealed class Screen(
         fun createRoute(miniAppId: String) = "miniapp/$miniAppId"
     }
 
-    data object Configurator : Screen("configurator/{miniAppId}", "Configurator", Icons.Outlined.Storefront) {
-        fun createRoute(miniAppId: String) = "configurator/$miniAppId"
-    }
-
     data object SyncScan : Screen("sync/scan", "Scan", Icons.Outlined.CellTower)
 
     data object SyncShare : Screen("sync/share/{miniAppId}", "Share", Icons.Outlined.CellTower) {

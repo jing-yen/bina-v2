@@ -1,7 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { TrendingUp, Download, Globe, Users, Award, Star, AlertCircle, RefreshCw, BarChart3 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar, Cell } from 'recharts';
-import { fetchPlatformStats, fetchRegionCounts, type PlatformStats, type RegionCount } from '../../lib/analyticsService';
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import {
+  fetchPlatformStats, fetchRegionCounts, fetchRecipeAnalytics, fetchGrowthData,
+  type PlatformStats, type RegionCount, type RecipeAnalytics, type GrowthPoint,
+} from '../../lib/analyticsService';
 
 const COUNTRY_NAMES: Record<string, string> = {
   ID: 'Indonesia', MY: 'Malaysia', PH: 'Philippines', VN: 'Vietnam',
@@ -14,14 +17,6 @@ const COUNTRY_FLAGS: Record<string, string> = {
   PH: '\u{1F1F5}\u{1F1ED}', VN: '\u{1F1FB}\u{1F1F3}', SG: '\u{1F1F8}\u{1F1EC}',
   KH: '\u{1F1F0}\u{1F1ED}', MM: '\u{1F1F2}\u{1F1F2}', LA: '\u{1F1F1}\u{1F1E6}',
 };
-
-const TOP_RECIPES = [
-  { name: 'Bidan Pintar', downloads: 12400, rating: 4.9, icon: '\u{1F930}', own: true },
-  { name: 'Cegah Denggi', downloads: 3210, rating: 4.7, icon: '\u{1F99F}', own: true },
-  { name: 'Triage Ibu Hamil', downloads: 1870, rating: 4.8, icon: '\u{1F3E5}', own: true },
-  { name: '\u{0E1C}\u{0E39}\u{0E49}\u{0E0A}\u{0E48}\u{0E27}\u{0E22}\u{0E23}\u{0E49}\u{0E32}\u{0E19}\u{0E04}\u{0E49}\u{0E32}', downloads: 862, rating: 4.8, icon: '\u{1F3EA}', own: false },
-  { name: 'Pakar Sawit', downloads: 710, rating: 5.0, icon: '\u{1F334}', own: false },
-];
 
 const FEATURE_FEEDBACK = [
   {
@@ -47,27 +42,13 @@ const FEATURE_FEEDBACK = [
   },
 ];
 
-function generateGrowthData() {
-  const data = [];
-  for (let i = 0; i < 30; i++) {
-    const base = 15 + i * 2;
-    const viral = i > 20 ? Math.pow(i - 20, 2.2) * 8 : 0;
-    const noise = Math.floor(Math.random() * 12) - 4;
-    data.push({
-      day: `${i + 1}`,
-      label: `May ${i + 1}`,
-      downloads: Math.max(10, Math.floor(base + viral + noise)),
-    });
-  }
-  return data;
-}
-
 export function Analytics() {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [regions, setRegions] = useState<RegionCount[]>([]);
+  const [topRecipes, setTopRecipes] = useState<RecipeAnalytics[]>([]);
+  const [growthData, setGrowthData] = useState<GrowthPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const growthData = useMemo(() => generateGrowthData(), []);
 
   const loadData = () => {
     setLoading(true);
@@ -75,6 +56,8 @@ export function Analytics() {
     Promise.all([
       fetchPlatformStats().then(setStats),
       fetchRegionCounts().then(setRegions),
+      fetchRecipeAnalytics().then(data => setTopRecipes(data.slice(0, 5))),
+      fetchGrowthData().then(setGrowthData),
     ])
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -83,7 +66,7 @@ export function Analytics() {
   useEffect(() => { loadData(); }, []);
 
   const formatCount = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
-  const maxRecipeDl = TOP_RECIPES[0]?.downloads || 1;
+  const maxRecipeDl = topRecipes[0]?.downloads || 1;
 
   if (error) {
     return (
@@ -165,16 +148,27 @@ export function Analytics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {/* Growth trajectory */}
         <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-card">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h3 className="text-sm font-semibold text-stone-900">Download Growth</h3>
-              <p className="text-[11px] text-stone-400">Last 30 days</p>
-            </div>
-            <div className="flex items-center gap-1 px-2 py-1 rounded-md" style={{ background: '#1A8A6A12' }}>
-              <TrendingUp size={12} style={{ color: '#1A8A6A' }} />
-              <span className="text-[11px] font-semibold" style={{ color: '#1A8A6A' }}>+340%</span>
-            </div>
-          </div>
+          {(() => {
+            const firstHalf = growthData.slice(0, 15).reduce((s, p) => s + p.downloads, 0);
+            const secondHalf = growthData.slice(15).reduce((s, p) => s + p.downloads, 0);
+            const growthPct = firstHalf > 0
+              ? Math.round(((secondHalf - firstHalf) / firstHalf) * 100)
+              : null;
+            return (
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-stone-900">Download Activity</h3>
+                  <p className="text-[11px] text-stone-400">Last 30 days</p>
+                </div>
+                {growthPct !== null && (
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-md" style={{ background: '#1A8A6A12' }}>
+                    <TrendingUp size={12} style={{ color: '#1A8A6A' }} />
+                    <span className="text-[11px] font-semibold" style={{ color: '#1A8A6A' }}>{growthPct >= 0 ? '+' : ''}{growthPct}%</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={growthData}>
@@ -188,7 +182,7 @@ export function Analytics() {
                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#A8A29E', fontSize: 10 }} width={30} />
                 <Tooltip
                   contentStyle={{ background: '#1C1917', border: 'none', borderRadius: 8, fontSize: 11, color: '#FAF8F5' }}
-                  labelFormatter={(v) => `May ${v}`}
+                  labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ''}
                   formatter={(v: number) => [`${v} downloads`, '']}
                 />
                 <Area type="monotone" dataKey="downloads" stroke="#C45A3A" strokeWidth={2} fill="url(#growthGrad)" />
@@ -204,28 +198,26 @@ export function Analytics() {
             <BarChart3 size={14} className="text-stone-400" />
           </div>
           <div className="space-y-3">
-            {TOP_RECIPES.map((r, i) => (
-              <div key={i} className="flex items-center gap-2.5 rounded-lg px-2 py-1" style={r.own ? { background: '#C45A3A08' } : undefined}>
-                <span className="text-xs font-bold w-5 text-center" style={{ color: r.own ? '#C45A3A' : '#D6D3D1' }}>#{i + 1}</span>
-                <span className="text-lg">{r.icon}</span>
+            {topRecipes.length === 0 ? (
+              <p className="text-xs text-stone-400 py-4 text-center">No recipes yet</p>
+            ) : topRecipes.map((r, i) => (
+              <div key={r.recipeId} className="flex items-center gap-2.5 rounded-lg px-2 py-1" style={{ background: '#C45A3A08' }}>
+                <span className="text-xs font-bold w-5 text-center" style={{ color: '#C45A3A' }}>#{i + 1}</span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm font-medium text-stone-800 truncate">{r.name}</span>
-                      {r.own && <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: '#C45A3A18', color: '#C45A3A' }}>yours</span>}
-                    </div>
+                    <span className="text-sm font-medium text-stone-800 truncate">{r.recipeName}</span>
                     <span className="text-xs text-stone-500 shrink-0 ml-2 font-medium">{formatCount(r.downloads)}</span>
                   </div>
                   <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
                     <div className="h-full rounded-full transition-all" style={{
                       width: `${(r.downloads / maxRecipeDl) * 100}%`,
-                      background: r.own ? '#C45A3A' : '#C45A3A40',
+                      background: '#C45A3A',
                     }} />
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-stone-600 shrink-0">
                   <Star size={11} className="text-amber-400 fill-amber-400" />
-                  {r.rating}
+                  {r.rating > 0 ? r.rating.toFixed(1) : '—'}
                 </span>
               </div>
             ))}

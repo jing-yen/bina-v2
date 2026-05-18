@@ -18,3 +18,8 @@ web/node_modules/
 web/dist/
 web/.env
 web/.env.local
+
+# Build artifacts
+.kotlin/
+web/.next/
+web/.impeccable/

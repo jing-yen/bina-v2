@@ -485,15 +485,15 @@ fun VoiceInputWidget(
                         color = themeColor,
                         strokeWidth = 2.dp
                     )
-                    Text("Transcribing...", fontSize = 14.sp, color = themeColor)
+                    Text(stringResource(R.string.miniapp_voice_transcribing), fontSize = 14.sp, color = themeColor)
                 }
                 recording -> {
                     Icon(Icons.Filled.Stop, contentDescription = "Stop recording", tint = Color.White, modifier = Modifier.size(20.dp))
-                    Text("Tap to stop", fontSize = 14.sp, color = Color.White)
+                    Text(stringResource(R.string.miniapp_voice_tap_stop), fontSize = 14.sp, color = Color.White)
                 }
                 else -> {
                     Icon(Icons.Filled.Mic, contentDescription = "Voice", tint = themeColor, modifier = Modifier.size(20.dp))
-                    Text(store.interpolate(widget.hint).ifEmpty { "Voice input" }, fontSize = 14.sp, color = themeColor)
+                    Text(store.interpolate(widget.hint).ifEmpty { stringResource(R.string.miniapp_voice_input) }, fontSize = 14.sp, color = themeColor)
                 }
             }
         }
@@ -591,7 +591,7 @@ fun CameraInputWidget(widget: Widget.CameraInput, store: VariableStore, themeCol
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(Modifier.width(4.dp))
-                    Text("Tap to retake", fontSize = 11.sp, color = Color.White)
+                    Text(stringResource(R.string.miniapp_retake), fontSize = 11.sp, color = Color.White)
                 }
             }
         } else {
@@ -739,17 +739,17 @@ fun ActionButtonWidget(
     if (showConfirm) {
         AlertDialog(
             onDismissRequest = { showConfirm = false },
-            title = { Text("Confirm", fontWeight = FontWeight.SemiBold) },
+            title = { Text(stringResource(R.string.confirm), fontWeight = FontWeight.SemiBold) },
             text = { Text(store.interpolate(widget.confirm), fontSize = 14.sp) },
             confirmButton = {
                 Button(
                     onClick = { showConfirm = false; onAction(widget.action) },
                     colors = ButtonDefaults.buttonColors(containerColor = themeColor)
-                ) { Text("Confirm", color = Color.White) }
+                ) { Text(stringResource(R.string.confirm), color = Color.White) }
             },
             dismissButton = {
                 OutlinedButton(onClick = { showConfirm = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -883,7 +883,7 @@ fun MetricCardWidget(widget: Widget.MetricCard, store: VariableStore, themeColor
             )
             if (widget.label.isNotEmpty()) {
                 Spacer(Modifier.height(4.dp))
-                Text(widget.label, fontSize = 13.sp, color = BinaGrayText)
+                Text(store.interpolate(widget.label), fontSize = 13.sp, color = BinaGrayText)
             }
         }
     }
@@ -1183,7 +1183,7 @@ fun ChecklistItemsWidget(widget: Widget.ChecklistItems, store: VariableStore, th
                     shape = RoundedCornerShape(12.dp),
                     border = BorderStroke(1.dp, themeColor)
                 ) {
-                    Text("Reset Checklist", color = themeColor, fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.miniapp_reset_checklist), color = themeColor, fontWeight = FontWeight.Medium)
                 }
             }
         }

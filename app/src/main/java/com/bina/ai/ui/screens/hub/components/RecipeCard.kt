@@ -19,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -75,7 +77,7 @@ fun RecipeCard(
                         .background(BinaRed)
                         .padding(horizontal = 5.dp, vertical = 1.dp)
                 ) {
-                    Text("SOS", fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(stringResource(R.string.sos_badge), fontSize = 7.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
             if (originFlag != null) {
@@ -98,7 +100,7 @@ fun RecipeCard(
         }
         Column(modifier = Modifier.padding(top = 3.dp, start = 2.dp, end = 2.dp, bottom = 2.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(miniApp.name, fontSize = 13.sp, lineHeight = 15.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950, maxLines = 1, modifier = Modifier.weight(1f, fill = false))
+                Text(com.bina.ai.ui.localizedName(miniApp), fontSize = 13.sp, lineHeight = 15.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950, maxLines = 1, modifier = Modifier.weight(1f, fill = false))
                 Icon(Icons.Filled.Verified, contentDescription = null, tint = BinaAccent, modifier = Modifier.size(13.dp))
             }
             val translatedCategory = com.bina.ai.ui.localizedCategory(miniApp.category)
@@ -110,7 +112,7 @@ fun RecipeCard(
                 Text(meta, fontSize = 10.sp, lineHeight = 12.sp, color = BinaGrayText, maxLines = 1)
             }
             if (isInstalled) {
-                Text("✓ Installed", fontSize = 9.sp, lineHeight = 11.sp, fontWeight = FontWeight.SemiBold, color = BinaGreen)
+                Text("✓ ${stringResource(R.string.hub_installed)}", fontSize = 9.sp, lineHeight = 11.sp, fontWeight = FontWeight.SemiBold, color = BinaGreen)
             }
         }
     }

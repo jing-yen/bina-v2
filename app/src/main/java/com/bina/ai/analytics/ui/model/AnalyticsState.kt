@@ -46,8 +46,8 @@ data class RecipeStats(
 /** Achievement state shown in the bottom card. */
 data class Achievement(
     val id: AchievementId,
-    val title: String,
-    val description: String,
+    val titleResId: Int,
+    val descriptionResId: Int,
     val emoji: String,
     val unlocked: Boolean,
     val progress: Float       // 0f..1f for progress bars on locked items

@@ -2,11 +2,35 @@
 <resources>
     <string name="app_name">Bina</string>
 
-    <string name="topbar_title">Bina</string>
+    <string name="topbar_title">สวัสดี, Jing Yen 👋</string>
     <string name="topbar_subtitle">AI ที่ทำงานแบบออฟไลน์</string>
 
     <string name="hub_title">กล่องเครื่องมือ AI ของคุณ</string>
     <string name="hub_subtitle">เครื่องมืออัจฉริยะสำหรับชุมชนของคุณ</string>
+    <string name="hub_your_recipes">สูตรของคุณ</string>
+    <string name="hub_trending">ยอดนิยมบน Bina</string>
+    <string name="hub_empty_all">ไม่มีสูตรที่พร้อมใช้งาน</string>
+    <string name="hub_empty_category">ไม่มีสูตรในหมวดหมู่นี้</string>
+    <string name="hub_all_recipes">สูตรทั้งหมด</string>
+
+    <!-- Bottom nav -->
+    <string name="nav_hub">Hub</string>
+    <string name="nav_pocket">กระเป๋าของฉัน</string>
+    <string name="nav_sync">ซิงค์ออฟไลน์</string>
+    <string name="nav_analytics">สถิติ</string>
+
+    <!-- Recipe stats -->
+    <string name="stat_recipe_size">ขนาดสูตร</string>
+    <string name="stat_features">ฟีเจอร์ที่มี</string>
+    <string name="stat_dialect">สำเนียง</string>
+
+    <!-- Categories -->
+    <string name="cat_all">ทั้งหมด</string>
+    <string name="cat_agriculture">เกษตรกรรม</string>
+    <string name="cat_health">สุขภาพ</string>
+    <string name="cat_business">ธุรกิจ</string>
+    <string name="cat_finance">การเงิน</string>
+    <string name="cat_education">การศึกษา</string>
 
     <string name="pocket_title">กระเป๋าของฉัน</string>
     <string name="pocket_subtitle">สูตรที่บันทึกไว้ พร้อมใช้งานออฟไลน์</string>
@@ -23,7 +47,6 @@
 
     <string name="recipe_open">เปิด</string>
     <string name="recipe_install_open">ติดตั้งและเปิด</string>
-    <string name="recipe_configure_install">ตั้งค่าและติดตั้ง</string>
     <string name="recipe_add_home">เพิ่มไปยังหน้าจอหลัก</string>
     <string name="recipe_verified_by">ยืนยันโดย %s</string>
     <string name="recipe_domain">หมวด: %s</string>
@@ -43,6 +66,8 @@
     <string name="miniapp_complete">เสร็จสิ้น!</string>
     <string name="miniapp_step_of">ขั้นที่ %1$d จาก %2$d</string>
     <string name="miniapp_your_location">คุณ: %1$s, %2$s</string>
+    <string name="miniapp_location_mins_ago">%d นาทีที่แล้ว</string>
+    <string name="miniapp_location_just_now">เมื่อสักครู่</string>
 
     <string name="triage_greeting">สวัสดี! ฉันคือ %s มีอะไรให้ช่วยไหม?</string>
     <string name="triage_placeholder">อธิบายสิ่งที่คุณต้องการ&#8230;</string>
@@ -50,4 +75,118 @@
 
     <string name="confirm">ยืนยัน</string>
     <string name="cancel">ยกเลิก</string>
+
+    <!-- Offline Sync -->
+    <string name="sync_title">ซิงค์ออฟไลน์</string>
+    <string name="sync_subtitle">แชร์สูตรระหว่างโทรศัพท์ ไม่ต้องใช้อินเทอร์เน็ต</string>
+    <string name="sync_scan_title">สแกนเพื่อรับ</string>
+    <string name="sync_scan_subtitle">สแกน QR ของโทรศัพท์เครื่องอื่น หรือวาง YAML เพื่อติดตั้ง</string>
+    <string name="sync_share_title">แชร์สูตร</string>
+    <string name="sync_share_subtitle">เลือกสูตรที่ติดตั้งแล้วเพื่อแชร์ผ่าน QR</string>
+    <string name="sync_share_picker_subtitle">เลือกสูตรที่ติดตั้งแล้ว ผู้รับสแกน QR เพื่อติดตั้ง</string>
+    <string name="sync_share_empty">ติดตั้งสูตรจาก Hub ก่อน</string>
+    <string name="sync_paste_title">วาง YAML ของสูตร</string>
+    <string name="sync_paste_subtitle">วาง YAML ที่คัดลอกจาก Studio (หรือโทรศัพท์เครื่องอื่น) จะถูกแยกวิเคราะห์และแสดงตัวอย่างก่อนติดตั้ง</string>
+    <string name="sync_paste_placeholder">id: my_recipe\nname: …</string>
+    <string name="sync_paste_clipboard">วางจากคลิปบอร์ด</string>
+    <string name="sync_paste_import">นำเข้า</string>
+    <string name="sync_receive_title">รับสูตรหรือไม่?</string>
+    <string name="sync_receive_by">โดย %s</string>
+    <string name="sync_receive_size">%d KB · id: %s</string>
+    <string name="sync_receive_connect">เชื่อมต่อ</string>
+    <string name="sync_receive_connecting">กำลังเชื่อมต่อกับผู้ส่ง…</string>
+    <string name="sync_receive_progress">กำลังรับ… %d%%</string>
+    <string name="sync_receive_retry">ลองอีกครั้ง</string>
+    <string name="sync_camera_needed">ต้องการสิทธิ์กล้อง</string>
+    <string name="sync_camera_hint">อนุญาตกล้องเพื่อสแกน QR หรือวาง YAML แทน</string>
+    <string name="sync_try_again">ลองอีกครั้ง</string>
+    <string name="sync_paste_instead">วาง YAML แทน</string>
+    <string name="sync_bt_permission">ต้องการสิทธิ์บลูทูธ</string>
+    <string name="sync_recipe_not_found">ไม่พบสูตร</string>
+    <string name="sync_share_instructions">ให้โทรศัพท์อีกเครื่องเปิด ซิงค์ → สแกนเพื่อรับ\nเปิดหน้าจอนี้ไว้จนกว่าจะเชื่อมต่อสำเร็จ</string>
+    <string name="sync_bt_needed">ต้องการสิทธิ์บลูทูธเพื่อแชร์ผ่าน QR หรือคัดลอก YAML ด้านล่าง</string>
+    <string name="sync_copy_yaml">คัดลอก YAML ไปยังคลิปบอร์ด</string>
+    <string name="sync_done">เสร็จสิ้น</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">สถิติ</string>
+    <string name="analytics_subtitle">การใช้งานในการสร้างและในอุปกรณ์ของคุณ</string>
+    <string name="analytics_live_badge">สด · ในอุปกรณ์</string>
+    <string name="analytics_total_launches">การเปิดทั้งหมด</string>
+    <string name="analytics_all_time">ตลอดเวลา</string>
+    <string name="analytics_vs_prev_7d">เทียบกับ 7 วันก่อน</string>
+    <string name="analytics_vs_prev_30d">เทียบกับ 30 วันก่อน</string>
+    <string name="analytics_recipes_installed">สูตรที่ติดตั้งแล้ว</string>
+    <string name="analytics_questions_asked">คำถามที่ถาม</string>
+    <string name="analytics_active_days">วันที่ใช้งาน</string>
+    <string name="analytics_streak">ต่อเนื่อง</string>
+    <string name="analytics_streak_none">ไม่มีการใช้งานต่อเนื่องขณะนี้</string>
+    <string name="analytics_streak_one">1 วันติดต่อกัน</string>
+    <string name="analytics_streak_many">%d วันติดต่อกัน</string>
+    <string name="analytics_achievements">ความสำเร็จ</string>
+    <string name="analytics_unlocked">ปลดล็อกแล้ว</string>
+    <string name="analytics_daily_activity">กิจกรรมรายวัน</string>
+    <string name="analytics_tap_day">แตะวันเพื่อดูรายละเอียด</string>
+    <string name="analytics_less">น้อยกว่า</string>
+    <string name="analytics_more">มากกว่า</string>
+    <string name="analytics_most_used">สูตรที่ใช้บ่อยที่สุด</string>
+    <string name="analytics_no_activity_window">ยังไม่มีกิจกรรมสูตรในช่วงเวลานี้</string>
+    <string name="analytics_launches_asks">%1$d ครั้งที่เปิด · %2$d คำถาม</string>
+    <string name="analytics_empty_title">ยังไม่มีกิจกรรม</string>
+    <string name="analytics_empty_subtitle">เปิดสูตรจาก Hub เพื่อเริ่มดูสถิติ</string>
+    <string name="analytics_open_hub">เปิด Hub</string>
+
+    <!-- Hub -->
+    <string name="hub_installed">ติดตั้งแล้ว</string>
+
+    <!-- Achievements -->
+    <string name="achievement_collector_title">นักสะสมสูตร</string>
+    <string name="achievement_collector_desc">ติดตั้งสูตร 3 รายจาก Hub</string>
+    <string name="achievement_curious_title">นักทดลองขับขี่</string>
+    <string name="achievement_curious_desc">ถามคำถาม 10 ข้อทั่วสูตรของคุณ</string>
+    <string name="achievement_streak_title">ต่อเนื่อง</string>
+    <string name="achievement_streak_desc">ใช้ Bina 3 วันติดต่อกัน</string>
+    <string name="achievement_explorer_title">นักสำรวจ</string>
+    <string name="achievement_explorer_desc">ใช้สูตร 3 แบบต่างๆ</string>
+
+    <!-- New Analytics Strings -->
+    <string name="analytics_day_one">1 วัน</string>
+    <string name="analytics_day_many">%d วัน</string>
+    <string name="analytics_recipes_in_pocket">%d สูตรใน Pocket</string>
+    <string name="analytics_questions_in_period">%d คำถามในช่วงนี้</string>
+    <string name="analytics_days_with_activity">%1$d จาก %2$d วันที่มีกิจกรรม</string>
+    <string name="analytics_by_recipe">ตามสูตร</string>
+    <string name="analytics_recent_active">วันที่ใช้งานล่าสุด</string>
+    <string name="analytics_hint_install">เรียกดู Hub เพื่อติดตั้งสูตร</string>
+    <string name="analytics_hint_no_usage">คุณยังไม่ได้ใช้สูตรที่ติดตั้งในช่วงนี้</string>
+    <string name="analytics_hint_questions">ถามคำถามกับสูตรแล้วจะแสดงที่นี่</string>
+    <string name="analytics_hint_active_days">วันที่คุณเปิดสูตรหรือถามคำถามจะนับเข้าสถิติต่อเนื่อง</string>
+    <string name="analytics_hint_streak">เปิดหรือถามสูตรวันนี้เพื่อเริ่มสถิติต่อเนื่อง วันที่ใช้งานติดต่อกันจะสะสม</string>
+    <string name="analytics_most_used_period">ใช้มากที่สุดในช่วงนี้</string>
+
+    <!-- Share & Emergency -->
+    <string name="share">แชร์</string>
+    <string name="emergency_badge">EMERGENCY</string>
+    <string name="sos_badge">SOS</string>
+    <string name="recipe_by">โดย %s</string>
+    <string name="recipe_not_available">ไม่มีสูตรนี้</string>
+    <string name="go_back">กลับ</string>
+
+    <!-- MiniApp extras -->
+    <string name="miniapp_triage_fallback">ให้ฉันแสดงตัวเลือกทั้งหมดที่มี</string>
+    <string name="miniapp_voice_transcribing">กำลังถอดเสียง&#8230;</string>
+    <string name="miniapp_voice_tap_stop">แตะเพื่อหยุด</string>
+    <string name="miniapp_voice_input">ป้อนด้วยเสียง</string>
+    <string name="miniapp_i_understand">ฉันเข้าใจแล้ว</string>
+
+    <!-- Model download -->
+    <string name="model_title">ต้องการโมเดล AI</string>
+    <string name="model_subtitle">Bina ต้องการโมเดลภาษาขนาด ~2.6 GB เพื่อทำงานแบบออฟไลน์ ดาวน์โหลดครั้งเดียว ใช้ได้ตลอด</string>
+    <string name="model_usb_note">เร็วๆ นี้: ถ่ายโอนผ่าน USB สำหรับพื้นที่ที่สัญญาณจำกัด</string>
+    <string name="model_download_button">Download Gemma 4 E2B</string>
+    <string name="model_downloading">กำลังดาวน์โหลด… เปิดแอปไว้</string>
+    <string name="model_done">โมเดลพร้อมแล้ว!</string>
+    <string name="model_continue">ดำเนินการต่อ</string>
+    <string name="model_retry">ลองอีกครั้ง</string>
+    <string name="model_error_title">ดาวน์โหลดล้มเหลว</string>
 </resources>

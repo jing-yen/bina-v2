@@ -1,0 +1,500 @@
+id: kira_mikro
+name: "Kira Mikro"
+description: "Kira jualan & hutang warung anda — AI bookkeeping for micro-enterprises"
+icon: "\U0001F4B0"
+version: "1.0.0"
+category: "Finance"
+featured: true
+tags:
+  - warung
+  - finance
+  - bookkeeping
+  - micro-enterprise
+author:
+  name: "Pn. Siti Hajar"
+  organisation: "Koperasi Usahawan Mikro Kelantan"
+  verified: true
+theme:
+  primary: "#D97706"
+  secondary: "#FEF3C7"
+localisation:
+  supported:
+    - ms
+    - en
+    - id
+    - vi
+    - th
+    - km
+    - my
+    - ta
+    - zh
+  default: ms
+  labels:
+    ms:
+      recipe_name: "Kira Mikro"
+      recipe_desc: "Kira jualan & hutang warung anda — perakaunan AI untuk perusahaan mikro"
+      greeting: "Hai! Saya {{l10n.recipe_name}}. Apa yang boleh saya bantu?"
+      home_heading: "Apa yang anda ingin buat?"
+      grid_rekod: "Rekod Jualan"
+      grid_kira: "Kira Untung"
+      grid_hutang: "Imbas Hutang"
+      grid_tanya: "Tanya Kira"
+      rekod_title: "Rekod Jualan Hari Ini"
+      rekod_item_hint: "Nama barang (cth: nasi lemak, milo)"
+      rekod_qty_hint: "Bilangan dijual"
+      rekod_price_hint: "Harga seunit (RM)"
+      rekod_button: "Rekod & Ringkaskan"
+      kira_title: "Kira Untung Rugi"
+      kira_heading: "Kalkulator Untung Harian"
+      kira_jualan_hint: "Jumlah jualan hari ini (RM)"
+      kira_kos_hint: "Jumlah kos/belanja (RM)"
+      kira_sst: "Termasuk SST 6%"
+      kira_button: "Kira"
+      kira_result_label: "Untung Bersih"
+      hutang_title: "Imbas Hutang"
+      hutang_heading: "Imbas Buku 555 anda"
+      hutang_hint: "Terangkan hutang yang anda rekod (atau ambil gambar)"
+      hutang_button: "Analisis Hutang"
+      tanya_title: "Tanya Kira"
+      tanya_voice_hint: "Tekan untuk bercakap..."
+      tanya_text_hint: "...atau taipkan soalan kewangan"
+      tanya_button: "Tanya"
+    en:
+      recipe_name: "Micro Bookkeeper"
+      recipe_desc: "Track your stall sales & debts -- AI bookkeeping for micro-enterprises"
+      greeting: "Hi! I'm {{l10n.recipe_name}}. How can I help you today?"
+      home_heading: "What would you like to do?"
+      grid_rekod: "Record Sales"
+      grid_kira: "Calculate Profit"
+      grid_hutang: "Scan Debts"
+      grid_tanya: "Ask Kira"
+      rekod_title: "Today's Sales Record"
+      rekod_item_hint: "Item name (e.g. nasi lemak, milo)"
+      rekod_qty_hint: "Quantity sold"
+      rekod_price_hint: "Price per unit (RM)"
+      rekod_button: "Record & Summarize"
+      kira_title: "Profit & Loss"
+      kira_heading: "Daily Profit Calculator"
+      kira_jualan_hint: "Total sales today (RM)"
+      kira_kos_hint: "Total costs/expenses (RM)"
+      kira_sst: "Include SST 6%"
+      kira_button: "Calculate"
+      kira_result_label: "Net Profit"
+      hutang_title: "Scan Debts"
+      hutang_heading: "Scan your Buku 555"
+      hutang_hint: "Describe the debts you recorded (or take a photo)"
+      hutang_button: "Analyze Debts"
+      tanya_title: "Ask Kira"
+      tanya_voice_hint: "Tap to speak..."
+      tanya_text_hint: "...or type a financial question"
+      tanya_button: "Ask"
+    id:
+      recipe_name: "Kira Mikro"
+      recipe_desc: "Hitung penjualan & utang warung Anda — pembukuan AI untuk usaha mikro"
+      greeting: "Halo! Saya {{l10n.recipe_name}}. Apa yang bisa saya bantu?"
+      home_heading: "Apa yang ingin Anda lakukan?"
+      grid_rekod: "Catat Penjualan"
+      grid_kira: "Hitung Untung"
+      grid_hutang: "Pindai Utang"
+      grid_tanya: "Tanya Kira"
+      rekod_title: "Catatan Penjualan Hari Ini"
+      rekod_item_hint: "Nama barang (mis: nasi uduk, es teh)"
+      rekod_qty_hint: "Jumlah terjual"
+      rekod_price_hint: "Harga per unit (Rp)"
+      rekod_button: "Catat & Ringkas"
+      kira_title: "Hitung Laba Rugi"
+      kira_heading: "Kalkulator Laba Harian"
+      kira_jualan_hint: "Total penjualan hari ini"
+      kira_kos_hint: "Total biaya/pengeluaran"
+      kira_sst: "Termasuk PPN 11%"
+      kira_button: "Hitung"
+      kira_result_label: "Laba Bersih"
+      hutang_title: "Pindai Utang"
+      hutang_heading: "Pindai buku utang Anda"
+      hutang_hint: "Jelaskan utang yang Anda catat (atau ambil foto)"
+      hutang_button: "Analisis Utang"
+      tanya_title: "Tanya Kira"
+      tanya_voice_hint: "Ketuk untuk bicara..."
+      tanya_text_hint: "...atau ketik pertanyaan keuangan"
+      tanya_button: "Tanya"
+    vi:
+      recipe_name: "Sổ Sách Nhỏ"
+      recipe_desc: "Theo dõi doanh thu & nợ quầy hàng — kế toán AI cho doanh nghiệp siêu nhỏ"
+      greeting: "Xin chào! Tôi là {{l10n.recipe_name}}. Tôi có thể giúp gì cho bạn?"
+      home_heading: "Bạn muốn làm gì?"
+      grid_rekod: "Ghi doanh thu"
+      grid_kira: "Tính lợi nhuận"
+      grid_hutang: "Quét nợ"
+      grid_tanya: "Hỏi Kira"
+      rekod_title: "Doanh thu hôm nay"
+      rekod_item_hint: "Tên mặt hàng (vd: cơm tấm, trà đá)"
+      rekod_qty_hint: "Số lượng bán"
+      rekod_price_hint: "Giá mỗi đơn vị (đồng)"
+      rekod_button: "Ghi & Tóm tắt"
+      kira_title: "Lãi lỗ"
+      kira_heading: "Máy tính lợi nhuận hàng ngày"
+      kira_jualan_hint: "Tổng doanh thu hôm nay"
+      kira_kos_hint: "Tổng chi phí/hàng hóa"
+      kira_sst: "Bao gồm thuế VAT 10%"
+      kira_button: "Tính"
+      kira_result_label: "Lợi nhuận ròng"
+      hutang_title: "Quét nợ"
+      hutang_heading: "Quét sổ nợ của bạn"
+      hutang_hint: "Mô tả các khoản nợ bạn đã ghi (hoặc chụp ảnh)"
+      hutang_button: "Phân tích nợ"
+      tanya_title: "Hỏi Kira"
+      tanya_voice_hint: "Nhấn để nói..."
+      tanya_text_hint: "...hoặc gõ câu hỏi tài chính"
+      tanya_button: "Hỏi"
+    th:
+      recipe_name: "บัญชีร้านค้า"
+      recipe_desc: "บันทึกยอดขายและหนี้สินร้านค้าของคุณ — การทำบัญชี AI สำหรับกิจการขนาดเล็ก"
+      greeting: "สวัสดี! ฉันคือ {{l10n.recipe_name}} ฉันช่วยอะไรได้บ้าง?"
+      home_heading: "คุณต้องการทำอะไร?"
+      grid_rekod: "บันทึกยอดขาย"
+      grid_kira: "คำนวณกำไร"
+      grid_hutang: "สแกนหนี้"
+      grid_tanya: "ถาม Kira"
+      rekod_title: "บันทึกยอดขายวันนี้"
+      rekod_item_hint: "ชื่อสินค้า (เช่น ข้าวผัด, ชาเย็น)"
+      rekod_qty_hint: "จำนวนที่ขาย"
+      rekod_price_hint: "ราคาต่อหน่วย (บาท)"
+      rekod_button: "บันทึก & สรุป"
+      kira_title: "กำไร-ขาดทุน"
+      kira_heading: "เครื่องคิดกำไรรายวัน"
+      kira_jualan_hint: "ยอดขายรวมวันนี้ (บาท)"
+      kira_kos_hint: "ต้นทุน/ค่าใช้จ่ายรวม (บาท)"
+      kira_sst: "รวม VAT 7%"
+      kira_button: "คำนวณ"
+      kira_result_label: "กำไรสุทธิ"
+      hutang_title: "สแกนหนี้"
+      hutang_heading: "สแกนสมุดบัญชีหนี้ของคุณ"
+      hutang_hint: "อธิบายหนี้ที่คุณบันทึก (หรือถ่ายรูป)"
+      hutang_button: "วิเคราะห์หนี้"
+      tanya_title: "ถาม Kira"
+      tanya_voice_hint: "กดเพื่อพูด..."
+      tanya_text_hint: "...หรือพิมพ์คำถามทางการเงิน"
+      tanya_button: "ถาม"
+    km:
+      recipe_name: "គណនាមីក្រូ"
+      recipe_desc: "តាមដានការលក់និងបំណុលហាងរបស់អ្នក — គណនេយ្យ AI សម្រាប់សហគ្រាសមីក្រូ"
+      greeting: "សួស្តី! ខ្ញុំជា {{l10n.recipe_name}}។ តើខ្ញុំអាចជួយអ្វីបាន?"
+      home_heading: "អ្នកចង់ធ្វើអ្វី?"
+      grid_rekod: "កត់ត្រាការលក់"
+      grid_kira: "គណនាប្រាក់ចំណេញ"
+      grid_hutang: "ស្កែន借款"
+      grid_tanya: "សួរ Kira"
+      rekod_title: "ការលក់ថ្ងៃនេះ"
+      rekod_item_hint: "ឈ្មោះទំនិញ (ឧ. បាយ, ទឹក)"
+      rekod_qty_hint: "ចំនួនដែលបានលក់"
+      rekod_price_hint: "តម្លៃក្នុងមួយគ្រឿង (រៀល)"
+      rekod_button: "កត់ត្រា & សង្ខេប"
+      kira_title: "ចំណេញ-ខាត"
+      kira_heading: "ម៉ាស៊ីនគណនាប្រាក់ចំណេញប្រចាំថ្ងៃ"
+      kira_jualan_hint: "ចំនួនលក់សរុបថ្ងៃនេះ"
+      kira_kos_hint: "ថ្លៃដើម/ចំណាយសរុប"
+      kira_sst: "រួមបញ្ចូលអាករ 10%"
+      kira_button: "គណនា"
+      kira_result_label: "ប្រាក់ចំណេញសុទ្ធ"
+      hutang_title: "ស្កែន借款"
+      hutang_heading: "ស្កែនសៀវភៅបំណុលរបស់អ្នក"
+      hutang_hint: "ពិពណ៌នាបំណុលដែលអ្នកបានកត់ (ឬថតរូប)"
+      hutang_button: "វិភាគបំណុល"
+      tanya_title: "សួរ Kira"
+      tanya_voice_hint: "ចុចដើម្បីនិយាយ..."
+      tanya_text_hint: "...ឬបញ្ចូលសំណួរហិរញ្ញវត្ថុ"
+      tanya_button: "សួរ"
+    my:
+      recipe_name: "ဆိုင်ငယ် စာရင်းကိုင်"
+      recipe_desc: "သင့်ဆိုင်ရောင်းအားနှင့်အကြွေးများ တွက်ချက်ပါ — အသေးစားလုပ်ငန်းများအတွက် AI စာရင်းကိုင်"
+      greeting: "မင်္ဂလာပါ! ကျွန်တော်/ကျွန်မ {{l10n.recipe_name}} ပါ။ ဘာကူညီပေးရမလဲ?"
+      home_heading: "သင် ဘာလုပ်ချင်ပါသနည်း?"
+      grid_rekod: "ရောင်းအားမှတ်တမ်း"
+      grid_kira: "အမြတ် တွက်ချက်ရန်"
+      grid_hutang: "အကြွေးစကင်ရန်"
+      grid_tanya: "Kira ကို မေးရန်"
+      rekod_title: "ယနေ့ ရောင်းအားမှတ်တမ်း"
+      rekod_item_hint: "ကုန်ပစ္စည်းအမည် (ဥပမာ - ထမင်း၊ ရေ)"
+      rekod_qty_hint: "ရောင်းသောအရေအတွက်"
+      rekod_price_hint: "တစ်ယူနစ်ဈေး (ကျပ်)"
+      rekod_button: "မှတ်တမ်းတင် & အကျဉ်းချုပ်"
+      kira_title: "အမြတ်-အရှုံး"
+      kira_heading: "နေ့စဉ် အမြတ် တွက်ချက်ကိရိယာ"
+      kira_jualan_hint: "ယနေ့ စုစုပေါင်း ရောင်းအား"
+      kira_kos_hint: "စုစုပေါင်း ကုန်ကျစရိတ်"
+      kira_sst: "အခွန် 5% ထည့်တွက်ရန်"
+      kira_button: "တွက်ချက်ရန်"
+      kira_result_label: "အသားတင်အမြတ်"
+      hutang_title: "အကြွေးစကင်ရန်"
+      hutang_heading: "သင့်အကြွေးစာအုပ် စကင်ရန်"
+      hutang_hint: "မှတ်တမ်းတင်ထားသောအကြွေးများ ဖော်ပြပါ (သို့မဟုတ် ဓာတ်ပုံရိုက်ပါ)"
+      hutang_button: "အကြွေး စစ်ဆေးရန်"
+      tanya_title: "Kira ကို မေးရန်"
+      tanya_voice_hint: "ပြောဆိုရန် နှိပ်ပါ..."
+      tanya_text_hint: "...သို့မဟုတ် ငွေကြေးမေးခွန်း ရိုက်ထည့်ပါ"
+      tanya_button: "မေးရန်"
+    ta:
+      recipe_name: "நுண் கணக்காளர்"
+      recipe_desc: "உங்கள் கடை விற்பனை & கடன்களை கணக்கிடுங்கள் — நுண்தொழில்களுக்கான AI கணக்கு வைப்பு"
+      greeting: "வணக்கம்! நான் {{l10n.recipe_name}}. நான் எப்படி உதவ முடியும்?"
+      home_heading: "நீங்கள் என்ன செய்ய விரும்புகிறீர்கள்?"
+      grid_rekod: "விற்பனை பதிவு"
+      grid_kira: "லாபம் கணக்கிடு"
+      grid_hutang: "கடன் ஸ்கேன்"
+      grid_tanya: "Kira-வை கேளுங்கள்"
+      rekod_title: "இன்றைய விற்பனை பதிவு"
+      rekod_item_hint: "பொருளின் பெயர் (எ.கா. சாதம், தேநீர்)"
+      rekod_qty_hint: "விற்கப்பட்ட அளவு"
+      rekod_price_hint: "ஒரு அலகு விலை (ரூபாய்)"
+      rekod_button: "பதிவு & சுருக்கம்"
+      kira_title: "லாப-நஷ்டம்"
+      kira_heading: "தினசரி லாப கணக்கி"
+      kira_jualan_hint: "இன்றைய மொத்த விற்பனை"
+      kira_kos_hint: "மொத்த செலவுகள்/சரக்குகள்"
+      kira_sst: "GST 9% சேர்க்கவும்"
+      kira_button: "கணக்கிடு"
+      kira_result_label: "நிகர லாபம்"
+      hutang_title: "கடன் ஸ்கேன்"
+      hutang_heading: "உங்கள் கடன் ஏடை ஸ்கேன் செய்யுங்கள்"
+      hutang_hint: "நீங்கள் பதிவு செய்த கடன்களை விவரிக்கவும் (அல்லது படம் எடுக்கவும்)"
+      hutang_button: "கடன் பகுப்பாய்வு"
+      tanya_title: "Kira-வை கேளுங்கள்"
+      tanya_voice_hint: "பேசுவதற்கு தட்டவும்..."
+      tanya_text_hint: "...அல்லது நிதி கேள்வி தட்டச்சு செய்யுங்கள்"
+      tanya_button: "கேளுங்கள்"
+    zh:
+      recipe_name: "微型记账"
+      recipe_desc: "记录您的摊位销售和欠款——微型企业的AI记账工具"
+      greeting: "你好！我是{{l10n.recipe_name}}。我能帮你什么？"
+      home_heading: "您想做什么？"
+      grid_rekod: "记录销售"
+      grid_kira: "计算利润"
+      grid_hutang: "扫描债务"
+      grid_tanya: "问 Kira"
+      rekod_title: "今日销售记录"
+      rekod_item_hint: "商品名称（如：米饭、奶茶）"
+      rekod_qty_hint: "销售数量"
+      rekod_price_hint: "每单位价格（令吉）"
+      rekod_button: "记录并汇总"
+      kira_title: "盈亏计算"
+      kira_heading: "每日利润计算器"
+      kira_jualan_hint: "今日总销售额"
+      kira_kos_hint: "总成本/支出"
+      kira_sst: "含SST 6%"
+      kira_button: "计算"
+      kira_result_label: "净利润"
+      hutang_title: "扫描债务"
+      hutang_heading: "扫描您的欠账本"
+      hutang_hint: "描述您记录的欠款（或拍照）"
+      hutang_button: "分析债务"
+      tanya_title: "问 Kira"
+      tanya_voice_hint: "点击说话..."
+      tanya_text_hint: "...或输入财务问题"
+      tanya_button: "提问"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are Kira Mikro, a personal financial assistant for small warung (shop) operators and micro-enterprise owners in Southeast Asia.
+
+    You understand:
+    - Buku 555 (the common handwritten debt ledger used by Malaysian traders)
+    - RM (Ringgit Malaysia) currency formatting
+    - SST (Sales & Services Tax) at 6%
+    - Common warung items: nasi lemak, mee goreng, teh tarik, roti canai, milo, kuih
+    - Simple profit/loss calculations for daily trading
+    - Debt tracking and payment reminders
+
+    Always:
+    - Use RM formatting (RM 12.50, not $12.50)
+    - Give answers in simple language a warung owner understands
+    - Present financial summaries in clear tables
+    - Round to 2 decimal places
+    - Include profit margin percentages where relevant
+
+    Never:
+    - Give investment or stock market advice
+    - Recommend loans or credit facilities
+    - Provide tax planning beyond basic SST
+    - Suggest business expansion strategies
+safety:
+  blocked_keywords:
+    - pinjaman haram
+    - skim cepat kaya
+    - pelaburan saham
+    - forex
+    - crypto
+    - investment
+  escalation_message: "Kira Mikro tidak boleh memberi nasihat pelaburan atau pinjaman. Sila rujuk penasihat kewangan berlesen."
+  disclaimer: "Alat bantuan kewangan warung. Bukan nasihat kewangan profesional."
+setup:
+  intro_page:
+    accept_label: "Saya Faham — Mula"
+    disclaimer: "Kira Mikro membantu mengurus kewangan warung anda. Ini bukan nasihat kewangan profesional. Untuk hal percukaian dan pelaburan, sila rujuk akauntan bertauliah."
+    author:
+      name: "Pn. Siti Hajar"
+      organisation: "Koperasi Usahawan Mikro Kelantan"
+      verified: true
+    links:
+      - label: "Portal SME Corp Malaysia"
+        url: "https://www.smecorp.gov.my"
+      - label: "Panduan Cukai LHDN"
+        url: "https://www.hasil.gov.my"
+screen_catalog:
+  - id: home
+    title: "Home"
+    icon: "\U0001F3E0"
+  - id: rekod_jualan
+    title: "Rekod"
+    icon: "\U0001F4DD"
+  - id: kira_untung
+    title: "Untung"
+    icon: "\U0001F4B5"
+  - id: imbas_hutang
+    title: "Hutang"
+    icon: "\U0001F4F7"
+  - id: tanya_kira
+    title: "Tanya"
+    icon: "\U0001F4AC"
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  photo_path: { type: string, default: "" }
+  item_name: { type: string, default: "" }
+  item_qty: { type: number, default: "0" }
+  item_price: { type: number, default: "0" }
+  calc_jualan: { type: number, default: "0" }
+  calc_kos: { type: number, default: "0" }
+  calc_result: { type: number, default: "0" }
+  include_sst: { type: string, default: "false" }
+formulas:
+  profit:
+    expression: "{{calc_jualan}} - {{calc_kos}}"
+    output: calc_result
+  profit_sst:
+    expression: "({{calc_jualan}} - {{calc_kos}}) * (1 - 6 / 100)"
+    output: calc_result
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_rekod}}"
+              icon: "\U0001F4DD"
+              action: "go:rekod_jualan"
+            - label: "{{l10n.grid_kira}}"
+              icon: "\U0001F4B5"
+              action: "go:kira_untung"
+            - label: "{{l10n.grid_hutang}}"
+              icon: "\U0001F4F7"
+              action: "go:imbas_hutang"
+            - label: "{{l10n.grid_tanya}}"
+              icon: "\U0001F4AC"
+              action: "go:tanya_kira"
+  - id: rekod_jualan
+    title: "{{l10n.rekod_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.rekod_title}}"
+          style: subheading
+      - text_input:
+          bind: item_name
+          hint: "{{l10n.rekod_item_hint}}"
+      - text_input:
+          bind: item_qty
+          hint: "{{l10n.rekod_qty_hint}}"
+          input_type: number
+      - text_input:
+          bind: item_price
+          hint: "{{l10n.rekod_price_hint}}"
+          input_type: number
+      - action_button:
+          label: "{{l10n.rekod_button}}"
+          action: "ask:Rekod jualan warung hari ini. Item: {{item_name}}, Bilangan: {{item_qty}}, Harga: RM{{item_price}} seunit. Kira jumlah untuk item ini, tunjukkan pengiraan, dan beri ringkasan harian. Format sebagai jadual ringkas."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: kira_untung
+    title: "{{l10n.kira_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.kira_heading}}"
+          style: subheading
+      - text_input:
+          bind: calc_jualan
+          hint: "{{l10n.kira_jualan_hint}}"
+          input_type: number
+      - text_input:
+          bind: calc_kos
+          hint: "{{l10n.kira_kos_hint}}"
+          input_type: number
+      - text_input:
+          bind: include_sst
+          label: "{{l10n.kira_sst}}"
+          input_type: toggle
+      - action_button:
+          label: "{{l10n.kira_button}}"
+          action: "formula:profit"
+          style: primary
+          hidden_if: "include_sst"
+      - action_button:
+          label: "{{l10n.kira_button}}"
+          action: "formula:profit_sst"
+          style: primary
+          visible_if: "include_sst"
+      - metric_card:
+          source: calc_result
+          label: "{{l10n.kira_result_label}}"
+          prefix: "RM "
+          visible_if: calc_result
+  - id: imbas_hutang
+    title: "{{l10n.hutang_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.hutang_heading}}"
+          style: subheading
+      - camera_input:
+          bind: photo_path
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.hutang_hint}}"
+      - action_button:
+          label: "{{l10n.hutang_button}}"
+          action: "vision_ask:Analisis gambar buku hutang (Buku 555) ini. Senaraikan: 1) Nama penghutang, 2) Jumlah hutang (dalam RM), 3) Tarikh hutang jika ada, 4) Status (belum bayar / separuh bayar). Akhir sekali, beri jumlah keseluruhan hutang tertunggak. Format sebagai jadual."
+          style: primary
+          visible_if: "photo_path"
+      - action_button:
+          label: "{{l10n.hutang_button}}"
+          action: "ask:Bantu saya menganalisis rekod hutang warung saya. Maklumat: {{user_text}}. Tolong senaraikan nama, jumlah, dan cadangan peringatan pembayaran. Format sebagai jadual."
+          style: primary
+          hidden_if: "photo_path"
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: tanya_kira
+    title: "{{l10n.tanya_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.tanya_title}}"
+          style: subheading
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.tanya_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.tanya_text_hint}}"
+      - action_button:
+          label: "{{l10n.tanya_button}}"
+          action: "ask:{{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+permissions:
+  - camera

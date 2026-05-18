@@ -10,9 +10,16 @@ class VariableStore(
     var onChange: (() -> Unit)? = null
 
     init {
-        defs.forEach { (name, def) -> state[name] = def.default }
-        if ("ai_response" !in state) state["ai_response"] = ""
-        if ("is_loading" !in state) state["is_loading"] = "false"
+        defs.forEach { (name, def) ->
+            // Preserve persisted values; only apply default for new or transient variables
+            if (name !in state || name in TRANSIENT_VARS) {
+                state[name] = def.default
+            }
+        }
+        // Always reset transient runtime state regardless of YAML definitions
+        state["ai_response"] = ""
+        state["is_loading"] = "false"
+        state.remove("photo_path")
     }
 
     operator fun get(key: String): String = state[key] ?: ""
@@ -65,5 +72,12 @@ class VariableStore(
     companion object {
         private val VARIABLE_REGEX = Regex("\\{\\{(\\w+(?:\\.\\w+)?)\\}\\}")
         private val COMPARISON_REGEX = Regex("(.+?)\\s*(>=|<=|!=|==|>|<)\\s*(.+)")
+
+        /**
+         * Variables that are session-scoped and must always reset on re-open,
+         * even if they were somehow persisted. These are also excluded from
+         * SharedPreferences writes in MiniAppScreen's onChange handler.
+         */
+        val TRANSIENT_VARS = setOf("ai_response", "is_loading", "photo_path", "user_text")
     }
 }

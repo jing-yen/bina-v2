@@ -16,6 +16,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import com.bina.ai.analytics.ui.model.DailyBucket
 import com.bina.ai.analytics.ui.model.MetricsSnapshot
 import com.bina.ai.analytics.ui.model.RecipeStats
-import com.bina.ai.analytics.ui.util.plural
 import com.bina.ai.ui.theme.BinaBgCard
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaStone950
@@ -66,30 +67,27 @@ fun MetricDetailSheet(
     }
 }
 
-// ------- per-kind sections ------------------------------------------------
-
 @Composable
 private fun InstalledRecipesDetail(metrics: MetricsSnapshot, leaderboard: List<RecipeStats>) {
     val installed = metrics.recipesInstalled
     SheetHeader(
-        title = "Recipes Installed",
-        subtitle = "$installed ${plural(installed, "recipe", "recipes")} in your Pocket"
+        title = stringResource(R.string.analytics_recipes_installed),
+        subtitle = stringResource(R.string.analytics_recipes_in_pocket, installed)
     )
     val used = leaderboard.filter { it.total > 0 }
     if (installed == 0) {
-        SheetHint("Browse the Hub to install recipes. They'll appear in MyPocket and here.")
+        SheetHint(stringResource(R.string.analytics_hint_install))
     } else if (used.isEmpty()) {
-        SheetHint("You haven't used any installed recipes in this period yet. Open one from MyPocket.")
+        SheetHint(stringResource(R.string.analytics_hint_no_usage))
     } else {
-        Text("Most-used in this period", fontSize = 11.sp, color = BinaGrayText, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.analytics_most_used_period), fontSize = 11.sp, color = BinaGrayText, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(8.dp))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             used.forEach { row ->
                 ListLine(
                     leading = row.icon,
                     primary = row.displayName,
-                    secondary = "${row.launches} ${plural(row.launches, "launch", "launches")} · " +
-                        "${row.asks} ${plural(row.asks, "ask", "asks")}"
+                    secondary = stringResource(R.string.analytics_launches_asks, row.launches, row.asks)
                 )
             }
         }
@@ -100,21 +98,21 @@ private fun InstalledRecipesDetail(metrics: MetricsSnapshot, leaderboard: List<R
 private fun QuestionsDetail(metrics: MetricsSnapshot, leaderboard: List<RecipeStats>) {
     val total = metrics.questionsAsked
     SheetHeader(
-        title = "Questions Asked",
-        subtitle = "$total ${plural(total, "question", "questions")} in this period"
+        title = stringResource(R.string.analytics_questions_asked),
+        subtitle = stringResource(R.string.analytics_questions_in_period, total)
     )
     val byAsks = leaderboard.filter { it.asks > 0 }.sortedByDescending { it.asks }
     if (byAsks.isEmpty()) {
-        SheetHint("Ask a recipe a question and it'll show up here, broken down by recipe.")
+        SheetHint(stringResource(R.string.analytics_hint_questions))
     } else {
-        Text("By recipe", fontSize = 11.sp, color = BinaGrayText, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.analytics_by_recipe), fontSize = 11.sp, color = BinaGrayText, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(8.dp))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             byAsks.forEach { row ->
                 ListLine(
                     leading = row.icon,
                     primary = row.displayName,
-                    secondary = "${row.asks} ${plural(row.asks, "ask", "asks")}"
+                    secondary = stringResource(R.string.analytics_launches_asks, row.launches, row.asks)
                 )
             }
         }
@@ -125,11 +123,11 @@ private fun QuestionsDetail(metrics: MetricsSnapshot, leaderboard: List<RecipeSt
 private fun ActiveDaysDetail(metrics: MetricsSnapshot, chart: List<DailyBucket>) {
     val active = chart.filter { it.total > 0 }.sortedByDescending { it.dayStartMs }
     SheetHeader(
-        title = "Active Days",
-        subtitle = "${metrics.activeDays} of ${chart.size} ${plural(chart.size, "day", "days")} with activity"
+        title = stringResource(R.string.analytics_active_days),
+        subtitle = stringResource(R.string.analytics_days_with_activity, metrics.activeDays, chart.size)
     )
     if (active.isEmpty()) {
-        SheetHint("Days where you launch a recipe or ask a question count toward your streak.")
+        SheetHint(stringResource(R.string.analytics_hint_active_days))
     } else {
         val df = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -137,8 +135,7 @@ private fun ActiveDaysDetail(metrics: MetricsSnapshot, chart: List<DailyBucket>)
                 ListLine(
                     leading = "📅",
                     primary = df.format(Date(b.dayStartMs)),
-                    secondary = "${b.launches} ${plural(b.launches, "launch", "launches")} · " +
-                        "${b.asks} ${plural(b.asks, "ask", "asks")}"
+                    secondary = stringResource(R.string.analytics_launches_asks, b.launches, b.asks)
                 )
             }
         }
@@ -149,32 +146,29 @@ private fun ActiveDaysDetail(metrics: MetricsSnapshot, chart: List<DailyBucket>)
 private fun StreakDetail(metrics: MetricsSnapshot, chart: List<DailyBucket>) {
     val streak = metrics.currentStreak
     val subtitle = when (streak) {
-        0 -> "No active streak right now"
-        1 -> "1 day in a row"
-        else -> "$streak days in a row"
+        0 -> stringResource(R.string.analytics_streak_none)
+        1 -> stringResource(R.string.analytics_streak_one)
+        else -> stringResource(R.string.analytics_streak_many, streak)
     }
-    SheetHeader(title = "Streak", subtitle = subtitle)
+    SheetHeader(title = stringResource(R.string.analytics_streak), subtitle = subtitle)
     val recent = chart.filter { it.total > 0 }.sortedByDescending { it.dayStartMs }.take(7)
     if (recent.isEmpty()) {
-        SheetHint("Open or ask a recipe today to start a streak. Consecutive active days build it up.")
+        SheetHint(stringResource(R.string.analytics_hint_streak))
     } else {
         val df = SimpleDateFormat("EEE, MMM d", Locale.getDefault())
-        Text("Recent active days", fontSize = 11.sp, color = BinaGrayText, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.analytics_recent_active), fontSize = 11.sp, color = BinaGrayText, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(8.dp))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             recent.forEach { b ->
                 ListLine(
                     leading = "🔥",
                     primary = df.format(Date(b.dayStartMs)),
-                    secondary = "${b.launches} ${plural(b.launches, "launch", "launches")} · " +
-                        "${b.asks} ${plural(b.asks, "ask", "asks")}"
+                    secondary = stringResource(R.string.analytics_launches_asks, b.launches, b.asks)
                 )
             }
         }
     }
 }
-
-// ------- shared bits ------------------------------------------------------
 
 @Composable
 private fun SheetHeader(title: String, subtitle: String) {

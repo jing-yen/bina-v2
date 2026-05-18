@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, getDocs, query, where, Timestamp } from 'firebase/firestore';
-import { readFileSync } from 'fs';
-import { execSync } from 'child_process';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, Timestamp } from 'firebase/firestore';
+import { readFileSync, readdirSync } from 'fs';
+import { join } from 'path';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCKMwZ0iFo9Mxt9iIX497ZanQEUrxGxsT0',
@@ -16,37 +16,55 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const recipesRef = collection(db, 'recipes');
 
-const demos = [
-  { file: 'bidan_pintar.yaml', name: 'Bidan Pintar', icon: '👩‍⚕️', desc: 'Rural midwife assistant. Prenatal care guidance and emergency protocols, fully offline.', category: 'Health' },
-  { file: 'farm_buddy.yaml', name: 'Farm Buddy', icon: '🌾', desc: 'Diagnose crops, calculate profit, find nearby agro shops.', category: 'Agriculture' },
-  { file: 'buku_kira_kira.yaml', name: 'Buku Kira-Kira', icon: '📒', desc: 'Smart bookkeeping for sari-sari stores. Track sales, costs, and daily profit.', category: 'Business' },
-];
+const ASSETS_DIR = join(import.meta.dirname, '../../app/src/main/assets/miniapps');
+
+const META = {
+  mock_bidan:        { icon: '👩‍⚕️', category: 'Health' },
+  kira_mikro:        { icon: '💰', category: 'Finance' },
+  mock_dengue:       { icon: '🦟', category: 'Health' },
+  mock_khmer:        { icon: '🌾', category: 'Agriculture' },
+  mock_myanmar:      { icon: '🏥', category: 'Health' },
+  mock_nutrition:    { icon: '🍎', category: 'Health' },
+  mock_plant_doctor: { icon: '🌿', category: 'Agriculture' },
+  mock_sawit:        { icon: '🌴', category: 'Agriculture' },
+  mock_thai:         { icon: '🏪', category: 'Business' },
+  mock_viet:         { icon: '🚜', category: 'Agriculture' },
+  pakar_sawit:       { icon: '🌴', category: 'Agriculture' },
+  triage_ibu_hamil:  { icon: '🚨', category: 'Health' },
+};
 
 async function seed() {
-  for (const demo of demos) {
-    // Read YAML from git history since we deleted the files
-    let yaml;
-    try {
-      yaml = execSync(`git show HEAD:app/src/main/assets/miniapps/${demo.file}`, { encoding: 'utf-8' });
-    } catch {
-      console.error(`Could not read ${demo.file} from git`);
-      continue;
-    }
+  // 1. Delete all existing recipes
+  console.log('Deleting all existing recipes...');
+  const existing = await getDocs(recipesRef);
+  let deleted = 0;
+  for (const doc of existing.docs) {
+    await deleteDoc(doc.ref);
+    deleted++;
+  }
+  console.log(`Deleted ${deleted} documents.`);
 
-    // Check if already exists
-    const existing = await getDocs(query(recipesRef, where('recipeName', '==', demo.name)));
-    if (!existing.empty) {
-      console.log(`Skipping "${demo.name}" — already exists (${existing.docs[0].id})`);
-      continue;
-    }
+  // 2. Read and upload all asset YAMLs (with l10n)
+  const files = readdirSync(ASSETS_DIR).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
+  console.log(`Found ${files.length} asset recipes to seed.`);
+
+  for (const file of files) {
+    const yaml = readFileSync(join(ASSETS_DIR, file), 'utf-8');
+    const idMatch = yaml.match(/^id:\s*(.+)/m);
+    const nameMatch = yaml.match(/^name:\s*"?(.+?)"?\s*$/m);
+    const descMatch = yaml.match(/^description:\s*"?(.+?)"?\s*$/m);
+    const recipeId = idMatch?.[1]?.trim() ?? file.replace(/\.ya?ml$/, '');
+    const name = nameMatch?.[1]?.trim() ?? recipeId;
+    const desc = descMatch?.[1]?.trim() ?? '';
+    const meta = META[recipeId] ?? { icon: '📦', category: '' };
 
     const doc = {
-      recipeName: demo.name,
-      recipeIcon: demo.icon,
-      recipeDescription: demo.desc,
-      category: demo.category,
+      recipeName: name,
+      recipeIcon: meta.icon,
+      recipeDescription: desc,
+      category: meta.category,
       generatedYaml: yaml,
-      selectedLanguages: ['en', 'ms', 'id', 'tl', 'zh', 'ta', 'ar'],
+      selectedLanguages: ['en', 'ms', 'in', 'vi', 'th', 'km', 'my', 'ta', 'zh'],
       selectedTheme: 'custom',
       screens: [],
       _version: 2,
@@ -56,7 +74,7 @@ async function seed() {
     };
 
     const ref = await addDoc(recipesRef, doc);
-    console.log(`Created "${demo.name}" → ${ref.id}`);
+    console.log(`Created "${name}" (${recipeId}) → ${ref.id}`);
   }
 
   console.log('Done.');

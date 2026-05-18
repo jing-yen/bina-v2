@@ -20,6 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,7 +72,7 @@ fun ActivityChart(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                "Daily Activity",
+                stringResource(R.string.analytics_daily_activity),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
                 color = BinaStone950
@@ -83,7 +85,7 @@ fun ActivityChart(
                 val date = SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(it.dayStartMs))
                 "$date · ${it.launches} ${plural(it.launches, "launch", "launches")} · " +
                     "${it.asks} ${plural(it.asks, "ask", "asks")}"
-            } ?: "Tap a day for details",
+            } ?: stringResource(R.string.analytics_tap_day),
             fontSize = 11.sp,
             color = BinaGrayText
         )
@@ -184,7 +186,7 @@ private fun HeatmapLegend(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        Text("less", fontSize = 9.sp, color = BinaGrayText)
+        Text(stringResource(R.string.analytics_less), fontSize = 9.sp, color = BinaGrayText)
         Spacer(Modifier.size(4.dp))
         steps.forEach { c ->
             Box(
@@ -195,6 +197,6 @@ private fun HeatmapLegend(modifier: Modifier = Modifier) {
             )
         }
         Spacer(Modifier.size(4.dp))
-        Text("more", fontSize = 9.sp, color = BinaGrayText)
+        Text(stringResource(R.string.analytics_more), fontSize = 9.sp, color = BinaGrayText)
     }
 }

@@ -16,6 +16,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -68,14 +70,14 @@ fun EmptyState(
         }
         Spacer(Modifier.height(20.dp))
         Text(
-            "No activity yet",
+            stringResource(R.string.analytics_empty_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = BinaStone950
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "Open a recipe from the Hub to start seeing analytics.",
+            stringResource(R.string.analytics_empty_subtitle),
             fontSize = 13.sp,
             color = BinaGrayText,
             textAlign = TextAlign.Center,
@@ -87,7 +89,7 @@ fun EmptyState(
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
         ) {
-            Text("Open Hub", fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.analytics_open_hub), fontWeight = FontWeight.SemiBold)
         }
     }
 }

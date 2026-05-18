@@ -27,6 +27,8 @@ import {
 } from './recipes';
 import { getRecipe, createRecipe as createFirestoreRecipe, updateRecipe } from '../../lib/recipeService';
 import { DEMO_DOCUMENTS } from './recipes/demoDocuments';
+import { RECIPES } from './recipes';
+import { extractTextFromFile } from './documentParser';
 
 // ─── Constants ───
 
@@ -666,7 +668,20 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       const sizeStr = file.size > 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(1)} MB` : `${(file.size / 1024).toFixed(0)} KB`;
       setKnowledgeFiles(prev => [...prev, { name: file.name, size: sizeStr, status: 'uploading' }]);
       setUploadProgress(0);
-      const text = await file.text();
+      let text: string;
+      try {
+        text = await extractTextFromFile(file);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        toast.error(`Failed to read ${file.name}: ${msg}`);
+        setKnowledgeFiles(prev => prev.filter(f => f.name !== file.name));
+        continue;
+      }
+      if (!text.trim()) {
+        toast.error(`No readable text found in ${file.name}`);
+        setKnowledgeFiles(prev => prev.filter(f => f.name !== file.name));
+        continue;
+      }
       uploadedText = text;
       const chunks: string[] = []; const words = text.split(/\s+/); let cur = '';
       for (const w of words) { if (cur.length + w.length > 500) { chunks.push(cur.trim()); cur = w; } else cur += ' ' + w; }
@@ -678,20 +693,27 @@ Do not assume any specific domain — use the recipe name, category, and knowled
       await new Promise(r => setTimeout(r, 400));
       setUploadProgress(100);
       await new Promise(r => setTimeout(r, 300));
-      const summary = `Document: ${file.name} (${chunks.length} chunks)`;
+      const summary = chunks.slice(0, 4).join('\n').slice(0, 2000);
       setKnowledgeFiles(prev => prev.map(f => f.name === file.name ? { ...f, status: 'ready', chunks: chunks.length, summary } : f));
+      setKnowledgeSummary(prev => prev ? `${prev}\n\n${summary}` : summary);
     }
     e.target.value = '';
     if (uploadedText) {
-      const isHtml = uploadedText.trim().startsWith('<') && /<\/(html|body|div|p|h[1-6])>/i.test(uploadedText);
-      if (isHtml) {
-        const doc = new DOMParser().parseFromString(uploadedText, 'text/html');
-        const plainText = doc.body.textContent || doc.body.innerText || '';
-        setDocPreviewContent(plainText.replace(/\n{3,}/g, '\n\n').trim());
+      setDocPreviewContent(uploadedText);
+      if (apiKey) {
+        setTimeout(async () => {
+          setAutoGenerating(true);
+          try {
+            await generateKnowledgeSuggestions();
+            setDocPreviewContent(null);
+            setPreviewIntro(true);
+          } finally {
+            setAutoGenerating(false);
+          }
+        }, 400);
       } else {
-        setDocPreviewContent(uploadedText);
+        toast('Set a Gemini API key to auto-generate recipe from your document', { icon: '🔑' });
       }
-      setTimeout(() => runMockGeneration(), 400);
     }
   };
 
@@ -943,9 +965,14 @@ Do not assume any specific domain — use the recipe name, category, and knowled
 
   const translateToLanguage = useCallback(async (langCode: string) => {
     if (langCode === 'en') return;
+    if (!apiKey) {
+      toast.error('Gemini API key required for translation. Enter your key in Settings.', { icon: '🔑' });
+      setShowApiKeyDialog(true);
+      return;
+    }
     setTranslationStatus(prev => ({ ...prev, [langCode]: 'translating' }));
     try {
-      if (false && apiKey) {
+      if (apiKey) {
         const langLabel = ALL_LANGUAGES.find(l => l.code === langCode)?.label || langCode;
         const strings = collectTranslatableStrings();
         const keyList = Object.keys(strings);
@@ -992,26 +1019,6 @@ ${prompt}`,
           translation.screens[s.id] = screenTrans;
         }
         setTranslations(prev => ({ ...prev, [langCode]: translation }));
-      } else {
-        await new Promise(r => setTimeout(r, 300 + Math.random() * 700));
-        const strings = collectTranslatableStrings();
-        const translation: RecipeTranslation = {
-          recipeName: strings['recipe.name'] || recipeName,
-          recipeDescription: strings['recipe.description'] || recipeDescription,
-          systemPrompt: strings['recipe.systemPrompt'] || systemPrompt,
-          disclaimer: strings['recipe.disclaimer'] || introPage.disclaimer,
-          acceptLabel: strings['recipe.acceptLabel'] || introPage.acceptLabel,
-          screens: {},
-        };
-        for (const s of screens) {
-          translation.screens[s.id] = {
-            title: strings[`screen.${s.id}.title`] || s.title,
-            fieldValues: Object.fromEntries(
-              Object.entries(s.fieldValues).map(([k, v]) => [k, strings[`screen.${s.id}.field.${k}`] || v])
-            ),
-          };
-        }
-        setTranslations(prev => ({ ...prev, [langCode]: translation }));
       }
       setTranslationStatus(prev => ({ ...prev, [langCode]: 'done' }));
     } catch {
@@ -1032,13 +1039,249 @@ ${prompt}`,
 
   // ─── YAML ───
   const yamlEsc = (s: string) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+
+  // Build l10n key from screen id + descriptor, ensuring valid YAML key
+  const makeL10nKey = (screenId: string, descriptor: string): string => {
+    const raw = `${screenId}_${descriptor}`;
+    return raw.toLowerCase().replace(/[^a-z0-9_]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+  };
+
+  // Collect all translatable strings from widgets and assign l10n keys.
+  // Returns: { labels: Record<l10nKey, englishText>, widgetsByScreen: l10n-replaced widgets per screen index }
+  const buildL10nMap = (
+    allScreens: ScreenConfig[],
+    allResolved: WidgetConfig[][],
+  ): {
+    labels: Record<string, string>;
+    screenTitleKeys: Record<string, string>; // screenId -> l10n key for title
+    widgetsByScreen: WidgetConfig[][];
+    gridButtonKeys: Record<string, string>; // targetScreenId -> l10n key for grid button label
+  } => {
+    const labels: Record<string, string> = {};
+    const screenTitleKeys: Record<string, string> = {};
+    const gridButtonKeys: Record<string, string> = {};
+    const usedKeys = new Set<string>();
+
+    const uniqueKey = (base: string): string => {
+      let key = base;
+      let i = 2;
+      while (usedKeys.has(key)) { key = `${base}_${i}`; i++; }
+      usedKeys.add(key);
+      return key;
+    };
+
+    const addLabel = (key: string, text: string): string => {
+      const k = uniqueKey(key);
+      labels[k] = text;
+      return k;
+    };
+
+    // Collect screen title l10n keys for non-home screens
+    for (const screen of allScreens) {
+      if (!screen.isHome && screen.title) {
+        const key = addLabel(makeL10nKey(screen.id, 'title'), screen.title);
+        screenTitleKeys[screen.id] = key;
+      }
+    }
+
+    // Collect grid button label l10n keys (from non-home screens used in macro_grid)
+    const nonHomeScreens = allScreens.filter(s => !s.isHome);
+    for (const s of nonHomeScreens) {
+      const key = addLabel(makeL10nKey('grid', s.id), s.title || s.id);
+      gridButtonKeys[s.id] = key;
+    }
+
+    // Process widgets per screen and replace text with l10n references
+    const widgetsByScreen: WidgetConfig[][] = allResolved.map((widgets, si) => {
+      const screen = allScreens[si];
+      const screenId = screen.id;
+
+      // Track per-type counters for dedup within a screen
+      const typeCounts: Record<string, number> = {};
+      const nextSuffix = (base: string): string => {
+        const count = (typeCounts[base] || 0) + 1;
+        typeCounts[base] = count;
+        return count > 1 ? `${base}_${count}` : base;
+      };
+
+      return widgets.map(w => {
+        const props = { ...w.props };
+
+        switch (w.type) {
+          case 'text_label': {
+            if (props.text) {
+              const descriptor = nextSuffix('heading');
+              const key = addLabel(makeL10nKey(screenId, descriptor), props.text);
+              props.text = `{{l10n.${key}}}`;
+            }
+            break;
+          }
+          case 'text_input': {
+            if (props.hint) {
+              const descriptor = nextSuffix('hint');
+              const key = addLabel(makeL10nKey(screenId, descriptor), props.hint);
+              props.hint = `{{l10n.${key}}}`;
+            }
+            if (props.label) {
+              const descriptor = nextSuffix('label');
+              const key = addLabel(makeL10nKey(screenId, descriptor), props.label);
+              props.label = `{{l10n.${key}}}`;
+            }
+            break;
+          }
+          case 'voice_input': {
+            if (props.hint) {
+              const key = addLabel(makeL10nKey(screenId, 'voice_hint'), props.hint);
+              props.hint = `{{l10n.${key}}}`;
+            }
+            break;
+          }
+          case 'camera_input': {
+            if (props.label) {
+              const key = addLabel(makeL10nKey(screenId, 'camera_label'), props.label);
+              props.label = `{{l10n.${key}}}`;
+            }
+            break;
+          }
+          case 'action_button': {
+            if (props.label) {
+              const descriptor = nextSuffix('button');
+              const key = addLabel(makeL10nKey(screenId, descriptor), props.label);
+              props.label = `{{l10n.${key}}}`;
+            }
+            break;
+          }
+          case 'slider': {
+            if (props.label) {
+              const key = addLabel(makeL10nKey(screenId, 'slider_label'), props.label);
+              props.label = `{{l10n.${key}}}`;
+            }
+            break;
+          }
+          case 'metric_card': {
+            if (props.label) {
+              const key = addLabel(makeL10nKey(screenId, 'result_label'), props.label);
+              props.label = `{{l10n.${key}}}`;
+            }
+            break;
+          }
+          case 'macro_grid': {
+            // Grid button labels are handled via gridButtonKeys; we inject them
+            // by replacing _allScreens data with l10n-referenced titles
+            if (props._allScreens) {
+              const gridScreens = JSON.parse(props._allScreens) as { id: string; title: string; icon?: string }[];
+              const l10nGridScreens = gridScreens.map(s => ({
+                ...s,
+                title: gridButtonKeys[s.id] ? `{{l10n.${gridButtonKeys[s.id]}}}` : s.title,
+              }));
+              props._allScreens = JSON.stringify(l10nGridScreens);
+            }
+            break;
+          }
+          case 'checklist_items': {
+            if (props.items) {
+              try {
+                const items: { label: string; type: string }[] = JSON.parse(props.items);
+                const l10nItems = items.map((it, idx) => {
+                  const key = addLabel(makeL10nKey(screenId, `step_${idx + 1}`), it.label);
+                  return { ...it, label: `{{l10n.${key}}}` };
+                });
+                props.items = JSON.stringify(l10nItems);
+              } catch { /* keep original */ }
+            }
+            break;
+          }
+          case 'geo_display': {
+            if (props.empty_text) {
+              const key = addLabel(makeL10nKey(screenId, 'geo_empty'), props.empty_text);
+              props.empty_text = `{{l10n.${key}}}`;
+            }
+            break;
+          }
+          case 'markdown_output': {
+            if (props.empty_text) {
+              const key = addLabel(makeL10nKey(screenId, 'ai_empty'), props.empty_text);
+              props.empty_text = `{{l10n.${key}}}`;
+            }
+            break;
+          }
+        }
+
+        return { ...w, props };
+      });
+    });
+
+    return { labels, screenTitleKeys, widgetsByScreen, gridButtonKeys };
+  };
+
+  // Build labels block for a specific language using translation data
+  const buildTranslatedLabels = (
+    englishLabels: Record<string, string>,
+    allScreens: ScreenConfig[],
+    screenTitleKeys: Record<string, string>,
+    gridButtonKeys: Record<string, string>,
+    langTranslation: RecipeTranslation,
+  ): Record<string, string> => {
+    const translated: Record<string, string> = {};
+
+    // For each l10n key, try to find the translated value from the RecipeTranslation
+    for (const [l10nKey, englishText] of Object.entries(englishLabels)) {
+      let found = false;
+
+      // Check if this is a screen title key
+      for (const [screenId, titleKey] of Object.entries(screenTitleKeys)) {
+        if (titleKey === l10nKey) {
+          const screenTrans = langTranslation.screens[screenId];
+          if (screenTrans?.title) {
+            translated[l10nKey] = screenTrans.title;
+            found = true;
+          }
+          break;
+        }
+      }
+      if (found) continue;
+
+      // Check if this is a grid button key (uses screen title translation)
+      for (const [screenId, btnKey] of Object.entries(gridButtonKeys)) {
+        if (btnKey === l10nKey) {
+          const screenTrans = langTranslation.screens[screenId];
+          if (screenTrans?.title) {
+            translated[l10nKey] = screenTrans.title;
+            found = true;
+          }
+          break;
+        }
+      }
+      if (found) continue;
+
+      // Try to match against screen fieldValues translations
+      for (const screen of allScreens) {
+        const screenTrans = langTranslation.screens[screen.id];
+        if (!screenTrans) continue;
+        // Match by English text: find which fieldValue has this English text
+        for (const [fieldKey, fieldVal] of Object.entries(screen.fieldValues)) {
+          if (fieldVal === englishText && screenTrans.fieldValues[fieldKey]) {
+            translated[l10nKey] = screenTrans.fieldValues[fieldKey];
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+        // Also check if widget default text matches (for text that doesn't come from fieldValues)
+        // e.g., static labels like "Take Photo" from template defaults
+      }
+      if (found) continue;
+
+      // Fallback: use English text
+      translated[l10nKey] = englishText;
+    }
+
+    return translated;
+  };
+
   const generateYaml = (langCode?: string, translation?: RecipeTranslation): string => {
     const t = (key: 'recipeName' | 'recipeDescription' | 'systemPrompt' | 'disclaimer' | 'acceptLabel', fallback: string) =>
       langCode && translation ? (translation[key] || fallback) : fallback;
-    const tScreenTitle = (screenId: string, fallback: string) =>
-      langCode && translation ? (translation.screens[screenId]?.title || fallback) : fallback;
-    const tField = (screenId: string, fieldKey: string, fallback: string) =>
-      langCode && translation ? (translation.screens[screenId]?.fieldValues[fieldKey] || fallback) : fallback;
 
     const name = t('recipeName', recipeName || 'My Recipe');
     const desc = t('recipeDescription', recipeDescription || 'A custom AI recipe');
@@ -1085,43 +1328,39 @@ ${prompt}`,
       vars.push('  user_location: { type: string, default: "" }');
     }
 
+    // Build l10n map: replace all translatable widget text with {{l10n.xxx}} references
+    const { labels: englishLabels, screenTitleKeys, widgetsByScreen, gridButtonKeys } = buildL10nMap(screens, allResolved);
+
+    // Build questions YAML (these also use l10n references for consistency)
     const questionsYaml = screens.map(s => {
       if (!s.templateId) return '';
       if (s.templateId !== 'ask_ai') return '';
       const qs = [s.fieldValues.q1, s.fieldValues.q2, s.fieldValues.q3, s.fieldValues.q4]
-        .map((q, qi) => q && q.trim() ? tField(s.id, `q${qi + 1}`, q) : '')
-        .filter(Boolean);
+        .filter((q): q is string => !!q && q.trim() !== '');
       if (qs.length === 0) return '';
       return `  ${s.id}:\n${qs.map(q => `    - "${yamlEsc(q)}"`).join('\n')}`;
     }).filter(Boolean).join('\n');
 
-    const nonHomeScreens = screens.filter(s => !s.isHome).map(s => ({ id: s.id, title: tScreenTitle(s.id, s.title), icon: s.screenIcon }));
+    // Build l10n-referenced non-home screens list (for macro_grid within widgetToYaml)
+    const nonHomeScreens = screens.filter(s => !s.isHome).map(s => ({
+      id: s.id,
+      title: screenTitleKeys[s.id] ? `{{l10n.${screenTitleKeys[s.id]}}}` : s.title,
+      icon: s.screenIcon,
+    }));
+
     const screensYaml = screens.map((screen, si) => {
-      const widgets = allResolved[si];
-      const title = tScreenTitle(screen.id, screen.title || recipeName || 'My Recipe');
-      const translatedWidgets = langCode && translation
-        ? widgets.map(w => {
-            const screenTrans = translation.screens[screen.id];
-            if (!screenTrans) return w;
-            const translatedProps = { ...w.props };
-            for (const [pk, pv] of Object.entries(w.props)) {
-              for (const [fk, fv] of Object.entries(screenTrans.fieldValues)) {
-                if (pv === screen.fieldValues[fk] && fv) {
-                  translatedProps[pk] = fv;
-                  break;
-                }
-              }
-            }
-            return { ...w, props: translatedProps };
-          })
-        : widgets;
-      const body = translatedWidgets.map(w => widgetToYaml(w, nonHomeScreens)).join('\n');
+      const l10nWidgets = widgetsByScreen[si];
+      // Screen title uses l10n reference for non-home screens
+      const titleRef = screen.isHome
+        ? ''
+        : (screenTitleKeys[screen.id] ? `{{l10n.${screenTitleKeys[screen.id]}}}` : (screen.title || recipeName || 'My Recipe'));
+      const body = l10nWidgets.map(w => widgetToYaml(w, nonHomeScreens)).join('\n');
       let routingYaml = '';
       if (screen.routing && screen.routing.field && screen.routing.rules.length > 0) {
         const rulesStr = screen.routing.rules.map(r => `        - { value: "${r.value}", goto: "${r.goto}" }`).join('\n');
         routingYaml = `\n    next:\n      field: ${screen.routing.field}\n      rules:\n${rulesStr}${screen.routing.fallback ? `\n      fallback: ${screen.routing.fallback}` : ''}`;
       }
-      return `  - id: ${screen.id}\n    title: "${yamlEsc(title)}"\n    body:\n${body}${routingYaml}`;
+      return `  - id: ${screen.id}\n    title: "${yamlEsc(titleRef)}"\n    body:\n${body}${routingYaml}`;
     }).join('\n');
 
     let formulas = '';
@@ -1134,7 +1373,42 @@ ${prompt}`,
     if (allTypes.includes('geo_display')) {
       data = `\ndata:\n  places:\n    type: points\n    items:\n      - { name: "Koperasi Peladang", lat: 3.139, lng: 101.687, info: "Baja, racun, alat pertanian" }\n      - { name: "AgriMart Sdn Bhd", lat: 3.152, lng: 101.712, info: "Bekalan pertanian am" }\n      - { name: "Kedai Runcit Ah Seng", lat: 3.128, lng: 101.695, info: "Barangan harian & bekalan ladang" }\n      - { name: "Pusat Khidmat MPOB", lat: 3.161, lng: 101.703, info: "Khidmat nasihat sawit" }\n      - { name: "Farmasi & Agro Supply", lat: 3.135, lng: 101.721, info: "Racun perosak & baja organik" }\n`;
     }
-    const loc = selectedLanguages.length > 0 ? `\nlocalisation:\n  supported:\n${selectedLanguages.map(l => `    - ${l}`).join('\n')}\n  default: ${selectedLanguages[0] || 'en'}\n` : '';
+
+    // Build localisation block WITH labels
+    let loc = '';
+    if (selectedLanguages.length > 0) {
+      loc = `\nlocalisation:\n  supported:\n${selectedLanguages.map(l => `    - ${l}`).join('\n')}\n  default: ${selectedLanguages[0] || 'en'}`;
+
+      // Build labels for each supported language
+      if (Object.keys(englishLabels).length > 0) {
+        loc += `\n  labels:`;
+        for (const lang of selectedLanguages) {
+          loc += `\n    ${lang}:`;
+          if (lang === 'en') {
+            // English: use base strings directly
+            for (const [key, val] of Object.entries(englishLabels)) {
+              loc += `\n      ${key}: "${yamlEsc(val)}"`;
+            }
+          } else {
+            // Non-English: use translation if available, else fall back to English
+            const langTrans = translations[lang];
+            if (langTrans && translationStatus[lang] === 'done') {
+              const transLabels = buildTranslatedLabels(englishLabels, screens, screenTitleKeys, gridButtonKeys, langTrans);
+              for (const [key] of Object.entries(englishLabels)) {
+                loc += `\n      ${key}: "${yamlEsc(transLabels[key] || englishLabels[key])}"`;
+              }
+            } else {
+              // No translation yet: use English as fallback
+              for (const [key, val] of Object.entries(englishLabels)) {
+                loc += `\n      ${key}: "${yamlEsc(val)}"`;
+              }
+            }
+          }
+        }
+      }
+      loc += '\n';
+    }
+
     const know = knowledgeSummary ? `\nknowledge:\n  always_loaded: |\n    ${knowledgeSummary.split('\n').join('\n    ')}\n  chunks: ${knowledgeFiles.filter(f => f.status === 'ready').reduce((a, f) => a + (f.chunks || 0), 0)}\n` : '';
     const questionsBlock = questionsYaml ? `\nquestions:\n${questionsYaml}\n` : '';
     let setupBlock = '';
@@ -1152,13 +1426,14 @@ ${prompt}`,
 
     const catalogScreens = screens.filter(s => !s.isHome && s.templateId);
     const screenCatalog = catalogScreens.length > 0 ? `\nscreen_catalog:\n${catalogScreens.map(s => {
-      const desc = s.description || generateScreenDescription(s);
+      const catDesc = s.description || generateScreenDescription(s);
       const accepted = getScreenAcceptedInputs(s);
       const hints = s.prefillHints || generatePrefillHints(s);
       const hintEntries = Object.entries(hints);
-      let entry = `  - id: ${s.id}\n    title: "${yamlEsc(tScreenTitle(s.id, s.title))}"\n    template: ${s.templateId}`;
+      const catTitleRef = screenTitleKeys[s.id] ? `{{l10n.${screenTitleKeys[s.id]}}}` : s.title;
+      let entry = `  - id: ${s.id}\n    title: "${yamlEsc(catTitleRef)}"\n    template: ${s.templateId}`;
       if (s.screenIcon) entry += `\n    icon: "${s.screenIcon}"`;
-      if (desc) entry += `\n    description: "${yamlEsc(desc)}"`;
+      if (catDesc) entry += `\n    description: "${yamlEsc(catDesc)}"`;
       if (accepted.length) entry += `\n    accepted_inputs: [${accepted.join(', ')}]`;
       if (hintEntries.length) {
         entry += `\n    prefill_hints:`;
@@ -2019,7 +2294,9 @@ ${prompt}`,
                         const chunks: string[] = []; let cur = '';
                         for (const w of words) { if (cur.length + w.length > 500) { chunks.push(cur.trim()); cur = w; } else cur += ' ' + w; }
                         if (cur.trim()) chunks.push(cur.trim());
-                        setKnowledgeFiles(prev => [...prev, { name: doc.name, size: `${(doc.content.length / 1024).toFixed(1)} KB`, status: 'ready', chunks: chunks.length, summary: doc.content.slice(0, 200) + '...' }]);
+                        const summary = chunks.slice(0, 4).join('\n').slice(0, 2000);
+                        setKnowledgeFiles(prev => [...prev, { name: doc.name, size: `${(doc.content.length / 1024).toFixed(1)} KB`, status: 'ready', chunks: chunks.length, summary }]);
+                        setKnowledgeSummary(prev => prev ? `${prev}\n\n${summary}` : summary);
                       }}
                         className="flex items-center gap-3 p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 hover:shadow-card transition-all cursor-pointer text-left">
                         <span className="text-2xl shrink-0">{doc.emoji}</span>
@@ -2028,6 +2305,24 @@ ${prompt}`,
                           <span className="text-[10px] text-stone-500">{doc.category}</span>
                           <span className="text-[10px] text-stone-400 block truncate">{doc.author} · {doc.org}</span>
                         </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recipe templates */}
+              {knowledgeFiles.length === 0 && (
+                <div>
+                  <p className="text-xs font-medium text-stone-500 mb-2">Or load a complete recipe template</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    {Object.entries(RECIPES).filter(([name]) => ['Kira Mikro', 'Triage Ibu Hamil', 'Pakar Sawit'].includes(name)).map(([name, recipe]) => (
+                      <button key={name} onClick={() => { loadRecipe(recipe); setCurrentStep(3); setPreviewIntro(false); setActiveScreenIndex(0); toast.success(`Loaded "${name}"`); }}
+                        className="flex flex-col items-center gap-2 p-4 rounded-xl border border-stone-200 bg-white hover:border-stone-300 hover:shadow-card transition-all cursor-pointer text-center">
+                        <span className="text-3xl">{recipe.recipeIcon}</span>
+                        <span className="text-sm font-semibold text-stone-800">{recipe.recipeName}</span>
+                        <span className="text-[10px] text-stone-500 leading-tight line-clamp-2">{recipe.recipeDescription}</span>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full mt-1" style={{ background: recipe.category === 'Finance' ? '#D9770615' : recipe.category === 'Health' ? '#DC262615' : '#15803D15', color: recipe.category === 'Finance' ? '#D97706' : recipe.category === 'Health' ? '#DC2626' : '#15803D' }}>{recipe.category}</span>
                       </button>
                     ))}
                   </div>
@@ -2068,12 +2363,21 @@ ${prompt}`,
                       <p className="text-sm font-semibold text-stone-800">Recipe Blueprint</p>
                       <p className="text-xs text-stone-500">Analyze your documents and design a complete recipe — name, screens, prompts, and more.</p>
                     </div>
-                    <button onClick={() => ensureApiKey(generateKnowledgeSuggestions)} disabled={aiLoading}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white hover:opacity-90 shrink-0"
-                      style={{ background: '#C45A3A' }}>
-                      {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                      {knowledgeSuggestions ? 'Regenerate' : 'Generate Blueprint'}
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {!apiKey && (
+                        <button onClick={() => runMockGeneration()} disabled={aiLoading}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium hover:opacity-90"
+                          style={{ background: '#C98A1A15', color: '#C98A1A' }}>
+                          Try Demo
+                        </button>
+                      )}
+                      <button onClick={() => ensureApiKey(generateKnowledgeSuggestions)} disabled={aiLoading}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white hover:opacity-90"
+                        style={{ background: '#C45A3A' }}>
+                        {aiLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                        {knowledgeSuggestions ? 'Regenerate' : 'Generate Blueprint'}
+                      </button>
+                    </div>
                   </div>
                   {aiLoading && !knowledgeSuggestions && (
                     <div className="p-4 space-y-3 relative overflow-hidden">

@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -32,7 +34,7 @@ fun RecipeLeaderboard(
 ) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            "Most-Used Recipes",
+            stringResource(R.string.analytics_most_used),
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp,
             color = BinaStone950,
@@ -48,7 +50,7 @@ fun RecipeLeaderboard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "No recipe activity in this window yet",
+                    stringResource(R.string.analytics_no_activity_window),
                     fontSize = 12.sp,
                     color = BinaGrayText
                 )
@@ -85,7 +87,7 @@ private fun LeaderboardRow(rank: Int, row: RecipeStats) {
         Column(modifier = Modifier.weight(1f)) {
             Text(row.displayName, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950)
             Text(
-                "${row.launches} launches · ${row.asks} asks",
+                stringResource(R.string.analytics_launches_asks, row.launches, row.asks),
                 fontSize = 11.sp,
                 color = BinaGrayText
             )

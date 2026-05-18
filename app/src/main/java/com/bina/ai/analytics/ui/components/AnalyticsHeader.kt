@@ -21,6 +21,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -64,7 +66,7 @@ fun AnalyticsHeader(
     ) {
         Column {
             Text(
-                "Analytics",
+                stringResource(R.string.analytics_title),
                 fontWeight = FontWeight.Bold,
                 fontSize = titleSize,
                 color = BinaStone950
@@ -72,7 +74,7 @@ fun AnalyticsHeader(
             Box(modifier = Modifier.height(subtitleHeight).alpha(subtitleAlpha)) {
                 Column {
                     Text(
-                        "Your authoring and on-device usage",
+                        stringResource(R.string.analytics_subtitle),
                         fontSize = 12.sp,
                         color = BinaGrayText
                     )
@@ -107,7 +109,7 @@ private fun LiveBadge() {
                 .background(BinaGreen.copy(alpha = pulse))
         )
         Text(
-            "Live · on-device",
+            stringResource(R.string.analytics_live_badge),
             fontSize = 10.sp,
             fontWeight = FontWeight.SemiBold,
             color = BinaGreen

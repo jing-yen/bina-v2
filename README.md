@@ -35,7 +35,7 @@ Bina.ai is an **edge-native AI platform** that enables offline, interactive AI-p
 
 - **Offline-first AI inference** using Gemma 4 E2B (2.4GB) running entirely on-device
 - **Declarative mini-app DSL** - define interactive apps in YAML without code
-- **10 widget types** - text, camera, voice, sliders, maps, formulas, AI chat
+- **12 widget types** - text, camera, voice, sliders, maps, formulas, AI chat, checklists, toggles & more
 - **Safety guardrails** - keyword blocking, escalation messages, content disclaimers
 - **Kotlin Multiplatform** - shared business logic ready for iOS expansion
 
@@ -112,7 +112,7 @@ bina-v2/
 |           |   +-- ui/MiniAppScreen.kt  # Runtime renderer
 |           |   +-- widgets/
 |           |       +-- WidgetRenderer.kt
-|           |       +-- MiniAppWidgets.kt  # 10 widget composables
+|           |       +-- MiniAppWidgets.kt  # 12 widget composables
 |           +-- platform/
 |           |   +-- AndroidLocationProvider.kt
 |           +-- ui/
@@ -174,7 +174,7 @@ Top-level miniapp definition with nested configs:
 
 #### Widget.kt
 
-Sealed class with 10 widget subtypes. Every widget supports `visibleIf` and `hiddenIf` for conditional rendering based on variable state.
+Sealed class with 12 widget subtypes. Every widget supports `visibleIf` and `hiddenIf` for conditional rendering based on variable state.
 
 #### WidgetSerializer.kt
 

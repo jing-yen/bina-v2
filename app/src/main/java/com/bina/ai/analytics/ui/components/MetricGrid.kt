@@ -19,6 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.ui.unit.dp
 import com.bina.ai.analytics.ui.model.MetricsSnapshot
 import com.bina.ai.ui.theme.BinaAccent
@@ -44,7 +46,7 @@ fun MetricGrid(
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
             StaggeredCard(visibleAt = 0, current = visibleCount, modifier = Modifier.weight(1f)) {
                 MetricCard(
-                    label = "Recipes Installed",
+                    label = stringResource(R.string.analytics_recipes_installed),
                     value = metrics.recipesInstalled,
                     icon = Icons.Filled.Inventory2,
                     accentColor = BinaAccent,
@@ -53,7 +55,7 @@ fun MetricGrid(
             }
             StaggeredCard(visibleAt = 1, current = visibleCount, modifier = Modifier.weight(1f)) {
                 MetricCard(
-                    label = "Questions Asked",
+                    label = stringResource(R.string.analytics_questions_asked),
                     value = metrics.questionsAsked,
                     icon = Icons.Filled.QuestionAnswer,
                     accentColor = BinaGreen,
@@ -64,7 +66,7 @@ fun MetricGrid(
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
             StaggeredCard(visibleAt = 2, current = visibleCount, modifier = Modifier.weight(1f)) {
                 MetricCard(
-                    label = "Active Days",
+                    label = stringResource(R.string.analytics_active_days),
                     value = metrics.activeDays,
                     icon = Icons.Filled.CalendarMonth,
                     accentColor = BinaIndigo,
@@ -72,8 +74,10 @@ fun MetricGrid(
                 )
             }
             StaggeredCard(visibleAt = 3, current = visibleCount, modifier = Modifier.weight(1f)) {
+                val dayOneStr = stringResource(R.string.analytics_day_one)
+                val dayManyFmt = stringResource(R.string.analytics_day_many, metrics.currentStreak)
                 MetricCard(
-                    label = "Streak",
+                    label = stringResource(R.string.analytics_streak),
                     value = metrics.currentStreak,
                     icon = Icons.Filled.LocalFireDepartment,
                     accentColor = BinaTurmeric,
@@ -81,8 +85,8 @@ fun MetricGrid(
                     formatter = { days ->
                         when {
                             days <= 0 -> "0"
-                            days == 1 -> "1 day"
-                            else -> "$days days"
+                            days == 1 -> dayOneStr
+                            else -> dayManyFmt
                         }
                     }
                 )

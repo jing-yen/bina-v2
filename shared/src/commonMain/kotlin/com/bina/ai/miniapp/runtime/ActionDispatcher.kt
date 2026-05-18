@@ -132,6 +132,15 @@ class ActionDispatcher(
             return
         }
 
+        // Skip the native vision path entirely if the engine has already flagged it as broken.
+        if (!engine.isVisionReady) {
+            Logger.w(TAG, "Vision not ready; falling back to text-only inference")
+            store["is_loading"] = "false"
+            store["ai_response"] = "**Vision analysis unavailable** — answering with text only.\n\n"
+            handleAsk(prompt)
+            return
+        }
+
         val systemPrompt = buildSystemPrompt()
 
         try {
@@ -142,11 +151,22 @@ class ActionDispatcher(
                     store["ai_response"] = sb.toString()
                 }
                 .catch { e ->
-                    Logger.e(TAG, "Vision inference error", e)
-                    store["ai_response"] = sb.toString().ifEmpty { "Error: ${e.message}" }
+                    // Flow-level errors (e.g. image decode failure, SDK errors surfaced as
+                    // Kotlin exceptions). Re-throw so the outer try/catch handles the fallback.
+                    Logger.e(TAG, "Vision inference stream error", e)
+                    throw e
                 }
                 .collect()
             store["last_result"] = sb.toString()
+        } catch (e: Exception) {
+            // Catch any exception that escapes the flow — including UnsupportedOperationException
+            // thrown by LiteRtLmEngine when isVisionReady is false, and any JVM-visible crash
+            // wrapping a native SIGSEGV. Fall back to text-only inference.
+            Logger.e(TAG, "Vision inference failed, falling back to text-only", e)
+            store["is_loading"] = "false"
+            store["ai_response"] = "**Vision analysis unavailable** — answering with text only.\n\n"
+            handleAsk(prompt)
+            return
         } finally {
             store["is_loading"] = "false"
         }
@@ -242,6 +262,14 @@ class ActionDispatcher(
             "hi" to "हिन्दी (Hindi)", "bn" to "বাংলা (Bengali)",
             "fr" to "Français (French)", "es" to "Español (Spanish)",
             "pt" to "Português (Portuguese)", "sw" to "Kiswahili (Swahili)",
+            "jv" to "Basa Jawa (Javanese)", "su" to "Basa Sunda (Sundanese)",
+            "ceb" to "Cebuano", "ilo" to "Ilokano (Ilocano)",
+            "ne" to "नेपाली (Nepali)", "si" to "සිංහල (Sinhala)",
+            "ur" to "اردو (Urdu)", "ml" to "മലയാളം (Malayalam)",
+            "mr" to "मराठी (Marathi)", "te" to "తెలుగు (Telugu)",
+            "de" to "Deutsch (German)", "ru" to "Русский (Russian)",
+            "am" to "አማርኛ (Amharic)", "gu" to "ગુજરાતી (Gujarati)",
+            "kn" to "ಕನ್ನಡ (Kannada)",
         )
     }
 }

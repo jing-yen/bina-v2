@@ -19,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -55,11 +57,11 @@ fun RecipeListItem(
         RecipeCover(miniApp, modifier = Modifier.size(56.dp), cornerRadius = 12.dp, emojiFontSize = 26)
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(miniApp.name, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950, maxLines = 1)
+                Text(com.bina.ai.ui.localizedName(miniApp), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = BinaStone950, maxLines = 1)
                 Icon(Icons.Filled.Verified, contentDescription = null, tint = BinaAccent, modifier = Modifier.size(14.dp))
             }
             if (miniApp.description.isNotBlank()) {
-                Text(com.bina.ai.ui.localizedDescription(miniApp.id, miniApp.description), fontSize = 11.sp, color = BinaGrayText, maxLines = 2)
+                Text(com.bina.ai.ui.localizedDescription(miniApp), fontSize = 11.sp, color = BinaGrayText, maxLines = 2)
             }
             val translatedCategory = com.bina.ai.ui.localizedCategory(miniApp.category)
             val meta = listOfNotNull(
@@ -89,7 +91,7 @@ fun RecipeListItem(
             }
         }
         if (isInstalled) {
-            Text("✓ Installed", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = BinaGreen)
+            Text("✓ ${stringResource(R.string.hub_installed)}", fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = BinaGreen)
         }
     }
 }

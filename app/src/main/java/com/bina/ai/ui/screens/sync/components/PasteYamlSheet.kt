@@ -11,11 +11,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bina.ai.R
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaStone950
 import com.bina.ai.ui.theme.BinaAccent
@@ -33,10 +34,10 @@ fun PasteYamlSheet(
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = BinaBgCard) {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
-            Text("Paste recipe YAML", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = BinaStone950)
+            Text(stringResource(R.string.sync_paste_title), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = BinaStone950)
             Spacer(Modifier.height(4.dp))
             Text(
-                "Paste the YAML you copied from Studio (or another phone). It'll be parsed and previewed before install.",
+                stringResource(R.string.sync_paste_subtitle),
                 fontSize = 12.sp, color = BinaGrayText
             )
             Spacer(Modifier.height(12.dp))
@@ -44,19 +45,19 @@ fun PasteYamlSheet(
                 value = text,
                 onValueChange = { text = it },
                 modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp, max = 320.dp),
-                placeholder = { Text("id: my_recipe\nname: ...") }
+                placeholder = { Text(stringResource(R.string.sync_paste_placeholder)) }
             )
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(onClick = {
                     text = clipboard.getText()?.text.orEmpty()
-                }) { Text("Paste from clipboard") }
+                }) { Text(stringResource(R.string.sync_paste_clipboard)) }
                 Spacer(Modifier.weight(1f))
                 Button(
                     onClick = { onImport(text) },
                     enabled = text.isNotBlank(),
                     colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
-                ) { Text("Import") }
+                ) { Text(stringResource(R.string.sync_paste_import)) }
             }
         }
     }

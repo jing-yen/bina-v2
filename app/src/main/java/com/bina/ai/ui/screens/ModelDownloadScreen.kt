@@ -15,6 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import com.bina.ai.inference.DownloadState
 import com.bina.ai.inference.ModelDownloadManager
 import kotlinx.coroutines.launch
@@ -49,7 +51,7 @@ fun ModelDownloadScreen(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text = "AI Model Required",
+            text = stringResource(R.string.model_title),
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF1C1917)
@@ -58,14 +60,23 @@ fun ModelDownloadScreen(
         Spacer(Modifier.height(8.dp))
 
         Text(
-            text = "Bina needs a ~2.6 GB language model to work offline. Download once, use forever.",
+            text = stringResource(R.string.model_subtitle),
             fontSize = 14.sp,
             color = Color(0xFF78716C),
             textAlign = TextAlign.Center,
             lineHeight = 20.sp
         )
 
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(12.dp))
+
+        Text(
+            text = stringResource(R.string.model_usb_note),
+            fontSize = 12.sp,
+            color = Color(0xFFA8A29E),
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(Modifier.height(24.dp))
 
         when (val s = state) {
             is DownloadState.Idle -> {
@@ -79,7 +90,7 @@ fun ModelDownloadScreen(
                         .fillMaxWidth()
                         .height(52.dp)
                 ) {
-                    Text("Download Gemma 4 E2B", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.model_download_button), fontWeight = FontWeight.SemiBold)
                 }
 
                 Spacer(Modifier.height(12.dp))
@@ -151,7 +162,7 @@ fun ModelDownloadScreen(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "Downloading… keep the app open",
+                    text = stringResource(R.string.model_downloading),
                     fontSize = 12.sp,
                     color = Color(0xFFA8A29E)
                 )
@@ -159,7 +170,7 @@ fun ModelDownloadScreen(
 
             is DownloadState.Done -> {
                 Text(
-                    text = "✅ Model ready",
+                    text = "✅ ${stringResource(R.string.model_done)}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF16A34A)
@@ -186,7 +197,7 @@ fun ModelDownloadScreen(
                         .fillMaxWidth()
                         .height(52.dp)
                 ) {
-                    Text("Retry Download", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.model_retry), fontWeight = FontWeight.SemiBold)
                 }
             }
         }

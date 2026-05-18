@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "260186437518",
+    "project_id": "bina-ai-a2d96",
+    "storage_bucket": "bina-ai-a2d96.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260186437518:android:77cd357440bd8b07ce16df",
+        "android_client_info": {
+          "package_name": "com.bina.ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkpxvLH6DqK5xNTvJ_hmBftARNs6UYyvA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

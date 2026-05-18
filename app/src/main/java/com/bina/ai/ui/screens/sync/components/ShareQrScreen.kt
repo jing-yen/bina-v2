@@ -13,14 +13,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bina.ai.R
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.ui.screens.sync.SyncViewModel
 import com.bina.ai.ui.theme.BinaGrayText
@@ -95,12 +96,12 @@ fun ShareQrScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         if (recipe == null) {
-            Text("Recipe not found", color = BinaGrayText)
+            Text(stringResource(R.string.sync_recipe_not_found), color = BinaGrayText)
         } else {
             Text(recipe.icon.ifBlank { "📦" }, fontSize = 36.sp)
             Text(recipe.name, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = BinaStone950)
             recipe.author.name.takeIf { it.isNotBlank() }?.let {
-                Text("by $it", fontSize = 12.sp, color = BinaGrayText)
+                Text(stringResource(R.string.sync_receive_by, it), fontSize = 12.sp, color = BinaGrayText)
             }
             Spacer(Modifier.height(8.dp))
 
@@ -124,18 +125,18 @@ fun ShareQrScreen(
                     Image(bitmap = bitmap.asImageBitmap(), contentDescription = "Pairing QR for ${recipe.name}", modifier = Modifier.fillMaxSize())
                 }
                 Text(
-                    "Have the other phone open Sync → Scan to Receive.\nKeep this screen open until they connect.",
+                    stringResource(R.string.sync_share_instructions),
                     fontSize = 12.sp, color = BinaGrayText
                 )
             } else {
                 Text(
-                    "Bluetooth permission needed to share via QR. Or copy YAML below.",
+                    stringResource(R.string.sync_bt_needed),
                     fontSize = 12.sp, color = BinaRed
                 )
                 Button(onClick = {
                     if (yamlText != null) clipboard.setText(AnnotatedString(yamlText))
                 }, colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)) {
-                    Text("Copy YAML to clipboard")
+                    Text(stringResource(R.string.sync_copy_yaml))
                 }
             }
 
@@ -145,7 +146,7 @@ fun ShareQrScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = BinaAccent),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Done")
+                Text(stringResource(R.string.sync_done))
             }
         }
     }

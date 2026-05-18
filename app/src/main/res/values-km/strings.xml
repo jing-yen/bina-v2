@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bina</string>
+
+    <string name="topbar_title">សួស្តី Jing Yen 👋</string>
+    <string name="topbar_subtitle">AI របស់អ្នករួចរាល់ ទោះបីគ្មានអ៊ីនធឺណិត។</string>
+
+    <string name="hub_title">រូបមន្តពីអ្នកជំនាញ</string>
+    <string name="hub_subtitle">បង្កើតឡើងសម្រាប់សហគមន៍អាស៊ីអាគ្នេយ៍។ មិនចាំបាច់អ៊ីនធឺណិត។</string>
+    <string name="hub_your_recipes">រូបមន្តរបស់អ្នក</string>
+    <string name="hub_trending">ពេញនិយមនៅ Bina</string>
+    <string name="hub_empty_all">មិនមានរូបមន្តទេ។</string>
+    <string name="hub_empty_category">មិនមានរូបមន្តក្នុងប្រភេទនេះទេ។</string>
+    <string name="hub_all_recipes">រូបមន្តទាំងអស់</string>
+
+    <!-- Bottom nav -->
+    <string name="nav_hub">Hub</string>
+    <string name="nav_pocket">កាបូបរបស់ខ្ញុំ</string>
+    <string name="nav_sync">ធ្វើសមកាលកម្មក្រៅបណ្តាញ</string>
+    <string name="nav_analytics">វិភាគ</string>
+
+    <!-- Recipe stats -->
+    <string name="stat_recipe_size">ទំហំរូបមន្ត</string>
+    <string name="stat_features">មុខងារដែលមាន</string>
+    <string name="stat_dialect">គ្រាមភាសា</string>
+
+    <string name="pocket_title">កាបូបរបស់ខ្ញុំ</string>
+    <string name="pocket_subtitle">រូបមន្តដែលបានរក្សាទុករបស់អ្នក រួចរាល់ក្រៅបណ្តាញ</string>
+    <string name="pocket_saved_recipes">រូបមន្តដែលបានរក្សាទុក</string>
+    <string name="pocket_empty_title">មិនទាន់មានរូបមន្តដែលបានរក្សាទុកទេ</string>
+    <string name="pocket_empty_subtitle">រុករក Hub ដើម្បីស្វែងរកឧបករណ៍សម្រាប់សហគមន៍របស់អ្នក</string>
+    <string name="pocket_offline_ready">រួចរាល់ក្រៅបណ្តាញ</string>
+    <string name="pocket_screens_count">%d អេក្រង់</string>
+    <string name="pocket_stat_saved">បានរក្សាទុក</string>
+    <string name="pocket_stat_screens">អេក្រង់</string>
+    <string name="pocket_stat_status">ស្ថានភាព</string>
+    <string name="pocket_stat_ready">រួចរាល់</string>
+    <string name="pocket_add_home">បន្ថែមទៅអេក្រង់ដើម</string>
+
+    <string name="recipe_open">បើក</string>
+    <string name="recipe_install_open">ដំឡើង &amp; បើក</string>
+    <string name="recipe_add_home">បន្ថែមទៅអេក្រង់ដើម</string>
+    <string name="recipe_verified_by">បានផ្ទៀងផ្ទាត់ដោយ %s</string>
+    <string name="recipe_domain">វិស័យ: %s</string>
+    <string name="recipe_features_title">មុខងារនៅក្នុងរូបមន្តនេះ</string>
+
+    <string name="miniapp_back">ត្រឡប់</string>
+    <string name="miniapp_home">ទំព័រដើម</string>
+    <string name="miniapp_reset">កំណត់អេក្រង់ឡើងវិញ</string>
+    <string name="miniapp_recording">កំពុងថតសំឡេង&#8230;</string>
+    <string name="miniapp_transcribing">កំពុងចម្លង&#8230;</string>
+    <string name="miniapp_model_not_loaded">មិនទាន់បានផ្ទុកម៉ូដែល។</string>
+    <string name="miniapp_all_steps_done">បានបញ្ចប់ជំហានទាំងអស់!</string>
+    <string name="miniapp_steps_done">%1$d ក្នុង %2$d ជំហានបានបញ្ចប់</string>
+    <string name="miniapp_reset_checklist">កំណត់បញ្ជីឡើងវិញ</string>
+    <string name="miniapp_take_photo">ថតរូបភាព</string>
+    <string name="miniapp_retake">ចុចដើម្បីថតឡើងវិញ</string>
+    <string name="miniapp_complete">បានបញ្ចប់!</string>
+    <string name="miniapp_step_of">ជំហានទី %1$d ក្នុង %2$d</string>
+    <string name="miniapp_your_location">អ្នក: %1$s, %2$s</string>
+    <string name="miniapp_location_mins_ago">%d នាទីមុន</string>
+    <string name="miniapp_location_just_now">ទើបតែ</string>
+
+    <string name="triage_greeting">សួស្តី! ខ្ញុំជា %s។ តើខ្ញុំអាចជួយអ្នកអ្វីបាន?</string>
+    <string name="triage_placeholder">ពិពណ៌នាអ្វីដែលអ្នកត្រូវការ&#8230;</string>
+    <string name="triage_send">ផ្ញើ</string>
+
+    <!-- Categories -->
+    <string name="cat_all">ទាំងអស់</string>
+    <string name="cat_agriculture">កសិកម្ម</string>
+    <string name="cat_health">សុខភាព</string>
+    <string name="cat_business">អាជីវកម្ម</string>
+    <string name="cat_finance">ហិរញ្ញវត្ថុ</string>
+    <string name="cat_education">អប់រំ</string>
+
+    <string name="confirm">បញ្ជាក់</string>
+    <string name="cancel">បោះបង់</string>
+
+    <!-- Offline Sync -->
+    <string name="sync_title">ធ្វើសមកាលកម្មក្រៅបណ្តាញ</string>
+    <string name="sync_subtitle">ចែករូបមន្តរវាងទូរស័ព្ទ ដោយមិនចាំបាច់អ៊ីនធឺណិត។</string>
+    <string name="sync_scan_title">ស្កែនដើម្បីទទួល</string>
+    <string name="sync_scan_subtitle">ស្កែន QR របស់ទូរស័ព្ទផ្សេង ឬបិទភ្ជាប់ YAML ដើម្បីដំឡើង។</string>
+    <string name="sync_share_title">ចែករូបមន្ត</string>
+    <string name="sync_share_subtitle">ជ្រើសរូបមន្តដែលដំឡើងហើយ ដើម្បីចែកតាម QR។</string>
+    <string name="sync_share_picker_subtitle">ជ្រើសរូបមន្តដែលដំឡើងហើយ។ អ្នកទទួលស្កែន QR ដើម្បីដំឡើង។</string>
+    <string name="sync_share_empty">ដំឡើងរូបមន្តពី Hub ជាមុនសិន។</string>
+    <string name="sync_paste_title">បិទភ្ជាប់ YAML រូបមន្ត</string>
+    <string name="sync_paste_subtitle">បិទភ្ជាប់ YAML ដែលចម្លងពី Studio (ឬទូរស័ព្ទផ្សេង)។ វានឹងត្រូវបំបែក និងមើលជាមុន មុនពេលដំឡើង។</string>
+    <string name="sync_paste_placeholder">id: my_recipe\nname: …</string>
+    <string name="sync_paste_clipboard">បិទភ្ជាប់ពីក្ដារតម្បៀតខ្ទាស់</string>
+    <string name="sync_paste_import">នាំចូល</string>
+    <string name="sync_receive_title">ទទួលរូបមន្ត?</string>
+    <string name="sync_receive_by">ដោយ %s</string>
+    <string name="sync_receive_size">%d KB · id: %s</string>
+    <string name="sync_receive_connect">ភ្ជាប់</string>
+    <string name="sync_receive_connecting">កំពុងភ្ជាប់ទៅអ្នកផ្ញើ…</string>
+    <string name="sync_receive_progress">កំពុងទទួល… %d%%</string>
+    <string name="sync_receive_retry">ព្យាយាមម្ដងទៀត</string>
+    <string name="sync_camera_needed">ត្រូវការការអនុញ្ញាតកាមេរ៉ា</string>
+    <string name="sync_camera_hint">អនុញ្ញាតកាមេរ៉ាដើម្បីស្កែន QR ឬបិទភ្ជាប់ YAML ជំនួស។</string>
+    <string name="sync_try_again">ព្យាយាមម្ដងទៀត</string>
+    <string name="sync_paste_instead">បិទភ្ជាប់ YAML ជំនួស</string>
+    <string name="sync_bt_permission">ត្រូវការការអនុញ្ញាត Bluetooth</string>
+    <string name="sync_recipe_not_found">រូបមន្តរកមិនឃើញ</string>
+    <string name="sync_share_instructions">ឱ្យទូរស័ព្ទម្ខាងទៀតបើក ធ្វើសមកាលកម្ម → ស្កែនដើម្បីទទួល។\nរក្សាអេក្រង់នេះបើករហូតដល់ពួកគេភ្ជាប់។</string>
+    <string name="sync_bt_needed">ត្រូវការការអនុញ្ញាត Bluetooth ដើម្បីចែកតាម QR។ ឬចម្លង YAML ខាងក្រោម។</string>
+    <string name="sync_copy_yaml">ចម្លង YAML ទៅក្ដារតម្បៀតខ្ទាស់</string>
+    <string name="sync_done">រួចរាល់</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">វិភាគ</string>
+    <string name="analytics_subtitle">ការប្រើប្រាស់ការបង្កើត និងក្នុងឧបករណ៍របស់អ្នក</string>
+    <string name="analytics_live_badge">ផ្ទាល់ · ក្នុងឧបករណ៍</string>
+    <string name="analytics_total_launches">ចំនួនបើកសរុប</string>
+    <string name="analytics_all_time">គ្រប់ពេល</string>
+    <string name="analytics_vs_prev_7d">ធៀបនឹង 7ថ្ងៃមុន</string>
+    <string name="analytics_vs_prev_30d">ធៀបនឹង 30ថ្ងៃមុន</string>
+    <string name="analytics_recipes_installed">រូបមន្តដែលដំឡើងហើយ</string>
+    <string name="analytics_questions_asked">សំណួរដែលសួរ</string>
+    <string name="analytics_active_days">ថ្ងៃដែលសកម្ម</string>
+    <string name="analytics_streak">ថ្ងៃជាប់គ្នា</string>
+    <string name="analytics_streak_none">មិនមានថ្ងៃជាប់គ្នានៅពេលនេះ</string>
+    <string name="analytics_streak_one">1 ថ្ងៃជាប់គ្នា</string>
+    <string name="analytics_streak_many">%d ថ្ងៃជាប់គ្នា</string>
+    <string name="analytics_achievements">សមិទ្ធផល</string>
+    <string name="analytics_unlocked">បានបើក</string>
+    <string name="analytics_daily_activity">សកម្មភាពប្រចាំថ្ងៃ</string>
+    <string name="analytics_tap_day">ចុចថ្ងៃសម្រាប់ព័ត៌មានលម្អិត</string>
+    <string name="analytics_less">តិចជាង</string>
+    <string name="analytics_more">ច្រើនជាង</string>
+    <string name="analytics_most_used">រូបមន្តដែលប្រើច្រើនបំផុត</string>
+    <string name="analytics_no_activity_window">មិនទាន់មានសកម្មភាពរូបមន្តក្នុងរយៈពេលនេះ</string>
+    <string name="analytics_launches_asks">%1$d ដងបើក · %2$d សំណួរ</string>
+    <string name="analytics_empty_title">មិនទាន់មានសកម្មភាព</string>
+    <string name="analytics_empty_subtitle">បើករូបមន្តពី Hub ដើម្បីចាប់ផ្ដើមមើលវិភាគ។</string>
+    <string name="analytics_open_hub">បើក Hub</string>
+
+    <!-- Hub -->
+    <string name="hub_installed">បានដំឡើង</string>
+
+    <!-- Achievements -->
+    <string name="achievement_collector_title">អ្នកបង្រួបបង្រាំងរូបមន្ត</string>
+    <string name="achievement_collector_desc">ដំឡើងរូបមន្ត 3 ពី Hub</string>
+    <string name="achievement_curious_title">អ្នកបើកបរដែលមានលក្ខណៈល្អិតល្អន់</string>
+    <string name="achievement_curious_desc">សួរសំណួរ 10 ក្នុងរូបមន្តរបស់អ្នក</string>
+    <string name="achievement_streak_title">ថ្ងៃជាប់គ្នា</string>
+    <string name="achievement_streak_desc">ប្រើ Bina 3 ថ្ងៃបន្ទាប់គ្នា</string>
+    <string name="achievement_explorer_title">អ្នកស្វាគមន៍</string>
+    <string name="achievement_explorer_desc">ប្រើរូបមន្ត 3 ផ្សេងគ្នា</string>
+
+    <!-- New Analytics Strings -->
+    <string name="analytics_day_one">១ ថ្ងៃ</string>
+    <string name="analytics_day_many">%d ថ្ងៃ</string>
+    <string name="analytics_recipes_in_pocket">%d រូបមន្តក្នុង Pocket របស់អ្នក</string>
+    <string name="analytics_questions_in_period">%d សំណួរក្នុងរយៈពេលនេះ</string>
+    <string name="analytics_days_with_activity">%1$d ក្នុង %2$d ថ្ងៃមានសកម្មភាព</string>
+    <string name="analytics_by_recipe">តាមរូបមន្ត</string>
+    <string name="analytics_recent_active">ថ្ងៃសកម្មថ្មីៗ</string>
+    <string name="analytics_hint_install">រុករក Hub ដើម្បីដំឡើងរូបមន្ត។</string>
+    <string name="analytics_hint_no_usage">អ្នកមិនទាន់បានប្រើរូបមន្តដែលបានដំឡើងក្នុងរយៈពេលនេះទេ។</string>
+    <string name="analytics_hint_questions">សួររូបមន្តសំណួរ ហើយវានឹងបង្ហាញនៅទីនេះ។</string>
+    <string name="analytics_hint_active_days">ថ្ងៃដែលអ្នកបើករូបមន្ត ឬសួរសំណួរ រាប់ចូលក្នុងការបន្តរបស់អ្នក។</string>
+    <string name="analytics_hint_streak">បើក ឬសួររូបមន្តថ្ងៃនេះ ដើម្បីចាប់ផ្ដើមការបន្ត។ ថ្ងៃសកម្មបន្តបន្ទាប់កសាងវា។</string>
+    <string name="analytics_most_used_period">ប្រើច្រើនបំផុតក្នុងរយៈពេលនេះ</string>
+
+    <!-- Share & Emergency -->
+    <string name="share">ចែករំលែក</string>
+    <string name="emergency_badge">EMERGENCY</string>
+    <string name="sos_badge">SOS</string>
+    <string name="recipe_by">ដោយ %s</string>
+    <string name="recipe_not_available">រូបមន្តមិនមានទេ</string>
+    <string name="go_back">ត្រឡប់ក្រោយ</string>
+
+    <!-- MiniApp extras -->
+    <string name="miniapp_triage_fallback">ខ្ញុំនឹងបង្ហាញជម្រើសទាំងអស់ដែលមាន។</string>
+    <string name="miniapp_voice_transcribing">កំពុងចម្លង&#8230;</string>
+    <string name="miniapp_voice_tap_stop">ចុចដើម្បីឈប់</string>
+    <string name="miniapp_voice_input">បញ្ចូលសំឡេង</string>
+    <string name="miniapp_i_understand">ខ្ញុំយល់ហើយ</string>
+
+    <!-- Model download -->
+    <string name="model_title">ត្រូវការម៉ូដែល AI</string>
+    <string name="model_subtitle">Bina ត្រូវការម៉ូដែលភាសាទំហំ ~២.៦ GB ដើម្បីដំណើរការក្រៅបណ្តាញ។ ទាញយកម្ដង ប្រើបានជារៀងរហូត។</string>
+    <string name="model_usb_note">នឹងមានឆាប់ៗ: ផ្ទេរតាម USB សម្រាប់តំបន់ដែលមានការតភ្ជាប់មានកម្រិត។</string>
+    <string name="model_download_button">Download Gemma 4 E2B</string>
+    <string name="model_downloading">កំពុងទាញយក… សូមបើកកម្មវិធីទុក</string>
+    <string name="model_done">ម៉ូដែលរួចរាល់!</string>
+    <string name="model_continue">បន្ត</string>
+    <string name="model_retry">ព្យាយាមម្ដងទៀត</string>
+    <string name="model_error_title">ការទាញយកបរាជ័យ</string>
+</resources>

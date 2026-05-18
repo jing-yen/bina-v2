@@ -15,9 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bina.ai.R
 import com.bina.ai.sync.BlePairingPayload
 import com.bina.ai.ui.screens.sync.TransferState
 import com.bina.ai.ui.theme.BinaGrayText
@@ -38,7 +40,7 @@ fun ReceivePairingSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onCancel, sheetState = sheetState, containerColor = BinaBgCard) {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
-            Text("Receive Recipe?", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = BinaStone950)
+            Text(stringResource(R.string.sync_receive_title), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = BinaStone950)
             Spacer(Modifier.height(12.dp))
 
             Box(
@@ -52,10 +54,10 @@ fun ReceivePairingSheet(
                     Text(offer.recipeName, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, color = BinaStone950)
                     Spacer(Modifier.height(2.dp))
                     if (offer.authorName.isNotBlank()) {
-                        Text("by ${offer.authorName}", fontSize = 12.sp, color = BinaGrayText)
+                        Text(stringResource(R.string.sync_receive_by, offer.authorName), fontSize = 12.sp, color = BinaGrayText)
                     }
                     Spacer(Modifier.height(4.dp))
-                    Text("${offer.sizeBytes / 1024} KB · id: ${offer.recipeId}", fontSize = 11.sp, color = BinaGrayText)
+                    Text(stringResource(R.string.sync_receive_size, offer.sizeBytes / 1024, offer.recipeId), fontSize = 11.sp, color = BinaGrayText)
                 }
             }
             Spacer(Modifier.height(16.dp))
@@ -63,21 +65,21 @@ fun ReceivePairingSheet(
             when (transferState) {
                 is TransferState.Idle -> {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        TextButton(onClick = onCancel) { Text("Cancel") }
+                        TextButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
                         Spacer(Modifier.weight(1f))
                         Button(
                             onClick = onConnect,
                             colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
-                        ) { Text("Connect") }
+                        ) { Text(stringResource(R.string.sync_receive_connect)) }
                     }
                 }
                 is TransferState.Connecting -> {
-                    Text("Connecting to sender…", fontSize = 13.sp, color = BinaGrayText)
+                    Text(stringResource(R.string.sync_receive_connecting), fontSize = 13.sp, color = BinaGrayText)
                     Spacer(Modifier.height(8.dp))
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
                 is TransferState.InProgress -> {
-                    Text("Receiving… ${transferState.pct}%", fontSize = 13.sp, color = BinaGrayText)
+                    Text(stringResource(R.string.sync_receive_progress, transferState.pct), fontSize = 13.sp, color = BinaGrayText)
                     Spacer(Modifier.height(8.dp))
                     LinearProgressIndicator(
                         progress = { transferState.pct / 100f },
@@ -88,12 +90,12 @@ fun ReceivePairingSheet(
                     Text(transferState.message, fontSize = 13.sp, color = BinaRed)
                     Spacer(Modifier.height(12.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        TextButton(onClick = onCancel) { Text("Cancel") }
+                        TextButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
                         Spacer(Modifier.weight(1f))
                         Button(
                             onClick = onRetry,
                             colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
-                        ) { Text("Retry") }
+                        ) { Text(stringResource(R.string.sync_receive_retry)) }
                     }
                 }
             }

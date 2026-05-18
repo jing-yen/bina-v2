@@ -22,6 +22,8 @@ import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,7 +55,7 @@ fun AchievementCard(
 
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
-            "Achievements",
+            stringResource(R.string.analytics_achievements),
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp,
             color = BinaStone950,
@@ -105,9 +107,9 @@ private fun FeaturedAchievement(a: Achievement) {
                 Text(a.emoji, fontSize = 28.sp)
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(a.title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+                Text(stringResource(a.titleResId), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
                 Text(
-                    if (a.unlocked) "Unlocked" else a.description,
+                    if (a.unlocked) stringResource(R.string.analytics_unlocked) else stringResource(a.descriptionResId),
                     fontSize = 12.sp,
                     color = Color.White.copy(alpha = 0.85f)
                 )
@@ -146,8 +148,8 @@ private fun LockedAchievement(a: Achievement) {
             Text(a.emoji, fontSize = 20.sp)
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(a.title, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = BinaStone950)
-            Text(a.description, fontSize = 11.sp, color = BinaGrayText)
+            Text(stringResource(a.titleResId), fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = BinaStone950)
+            Text(stringResource(a.descriptionResId), fontSize = 11.sp, color = BinaGrayText)
             Spacer(Modifier.height(4.dp))
             LinearProgressIndicator(
                 progress = { a.progress },

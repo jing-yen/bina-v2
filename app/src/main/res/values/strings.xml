@@ -13,6 +13,7 @@
     <string name="hub_trending">Trending on Bina</string>
     <string name="hub_empty_all">No recipes available.</string>
     <string name="hub_empty_category">No recipes in this category.</string>
+    <string name="hub_all_recipes">All Recipes</string>
 
     <!-- Bottom nav -->
     <string name="nav_hub">Hub</string>
@@ -42,7 +43,6 @@
     <!-- Recipe detail -->
     <string name="recipe_open">Open</string>
     <string name="recipe_install_open">Install &amp; Open</string>
-    <string name="recipe_configure_install">Configure &amp; Install</string>
     <string name="recipe_add_home">Add to Home Screen</string>
     <string name="recipe_verified_by">Verified by %s</string>
     <string name="recipe_domain">Domain: %s</string>
@@ -79,17 +79,117 @@
     <string name="cat_finance">Finance</string>
     <string name="cat_education">Education</string>
 
-    <!-- Mock recipe descriptions -->
-    <string name="desc_mock_plant_doctor">AI crop diagnosis — snap a photo of your plant, get instant disease identification and treatment</string>
-    <string name="desc_mock_dengue">Dengue prevention awareness chatbot for community health campaigns</string>
-    <string name="desc_mock_nutrition">Child nutrition screening and dietary guidance for rural clinics</string>
-    <string name="desc_mock_thai">Shop management assistant for small Thai retailers</string>
-    <string name="desc_mock_viet">Agriculture assistant for Vietnamese farmers</string>
-    <string name="desc_mock_khmer">Smart farming guide for Cambodian smallholders</string>
-    <string name="desc_mock_sawit">Palm oil cultivation expert for Malaysian smallholders</string>
-    <string name="desc_mock_myanmar">Village health guide for rural Myanmar communities</string>
+    <!-- Hub -->
+    <string name="hub_installed">Installed</string>
+
+    <!-- Achievements -->
+    <string name="achievement_collector_title">Recipe Collector</string>
+    <string name="achievement_collector_desc">Install 3 recipes from the Hub</string>
+    <string name="achievement_curious_title">Test Driver</string>
+    <string name="achievement_curious_desc">Ask 10 questions across your recipes</string>
+    <string name="achievement_streak_title">Streak</string>
+    <string name="achievement_streak_desc">Use Bina 3 consecutive days</string>
+    <string name="achievement_explorer_title">Explorer</string>
+    <string name="achievement_explorer_desc">Use 3 different recipes</string>
 
     <!-- General -->
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
+    <string name="share">Share</string>
+    <string name="emergency_badge">EMERGENCY</string>
+    <string name="sos_badge">SOS</string>
+    <string name="recipe_by">by %s</string>
+    <string name="recipe_not_available">Recipe not available</string>
+    <string name="go_back">Go back</string>
+
+    <!-- MiniApp -->
+    <string name="miniapp_triage_fallback">Let me show you all available options.</string>
+    <string name="miniapp_voice_transcribing">Transcribing&#8230;</string>
+    <string name="miniapp_voice_tap_stop">Tap to stop</string>
+    <string name="miniapp_voice_input">Voice input</string>
+    <string name="miniapp_i_understand">I Understand</string>
+
+    <!-- Model download -->
+    <string name="model_title">AI Model Required</string>
+    <string name="model_subtitle">Bina needs a ~2.6 GB language model to work offline. Download once, use forever.</string>
+    <string name="model_usb_note">Coming soon: USB transfer for areas with limited connectivity.</string>
+    <string name="model_download_button">Download Gemma 4 E2B</string>
+    <string name="model_downloading">Downloading… keep the app open</string>
+    <string name="model_done">Model ready!</string>
+    <string name="model_continue">Continue</string>
+    <string name="model_retry">Retry</string>
+    <string name="model_error_title">Download failed</string>
+
+    <!-- Offline Sync -->
+    <string name="sync_title">Offline Sync</string>
+    <string name="sync_subtitle">Share recipes phone-to-phone, no internet needed.</string>
+    <string name="sync_scan_title">Scan to Receive</string>
+    <string name="sync_scan_subtitle">Scan another phone\'s QR or paste a YAML to install.</string>
+    <string name="sync_share_title">Share a Recipe</string>
+    <string name="sync_share_subtitle">Pick an installed recipe to share via QR.</string>
+    <string name="sync_share_picker_subtitle">Pick an installed recipe. The receiver scans the QR to install it.</string>
+    <string name="sync_share_empty">Install a recipe from the Hub first.</string>
+    <string name="sync_paste_title">Paste recipe YAML</string>
+    <string name="sync_paste_subtitle">Paste the YAML you copied from Studio (or another phone). It\'ll be parsed and previewed before install.</string>
+    <string name="sync_paste_placeholder">id: my_recipe\nname: …</string>
+    <string name="sync_paste_clipboard">Paste from clipboard</string>
+    <string name="sync_paste_import">Import</string>
+    <string name="sync_receive_title">Receive Recipe?</string>
+    <string name="sync_receive_by">by %s</string>
+    <string name="sync_receive_size">%d KB · id: %s</string>
+    <string name="sync_receive_connect">Connect</string>
+    <string name="sync_receive_connecting">Connecting to sender…</string>
+    <string name="sync_receive_progress">Receiving… %d%%</string>
+    <string name="sync_receive_retry">Retry</string>
+    <string name="sync_camera_needed">Camera permission needed</string>
+    <string name="sync_camera_hint">Allow camera to scan a QR, or paste a YAML instead.</string>
+    <string name="sync_try_again">Try again</string>
+    <string name="sync_paste_instead">Paste YAML instead</string>
+    <string name="sync_bt_permission">Bluetooth permission required</string>
+    <string name="sync_recipe_not_found">Recipe not found</string>
+    <string name="sync_share_instructions">Have the other phone open Sync → Scan to Receive.\nKeep this screen open until they connect.</string>
+    <string name="sync_bt_needed">Bluetooth permission needed to share via QR. Or copy YAML below.</string>
+    <string name="sync_copy_yaml">Copy YAML to clipboard</string>
+    <string name="sync_done">Done</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">Analytics</string>
+    <string name="analytics_subtitle">Your authoring and on-device usage</string>
+    <string name="analytics_live_badge">Live · on-device</string>
+    <string name="analytics_total_launches">Total Launches</string>
+    <string name="analytics_all_time">all time</string>
+    <string name="analytics_vs_prev_7d">vs prev 7d</string>
+    <string name="analytics_vs_prev_30d">vs prev 30d</string>
+    <string name="analytics_recipes_installed">Recipes Installed</string>
+    <string name="analytics_questions_asked">Questions Asked</string>
+    <string name="analytics_active_days">Active Days</string>
+    <string name="analytics_streak">Streak</string>
+    <string name="analytics_streak_none">No active streak right now</string>
+    <string name="analytics_streak_one">1 day in a row</string>
+    <string name="analytics_streak_many">%d days in a row</string>
+    <string name="analytics_achievements">Achievements</string>
+    <string name="analytics_unlocked">Unlocked</string>
+    <string name="analytics_daily_activity">Daily Activity</string>
+    <string name="analytics_tap_day">Tap a day for details</string>
+    <string name="analytics_less">less</string>
+    <string name="analytics_more">more</string>
+    <string name="analytics_most_used">Most-Used Recipes</string>
+    <string name="analytics_no_activity_window">No recipe activity in this window yet</string>
+    <string name="analytics_launches_asks">%1$d launches · %2$d asks</string>
+    <string name="analytics_empty_title">No activity yet</string>
+    <string name="analytics_empty_subtitle">Open a recipe from the Hub to start seeing analytics.</string>
+    <string name="analytics_open_hub">Open Hub</string>
+    <string name="analytics_day_one">1 day</string>
+    <string name="analytics_day_many">%d days</string>
+    <string name="analytics_recipes_in_pocket">%d recipes in your Pocket</string>
+    <string name="analytics_questions_in_period">%d questions in this period</string>
+    <string name="analytics_days_with_activity">%1$d of %2$d days with activity</string>
+    <string name="analytics_by_recipe">By recipe</string>
+    <string name="analytics_recent_active">Recent active days</string>
+    <string name="analytics_hint_install">Browse the Hub to install recipes.</string>
+    <string name="analytics_hint_no_usage">You haven\'t used any installed recipes in this period yet.</string>
+    <string name="analytics_hint_questions">Ask a recipe a question and it\'ll show up here.</string>
+    <string name="analytics_hint_active_days">Days where you launch a recipe or ask a question count toward your streak.</string>
+    <string name="analytics_hint_streak">Open or ask a recipe today to start a streak. Consecutive active days build it up.</string>
+    <string name="analytics_most_used_period">Most-used in this period</string>
 </resources>

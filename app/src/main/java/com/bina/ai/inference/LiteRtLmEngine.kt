@@ -9,12 +9,12 @@ import com.google.ai.edge.litertlm.Conversation
 import com.google.ai.edge.litertlm.ConversationConfig
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
+import com.google.ai.edge.litertlm.Message
 import com.google.ai.edge.litertlm.SamplerConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import android.graphics.Bitmap
@@ -26,6 +26,15 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
 
     private var engine: Engine? = null
     override var isReady: Boolean = false
+        private set
+
+    /**
+     * Flipped to false the first time a vision call crashes (SIGSEGV surfaces as a JVM
+     * exception in the caller, or we detect it pre-emptively). Subsequent vision_ask
+     * actions will skip the native path and fall back to text-only inference.
+     */
+    @Volatile
+    override var isVisionReady: Boolean = true
         private set
 
     override suspend fun initialize() {
@@ -80,8 +89,10 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
         return flow {
             val conversation = createConversation(eng, systemPrompt)
             try {
-                val response = conversation.sendMessage(prompt)
-                emit(response.toString())
+                conversation.sendMessageAsync(prompt).collect { message ->
+                    val chunk = extractText(message)
+                    if (chunk.isNotEmpty()) emit(chunk)
+                }
             } finally {
                 conversation.close()
             }
@@ -97,6 +108,13 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
         systemPrompt: String
     ): Flow<String> {
         val eng = engine ?: return fallbackFlow(prompt)
+
+        // If a previous vision call crashed, skip the native path immediately so the
+        // caller can fall back to text-only inference without risking another SIGSEGV.
+        if (!isVisionReady) {
+            Log.w(TAG, "Vision marked unavailable; skipping generateWithImage")
+            throw UnsupportedOperationException("Vision inference is unavailable on this device/model")
+        }
 
         return flow {
             val imageFile = File(imagePath)
@@ -128,15 +146,26 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                     Content.ImageBytes(imageBytes),
                     Content.Text(prompt)
                 )
-                val response = conversation.sendMessage(contents)
-                emit(response.toString())
+                conversation.sendMessageAsync(contents).collect { message ->
+                    val chunk = extractText(message)
+                    if (chunk.isNotEmpty()) emit(chunk)
+                }
             } finally {
                 conversation.close()
             }
         }.flowOn(Dispatchers.IO).catch { e ->
-            Log.e(TAG, "Vision generate error", e)
-            emit("Error: ${e.message}")
+            Log.e(TAG, "Vision generate error — disabling vision for this session", e)
+            // Mark vision as broken so future calls skip the native path.
+            isVisionReady = false
+            // Re-throw so the caller (ActionDispatcher) can apply its own fallback.
+            throw e
         }
+    }
+
+    /** Marks vision inference as unavailable. Called externally when a crash is detected. */
+    fun disableVision() {
+        Log.w(TAG, "Vision inference disabled by caller")
+        isVisionReady = false
     }
 
     override fun generateWithAudio(
@@ -161,8 +190,10 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                     Content.AudioBytes(audioBytes),
                     Content.Text(prompt)
                 )
-                val response = conversation.sendMessage(contents)
-                emit(response.toString())
+                conversation.sendMessageAsync(contents).collect { message ->
+                    val chunk = extractText(message)
+                    if (chunk.isNotEmpty()) emit(chunk)
+                }
             } finally {
                 conversation.close()
             }
@@ -171,6 +202,18 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
             emit("Error: ${e.message}")
         }
     }
+
+    /**
+     * Extracts the text content from a streaming [Message] chunk.
+     *
+     * The LiteRT-LM SDK emits each [Message] as an incremental token chunk via
+     * [Conversation.sendMessageAsync]. Each chunk's [Contents] holds a list of [Content] items;
+     * we concatenate all [Content.Text] parts to get the raw token text for that chunk.
+     */
+    private fun extractText(message: Message): String =
+        message.contents.contents
+            .filterIsInstance<Content.Text>()
+            .joinToString("") { it.text }
 
     private fun createConversation(eng: Engine, systemPrompt: String): Conversation {
         val config = ConversationConfig(

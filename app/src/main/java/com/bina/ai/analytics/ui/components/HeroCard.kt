@@ -19,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.bina.ai.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -74,7 +76,7 @@ fun HeroCard(
             ) {
                 Column {
                     Text(
-                        "Total Launches",
+                        stringResource(R.string.analytics_total_launches),
                         fontSize = 13.sp,
                         color = Color.White.copy(alpha = 0.85f),
                         fontWeight = FontWeight.Medium
@@ -90,12 +92,12 @@ fun HeroCard(
                     )
                     Spacer(Modifier.height(2.dp))
                     val prevLabel = when (window) {
-                        TimeWindow.LAST_7D -> "vs prev 7d"
-                        TimeWindow.LAST_30D -> "vs prev 30d"
-                        TimeWindow.ALL_TIME -> "all time"
+                        TimeWindow.LAST_7D -> stringResource(R.string.analytics_vs_prev_7d)
+                        TimeWindow.LAST_30D -> stringResource(R.string.analytics_vs_prev_30d)
+                        TimeWindow.ALL_TIME -> stringResource(R.string.analytics_all_time)
                     }
                     val comparison = if (window == TimeWindow.ALL_TIME) {
-                        "${metrics.totalLaunches} ${plural(metrics.totalLaunches, "launch", "launches")} all time"
+                        "${metrics.totalLaunches} ${plural(metrics.totalLaunches, "launch", "launches")} ${stringResource(R.string.analytics_all_time)}"
                     } else {
                         val n = metrics.totalLaunchesPrevious
                         "$prevLabel: $n ${plural(n, "launch", "launches")}"

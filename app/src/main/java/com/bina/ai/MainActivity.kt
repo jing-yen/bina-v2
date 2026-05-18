@@ -28,7 +28,6 @@ import com.bina.ai.install.ShortcutHelper
 import com.bina.ai.inference.InferenceEngine
 import com.bina.ai.inference.LiteRtLmEngine
 import com.bina.ai.inference.ModelDownloadManager
-import com.bina.ai.install.CapabilityChecker
 import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import com.bina.ai.ui.components.BinaBottomNav
@@ -110,7 +109,6 @@ class MainActivity : AppCompatActivity() {
         setContent {
             BinaTheme {
                 var modelReady by remember { mutableStateOf(modelAlreadyExists) }
-                val capabilityChecker = remember { CapabilityChecker.create(applicationContext) }
                 val navController = rememberNavController()
                 val shortcutRecipeId = remember {
                     intent?.getStringExtra(ShortcutHelper.EXTRA_RECIPE_ID)
@@ -166,7 +164,6 @@ class MainActivity : AppCompatActivity() {
                                 navController = navController,
                                 miniAppRepository = miniAppRepository,
                                 installStore = installStore,
-                                capabilityChecker = capabilityChecker,
                                 inferenceEngine = inferenceEngine,
                                 eventTracker = eventTracker,
                                 analyticsRepository = analyticsRepository,

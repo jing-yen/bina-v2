@@ -20,12 +20,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bina.ai.ui.screens.sync.IncomingState
 import com.bina.ai.ui.screens.sync.SyncViewModel
+import com.bina.ai.R
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaAccent
 import com.bina.ai.ui.theme.BinaStone950
@@ -50,7 +52,7 @@ fun ScanQrScreen(
 
     fun startTransfer(offer: com.bina.ai.sync.BlePairingPayload.Offer) {
         if (!com.bina.ai.sync.BlePermissions.hasReceiverPermissions(context)) {
-            vm.onTransferFailed("Bluetooth permission required")
+            vm.onTransferFailed(context.getString(R.string.sync_bt_permission))
             return
         }
         vm.onTransferConnecting()
@@ -104,7 +106,6 @@ fun ScanQrScreen(
 
     var showPaste by remember { mutableStateOf(false) }
 
-    // Once VM is in Ready or just transitioned via an install, navigate up to Configurator.
     LaunchedEffect(incoming) {
         when (val s = incoming) {
             is IncomingState.Ready -> {
@@ -127,17 +128,17 @@ fun ScanQrScreen(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Camera permission needed", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.sync_camera_needed), color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(8.dp))
-                    Text("Allow camera to scan a QR, or paste a YAML instead.", color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
+                    Text(stringResource(R.string.sync_camera_hint), color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
                     Spacer(Modifier.height(20.dp))
                     Button(
                         onClick = { launcher.launch(Manifest.permission.CAMERA) },
                         colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
-                    ) { Text("Try again") }
+                    ) { Text(stringResource(R.string.sync_try_again)) }
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Paste YAML instead",
+                        stringResource(R.string.sync_paste_instead),
                         color = Color.White,
                         fontSize = 13.sp,
                         modifier = Modifier.clickable { showPaste = true }
@@ -203,7 +204,7 @@ fun ScanQrScreen(
                                 .clickable { showPaste = true }
                                 .padding(horizontal = 18.dp, vertical = 10.dp)
                         ) {
-                            Text("Paste YAML instead", color = BinaStone950, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.sync_paste_instead), color = BinaStone950, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }

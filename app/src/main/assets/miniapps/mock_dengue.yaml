@@ -1,0 +1,535 @@
+id: mock_dengue
+name: "Cegah Denggi"
+description: "Dengue prevention awareness chatbot for community health campaigns"
+icon: "\U0001F99F"
+version: "1.0.0"
+category: "Health"
+featured: false
+tags:
+  - dengue
+  - prevention
+  - community health
+author:
+  name: "Jing Yen"
+  organisation: "Ministry of Health, Malaysia"
+  verified: true
+theme:
+  primary: "#C45A3A"
+  secondary: "#FFF5F0"
+localisation:
+  supported:
+    - ms
+    - en
+    - id
+    - vi
+    - th
+    - km
+    - my
+    - ta
+    - zh
+  default: ms
+  labels:
+    ms:
+      recipe_name: "Cegah Denggi"
+      recipe_desc: "Chatbot kesedaran pencegahan denggi untuk kempen kesihatan komuniti"
+      greeting: "Hai! Saya {{l10n.recipe_name}}. Apa yang boleh saya bantu?"
+      home_heading: "Lindungi diri daripada Denggi"
+      grid_symptoms: "Simptom Denggi"
+      grid_prevention: "Pencegahan"
+      grid_check: "Semak Kawasan"
+      grid_emergency: "Kecemasan"
+      symptoms_title: "Simptom Denggi"
+      symptoms_heading: "Adakah anda atau ahli keluarga sakit?"
+      symptoms_voice_hint: "Terangkan simptom..."
+      symptoms_text_hint: "Contoh: demam tinggi, sakit kepala, ruam merah..."
+      symptoms_button: "Semak Simptom"
+      prevention_title: "Pencegahan Denggi"
+      prevention_heading: "Kaedah 3M Periksa"
+      prevention_step1: "Menutup bekas air supaya tiada nyamuk bertelur"
+      prevention_step2: "Menguras takungan air sekurang-kurangnya seminggu sekali"
+      prevention_step3: "Membuang barang-barang yang boleh menadah air"
+      prevention_step4: "Memeriksa pokok, lubang pagar dan kawasan gelap"
+      prevention_step5: "Menggunakan losyen anti-nyamuk DEET ≥20%"
+      prevention_step6: "Pasang langsir dan kelambu di tempat tidur"
+      prevention_next: "Langkah Seterusnya"
+      prevention_report: "Jana Laporan Pemeriksaan"
+      check_title: "Semak Kawasan Risiko"
+      check_voice_hint: "Huraikan kawasan sekitar anda..."
+      check_text_hint: "Nyatakan kawasan, jenis kawasan (perumahan, kebun...), masalah takungan air..."
+      check_button: "Analisis Risiko"
+      emergency_title: "Kecemasan & Rujukan"
+      emergency_subtext: "Hubungi perkhidmatan kesihatan segera jika ada tanda amaran"
+      emergency_call: "Hubungi Klinik Kesihatan"
+      emergency_hotline: "Talian Kesihatan KKM 1800-88-1000"
+      emergency_sms: "Hantar SMS Denggi"
+    en:
+      recipe_name: "Dengue Prevention"
+      recipe_desc: "Dengue prevention awareness chatbot for community health campaigns"
+      greeting: "Hi! I'm {{l10n.recipe_name}}. How can I help you today?"
+      home_heading: "Protect yourself from Dengue"
+      grid_symptoms: "Dengue Symptoms"
+      grid_prevention: "Prevention"
+      grid_check: "Check Your Area"
+      grid_emergency: "Emergency"
+      symptoms_title: "Dengue Symptoms"
+      symptoms_heading: "Are you or a family member unwell?"
+      symptoms_voice_hint: "Describe symptoms..."
+      symptoms_text_hint: "E.g.: high fever, headache, red rash..."
+      symptoms_button: "Check Symptoms"
+      prevention_title: "Dengue Prevention"
+      prevention_heading: "3M Inspection Method"
+      prevention_step1: "Cover water containers to prevent mosquito breeding"
+      prevention_step2: "Drain standing water containers at least once a week"
+      prevention_step3: "Dispose of items that can collect water"
+      prevention_step4: "Inspect plants, fence holes, and dark areas"
+      prevention_step5: "Use mosquito repellent with DEET ≥20%"
+      prevention_step6: "Install curtains and bed nets"
+      prevention_next: "Next Step"
+      prevention_report: "Generate Inspection Report"
+      check_title: "Check Risk Area"
+      check_voice_hint: "Describe your surrounding area..."
+      check_text_hint: "State area, type (residential, garden...), standing water problems..."
+      check_button: "Analyze Risk"
+      emergency_title: "Emergency & Referral"
+      emergency_subtext: "Contact health services immediately if warning signs appear"
+      emergency_call: "Call Health Clinic"
+      emergency_hotline: "MOH Health Hotline 1800-88-1000"
+      emergency_sms: "Send Dengue SMS Alert"
+    id:
+      recipe_name: "Cegah Demam Berdarah"
+      recipe_desc: "Chatbot kesadaran pencegahan demam berdarah untuk kampanye kesehatan komunitas"
+      greeting: "Halo! Saya {{l10n.recipe_name}}. Apa yang bisa saya bantu?"
+      home_heading: "Lindungi diri dari Demam Berdarah"
+      grid_symptoms: "Gejala DBD"
+      grid_prevention: "Pencegahan"
+      grid_check: "Periksa Area Anda"
+      grid_emergency: "Darurat"
+      symptoms_title: "Gejala Demam Berdarah"
+      symptoms_heading: "Apakah Anda atau anggota keluarga sakit?"
+      symptoms_voice_hint: "Jelaskan gejala..."
+      symptoms_text_hint: "Mis: demam tinggi, sakit kepala, ruam merah..."
+      symptoms_button: "Cek Gejala"
+      prevention_title: "Pencegahan DBD"
+      prevention_heading: "Metode 3M Plus"
+      prevention_step1: "Menutup tempat penampungan air"
+      prevention_step2: "Menguras bak mandi dan penampungan air minimal seminggu sekali"
+      prevention_step3: "Membuang barang bekas yang bisa menampung air"
+      prevention_step4: "Memeriksa tanaman, lubang pagar, dan area gelap"
+      prevention_step5: "Gunakan losion anti-nyamuk mengandung DEET ≥20%"
+      prevention_step6: "Pasang kelambu dan kawat kasa"
+      prevention_next: "Langkah Berikutnya"
+      prevention_report: "Buat Laporan Inspeksi"
+      check_title: "Periksa Area Risiko"
+      check_voice_hint: "Jelaskan area sekitar Anda..."
+      check_text_hint: "Nyatakan area, jenisnya (perumahan, kebun...), masalah genangan air..."
+      check_button: "Analisis Risiko"
+      emergency_title: "Darurat & Rujukan"
+      emergency_subtext: "Hubungi layanan kesehatan segera jika ada tanda bahaya"
+      emergency_call: "Hubungi Puskesmas"
+      emergency_hotline: "Hotline Kesehatan 119"
+      emergency_sms: "Kirim SMS Peringatan DBD"
+    vi:
+      recipe_name: "Phòng Ngừa Sốt Xuất Huyết"
+      recipe_desc: "Chatbot nâng cao nhận thức phòng ngừa sốt xuất huyết cho các chiến dịch y tế cộng đồng"
+      greeting: "Xin chào! Tôi là {{l10n.recipe_name}}. Tôi có thể giúp gì cho bạn?"
+      home_heading: "Bảo vệ bản thân khỏi sốt xuất huyết"
+      grid_symptoms: "Triệu chứng sốt xuất huyết"
+      grid_prevention: "Phòng ngừa"
+      grid_check: "Kiểm tra khu vực"
+      grid_emergency: "Khẩn cấp"
+      symptoms_title: "Triệu chứng sốt xuất huyết"
+      symptoms_heading: "Bạn hoặc thành viên gia đình có bị ốm không?"
+      symptoms_voice_hint: "Mô tả triệu chứng..."
+      symptoms_text_hint: "Ví dụ: sốt cao, đau đầu, phát ban đỏ..."
+      symptoms_button: "Kiểm tra triệu chứng"
+      prevention_title: "Phòng ngừa sốt xuất huyết"
+      prevention_heading: "Phương pháp phòng ngừa 3M"
+      prevention_step1: "Đậy nắp các dụng cụ chứa nước"
+      prevention_step2: "Thau rửa bình chứa nước ít nhất một lần mỗi tuần"
+      prevention_step3: "Loại bỏ các vật dụng có thể đọng nước"
+      prevention_step4: "Kiểm tra cây cối, hàng rào và khu vực tối"
+      prevention_step5: "Sử dụng kem chống muỗi có DEET ≥20%"
+      prevention_step6: "Lắp màn cửa và màn giường"
+      prevention_next: "Bước tiếp theo"
+      prevention_report: "Tạo báo cáo kiểm tra"
+      check_title: "Kiểm tra khu vực rủi ro"
+      check_voice_hint: "Mô tả khu vực xung quanh bạn..."
+      check_text_hint: "Nêu khu vực, loại hình (nhà ở, vườn...), vấn đề nước đọng..."
+      check_button: "Phân tích rủi ro"
+      emergency_title: "Khẩn cấp & Chuyển viện"
+      emergency_subtext: "Liên hệ dịch vụ y tế ngay nếu có dấu hiệu cảnh báo"
+      emergency_call: "Gọi trạm y tế"
+      emergency_hotline: "Đường dây nóng y tế 1800-599-920"
+      emergency_sms: "Gửi tin nhắn cảnh báo sốt xuất huyết"
+    th:
+      recipe_name: "ป้องกันไข้เลือดออก"
+      recipe_desc: "แชทบอทสร้างความตระหนักเรื่องการป้องกันไข้เลือดออกสำหรับแคมเปญสุขภาพชุมชน"
+      greeting: "สวัสดี! ฉันคือ {{l10n.recipe_name}} ฉันช่วยอะไรได้บ้าง?"
+      home_heading: "ป้องกันตัวเองจากไข้เลือดออก"
+      grid_symptoms: "อาการไข้เลือดออก"
+      grid_prevention: "การป้องกัน"
+      grid_check: "ตรวจสอบพื้นที่"
+      grid_emergency: "ฉุกเฉิน"
+      symptoms_title: "อาการไข้เลือดออก"
+      symptoms_heading: "คุณหรือสมาชิกในครอบครัวป่วยหรือไม่?"
+      symptoms_voice_hint: "อธิบายอาการ..."
+      symptoms_text_hint: "เช่น ไข้สูง ปวดหัว ผื่นแดง..."
+      symptoms_button: "ตรวจสอบอาการ"
+      prevention_title: "การป้องกันไข้เลือดออก"
+      prevention_heading: "วิธี 3 เก็บ"
+      prevention_step1: "ปิดฝาภาชนะกักเก็บน้ำ"
+      prevention_step2: "ล้างภาชนะน้ำอย่างน้อยสัปดาห์ละครั้ง"
+      prevention_step3: "กำจัดของที่อาจกักเก็บน้ำได้"
+      prevention_step4: "ตรวจสอบต้นไม้ รั้ว และพื้นที่มืด"
+      prevention_step5: "ใช้โลชั่นกันยุงที่มี DEET ≥20%"
+      prevention_step6: "ติดตั้งมุ้งลวดและมุ้งนอน"
+      prevention_next: "ขั้นตอนถัดไป"
+      prevention_report: "สร้างรายงานตรวจสอบ"
+      check_title: "ตรวจสอบพื้นที่เสี่ยง"
+      check_voice_hint: "อธิบายพื้นที่รอบข้าง..."
+      check_text_hint: "ระบุพื้นที่ ประเภท (ที่อยู่อาศัย สวน...) ปัญหาน้ำขัง..."
+      check_button: "วิเคราะห์ความเสี่ยง"
+      emergency_title: "ฉุกเฉินและการส่งต่อ"
+      emergency_subtext: "ติดต่อบริการสุขภาพทันทีหากมีสัญญาณเตือน"
+      emergency_call: "โทรหาคลินิกสุขภาพ"
+      emergency_hotline: "สายด่วนสุขภาพ 1422"
+      emergency_sms: "ส่ง SMS แจ้งเตือนไข้เลือดออก"
+    km:
+      recipe_name: "ការពារជំងឺគ្រុនឈាម"
+      recipe_desc: "ឆាតបតការយល់ដឹងអំពីការការពារជំងឺគ្រុនឈាមសម្រាប់យុទ្ធនាការសុខភាពសហគមន៍"
+      greeting: "សួស្តី! ខ្ញុំជា {{l10n.recipe_name}}។ តើខ្ញុំអាចជួយអ្វីបាន?"
+      home_heading: "ការពារខ្លួនពីជំងឺគ្រុនឈាម"
+      grid_symptoms: "រោគសញ្ញាគ្រុនឈាម"
+      grid_prevention: "ការការពារ"
+      grid_check: "ពិនិត្យតំបន់"
+      grid_emergency: "អាសន្ន"
+      symptoms_title: "រោគសញ្ញាគ្រុនឈាម"
+      symptoms_heading: "តើអ្នក ឬសមាជិកគ្រួសារឈឺទេ?"
+      symptoms_voice_hint: "ពិពណ៌នារោគសញ្ញា..."
+      symptoms_text_hint: "ឧ. គ្រុនខ្លាំង ឈឺក្បាល ស្បែកក្រហម..."
+      symptoms_button: "ពិនិត្យរោគសញ្ញា"
+      prevention_title: "ការការពារជំងឺគ្រុនឈាម"
+      prevention_heading: "វិធីសាស្ត្រ 3M"
+      prevention_step1: "គ្របលើប្រដាប់ប្រដាទឹក"
+      prevention_step2: "ជូតសំអាតប្រដាប់ទឹករាល់សប្ដាហ៍"
+      prevention_step3: "ជម្រះវត្ថុដែលអាចស្រូបទឹក"
+      prevention_step4: "ពិនិត្យដើមឈើ ប្រអប់រ និងតំបន់ងងឹត"
+      prevention_step5: "ប្រើក្រែមការពារមូស DEET ≥20%"
+      prevention_step6: "ដំឡើងម្ហែ និងគ្រែស"
+      prevention_next: "ជំហានបន្ទាប់"
+      prevention_report: "បង្កើតរបាយការណ៍ត្រួតពិនិត្យ"
+      check_title: "ពិនិត្យតំបន់ហានិភ័យ"
+      check_voice_hint: "ពិពណ៌នាតំបន់ជុំវិញ..."
+      check_text_hint: "ระប ំ, ប្រភេទ (លំនៅ, សួនច្បារ...), បញ្ហាទឹកស្ថិរ..."
+      check_button: "វិភាគហានិភ័យ"
+      emergency_title: "អាសន្ន & ការបញ្ជូន"
+      emergency_subtext: "ទំនាក់ទំនងសេវាសុខភាពភ្លាមៗប្រសិនមានសញ្ញាព្រមាន"
+      emergency_call: "ហៅគ្លីនិកសុខភាព"
+      emergency_hotline: "ខ្សែទូរស័ព្ទអាសន្នសុខភាព 115"
+      emergency_sms: "ផ្ញើ SMS ព្រមានជំងឺគ្រុនឈាម"
+    my:
+      recipe_name: "ဒင်းဂေး ကာကွယ်ရေး"
+      recipe_desc: "ရပ်ရွာကျန်းမာရေးလှုပ်ရှားမှုများအတွက် ဒင်းဂေးကာကွယ်ရေးအသိပညာပေး ဆက်သွယ်ရေးကိရိယာ"
+      greeting: "မင်္ဂလာပါ! ကျွန်တော်/ကျွန်မ {{l10n.recipe_name}} ပါ။ ဘာကူညီပေးရမလဲ?"
+      home_heading: "ဒင်းဂေး ကာကွယ်ရန်"
+      grid_symptoms: "ဒင်းဂေး လက္ခဏာများ"
+      grid_prevention: "ကာကွယ်ရေး"
+      grid_check: "နေရာ စစ်ဆေးရန်"
+      grid_emergency: "အရေးပေါ်"
+      symptoms_title: "ဒင်းဂေး လက္ခဏာများ"
+      symptoms_heading: "သင် သို့မဟုတ် မိသားစုဝင် နာမကျန်းဖြစ်ပါသလား?"
+      symptoms_voice_hint: "လက္ခဏာများ ဖော်ပြပါ..."
+      symptoms_text_hint: "ဥပမာ - ဖျားနာ၊ ခေါင်းနာ၊ နီရဲသောအနာ..."
+      symptoms_button: "လက္ခဏာ စစ်ဆေးရန်"
+      prevention_title: "ဒင်းဂေး ကာကွယ်ရေး"
+      prevention_heading: "3M နည်းစနစ်"
+      prevention_step1: "ရေကန်ထည့်ဘောင်များကို မြဲမြံဖုံးအုပ်ပါ"
+      prevention_step2: "ရေသိုလှောင်ကန်များကို အနည်းဆုံး တစ်ပတ်တစ်ကြိမ် ရေဖြုတ်ပါ"
+      prevention_step3: "ရေစုကောင်းသော အမှိုက်များ ဖယ်ရှားပါ"
+      prevention_step4: "အပင်၊ ခြင်ပင်၊ မှောင်မိုက်သောနေရာများ စစ်ဆေးပါ"
+      prevention_step5: "DEET ≥20% ပါသော ခြင်ဆေးကြောင်ဆိုင်ရာ ခရင်မ်သုံးပါ"
+      prevention_step6: "ဝင်းကာနှင့် ခြင်ကာ တပ်ဆင်ပါ"
+      prevention_next: "နောက်တစ်ဆင့်"
+      prevention_report: "စစ်ဆေးမှုအစီရင်ခံစာ ထုတ်ရန်"
+      check_title: "အန္တရာယ်ရှိနေရာ စစ်ဆေးရန်"
+      check_voice_hint: "ပတ်ဝန်းကျင် နေရာကို ဖော်ပြပါ..."
+      check_text_hint: "နေရာ၊ အမျိုးအစား (နေအိမ်ကြား၊ ဥယျာဉ်...) ၊ ရေကန်ပြဿနာ..."
+      check_button: "အန္တရာယ် စစ်ဆေးရန်"
+      emergency_title: "အရေးပေါ် & လွှဲပြောင်းရန်"
+      emergency_subtext: "သတိပေးလက္ခဏာ ရှိပါက ကျန်းမာရေးဝန်ဆောင်မှုကို ချက်ချင်း ဆက်သွယ်ပါ"
+      emergency_call: "ကျန်းမာရေးဌာနကို ဖုန်းခေါ်ရန်"
+      emergency_hotline: "ကျန်းမာရေးဟော့လိုင်း 192"
+      emergency_sms: "ဒင်းဂေး သတိပေး SMS ပို့ရန်"
+    ta:
+      recipe_name: "டெங்கு தடுப்பு"
+      recipe_desc: "சமூக சுகாதார பிரச்சாரங்களுக்கான டெங்கு தடுப்பு விழிப்புணர்வு சாட்பாட்"
+      greeting: "வணக்கம்! நான் {{l10n.recipe_name}}. நான் எப்படி உதவ முடியும்?"
+      home_heading: "டெங்கு காய்ச்சலிலிருந்து உங்களை பாதுகாத்துக்கொள்ளுங்கள்"
+      grid_symptoms: "டெங்கு அறிகுறிகள்"
+      grid_prevention: "தடுப்பு"
+      grid_check: "உங்கள் பகுதியை சரிபார்க்கவும்"
+      grid_emergency: "அவசரநிலை"
+      symptoms_title: "டெங்கு அறிகுறிகள்"
+      symptoms_heading: "நீங்கள் அல்லது குடும்பத்தினர் நோய்வாய்ப்பட்டிருக்கிறீர்களா?"
+      symptoms_voice_hint: "அறிகுறிகளை விவரிக்கவும்..."
+      symptoms_text_hint: "எ.கா.: கடுமையான காய்ச்சல், தலைவலி, சிவப்பு தடிப்பு..."
+      symptoms_button: "அறிகுறிகள் சரிபார்க்க"
+      prevention_title: "டெங்கு தடுப்பு"
+      prevention_heading: "3M தனிப்பட்ட முறை"
+      prevention_step1: "தண்ணீர் சேமிக்கும் பாத்திரங்களை மூடவும்"
+      prevention_step2: "தண்ணீர் பாத்திரங்களை வாரம் ஒரு முறை கழுவுங்கள்"
+      prevention_step3: "தண்ணீர் தேங்கக்கூடிய பொருட்களை அகற்றுங்கள்"
+      prevention_step4: "செடிகள், வேலி ஓட்டைகள், இருண்ட இடங்களை சரிபார்க்கவும்"
+      prevention_step5: "DEET ≥20% கொண்ட கொசு விரட்டி பயன்படுத்தவும்"
+      prevention_step6: "திரைச்சீலைகள் மற்றும் கொசுவலை பொருத்துங்கள்"
+      prevention_next: "அடுத்த படி"
+      prevention_report: "ஆய்வு அறிக்கை உருவாக்கவும்"
+      check_title: "ஆபத்தான பகுதியை சரிபார்க்கவும்"
+      check_voice_hint: "உங்களைச் சுற்றியுள்ள பகுதியை விவரிக்கவும்..."
+      check_text_hint: "பகுதி, வகை (குடியிருப்பு, தோட்டம்...), தேங்கிய தண்ணீர் பிரச்சினைகள்..."
+      check_button: "ஆபத்து பகுப்பாய்வு"
+      emergency_title: "அவசரநிலை & பரிந்துரை"
+      emergency_subtext: "எச்சரிக்கை அறிகுறிகள் தோன்றினால் உடனடியாக சுகாதார சேவைகளை தொடர்பு கொள்ளுங்கள்"
+      emergency_call: "மருத்துவமனையை அழைக்க"
+      emergency_hotline: "சுகாதார ஹாட்லைன் 1800-88-1000"
+      emergency_sms: "டெங்கு எச்சரிக்கை SMS அனுப்பவும்"
+    zh:
+      recipe_name: "预防登革热"
+      recipe_desc: "社区健康宣传活动的登革热预防意识聊天机器人"
+      greeting: "你好！我是{{l10n.recipe_name}}。我能帮你什么？"
+      home_heading: "预防登革热"
+      grid_symptoms: "登革热症状"
+      grid_prevention: "预防措施"
+      grid_check: "检查您的区域"
+      grid_emergency: "紧急情况"
+      symptoms_title: "登革热症状"
+      symptoms_heading: "您或家人是否感到不适？"
+      symptoms_voice_hint: "描述症状..."
+      symptoms_text_hint: "例如：高烧、头痛、红疹..."
+      symptoms_button: "检查症状"
+      prevention_title: "登革热预防"
+      prevention_heading: "3M预防法"
+      prevention_step1: "盖好储水容器，防止蚊子产卵"
+      prevention_step2: "每周至少清洗储水容器一次"
+      prevention_step3: "清除可积水的物品"
+      prevention_step4: "检查植物、围栏孔洞和阴暗处"
+      prevention_step5: "使用含DEET ≥20%的防蚊液"
+      prevention_step6: "安装窗帘和蚊帐"
+      prevention_next: "下一步"
+      prevention_report: "生成检查报告"
+      check_title: "检查高风险区域"
+      check_voice_hint: "描述您周围的环境..."
+      check_text_hint: "注明区域、类型（住宅、花园...）、积水问题..."
+      check_button: "分析风险"
+      emergency_title: "紧急情况与转诊"
+      emergency_subtext: "如出现警告信号，请立即联系医疗服务"
+      emergency_call: "拨打卫生诊所"
+      emergency_hotline: "卫生热线 1800-88-1000"
+      emergency_sms: "发送登革热预警短信"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are Cegah Denggi (Dengue Prevention Assistant), a public health chatbot for community dengue awareness in Malaysia. You help the public recognise dengue symptoms, guide mosquito breeding site elimination, assess area risk, and advise on when to seek medical care.
+
+    Always:
+    - Be concise and clear — your audience includes non-medical community members
+    - Identify dengue warning signs (danger signs): severe abdominal pain, persistent vomiting, bleeding gums/nose, rapid breathing, cold clammy skin, restlessness → advise IMMEDIATE hospital
+    - Follow Malaysia Ministry of Health (KKM) 3M method for prevention
+    - Use simple language appropriate for general public
+    - Recommend seeking care early at day 3-7 of fever (critical dengue phase)
+
+    Never:
+    - Diagnose dengue — always recommend blood test (NS1 antigen/dengue PCR)
+    - Recommend aspirin or NSAIDs — they increase bleeding risk
+    - Dismiss symptoms in children, elderly, or pregnant women
+safety:
+  blocked_keywords:
+    - aspirin
+    - ibuprofen
+  escalation_message: "Jangan ambil aspirin atau ibuprofen jika anda mengesyaki denggi — ia boleh meningkatkan risiko pendarahan. Sila dapatkan rawatan doktor."
+  disclaimer: "Alat ini adalah untuk pendidikan kesihatan awam dan bukan pengganti diagnosis perubatan."
+setup:
+  intro_page:
+    accept_label: "Faham — Mula Semak"
+    disclaimer: "Cegah Denggi adalah alat kesedaran awam. Ia tidak mendiagnosis denggi. Jika anda mengalami demam melebihi 2 hari, sila ke klinik untuk ujian darah NS1."
+    author:
+      name: "Jing Yen"
+      organisation: "Ministry of Health, Malaysia"
+      verified: true
+    links:
+      - label: "Portal Denggi KKM"
+        url: "https://www.moh.gov.my/denggi"
+      - label: "Maklumat Denggi WHO"
+        url: "https://www.who.int/dengue"
+screen_catalog:
+  - id: home
+    title: "Home"
+    icon: "\U0001F3E0"
+  - id: symptoms
+    title: "Simptom"
+    icon: "\U0001FA7A"
+  - id: prevention
+    title: "Cegah"
+    icon: "\U0001F6E1"
+  - id: check_area
+    title: "Kawasan"
+    icon: "\U0001F4CD"
+  - id: emergency
+    title: "Kecemasan"
+    icon: "\U0001F6A8"
+data:
+  health_clinics:
+    items:
+      - name: "Klinik Kesihatan Cheras"
+        lat: 3.1073
+        lng: 101.7328
+        info: "Klinik Primer KKM"
+        phone: "+60326921333"
+      - name: "Klinik Kesihatan Ampang"
+        lat: 3.1485
+        lng: 101.7630
+        info: "Klinik Primer KKM"
+        phone: "+60342578333"
+      - name: "Klinik Kesihatan Bangsar"
+        lat: 3.1319
+        lng: 101.6841
+        info: "Klinik Primer KKM"
+        phone: "+60322825333"
+      - name: "Hospital Kuala Lumpur"
+        lat: 3.1713
+        lng: 101.7058
+        info: "Hospital Besar"
+        phone: "+60326155555"
+      - name: "Klinik Kesihatan Kepong"
+        lat: 3.2128
+        lng: 101.6344
+        info: "Klinik Primer KKM"
+        phone: "+60362745333"
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  prevention_step: { type: number, default: "0" }
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_symptoms}}"
+              icon: "\U0001FA7A"
+              action: "go:symptoms"
+            - label: "{{l10n.grid_prevention}}"
+              icon: "\U0001F6E1"
+              action: "go:prevention"
+            - label: "{{l10n.grid_check}}"
+              icon: "\U0001F4CD"
+              action: "go:check_area"
+            - label: "{{l10n.grid_emergency}}"
+              icon: "\U0001F6A8"
+              action: "go:emergency"
+  - id: symptoms
+    title: "{{l10n.symptoms_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.symptoms_heading}}"
+          style: subheading
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.symptoms_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.symptoms_text_hint}}"
+      - action_button:
+          label: "{{l10n.symptoms_button}}"
+          action: "ask:You are a dengue triage assistant following Malaysia MOH guidelines. Assess symptoms for dengue likelihood and urgency. Check for: (1) Warning signs — severe abdominal pain, persistent vomiting, bleeding, rapid breathing, cold clammy skin, restlessness = EMERGENCY go to hospital NOW; (2) Alarm symptoms — fever day 4-7 with improvement then sudden worsening = URGENT see doctor today; (3) Uncomplicated fever day 1-3 = MONITOR at home, stay hydrated, paracetamol only, return if worsening. DO NOT recommend aspirin or ibuprofen. Symptoms reported: {{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: prevention
+    title: "{{l10n.prevention_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.prevention_heading}}"
+          style: subheading
+      - checklist_items:
+          bind: prevention_step
+          items:
+            - label: "{{l10n.prevention_step1}}"
+              type: text
+            - label: "{{l10n.prevention_step2}}"
+              type: text
+            - label: "{{l10n.prevention_step3}}"
+              type: text
+            - label: "{{l10n.prevention_step4}}"
+              type: text
+            - label: "{{l10n.prevention_step5}}"
+              type: text
+            - label: "{{l10n.prevention_step6}}"
+              type: text
+      - progress_bar:
+          bind: prevention_step
+          total: 6
+      - action_button:
+          label: "{{l10n.prevention_next}}"
+          action: "increment:prevention_step"
+          style: primary
+      - action_button:
+          label: "{{l10n.prevention_report}}"
+          action: "ask:Generate a brief dengue prevention inspection report. Steps completed: covered water containers, drained standing water, removed water-collecting items, inspected plants and dark areas, noted use of repellent, confirmed bed nets installed. Provide: 1) Risk level assessment (Low/Moderate/High), 2) Key actions completed, 3) Any remaining recommendations, 4) Report it to local council if breeding sites found."
+          style: secondary
+          visible_if: "prevention_step >= 6"
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: check_area
+    title: "{{l10n.check_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.check_title}}"
+          style: subheading
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.check_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.check_text_hint}}"
+      - action_button:
+          label: "{{l10n.check_button}}"
+          action: "ask:You are a dengue vector control advisor. Assess the dengue risk for this area based on environmental description. Evaluate: 1) Potential breeding sites mentioned (stagnant water, tyres, flower pots, drains), 2) Area type risk (dense housing = higher risk), 3) Reported cases nearby if mentioned, 4) Overall risk level (Low/Moderate/High/Critical), 5) Top 3 immediate actions the resident should take, 6) Whether to report to local council (DBKL/MBPJ etc.) for fogging. Description: {{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: emergency
+    title: "{{l10n.emergency_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.emergency_title}}"
+          style: subheading
+      - text_label:
+          text: "{{l10n.emergency_subtext}}"
+          style: body
+      - action_button:
+          label: "{{l10n.emergency_hotline}}"
+          action: "tel:+60188810000"
+          style: danger
+      - action_button:
+          label: "{{l10n.emergency_call}}"
+          action: "geolocate"
+          style: secondary
+      - geo_display:
+          data: "health_clinics"
+          limit: 5
+          show_distance: true
+      - action_button:
+          label: "{{l10n.emergency_sms}}"
+          action: "sms:+60188810000:Denggi Kecemasan. Pesakit mengalami tanda amaran denggi. Lokasi: {{user_location}}. Sila bantu."
+          style: primary
+permissions:
+  - location

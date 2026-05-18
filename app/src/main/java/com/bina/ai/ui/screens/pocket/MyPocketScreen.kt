@@ -249,14 +249,14 @@ private fun PocketMiniAppCard(app: MiniApp, onClick: () -> Unit, onAddToHome: ()
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    app.name,
+                    com.bina.ai.ui.localizedName(app),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 15.sp,
                     lineHeight = 18.sp,
                     color = BinaStone950
                 )
                 Text(
-                    app.description,
+                    com.bina.ai.ui.localizedDescription(app),
                     fontSize = 12.sp,
                     lineHeight = 16.sp,
                     color = BinaGrayText,

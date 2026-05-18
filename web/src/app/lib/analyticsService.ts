@@ -1,4 +1,4 @@
-import { collection, getDocs, addDoc, doc, updateDoc, query, where, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, updateDoc, query, orderBy, limit, Timestamp } from 'firebase/firestore';
 import { db } from './firebase';
 import { listRecipes } from './recipeService';
 
@@ -76,6 +76,103 @@ export async function fetchRecipeAnalytics(): Promise<RecipeAnalytics[]> {
     downloads: parseInt(r.stats?.downloads || '0') || 0,
     rating: r.stats?.rating || 0,
   })).sort((a, b) => b.downloads - a.downloads);
+}
+
+export interface FeedItem {
+  flag: string;
+  text: string;
+  time: string;
+}
+
+const COUNTRY_CODE_TO_NAME: Record<string, string> = {
+  MY: 'Malaysia', ID: 'Indonesia', TH: 'Thailand', PH: 'Philippines',
+  VN: 'Vietnam', SG: 'Singapore', KH: 'Cambodia', MM: 'Myanmar',
+  LA: 'Laos', BN: 'Brunei', IN: 'India', BD: 'Bangladesh',
+  PK: 'Pakistan', NP: 'Nepal', LK: 'Sri Lanka', NG: 'Nigeria',
+  KE: 'Kenya', ET: 'Ethiopia', GH: 'Ghana', TZ: 'Tanzania',
+};
+
+const COUNTRY_CODE_TO_FLAG: Record<string, string> = {
+  MY: '\u{1F1F2}\u{1F1FE}', ID: '\u{1F1EE}\u{1F1E9}', TH: '\u{1F1F9}\u{1F1ED}',
+  PH: '\u{1F1F5}\u{1F1ED}', VN: '\u{1F1FB}\u{1F1F3}', SG: '\u{1F1F8}\u{1F1EC}',
+  KH: '\u{1F1F0}\u{1F1ED}', MM: '\u{1F1F2}\u{1F1F2}', LA: '\u{1F1F1}\u{1F1E6}',
+  BN: '\u{1F1E7}\u{1F1F3}', IN: '\u{1F1EE}\u{1F1F3}', BD: '\u{1F1E7}\u{1F1E9}',
+  PK: '\u{1F1F5}\u{1F1F0}', NP: '\u{1F1F3}\u{1F1F5}', LK: '\u{1F1F1}\u{1F1F0}',
+  NG: '\u{1F1F3}\u{1F1EC}', KE: '\u{1F1F0}\u{1F1EA}', ET: '\u{1F1EA}\u{1F1F9}',
+  GH: '\u{1F1EC}\u{1F1ED}', TZ: '\u{1F1F9}\u{1F1FF}',
+};
+
+function relativeTimeFeed(ts: Timestamp): string {
+  const diff = Date.now() - ts.toMillis();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+/**
+ * Fetch the most recent `maxItems` pings from Firestore and format them as
+ * live-feed items. Pass a map of recipeId → recipeName so we can label each
+ * ping without an extra Firestore read.
+ */
+export async function fetchRecentPings(
+  recipeNames: Record<string, string>,
+  maxItems = 8,
+): Promise<FeedItem[]> {
+  const q = query(pingsRef, orderBy('timestamp', 'desc'), limit(maxItems));
+  const snap = await getDocs(q);
+
+  const items: FeedItem[] = [];
+  snap.forEach(d => {
+    const data = d.data();
+    const cc = (data.country_code as string) || 'XX';
+    const flag = COUNTRY_CODE_TO_FLAG[cc] || '🌐';
+    const country = COUNTRY_CODE_TO_NAME[cc] || cc;
+    const recipeName = recipeNames[data.recipe_id as string] || 'a recipe';
+    const ts = data.timestamp as Timestamp | undefined;
+    const time = ts ? relativeTimeFeed(ts) : 'recently';
+    items.push({ flag, text: `User in ${country} opened ${recipeName}`, time });
+  });
+
+  return items;
+}
+
+export interface GrowthPoint {
+  day: string;
+  label: string;
+  downloads: number;
+}
+
+/** Aggregate pings by day over the last 30 days. Falls back to zeros if no data. */
+export async function fetchGrowthData(): Promise<GrowthPoint[]> {
+  const pingsSnap = await getDocs(pingsRef);
+
+  // Build a map of ISO date string -> count
+  const countByDay: Record<string, number> = {};
+  pingsSnap.forEach(d => {
+    const ts = d.data().timestamp as Timestamp | undefined;
+    if (ts) {
+      const date = ts.toDate();
+      const key = date.toISOString().slice(0, 10); // YYYY-MM-DD
+      countByDay[key] = (countByDay[key] || 0) + 1;
+    }
+  });
+
+  // Generate last-30-days window
+  const points: GrowthPoint[] = [];
+  const now = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const dayNum = 30 - i;
+    const monthDay = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    points.push({ day: String(dayNum), label: monthDay, downloads: countByDay[key] || 0 });
+  }
+
+  return points;
 }
 
 const MOCK_COUNTRIES = [

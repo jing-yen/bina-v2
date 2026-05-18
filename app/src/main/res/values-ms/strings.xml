@@ -11,6 +11,7 @@
     <string name="hub_trending">Trending di Bina</string>
     <string name="hub_empty_all">Tiada resipi tersedia.</string>
     <string name="hub_empty_category">Tiada resipi dalam kategori ini.</string>
+    <string name="hub_all_recipes">Semua Resipi</string>
 
     <!-- Bottom nav -->
     <string name="nav_hub">Hub</string>
@@ -38,7 +39,6 @@
 
     <string name="recipe_open">Buka</string>
     <string name="recipe_install_open">Pasang &amp; Buka</string>
-    <string name="recipe_configure_install">Tetapkan &amp; Pasang</string>
     <string name="recipe_add_home">Tambah ke Skrin Utama</string>
     <string name="recipe_verified_by">Disahkan oleh %s</string>
     <string name="recipe_domain">Domain: %s</string>
@@ -73,16 +73,120 @@
     <string name="cat_finance">Kewangan</string>
     <string name="cat_education">Pendidikan</string>
 
-    <!-- Mock recipe descriptions -->
-    <string name="desc_mock_plant_doctor">Diagnosis tanaman AI — ambil gambar pokok anda, dapatkan pengenalpastian penyakit dan rawatan segera</string>
-    <string name="desc_mock_dengue">Chatbot kesedaran pencegahan denggi untuk kempen kesihatan komuniti</string>
-    <string name="desc_mock_nutrition">Saringan nutrisi kanak-kanak dan panduan diet untuk klinik luar bandar</string>
-    <string name="desc_mock_thai">Pembantu pengurusan kedai untuk peruncit kecil Thailand</string>
-    <string name="desc_mock_viet">Pembantu pertanian untuk petani Vietnam</string>
-    <string name="desc_mock_khmer">Panduan pertanian pintar untuk petani kecil Kemboja</string>
-    <string name="desc_mock_sawit">Pakar penanaman sawit untuk pekebun kecil Malaysia</string>
-    <string name="desc_mock_myanmar">Panduan kesihatan kampung untuk komuniti luar bandar Myanmar</string>
-
     <string name="confirm">Sahkan</string>
     <string name="cancel">Batal</string>
+
+    <!-- Offline Sync -->
+    <string name="sync_title">Segerak Luar Talian</string>
+    <string name="sync_subtitle">Kongsi resipi antara telefon, tiada internet diperlukan.</string>
+    <string name="sync_scan_title">Imbas untuk Terima</string>
+    <string name="sync_scan_subtitle">Imbas QR telefon lain atau tampal YAML untuk pasang.</string>
+    <string name="sync_share_title">Kongsi Resipi</string>
+    <string name="sync_share_subtitle">Pilih resipi terpasang untuk dikongsi melalui QR.</string>
+    <string name="sync_share_picker_subtitle">Pilih resipi terpasang. Penerima imbas QR untuk pasang.</string>
+    <string name="sync_share_empty">Pasang resipi daripada Hub dahulu.</string>
+    <string name="sync_paste_title">Tampal YAML resipi</string>
+    <string name="sync_paste_subtitle">Tampal YAML yang disalin dari Studio (atau telefon lain). Ia akan dihurai dan dipratonton sebelum dipasang.</string>
+    <string name="sync_paste_placeholder">id: my_recipe\nname: …</string>
+    <string name="sync_paste_clipboard">Tampal dari papan klip</string>
+    <string name="sync_paste_import">Import</string>
+    <string name="sync_receive_title">Terima Resipi?</string>
+    <string name="sync_receive_by">oleh %s</string>
+    <string name="sync_receive_size">%d KB · id: %s</string>
+    <string name="sync_receive_connect">Sambung</string>
+    <string name="sync_receive_connecting">Menyambung ke penghantar…</string>
+    <string name="sync_receive_progress">Menerima… %d%%</string>
+    <string name="sync_receive_retry">Cuba semula</string>
+    <string name="sync_camera_needed">Kebenaran kamera diperlukan</string>
+    <string name="sync_camera_hint">Benarkan kamera untuk imbas QR, atau tampal YAML.</string>
+    <string name="sync_try_again">Cuba lagi</string>
+    <string name="sync_paste_instead">Tampal YAML</string>
+    <string name="sync_bt_permission">Kebenaran Bluetooth diperlukan</string>
+    <string name="sync_recipe_not_found">Resipi tidak dijumpai</string>
+    <string name="sync_share_instructions">Minta telefon lain buka Segerak → Imbas untuk Terima.\nKekalkan skrin ini terbuka sehingga mereka disambungkan.</string>
+    <string name="sync_bt_needed">Kebenaran Bluetooth diperlukan untuk kongsi melalui QR. Atau salin YAML di bawah.</string>
+    <string name="sync_copy_yaml">Salin YAML ke papan klip</string>
+    <string name="sync_done">Selesai</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">Analitik</string>
+    <string name="analytics_subtitle">Penggunaan pengarangan dan peranti anda</string>
+    <string name="analytics_live_badge">Langsung · dalam peranti</string>
+    <string name="analytics_total_launches">Jumlah Lancar</string>
+    <string name="analytics_all_time">sepanjang masa</string>
+    <string name="analytics_vs_prev_7d">berbanding 7h lalu</string>
+    <string name="analytics_vs_prev_30d">berbanding 30h lalu</string>
+    <string name="analytics_recipes_installed">Resipi Dipasang</string>
+    <string name="analytics_questions_asked">Soalan Ditanya</string>
+    <string name="analytics_active_days">Hari Aktif</string>
+    <string name="analytics_streak">Rentetan</string>
+    <string name="analytics_streak_none">Tiada rentetan aktif sekarang</string>
+    <string name="analytics_streak_one">1 hari berturut-turut</string>
+    <string name="analytics_streak_many">%d hari berturut-turut</string>
+    <string name="analytics_achievements">Pencapaian</string>
+    <string name="analytics_unlocked">Terbuka</string>
+    <string name="analytics_daily_activity">Aktiviti Harian</string>
+    <string name="analytics_tap_day">Ketik hari untuk butiran</string>
+    <string name="analytics_less">kurang</string>
+    <string name="analytics_more">lebih</string>
+    <string name="analytics_most_used">Resipi Paling Digunakan</string>
+    <string name="analytics_no_activity_window">Tiada aktiviti resipi dalam tempoh ini lagi</string>
+    <string name="analytics_launches_asks">%1$d lancar · %2$d soalan</string>
+    <string name="analytics_empty_title">Tiada aktiviti lagi</string>
+    <string name="analytics_empty_subtitle">Buka resipi dari Hub untuk mula melihat analitik.</string>
+    <string name="analytics_open_hub">Buka Hub</string>
+
+    <!-- Hub -->
+    <string name="hub_installed">Terpasang</string>
+
+    <!-- Achievements -->
+    <string name="achievement_collector_title">Pengumpul Resipi</string>
+    <string name="achievement_collector_desc">Pasang 3 resipi dari Hub</string>
+    <string name="achievement_curious_title">Pemandu Ujian</string>
+    <string name="achievement_curious_desc">Ajukan 10 soalan di seluruh resipi anda</string>
+    <string name="achievement_streak_title">Rentetan</string>
+    <string name="achievement_streak_desc">Gunakan Bina 3 hari berturut-turut</string>
+    <string name="achievement_explorer_title">Penjelajah</string>
+    <string name="achievement_explorer_desc">Gunakan 3 resipi yang berbeza</string>
+
+    <!-- New Analytics Strings -->
+    <string name="analytics_day_one">1 hari</string>
+    <string name="analytics_day_many">%d hari</string>
+    <string name="analytics_recipes_in_pocket">%d resipi dalam Pocket anda</string>
+    <string name="analytics_questions_in_period">%d soalan dalam tempoh ini</string>
+    <string name="analytics_days_with_activity">%1$d daripada %2$d hari dengan aktiviti</string>
+    <string name="analytics_by_recipe">Mengikut resipi</string>
+    <string name="analytics_recent_active">Hari aktif terkini</string>
+    <string name="analytics_hint_install">Layari Hub untuk memasang resipi.</string>
+    <string name="analytics_hint_no_usage">Anda belum menggunakan resipi terpasang dalam tempoh ini.</string>
+    <string name="analytics_hint_questions">Tanya soalan kepada resipi dan ia akan muncul di sini.</string>
+    <string name="analytics_hint_active_days">Hari anda membuka resipi atau bertanya soalan dikira ke dalam streak anda.</string>
+    <string name="analytics_hint_streak">Buka atau tanya resipi hari ini untuk mulakan streak. Hari aktif berturut-turut membinanya.</string>
+    <string name="analytics_most_used_period">Paling digunakan dalam tempoh ini</string>
+
+    <!-- Share & Emergency -->
+    <string name="share">Kongsi</string>
+    <string name="emergency_badge">EMERGENCY</string>
+    <string name="sos_badge">SOS</string>
+    <string name="recipe_by">oleh %s</string>
+    <string name="recipe_not_available">Resipi tidak tersedia</string>
+    <string name="go_back">Kembali</string>
+
+    <!-- MiniApp extras -->
+    <string name="miniapp_triage_fallback">Biar saya tunjukkan semua pilihan yang ada.</string>
+    <string name="miniapp_voice_transcribing">Menyalin&#8230;</string>
+    <string name="miniapp_voice_tap_stop">Ketik untuk berhenti</string>
+    <string name="miniapp_voice_input">Input suara</string>
+    <string name="miniapp_i_understand">Saya Faham</string>
+
+    <!-- Model download -->
+    <string name="model_title">Model AI Diperlukan</string>
+    <string name="model_subtitle">Bina memerlukan model bahasa ~2.6 GB untuk berfungsi secara luar talian. Muat turun sekali, guna selamanya.</string>
+    <string name="model_usb_note">Akan datang: pemindahan USB untuk kawasan dengan sambungan terhad.</string>
+    <string name="model_download_button">Download Gemma 4 E2B</string>
+    <string name="model_downloading">Memuat turun… pastikan aplikasi terbuka</string>
+    <string name="model_done">Model sedia!</string>
+    <string name="model_continue">Teruskan</string>
+    <string name="model_retry">Cuba semula</string>
+    <string name="model_error_title">Muat turun gagal</string>
 </resources>

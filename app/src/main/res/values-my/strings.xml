@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bina</string>
+
+    <string name="topbar_title">မင်္ဂလာပါ၊ Jing Yen 👋</string>
+    <string name="topbar_subtitle">သင့် AI အင်တာနက်မရှိလည်း အသုံးပြုနိုင်ပါသည်။</string>
+
+    <string name="hub_title">ကျွမ်းကျင်သူများ၏ ချက်ပြုတ်နည်းများ</string>
+    <string name="hub_subtitle">အရှေ့တောင်အာရှ လူ့အသိုင်းအဝိုင်းများအတွက်။ အင်တာနက်မလိုပါ။</string>
+    <string name="hub_your_recipes">သင့်ချက်ပြုတ်နည်းများ</string>
+    <string name="hub_trending">Bina တွင် လူကြိုက်များသော</string>
+    <string name="hub_empty_all">ချက်ပြုတ်နည်းမရှိပါ။</string>
+    <string name="hub_empty_category">ဤအမျိုးအစားတွင် ချက်ပြုတ်နည်းမရှိပါ။</string>
+    <string name="hub_all_recipes">ချက်ပြုတ်နည်းအားလုံး</string>
+
+    <!-- Bottom nav -->
+    <string name="nav_hub">Hub</string>
+    <string name="nav_pocket">ကျွန်ုပ်၏အိတ်</string>
+    <string name="nav_sync">အော့ဖ်လိုင်းထိန်းချိန်ညှိ</string>
+    <string name="nav_analytics">ခွဲခြမ်းစိတ်ဖြာချက်</string>
+
+    <!-- Recipe stats -->
+    <string name="stat_recipe_size">ချက်ပြုတ်နည်းအရွယ်အစား</string>
+    <string name="stat_features">ရရှိနိုင်သောအင်္ဂါရပ်များ</string>
+    <string name="stat_dialect">ဒေသိယဘာသာ</string>
+
+    <string name="pocket_title">ကျွန်ုပ်၏အိတ်</string>
+    <string name="pocket_subtitle">သင်သိမ်းဆည်းထားသော ချက်ပြုတ်နည်းများ၊ အော့ဖ်လိုင်းတွင် အသုံးပြုနိုင်</string>
+    <string name="pocket_saved_recipes">သိမ်းဆည်းထားသော ချက်ပြုတ်နည်းများ</string>
+    <string name="pocket_empty_title">မည်သည့်ချက်ပြုတ်နည်းမျှ မသိမ်းဆည်းရသေးပါ</string>
+    <string name="pocket_empty_subtitle">သင့်အသိုင်းအဝိုင်းအတွက် ကိရိယာများ ရှာဖွေရန် Hub ကို ကြည့်ပါ</string>
+    <string name="pocket_offline_ready">အော့ဖ်လိုင်းအသုံးပြုရန် အဆင်သင့်</string>
+    <string name="pocket_screens_count">%d မျက်နှာပြင်</string>
+    <string name="pocket_stat_saved">သိမ်းဆည်းပြီး</string>
+    <string name="pocket_stat_screens">မျက်နှာပြင်</string>
+    <string name="pocket_stat_status">အခြေအနေ</string>
+    <string name="pocket_stat_ready">အဆင်သင့်</string>
+    <string name="pocket_add_home">မူလမျက်နှာပြင်တွင် ထည့်ပါ</string>
+
+    <string name="recipe_open">ဖွင့်ရန်</string>
+    <string name="recipe_install_open">ထည့်သွင်း &amp; ဖွင့်ရန်</string>
+    <string name="recipe_add_home">မူလမျက်နှာပြင်တွင် ထည့်ပါ</string>
+    <string name="recipe_verified_by">%s မှ အတည်ပြုပြီး</string>
+    <string name="recipe_domain">နယ်ပယ်: %s</string>
+    <string name="recipe_features_title">ဤချက်ပြုတ်နည်းရှိ အင်္ဂါရပ်များ</string>
+
+    <string name="miniapp_back">နောက်သို့</string>
+    <string name="miniapp_home">မူလစာမျက်နှာ</string>
+    <string name="miniapp_reset">မျက်နှာပြင် ပြန်လည်သတ်မှတ်ရန်</string>
+    <string name="miniapp_recording">ဖမ်းယူနေသည်&#8230;</string>
+    <string name="miniapp_transcribing">ကူးယူနေသည်&#8230;</string>
+    <string name="miniapp_model_not_loaded">မော်ဒယ် မတင်ရသေးပါ။</string>
+    <string name="miniapp_all_steps_done">အဆင့်အားလုံး ပြီးမြောက်ပြီ!</string>
+    <string name="miniapp_steps_done">%2$d ထဲမှ %1$d အဆင့် ပြီးမြောက်ပြီ</string>
+    <string name="miniapp_reset_checklist">စာရင်းကို ပြန်လည်သတ်မှတ်ရန်</string>
+    <string name="miniapp_take_photo">ဓာတ်ပုံ ရိုက်ရန်</string>
+    <string name="miniapp_retake">ပြန်ရိုက်ရန် တို့ပါ</string>
+    <string name="miniapp_complete">ပြီးမြောက်ပြီ!</string>
+    <string name="miniapp_step_of">%2$d ထဲမှ အဆင့် %1$d</string>
+    <string name="miniapp_your_location">သင်: %1$s, %2$s</string>
+    <string name="miniapp_location_mins_ago">%d မိနစ်ကျော်မြောက်</string>
+    <string name="miniapp_location_just_now">ယခုမှ</string>
+
+    <string name="triage_greeting">မင်္ဂလာပါ! ကျွန်တော်/ကျွန်မ %s ပါ။ ဘာကူညီပေးရမလဲ?</string>
+    <string name="triage_placeholder">သင်လိုအပ်သည်ကို ဖော်ပြပါ&#8230;</string>
+    <string name="triage_send">ပို့ရန်</string>
+
+    <!-- Categories -->
+    <string name="cat_all">အားလုံး</string>
+    <string name="cat_agriculture">စိုက်ပျိုးရေး</string>
+    <string name="cat_health">ကျန်းမာရေး</string>
+    <string name="cat_business">စီးပွားရေး</string>
+    <string name="cat_finance">ငွေကြေး</string>
+    <string name="cat_education">ပညာရေး</string>
+
+    <string name="confirm">အတည်ပြုရန်</string>
+    <string name="cancel">မလုပ်တော့ပါ</string>
+
+    <!-- Offline Sync -->
+    <string name="sync_title">အော့ဖ်လိုင်းထိန်းချိန်ညှိ</string>
+    <string name="sync_subtitle">ဖုန်းချင်းချက်ပြုတ်နည်းများ မျှဝေပါ၊ အင်တာနက်မလိုပါ။</string>
+    <string name="sync_scan_title">လက်ခံရန် စကင်ဖတ်ပါ</string>
+    <string name="sync_scan_subtitle">အခြားဖုန်း၏ QR ကို စကင်ဖတ်ပါ သို့မဟုတ် YAML ကို ကူးထည့်ပါ။</string>
+    <string name="sync_share_title">ချက်ပြုတ်နည်း မျှဝေပါ</string>
+    <string name="sync_share_subtitle">QR မှတဆင့် မျှဝေရန် ထည့်သွင်းပြီးသော ချက်ပြုတ်နည်း ရွေးပါ။</string>
+    <string name="sync_share_picker_subtitle">ထည့်သွင်းပြီးသော ချက်ပြုတ်နည်း ရွေးပါ။ လက်ခံသူသည် QR ကို စကင်ဖတ်၍ ထည့်သွင်းသည်။</string>
+    <string name="sync_share_empty">Hub မှ ချက်ပြုတ်နည်းကို အရင်ထည့်သွင်းပါ။</string>
+    <string name="sync_paste_title">ချက်ပြုတ်နည်း YAML ကူးထည့်ပါ</string>
+    <string name="sync_paste_subtitle">Studio (သို့မဟုတ် အခြားဖုန်း) မှ ကော်ပီကူးထားသော YAML ကို ကူးထည့်ပါ။ ထည့်သွင်းမတိုင်မီ ခွဲခြမ်းစိတ်ဖြာ၍ ကြိုတင်ကြည့်မည်။</string>
+    <string name="sync_paste_placeholder">id: my_recipe\nname: …</string>
+    <string name="sync_paste_clipboard">clipboard မှ ကူးထည့်ပါ</string>
+    <string name="sync_paste_import">တင်သွင်းရန်</string>
+    <string name="sync_receive_title">ချက်ပြုတ်နည်း လက်ခံမည်လား?</string>
+    <string name="sync_receive_by">%s မှ</string>
+    <string name="sync_receive_size">%d KB · id: %s</string>
+    <string name="sync_receive_connect">ချိတ်ဆက်ရန်</string>
+    <string name="sync_receive_connecting">ပို့သူနှင့် ချိတ်ဆက်နေသည်…</string>
+    <string name="sync_receive_progress">လက်ခံနေသည်… %d%%</string>
+    <string name="sync_receive_retry">ထပ်စမ်းကြည့်ပါ</string>
+    <string name="sync_camera_needed">ကင်မရာ ခွင့်ပြုချက် လိုအပ်သည်</string>
+    <string name="sync_camera_hint">QR စကင်ဖတ်ရန် ကင်မရာကို ခွင့်ပြုပါ သို့မဟုတ် YAML ကူးထည့်ပါ။</string>
+    <string name="sync_try_again">ထပ်စမ်းကြည့်ပါ</string>
+    <string name="sync_paste_instead">YAML ကူးထည့်ပါ</string>
+    <string name="sync_bt_permission">Bluetooth ခွင့်ပြုချက် လိုအပ်သည်</string>
+    <string name="sync_recipe_not_found">ချက်ပြုတ်နည်း မတွေ့ပါ</string>
+    <string name="sync_share_instructions">အခြားဖုန်းကို ထိန်းချိန်ညှိ → လက်ခံရန် စကင်ဖတ်ပါ ဖွင့်ခိုင်းပါ။\nချိတ်ဆက်သည်အထိ ဤမျက်နှာပြင်ကို ဖွင့်ထားပါ။</string>
+    <string name="sync_bt_needed">QR မှတဆင့် မျှဝေရန် Bluetooth ခွင့်ပြုချက် လိုအပ်သည်။ သို့မဟုတ် အောက်ပါ YAML ကို ကော်ပီကူးပါ။</string>
+    <string name="sync_copy_yaml">YAML ကို clipboard သို့ ကော်ပီကူးပါ</string>
+    <string name="sync_done">ပြီးပါပြီ</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">ခွဲခြမ်းစိတ်ဖြာချက်</string>
+    <string name="analytics_subtitle">သင့်ဖန်တီးမှုနှင့် စက်ပစ္စည်းအတွင်း အသုံးပြုမှု</string>
+    <string name="analytics_live_badge">တိုက်ရိုက် · စက်ပစ္စည်းအတွင်း</string>
+    <string name="analytics_total_launches">စုစုပေါင်း ဖွင့်ဆွဲမှု</string>
+    <string name="analytics_all_time">အချိန်တိုင်း</string>
+    <string name="analytics_vs_prev_7d">ယခင် 7ရ နှင့် နှိုင်းယှဉ်</string>
+    <string name="analytics_vs_prev_30d">ယခင် 30ရ နှင့် နှိုင်းယှဉ်</string>
+    <string name="analytics_recipes_installed">ထည့်သွင်းပြီးသော ချက်ပြုတ်နည်းများ</string>
+    <string name="analytics_questions_asked">မေးခဲ့သော မေးခွန်းများ</string>
+    <string name="analytics_active_days">တက်ကြွသောရက်များ</string>
+    <string name="analytics_streak">ဆက်တိုက်ရက်များ</string>
+    <string name="analytics_streak_none">ယခု ဆက်တိုက်ရက်များ မရှိပါ</string>
+    <string name="analytics_streak_one">1 ရက် ဆက်တိုက်</string>
+    <string name="analytics_streak_many">%d ရက် ဆက်တိုက်</string>
+    <string name="analytics_achievements">အောင်မြင်မှုများ</string>
+    <string name="analytics_unlocked">ဖွင့်ချပြီး</string>
+    <string name="analytics_daily_activity">နေ့စဉ် လှုပ်ရှားမှု</string>
+    <string name="analytics_tap_day">အသေးစိတ်အတွက် ရက်ကို နှိပ်ပါ</string>
+    <string name="analytics_less">နည်းသည်</string>
+    <string name="analytics_more">များသည်</string>
+    <string name="analytics_most_used">အများဆုံး သုံးသော ချက်ပြုတ်နည်းများ</string>
+    <string name="analytics_no_activity_window">ဤကာလတွင် ချက်ပြုတ်နည်း လှုပ်ရှားမှု မရှိသေးပါ</string>
+    <string name="analytics_launches_asks">%1$d ကြိမ် ဖွင့် · %2$d မေးခွန်း</string>
+    <string name="analytics_empty_title">လှုပ်ရှားမှု မရှိသေးပါ</string>
+    <string name="analytics_empty_subtitle">ခွဲခြမ်းစိတ်ဖြာချက် ကြည့်ရှုရန် Hub မှ ချက်ပြုတ်နည်းကို ဖွင့်ပါ။</string>
+    <string name="analytics_open_hub">Hub ဖွင့်ပါ</string>
+
+    <!-- Hub -->
+    <string name="hub_installed">ထည့်သွင်းပြီး</string>
+
+    <!-- Achievements -->
+    <string name="achievement_collector_title">ချက်ပြုတ်နည်းစုဆောင်းခြင်း</string>
+    <string name="achievement_collector_desc">Hub မှ ချက်ပြုတ်နည်း 3 ခု ထည့်သွင်းပါ</string>
+    <string name="achievement_curious_title">စမ်းသပ်မောင်းမြန်းသူ</string>
+    <string name="achievement_curious_desc">သင့်ချက်ပြုတ်နည်းများတွင် မေးခွန်း 10 ခု မေးပါ</string>
+    <string name="achievement_streak_title">ဆက်တိုက်ရက်များ</string>
+    <string name="achievement_streak_desc">ဆက်တိုက် 3 ရက် Bina အသုံးပြုပါ</string>
+    <string name="achievement_explorer_title">စူးစမ်းသူ</string>
+    <string name="achievement_explorer_desc">ချက်ပြုတ်နည်း 3 ခုအီ အသုံးပြုပါ</string>
+
+    <!-- New Analytics Strings -->
+    <string name="analytics_day_one">၁ ရက်</string>
+    <string name="analytics_day_many">%d ရက်</string>
+    <string name="analytics_recipes_in_pocket">သင့် Pocket တွင် %d ချက်ပြုတ်နည်း</string>
+    <string name="analytics_questions_in_period">ဤကာလတွင် %d မေးခွန်း</string>
+    <string name="analytics_days_with_activity">%2$d ရက်တွင် %1$d ရက် လှုပ်ရှားမှုရှိ</string>
+    <string name="analytics_by_recipe">ချက်ပြုတ်နည်းအလိုက်</string>
+    <string name="analytics_recent_active">မကြာသေးမီ လှုပ်ရှားသည့်ရက်များ</string>
+    <string name="analytics_hint_install">ချက်ပြုတ်နည်းများ ထည့်သွင်းရန် Hub ကို ရှာဖွေပါ။</string>
+    <string name="analytics_hint_no_usage">ဤကာလတွင် ထည့်သွင်းထားသော ချက်ပြုတ်နည်းများကို မသုံးရသေးပါ။</string>
+    <string name="analytics_hint_questions">ချက်ပြုတ်နည်းကို မေးခွန်းမေးပါ၊ ဤနေရာတွင် ပြပါမည်။</string>
+    <string name="analytics_hint_active_days">ချက်ပြုတ်နည်းဖွင့်ခြင်း သို့မဟုတ် မေးခွန်းမေးခြင်း ရက်များသည် သင့်ဆက်တိုက်တွင် ရေတွက်ပါသည်။</string>
+    <string name="analytics_hint_streak">ဆက်တိုက်စတင်ရန် ယနေ့ ချက်ပြုတ်နည်းဖွင့်ပါ သို့မဟုတ် မေးပါ။ ဆက်တိုက်လှုပ်ရှားရက်များ တည်ဆောက်ပါသည်။</string>
+    <string name="analytics_most_used_period">ဤကာလတွင် အသုံးအများဆုံး</string>
+
+    <!-- Share & Emergency -->
+    <string name="share">မျှဝေရန်</string>
+    <string name="emergency_badge">EMERGENCY</string>
+    <string name="sos_badge">SOS</string>
+    <string name="recipe_by">%s မှ</string>
+    <string name="recipe_not_available">ချက်ပြုတ်နည်းမရှိပါ</string>
+    <string name="go_back">နောက်သို့</string>
+
+    <!-- MiniApp extras -->
+    <string name="miniapp_triage_fallback">ရရှိနိုင်သော ရွေးချယ်စရာအားလုံးကို ပြပါမည်။</string>
+    <string name="miniapp_voice_transcribing">ကူးယူနေသည်&#8230;</string>
+    <string name="miniapp_voice_tap_stop">ရပ်ရန် နှိပ်ပါ</string>
+    <string name="miniapp_voice_input">အသံထည့်သွင်းမှု</string>
+    <string name="miniapp_i_understand">ကျွန်ုပ် နားလည်ပါသည်</string>
+
+    <!-- Model download -->
+    <string name="model_title">AI မော်ဒယ် လိုအပ်ပါသည်</string>
+    <string name="model_subtitle">Bina သည် အော့ဖ်လိုင်းတွင် အလုပ်လုပ်ရန် ~2.6 GB ဘာသာစကားမော်ဒယ် လိုအပ်ပါသည်။ တစ်ကြိမ် ဒေါင်းလုဒ်လုပ်ပါ၊ အမြဲတမ်း သုံးပါ။</string>
+    <string name="model_usb_note">မကြာမီ လာမည်: ချိတ်ဆက်မှု ကန့်သတ်ထားသော ဒေသများအတွက် USB ဖြင့် ကူးယူခြင်း။</string>
+    <string name="model_download_button">Download Gemma 4 E2B</string>
+    <string name="model_downloading">ဒေါင်းလုဒ်လုပ်နေသည်… အက်ပ်ကို ဖွင့်ထားပါ</string>
+    <string name="model_done">မော်ဒယ် အဆင်သင့်ဖြစ်ပြီ!</string>
+    <string name="model_continue">ဆက်လုပ်ရန်</string>
+    <string name="model_retry">ထပ်စမ်းကြည့်ပါ</string>
+    <string name="model_error_title">ဒေါင်းလုဒ် မအောင်မြင်ပါ</string>
+</resources>

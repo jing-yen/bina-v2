@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bina</string>
+
+    <string name="topbar_title">Xin chào, Jing Yen 👋</string>
+    <string name="topbar_subtitle">AI của bạn đã sẵn sàng, kể cả khi ngoại tuyến.</string>
+
+    <string name="hub_title">Công Thức Chuyên Gia</string>
+    <string name="hub_subtitle">Được xây dựng cho cộng đồng Đông Nam Á. Không cần internet.</string>
+    <string name="hub_your_recipes">Công Thức Của Bạn</string>
+    <string name="hub_trending">Thịnh Hành Trên Bina</string>
+    <string name="hub_empty_all">Không có công thức nào.</string>
+    <string name="hub_empty_category">Không có công thức nào trong danh mục này.</string>
+    <string name="hub_all_recipes">Tất Cả Công Thức</string>
+
+    <!-- Bottom nav -->
+    <string name="nav_hub">Hub</string>
+    <string name="nav_pocket">Túi Của Tôi</string>
+    <string name="nav_sync">Đồng Bộ Ngoại Tuyến</string>
+    <string name="nav_analytics">Phân Tích</string>
+
+    <!-- Recipe stats -->
+    <string name="stat_recipe_size">Kích Thước Công Thức</string>
+    <string name="stat_features">Tính Năng Có Sẵn</string>
+    <string name="stat_dialect">Phương Ngữ</string>
+
+    <string name="pocket_title">Túi Của Tôi</string>
+    <string name="pocket_subtitle">Công thức đã lưu của bạn, sẵn sàng ngoại tuyến</string>
+    <string name="pocket_saved_recipes">Công Thức Đã Lưu</string>
+    <string name="pocket_empty_title">Chưa có công thức nào được lưu</string>
+    <string name="pocket_empty_subtitle">Khám phá Hub để tìm công cụ cho cộng đồng của bạn</string>
+    <string name="pocket_offline_ready">Sẵn Sàng Ngoại Tuyến</string>
+    <string name="pocket_screens_count">%d màn hình</string>
+    <string name="pocket_stat_saved">Đã Lưu</string>
+    <string name="pocket_stat_screens">Màn Hình</string>
+    <string name="pocket_stat_status">Trạng Thái</string>
+    <string name="pocket_stat_ready">Sẵn Sàng</string>
+    <string name="pocket_add_home">Thêm vào màn hình chính</string>
+
+    <string name="recipe_open">Mở</string>
+    <string name="recipe_install_open">Cài &amp; Mở</string>
+    <string name="recipe_add_home">Thêm Vào Màn Hình Chính</string>
+    <string name="recipe_verified_by">Được xác minh bởi %s</string>
+    <string name="recipe_domain">Lĩnh vực: %s</string>
+    <string name="recipe_features_title">Tính năng trong công thức này</string>
+
+    <string name="miniapp_back">Quay Lại</string>
+    <string name="miniapp_home">Trang Chủ</string>
+    <string name="miniapp_reset">Đặt lại màn hình</string>
+    <string name="miniapp_recording">Đang ghi âm&#8230;</string>
+    <string name="miniapp_transcribing">Đang chép lời&#8230;</string>
+    <string name="miniapp_model_not_loaded">Chưa tải mô hình.</string>
+    <string name="miniapp_all_steps_done">Đã hoàn thành tất cả các bước!</string>
+    <string name="miniapp_steps_done">%1$d trong %2$d bước đã xong</string>
+    <string name="miniapp_reset_checklist">Đặt Lại Danh Sách</string>
+    <string name="miniapp_take_photo">Chụp ảnh</string>
+    <string name="miniapp_retake">Nhấn để chụp lại</string>
+    <string name="miniapp_complete">Hoàn Thành!</string>
+    <string name="miniapp_step_of">Bước %1$d trong %2$d</string>
+    <string name="miniapp_your_location">Bạn: %1$s, %2$s</string>
+    <string name="miniapp_location_mins_ago">%d phút trước</string>
+    <string name="miniapp_location_just_now">Vừa xong</string>
+
+    <string name="triage_greeting">Xin chào! Tôi là %s. Tôi có thể giúp gì cho bạn?</string>
+    <string name="triage_placeholder">Mô tả những gì bạn cần&#8230;</string>
+    <string name="triage_send">Gửi</string>
+
+    <!-- Categories -->
+    <string name="cat_all">Tất Cả</string>
+    <string name="cat_agriculture">Nông Nghiệp</string>
+    <string name="cat_health">Sức Khỏe</string>
+    <string name="cat_business">Kinh Doanh</string>
+    <string name="cat_finance">Tài Chính</string>
+    <string name="cat_education">Giáo Dục</string>
+
+    <string name="confirm">Xác Nhận</string>
+    <string name="cancel">Hủy</string>
+
+    <!-- Offline Sync -->
+    <string name="sync_title">Đồng Bộ Ngoại Tuyến</string>
+    <string name="sync_subtitle">Chia sẻ công thức giữa các điện thoại, không cần internet.</string>
+    <string name="sync_scan_title">Quét để Nhận</string>
+    <string name="sync_scan_subtitle">Quét mã QR điện thoại khác hoặc dán YAML để cài đặt.</string>
+    <string name="sync_share_title">Chia Sẻ Công Thức</string>
+    <string name="sync_share_subtitle">Chọn công thức đã cài để chia sẻ qua mã QR.</string>
+    <string name="sync_share_picker_subtitle">Chọn công thức đã cài. Người nhận quét QR để cài đặt.</string>
+    <string name="sync_share_empty">Hãy cài công thức từ Hub trước.</string>
+    <string name="sync_paste_title">Dán YAML công thức</string>
+    <string name="sync_paste_subtitle">Dán YAML đã sao chép từ Studio (hoặc điện thoại khác). Nó sẽ được phân tích và xem trước trước khi cài.</string>
+    <string name="sync_paste_placeholder">id: my_recipe\nname: …</string>
+    <string name="sync_paste_clipboard">Dán từ clipboard</string>
+    <string name="sync_paste_import">Nhập</string>
+    <string name="sync_receive_title">Nhận Công Thức?</string>
+    <string name="sync_receive_by">bởi %s</string>
+    <string name="sync_receive_size">%d KB · id: %s</string>
+    <string name="sync_receive_connect">Kết nối</string>
+    <string name="sync_receive_connecting">Đang kết nối với người gửi…</string>
+    <string name="sync_receive_progress">Đang nhận… %d%%</string>
+    <string name="sync_receive_retry">Thử lại</string>
+    <string name="sync_camera_needed">Cần quyền camera</string>
+    <string name="sync_camera_hint">Cho phép camera quét QR, hoặc dán YAML thay thế.</string>
+    <string name="sync_try_again">Thử lại</string>
+    <string name="sync_paste_instead">Dán YAML thay thế</string>
+    <string name="sync_bt_permission">Cần quyền Bluetooth</string>
+    <string name="sync_recipe_not_found">Không tìm thấy công thức</string>
+    <string name="sync_share_instructions">Yêu cầu điện thoại kia mở Đồng Bộ → Quét để Nhận.\nGiữ màn hình này mở cho đến khi họ kết nối.</string>
+    <string name="sync_bt_needed">Cần quyền Bluetooth để chia sẻ qua QR. Hoặc sao chép YAML bên dưới.</string>
+    <string name="sync_copy_yaml">Sao chép YAML vào clipboard</string>
+    <string name="sync_done">Xong</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">Phân Tích</string>
+    <string name="analytics_subtitle">Thống kê tác giả và sử dụng trên thiết bị</string>
+    <string name="analytics_live_badge">Trực tiếp · trên thiết bị</string>
+    <string name="analytics_total_launches">Tổng Lần Mở</string>
+    <string name="analytics_all_time">mọi thời điểm</string>
+    <string name="analytics_vs_prev_7d">so với 7 ngày trước</string>
+    <string name="analytics_vs_prev_30d">so với 30 ngày trước</string>
+    <string name="analytics_recipes_installed">Công Thức Đã Cài</string>
+    <string name="analytics_questions_asked">Câu Hỏi Đã Hỏi</string>
+    <string name="analytics_active_days">Ngày Hoạt Động</string>
+    <string name="analytics_streak">Chuỗi Ngày</string>
+    <string name="analytics_streak_none">Không có chuỗi hoạt động ngay bây giờ</string>
+    <string name="analytics_streak_one">1 ngày liên tiếp</string>
+    <string name="analytics_streak_many">%d ngày liên tiếp</string>
+    <string name="analytics_achievements">Thành Tích</string>
+    <string name="analytics_unlocked">Đã mở khóa</string>
+    <string name="analytics_daily_activity">Hoạt Động Hàng Ngày</string>
+    <string name="analytics_tap_day">Nhấn vào ngày để xem chi tiết</string>
+    <string name="analytics_less">ít hơn</string>
+    <string name="analytics_more">nhiều hơn</string>
+    <string name="analytics_most_used">Công Thức Dùng Nhiều Nhất</string>
+    <string name="analytics_no_activity_window">Chưa có hoạt động công thức trong khoảng thời gian này</string>
+    <string name="analytics_launches_asks">%1$d lần mở · %2$d câu hỏi</string>
+    <string name="analytics_empty_title">Chưa có hoạt động</string>
+    <string name="analytics_empty_subtitle">Mở công thức từ Hub để bắt đầu xem phân tích.</string>
+    <string name="analytics_open_hub">Mở Hub</string>
+
+    <!-- Hub -->
+    <string name="hub_installed">Đã cài đặt</string>
+
+    <!-- Achievements -->
+    <string name="achievement_collector_title">Bộ Sưu Tập Công Thức</string>
+    <string name="achievement_collector_desc">Cài đặt 3 công thức từ Hub</string>
+    <string name="achievement_curious_title">Tài Xế Kiểm Thử</string>
+    <string name="achievement_curious_desc">Đặt 10 câu hỏi trên các công thức của bạn</string>
+    <string name="achievement_streak_title">Chuỗi Ngày</string>
+    <string name="achievement_streak_desc">Sử dụng Bina 3 ngày liên tiếp</string>
+    <string name="achievement_explorer_title">Nhà Thám Hiểm</string>
+    <string name="achievement_explorer_desc">Sử dụng 3 công thức khác nhau</string>
+
+    <!-- New Analytics Strings -->
+    <string name="analytics_day_one">1 ngày</string>
+    <string name="analytics_day_many">%d ngày</string>
+    <string name="analytics_recipes_in_pocket">%d công thức trong Pocket</string>
+    <string name="analytics_questions_in_period">%d câu hỏi trong kỳ này</string>
+    <string name="analytics_days_with_activity">%1$d trên %2$d ngày có hoạt động</string>
+    <string name="analytics_by_recipe">Theo công thức</string>
+    <string name="analytics_recent_active">Ngày hoạt động gần đây</string>
+    <string name="analytics_hint_install">Duyệt Hub để cài đặt công thức.</string>
+    <string name="analytics_hint_no_usage">Bạn chưa sử dụng công thức đã cài trong kỳ này.</string>
+    <string name="analytics_hint_questions">Hỏi công thức một câu hỏi và nó sẽ hiển thị ở đây.</string>
+    <string name="analytics_hint_active_days">Những ngày bạn mở công thức hoặc đặt câu hỏi được tính vào chuỗi liên tiếp.</string>
+    <string name="analytics_hint_streak">Mở hoặc hỏi công thức hôm nay để bắt đầu chuỗi. Ngày hoạt động liên tiếp xây dựng nó.</string>
+    <string name="analytics_most_used_period">Sử dụng nhiều nhất trong kỳ này</string>
+
+    <!-- Share & Emergency -->
+    <string name="share">Chia Sẻ</string>
+    <string name="emergency_badge">EMERGENCY</string>
+    <string name="sos_badge">SOS</string>
+    <string name="recipe_by">bởi %s</string>
+    <string name="recipe_not_available">Công thức không khả dụng</string>
+    <string name="go_back">Quay lại</string>
+
+    <!-- MiniApp extras -->
+    <string name="miniapp_triage_fallback">Để tôi hiển thị tất cả các tùy chọn có sẵn.</string>
+    <string name="miniapp_voice_transcribing">Đang chép lời&#8230;</string>
+    <string name="miniapp_voice_tap_stop">Nhấn để dừng</string>
+    <string name="miniapp_voice_input">Nhập giọng nói</string>
+    <string name="miniapp_i_understand">Tôi Hiểu</string>
+
+    <!-- Model download -->
+    <string name="model_title">Cần Mô Hình AI</string>
+    <string name="model_subtitle">Bina cần mô hình ngôn ngữ ~2,6 GB để hoạt động ngoại tuyến. Tải một lần, dùng mãi mãi.</string>
+    <string name="model_usb_note">Sắp ra mắt: chuyển qua USB cho khu vực có kết nối hạn chế.</string>
+    <string name="model_download_button">Download Gemma 4 E2B</string>
+    <string name="model_downloading">Đang tải… giữ ứng dụng mở</string>
+    <string name="model_done">Mô hình đã sẵn sàng!</string>
+    <string name="model_continue">Tiếp Tục</string>
+    <string name="model_retry">Thử Lại</string>
+    <string name="model_error_title">Tải xuống thất bại</string>
+</resources>

@@ -9,7 +9,7 @@ import {
 } from '../ui/alert-dialog';
 import type { RecipeWithId } from './recipes';
 import { listRecipes, deleteRecipe, duplicateRecipe, createRecipe } from '../../lib/recipeService';
-import { fetchPlatformStats, fetchRegionCounts, seedMockPings, type PlatformStats, type RegionCount } from '../../lib/analyticsService';
+import { fetchPlatformStats, fetchRegionCounts, fetchRecentPings, type PlatformStats, type RegionCount, type FeedItem } from '../../lib/analyticsService';
 import { RECIPES } from './recipes';
 
 const LANG_FLAGS: Record<string, string> = {
@@ -61,36 +61,36 @@ const RECIPE_ICON_OVERRIDE: Record<string, string> = {
 
 const MOCK_HEALTH_RECIPES: RecipeWithId[] = [
   {
+    id: 'mock_kira_mikro', recipeName: 'Kira Mikro', recipeDescription: 'Kira jualan & hutang warung anda — AI bookkeeping for micro-enterprises',
+    recipeIcon: '\u{1F4B0}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Finance',
+    selectedLanguages: ['ms', 'en', 'id'], selectedTheme: 'amber' as any, customPrimary: '#D97706', customSecondary: '#FEF3C7',
+    screens: [{} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-03-01'), updatedAt: new Date('2026-05-15'),
+    stats: { downloads: '0', users: '0', rating: 0 },
+  },
+  {
+    id: 'mock_triage', recipeName: 'Triage Ibu Hamil', recipeDescription: 'Saringan risiko kehamilan & rujukan kecemasan untuk bidan komuniti luar bandar',
+    recipeIcon: '\u{1F930}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Health',
+    selectedLanguages: ['ms', 'en', 'id'], selectedTheme: 'coral' as any, customPrimary: '#DC2626', customSecondary: '#FECACA',
+    screens: [{} as any, {} as any, {} as any, {} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-02-15'), updatedAt: new Date('2026-05-14'),
+    stats: { downloads: '0', users: '0', rating: 0 },
+  },
+  {
+    id: 'mock_sawit_2', recipeName: 'Pakar Sawit', recipeDescription: 'Diagnosis penyakit sawit, rawatan & pesanan bekalan — tanpa internet',
+    recipeIcon: '\u{1F334}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
+    selectedLanguages: ['ms', 'en', 'id'], selectedTheme: 'forest' as any, customPrimary: '#15803D', customSecondary: '#BBF7D0',
+    screens: [{} as any, {} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
+    createdAt: new Date('2026-01-20'), updatedAt: new Date('2026-05-12'),
+    stats: { downloads: '0', users: '0', rating: 0 },
+  },
+  {
     id: 'mock_plant_doctor', recipeName: 'Doktor Pokok', recipeDescription: 'AI crop diagnosis — snap a photo, get instant disease identification and treatment',
     recipeIcon: '\u{1F33F}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
     selectedLanguages: ['ms', 'en'], selectedTheme: 'forest' as any, customPrimary: '#2D7D46', customSecondary: '#F0F7F2',
     screens: [{} as any, {} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
     createdAt: new Date('2026-04-20'), updatedAt: new Date('2026-05-14'),
-    stats: { downloads: '4820', users: '2310', rating: 4.9 },
-  },
-  {
-    id: 'mock_sawit_2', recipeName: 'Pakar Sawit', recipeDescription: 'Palm oil cultivation expert — Ganoderma diagnosis, treatment checklists, supply ordering',
-    recipeIcon: '\u{1F334}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
-    selectedLanguages: ['ms', 'en', 'id'], selectedTheme: 'forest' as any, customPrimary: '#15803D', customSecondary: '#BBF7D0',
-    screens: [{} as any, {} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
-    createdAt: new Date('2026-03-15'), updatedAt: new Date('2026-05-12'),
-    stats: { downloads: '2870', users: '1320', rating: 4.7 },
-  },
-  {
-    id: 'mock_padi', recipeName: 'Panduan Padi', recipeDescription: 'Rice cultivation guide — planting calendar, pest control, harvest optimization',
-    recipeIcon: '\u{1F33E}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
-    selectedLanguages: ['ms', 'en'], selectedTheme: 'forest' as any, customPrimary: '#2D7D46', customSecondary: '#F0F7F2',
-    screens: [{} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
-    createdAt: new Date('2026-02-10'), updatedAt: new Date('2026-05-08'),
-    stats: { downloads: '1940', users: '890', rating: 4.6 },
-  },
-  {
-    id: 'mock_baja', recipeName: 'Kalkulator Baja', recipeDescription: 'Fertilizer calculator — soil type, crop, area input for precise NPK recommendations',
-    recipeIcon: '\u{1F9EA}', systemPrompt: '', blockedKeywords: '', disclaimer: '', category: 'Agriculture',
-    selectedLanguages: ['ms', 'en'], selectedTheme: 'forest' as any, customPrimary: '#2D7D46', customSecondary: '#F0F7F2',
-    screens: [{} as any, {} as any], knowledgeSummary: '', _version: 2,
-    createdAt: new Date('2026-01-25'), updatedAt: new Date('2026-05-05'),
-    stats: { downloads: '1210', users: '560', rating: 4.4 },
+    stats: { downloads: '0', users: '0', rating: 0 },
   },
 ];
 
@@ -109,7 +109,7 @@ const MOCK_TRENDING_RECIPES: RecipeWithId[] = [
     selectedLanguages: ['th', 'en'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
     screens: [{} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
     createdAt: new Date('2026-03-10'), updatedAt: new Date('2026-05-12'),
-    stats: { downloads: '862', users: '410', rating: 4.8 },
+    stats: { downloads: '0', users: '0', rating: 0 },
   },
   {
     id: 'mock_viet', recipeName: 'Tr\u{1EE3} L\u{00FD} N\u{00F4}ng Nghi\u{1EC7}p', recipeDescription: 'Agriculture assistant for Vietnamese farmers',
@@ -117,7 +117,7 @@ const MOCK_TRENDING_RECIPES: RecipeWithId[] = [
     selectedLanguages: ['vi', 'en', 'km'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
     screens: [{} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
     createdAt: new Date('2026-02-28'), updatedAt: new Date('2026-05-09'),
-    stats: { downloads: '634', users: '290', rating: 4.3 },
+    stats: { downloads: '0', users: '0', rating: 0 },
   },
   {
     id: 'mock_khmer', recipeName: '\u{1780}\u{179F}\u{17B7}\u{1780}\u{1798}\u{17D2}\u{1798}\u{1786}\u{17D2}\u{179B}\u{17B6}\u{178F}', recipeDescription: 'Smart farming guide for Cambodian smallholders',
@@ -125,7 +125,7 @@ const MOCK_TRENDING_RECIPES: RecipeWithId[] = [
     selectedLanguages: ['km', 'en', 'th'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
     screens: [{} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
     createdAt: new Date('2026-04-05'), updatedAt: new Date('2026-05-11'),
-    stats: { downloads: '392', users: '180', rating: 4.1 },
+    stats: { downloads: '0', users: '0', rating: 0 },
   },
   {
     id: 'mock_sawit', recipeName: 'Pakar Sawit', recipeDescription: 'Palm oil cultivation expert for Malaysian smallholders',
@@ -133,7 +133,7 @@ const MOCK_TRENDING_RECIPES: RecipeWithId[] = [
     selectedLanguages: ['ms', 'en', 'id', 'th'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
     screens: [{} as any, {} as any, {} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
     createdAt: new Date('2026-01-20'), updatedAt: new Date('2026-05-14'),
-    stats: { downloads: '710', users: '340', rating: 5.0 },
+    stats: { downloads: '0', users: '0', rating: 0 },
   },
   {
     id: 'mock_myanmar', recipeName: '\u{101B}\u{103D}\u{102C}\u{1000}\u{103B}\u{1014}\u{103A}\u{1038}\u{1019}\u{102C}\u{101B}\u{1031}\u{1038}', recipeDescription: 'Village health guide for rural Myanmar communities',
@@ -141,20 +141,10 @@ const MOCK_TRENDING_RECIPES: RecipeWithId[] = [
     selectedLanguages: ['my', 'en'], selectedTheme: 'warm' as any, customPrimary: '', customSecondary: '',
     screens: [{} as any, {} as any, {} as any], knowledgeSummary: '', _version: 2,
     createdAt: new Date('2026-04-15'), updatedAt: new Date('2026-05-13'),
-    stats: { downloads: '285', users: '130', rating: 4.2 },
+    stats: { downloads: '0', users: '0', rating: 0 },
   },
 ];
 
-const LIVE_FEED = [
-  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Farmer in Kelantan diagnosed leaf blight with Doktor Pokok', time: '2m ago' },
-  { flag: '\u{1F1EE}\u{1F1E9}', text: 'Smallholder in Java used Pakar Sawit for Ganoderma check', time: '4m ago' },
-  { flag: '\u{1F1F9}\u{1F1ED}', text: 'Rice farmer in Chiang Mai checked soil pH', time: '7m ago' },
-  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Pekebun in Pahang ordered supplies via Doktor Pokok', time: '11m ago' },
-  { flag: '\u{1F1FB}\u{1F1F3}', text: 'Cooperative in Mekong Delta used crop guide', time: '14m ago' },
-  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Petani in Sabah shared diagnosis with extension officer', time: '18m ago' },
-  { flag: '\u{1F1EE}\u{1F1E9}', text: 'Farmer in Sulawesi ran soil analysis', time: '22m ago' },
-  { flag: '\u{1F1F2}\u{1F1FE}', text: 'Agro shop in Terengganu received SMS order from Doktor Pokok', time: '25m ago' },
-];
 
 const HEATMAP_REGION_COORDS: Record<string, { x: number; y: number; name: string }> = {
   ID: { name: 'Indonesia', x: 118.0, y: 2.5 },
@@ -216,6 +206,8 @@ export function Dashboard() {
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
   const [regionCounts, setRegionCounts] = useState<RegionCount[]>([]);
   const [feedIndex, setFeedIndex] = useState(0);
+  const [liveFeed, setLiveFeed] = useState<FeedItem[]>([]);
+  const [recipeStatsByName, setRecipeStatsByName] = useState<Record<string, { downloads: string; users: string; rating: number }>>({});
 
   const fetchRecipes = () => {
     setLoading(true);
@@ -227,17 +219,27 @@ export function Dashboard() {
 
   useEffect(() => { fetchRecipes(); }, []);
   useEffect(() => {
-    const t = setInterval(() => setFeedIndex(i => (i + 1) % LIVE_FEED.length), 3500);
+    if (liveFeed.length === 0) return;
+    const t = setInterval(() => setFeedIndex(i => (i + 1) % liveFeed.length), 3500);
     return () => clearInterval(t);
-  }, []);
+  }, [liveFeed.length]);
   useEffect(() => {
-    seedMockPings().then(() => {
-      fetchPlatformStats().then(setPlatformStats).catch(() => {});
-      fetchRegionCounts().then(setRegionCounts).catch(() => {});
-    }).catch(() => {
-      fetchPlatformStats().then(setPlatformStats).catch(() => {});
-      fetchRegionCounts().then(setRegionCounts).catch(() => {});
-    });
+    fetchPlatformStats().then(setPlatformStats).catch(() => {});
+    fetchRegionCounts().then(setRegionCounts).catch(() => {});
+
+    // Fetch real recipe stats from Firestore, keyed by recipe name
+    listRecipes().then(firestoreRecipes => {
+      const byName: Record<string, { downloads: string; users: string; rating: number }> = {};
+      for (const r of firestoreRecipes) {
+        if (r.stats) byName[r.recipeName] = r.stats;
+      }
+      setRecipeStatsByName(byName);
+
+      // Build recipeId → recipeName map for the live feed
+      const nameById: Record<string, string> = {};
+      for (const r of firestoreRecipes) nameById[r.id] = r.recipeName;
+      fetchRecentPings(nameById, 8).then(setLiveFeed).catch(() => {});
+    }).catch(() => {});
   }, []);
 
   const handleDelete = async () => {
@@ -310,13 +312,19 @@ export function Dashboard() {
             <Activity size={16} style={{ color: '#C45A3A' }} />
           </div>
           <p className="text-sm text-stone-700">
-            Your recipes are helping <span className="font-bold text-stone-900">{platformStats ? formatCount(platformStats.uniqueDevices) : '—'} farmers</span> across <span className="font-bold text-stone-900">{platformStats?.countriesReached || '—'} countries</span> this month
+            Your recipes are helping <span className="font-bold text-stone-900">{platformStats ? formatCount(platformStats.uniqueDevices) : '—'} users</span> across <span className="font-bold text-stone-900">{platformStats?.countriesReached || '—'} countries</span> this month
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs text-stone-500">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="shrink-0">{LIVE_FEED[feedIndex].flag} {LIVE_FEED[feedIndex].text}</span>
-          <span className="text-stone-400">· {LIVE_FEED[feedIndex].time}</span>
+          {liveFeed.length > 0 ? (
+            <>
+              <span className="shrink-0">{liveFeed[feedIndex % liveFeed.length].flag} {liveFeed[feedIndex % liveFeed.length].text}</span>
+              <span className="text-stone-400">· {liveFeed[feedIndex % liveFeed.length].time}</span>
+            </>
+          ) : (
+            <span className="shrink-0 text-stone-400">No activity yet</span>
+          )}
         </div>
       </div>
 
@@ -401,7 +409,7 @@ export function Dashboard() {
         <div className="flex flex-col gap-3">
           {/* Your Recipes — Health/Emergency */}
           {(() => {
-            const YOUR_CATEGORIES = new Set(['Agriculture']);
+            const YOUR_CATEGORIES = new Set(['Agriculture', 'Health', 'Finance']);
             const seen = new Set<string>();
             const deduped: RecipeWithId[] = [];
             for (const r of recipes) {
@@ -410,7 +418,16 @@ export function Dashboard() {
               seen.add(r.recipeName);
               deduped.push(r);
             }
-            const allHealth = [...deduped.filter(r => YOUR_CATEGORIES.has(r.category)), ...MOCK_HEALTH_RECIPES];
+            // Overlay real Firestore stats onto mock placeholder recipes by name
+            const withRealStats = (r: RecipeWithId): RecipeWithId => {
+              const real = recipeStatsByName[r.recipeName];
+              return real ? { ...r, stats: real } : r;
+            };
+
+            const allHealth = [
+              ...deduped.filter(r => YOUR_CATEGORIES.has(r.category)),
+              ...MOCK_HEALTH_RECIPES.map(withRealStats),
+            ];
             const healthSeen = new Set<string>();
             const uniqueHealth = allHealth.filter(r => {
               if (healthSeen.has(r.recipeName)) return false;
@@ -421,6 +438,7 @@ export function Dashboard() {
               .sort((a, b) => (parseInt(b.stats?.downloads || '0') || 0) - (parseInt(a.stats?.downloads || '0') || 0))
               .slice(0, 4);
             const trending = MOCK_TRENDING_RECIPES
+              .map(withRealStats)
               .sort((a, b) => (parseInt(b.stats?.downloads || '0') || 0) - (parseInt(a.stats?.downloads || '0') || 0))
               .slice(0, 5);
 

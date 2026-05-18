@@ -53,7 +53,7 @@ fun RecipeDetailSheet(
     miniApp: MiniApp,
     isInstalled: Boolean,
     sizeKb: Float,
-    onConfigureInstall: () -> Unit,
+    onInstall: () -> Unit,
     onOpen: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -80,13 +80,13 @@ fun RecipeDetailSheet(
                             .background(BinaRed)
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
-                        Text("EMERGENCY", fontSize = 9.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.emergency_badge), fontSize = 9.sp, color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }
 
             Column(modifier = Modifier.padding(horizontal = 20.dp).padding(top = 16.dp)) {
-                Text(miniApp.name, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = BinaStone950)
+                Text(com.bina.ai.ui.localizedName(miniApp), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = BinaStone950)
                 if (miniApp.author.verified && miniApp.author.organisation.isNotBlank()) {
                     Spacer(Modifier.height(4.dp))
                     Text(
@@ -98,7 +98,7 @@ fun RecipeDetailSheet(
                 }
                 if (miniApp.description.isNotBlank()) {
                     Spacer(Modifier.height(10.dp))
-                    Text(com.bina.ai.ui.localizedDescription(miniApp.id, miniApp.description), fontSize = 13.sp, color = BinaGrayText)
+                    Text(com.bina.ai.ui.localizedDescription(miniApp), fontSize = 13.sp, color = BinaGrayText)
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -143,17 +143,13 @@ fun RecipeDetailSheet(
 
                 Spacer(Modifier.height(20.dp))
                 Button(
-                    onClick = if (isInstalled) onOpen else onConfigureInstall,
+                    onClick = if (isInstalled) onOpen else onInstall,
                     modifier = Modifier.fillMaxWidth().height(54.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = BinaAccent)
                 ) {
                     Text(
-                        when {
-                            isInstalled -> stringResource(R.string.recipe_open)
-                            miniApp.features.isEmpty() -> stringResource(R.string.recipe_install_open)
-                            else -> stringResource(R.string.recipe_configure_install)
-                        },
+                        stringResource(if (isInstalled) R.string.recipe_open else R.string.recipe_install_open),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold
                     )

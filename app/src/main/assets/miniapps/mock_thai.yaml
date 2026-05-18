@@ -1,0 +1,492 @@
+id: mock_thai
+name: "ผู้ช่วยร้านค้า"
+description: "Shop management assistant for small Thai retailers"
+icon: "\U0001F3EA"
+version: "1.0.0"
+category: "Business"
+featured: false
+tags:
+  - retail
+  - small business
+  - thailand
+  - inventory
+author:
+  name: "Bangkok SME Network"
+  organisation: "Bangkok SME Network"
+  verified: true
+theme:
+  primary: "#1A56A0"
+  secondary: "#EFF6FF"
+localisation:
+  supported:
+    - th
+    - en
+    - ms
+    - id
+    - vi
+    - km
+    - my
+    - ta
+    - zh
+  default: th
+  labels:
+    th:
+      recipe_name: "ผู้ช่วยร้านค้า"
+      recipe_desc: "ผู้ช่วยจัดการร้านค้าสำหรับร้านค้าปลีกขนาดเล็กในไทย"
+      greeting: "สวัสดี! ฉันคือ {{l10n.recipe_name}} ฉันช่วยอะไรได้บ้าง?"
+      home_heading: "ผู้ช่วยร้านค้าของคุณ"
+      grid_inventory: "จัดการสต็อก"
+      grid_profit: "คำนวณกำไร"
+      grid_promo: "โปรโมชั่น"
+      grid_ask: "ถามผู้ช่วย"
+      inventory_title: "จัดการสต็อกสินค้า"
+      inventory_heading: "ตรวจสอบและวางแผนสต็อก"
+      inventory_product_hint: "ชื่อสินค้าหรือประเภทสินค้า..."
+      inventory_qty_hint: "จำนวนคงเหลือ (ชิ้น)"
+      inventory_button: "วิเคราะห์สต็อก"
+      profit_title: "คำนวณกำไร"
+      profit_heading: "วิเคราะห์กำไรขาดทุน"
+      profit_cost_hint: "ต้นทุนสินค้า (บาท)"
+      profit_price_hint: "ราคาขาย (บาท)"
+      profit_overhead_hint: "ค่าใช้จ่ายรายวัน (เช่า, อินเตอร์เน็ต, อื่นๆ)"
+      profit_units_hint: "ยอดขายต่อวัน (ชิ้น)"
+      profit_button: "คำนวณกำไร"
+      promo_title: "วางแผนโปรโมชั่น"
+      promo_type_hint: "ประเภทร้านค้า"
+      promo_budget_hint: "งบโปรโมชั่น (บาท)"
+      promo_goal_hint: "เป้าหมาย (เช่น เพิ่มลูกค้า ระบายสต็อก)"
+      promo_button: "วางแผนโปรโมชั่น"
+      ask_title: "ถามผู้ช่วย"
+      ask_voice_hint: "กดเพื่อพูด..."
+      ask_text_hint: "...หรือพิมพ์คำถามเกี่ยวกับร้านค้าของคุณ"
+      ask_button: "ถาม"
+    en:
+      recipe_name: "Shop Assistant"
+      recipe_desc: "Shop management assistant for small Thai retailers"
+      greeting: "Hi! I'm {{l10n.recipe_name}}. How can I help you today?"
+      home_heading: "Your Shop Assistant"
+      grid_inventory: "Inventory Check"
+      grid_profit: "Profit Calculator"
+      grid_promo: "Promotions"
+      grid_ask: "Ask Assistant"
+      inventory_title: "Inventory Management"
+      inventory_heading: "Check Stock & Plan Orders"
+      inventory_product_hint: "Product name or category..."
+      inventory_qty_hint: "Quantity remaining (units)"
+      inventory_button: "Analyze Stock"
+      profit_title: "Profit Calculator"
+      profit_heading: "Profit & Loss Analysis"
+      profit_cost_hint: "Product cost (Baht)"
+      profit_price_hint: "Selling price (Baht)"
+      profit_overhead_hint: "Daily overhead (rent, internet, etc.)"
+      profit_units_hint: "Units sold per day"
+      profit_button: "Calculate Profit"
+      promo_title: "Plan Promotions"
+      promo_type_hint: "Shop type"
+      promo_budget_hint: "Promotion budget (Baht)"
+      promo_goal_hint: "Goal (e.g. get more customers, clear stock)"
+      promo_button: "Plan Promotion"
+      ask_title: "Ask Assistant"
+      ask_voice_hint: "Tap to speak..."
+      ask_text_hint: "...or type a question about your shop"
+      ask_button: "Ask"
+    ms:
+      recipe_name: "Pembantu Kedai"
+      recipe_desc: "Pembantu pengurusan kedai untuk peruncit kecil Thai"
+      greeting: "Hai! Saya {{l10n.recipe_name}}. Apa yang boleh saya bantu?"
+      home_heading: "Pembantu Kedai Anda"
+      grid_inventory: "Semak Stok"
+      grid_profit: "Kira Keuntungan"
+      grid_promo: "Promosi"
+      grid_ask: "Tanya Pembantu"
+      inventory_title: "Pengurusan Stok"
+      inventory_heading: "Semak Stok & Rancang Pesanan"
+      inventory_product_hint: "Nama atau kategori produk..."
+      inventory_qty_hint: "Baki stok (unit)"
+      inventory_button: "Analisis Stok"
+      profit_title: "Kira Keuntungan"
+      profit_heading: "Analisis Untung Rugi"
+      profit_cost_hint: "Kos produk (Baht)"
+      profit_price_hint: "Harga jualan (Baht)"
+      profit_overhead_hint: "Perbelanjaan harian (sewa, internet, dll.)"
+      profit_units_hint: "Unit dijual sehari"
+      profit_button: "Kira Keuntungan"
+      promo_title: "Rancang Promosi"
+      promo_type_hint: "Jenis kedai"
+      promo_budget_hint: "Belanjawan promosi (Baht)"
+      promo_goal_hint: "Matlamat (cth. dapatkan lebih pelanggan, habiskan stok)"
+      promo_button: "Rancang Promosi"
+      ask_title: "Tanya Pembantu"
+      ask_voice_hint: "Tekan untuk bercakap..."
+      ask_text_hint: "...atau taip soalan tentang kedai anda"
+      ask_button: "Tanya"
+    id:
+      recipe_name: "Asisten Toko"
+      recipe_desc: "Asisten manajemen toko untuk pengecer kecil Thailand"
+      greeting: "Halo! Saya {{l10n.recipe_name}}. Apa yang bisa saya bantu?"
+      home_heading: "Asisten Toko Anda"
+      grid_inventory: "Cek Stok"
+      grid_profit: "Hitung Untung"
+      grid_promo: "Promosi"
+      grid_ask: "Tanya Asisten"
+      inventory_title: "Manajemen Inventori"
+      inventory_heading: "Cek Stok & Rencanakan Pesanan"
+      inventory_product_hint: "Nama atau kategori produk..."
+      inventory_qty_hint: "Sisa stok (unit)"
+      inventory_button: "Analisis Stok"
+      profit_title: "Hitung Untung"
+      profit_heading: "Analisis Laba Rugi"
+      profit_cost_hint: "Harga pokok (Baht)"
+      profit_price_hint: "Harga jual (Baht)"
+      profit_overhead_hint: "Biaya harian (sewa, internet, dll.)"
+      profit_units_hint: "Unit terjual per hari"
+      profit_button: "Hitung Keuntungan"
+      promo_title: "Rencanakan Promosi"
+      promo_type_hint: "Jenis toko"
+      promo_budget_hint: "Anggaran promosi (Baht)"
+      promo_goal_hint: "Tujuan (mis. tambah pelanggan, habiskan stok)"
+      promo_button: "Rencana Promosi"
+      ask_title: "Tanya Asisten"
+      ask_voice_hint: "Ketuk untuk bicara..."
+      ask_text_hint: "...atau ketik pertanyaan tentang toko Anda"
+      ask_button: "Tanya"
+    vi:
+      recipe_name: "Trợ Lý Cửa Hàng"
+      recipe_desc: "Trợ lý quản lý cửa hàng cho tiểu thương Thái Lan"
+      greeting: "Xin chào! Tôi là {{l10n.recipe_name}}. Tôi có thể giúp gì cho bạn?"
+      home_heading: "Trợ lý cửa hàng của bạn"
+      grid_inventory: "Kiểm tra tồn kho"
+      grid_profit: "Tính lợi nhuận"
+      grid_promo: "Khuyến mãi"
+      grid_ask: "Hỏi trợ lý"
+      inventory_title: "Quản lý tồn kho"
+      inventory_heading: "Kiểm tra hàng & lên kế hoạch đặt hàng"
+      inventory_product_hint: "Tên hoặc loại sản phẩm..."
+      inventory_qty_hint: "Số lượng còn lại (đơn vị)"
+      inventory_button: "Phân tích tồn kho"
+      profit_title: "Tính lợi nhuận"
+      profit_heading: "Phân tích lãi lỗ"
+      profit_cost_hint: "Giá vốn (Baht)"
+      profit_price_hint: "Giá bán (Baht)"
+      profit_overhead_hint: "Chi phí hàng ngày (thuê mặt bằng, internet, v.v.)"
+      profit_units_hint: "Số đơn vị bán mỗi ngày"
+      profit_button: "Tính lợi nhuận"
+      promo_title: "Lên kế hoạch khuyến mãi"
+      promo_type_hint: "Loại cửa hàng"
+      promo_budget_hint: "Ngân sách khuyến mãi (Baht)"
+      promo_goal_hint: "Mục tiêu (vd. thu hút khách, giải phóng hàng tồn)"
+      promo_button: "Lên kế hoạch khuyến mãi"
+      ask_title: "Hỏi trợ lý"
+      ask_voice_hint: "Nhấn để nói..."
+      ask_text_hint: "...hoặc gõ câu hỏi về cửa hàng của bạn"
+      ask_button: "Hỏi"
+    km:
+      recipe_name: "ជំនួយការហាង"
+      recipe_desc: "ជំនួយការគ្រប់គ្រងហាងសម្រាប់អ្នកលក់រាយតូចៗថៃ"
+      greeting: "សួស្តី! ខ្ញុំជា {{l10n.recipe_name}}។ តើខ្ញុំអាចជួយអ្វីបាន?"
+      home_heading: "ជំនួយការហាងរបស់អ្នក"
+      grid_inventory: "ពិនិត្យស្តុក"
+      grid_profit: "គណនាប្រាក់ចំណេញ"
+      grid_promo: "ការផ្សព្វផ្សាយ"
+      grid_ask: "សួរជំនួយការ"
+      inventory_title: "ការគ្រប់គ្រងស្តុក"
+      inventory_heading: "ពិនិត្យស្តុក និងរៀបចំការបញ្ជាទិញ"
+      inventory_product_hint: "ឈ្មោះ ឬប្រភេទផលិតផល..."
+      inventory_qty_hint: "បរិមាណដែលនៅ (គ្រឿង)"
+      inventory_button: "វិភាគស្តុក"
+      profit_title: "គណនាប្រាក់ចំណេញ"
+      profit_heading: "វិភាគចំណេញ-ខាត"
+      profit_cost_hint: "ថ្លៃដើម (បាត)"
+      profit_price_hint: "តម្លៃលក់ (បាត)"
+      profit_overhead_hint: "ចំណាយប្រចាំថ្ងៃ (ជួល, អ៊ីនធឺណិត, ផ្សេងៗ)"
+      profit_units_hint: "ចំនួនលក់ក្នុងមួយថ្ងៃ"
+      profit_button: "គណនាប្រាក់ចំណេញ"
+      promo_title: "រៀបចំការផ្សព្វផ្សាយ"
+      promo_type_hint: "ប្រភេទហាង"
+      promo_budget_hint: "ថវិកាផ្សព្វផ្សាយ (បាត)"
+      promo_goal_hint: "គោលដៅ (ឧ. ទាក់ទាញអតិថិជន, លក់ស្តុក)"
+      promo_button: "រៀបចំការផ្សព្វផ្សាយ"
+      ask_title: "សួរជំនួយការ"
+      ask_voice_hint: "ចុចដើម្បីនិយាយ..."
+      ask_text_hint: "...ឬបញ្ចូលសំណួរអំពីហាងរបស់អ្នក"
+      ask_button: "សួរ"
+    my:
+      recipe_name: "ဆိုင်ကူညီသူ"
+      recipe_desc: "ထိုင်းလက်လီဆိုင်ငယ်များအတွက် ဆိုင်စီမံခန့်ခွဲရေး ကူညီသူ"
+      greeting: "မင်္ဂလာပါ! ကျွန်တော်/ကျွန်မ {{l10n.recipe_name}} ပါ။ ဘာကူညီပေးရမလဲ?"
+      home_heading: "သင့်ဆိုင်ကူညီသူ"
+      grid_inventory: "စတော့စစ်ဆေးရန်"
+      grid_profit: "အမြတ်တွက်ချက်ရန်"
+      grid_promo: "ပရိုမိုးရှင်း"
+      grid_ask: "ကူညီသူကို မေးရန်"
+      inventory_title: "စတော့စီမံခန့်ခွဲမှု"
+      inventory_heading: "စတော့စစ်ဆေးခြင်းနှင့် အမှာစာကြိုတင်စီစဉ်ခြင်း"
+      inventory_product_hint: "ကုန်ပစ္စည်းအမည် သို့ အမျိုးအစား..."
+      inventory_qty_hint: "ကျန်ရှိသည့်အရေအတွက် (ယူနစ်)"
+      inventory_button: "စတော့ကို စစ်ဆေးရန်"
+      profit_title: "အမြတ်တွက်ချက်ရန်"
+      profit_heading: "အမြတ်-အရှုံး စစ်ဆေးခြင်း"
+      profit_cost_hint: "ကုန်ပစ္စည်းကုန်ကျစရိတ် (ဘတ်)"
+      profit_price_hint: "ရောင်းစျေး (ဘတ်)"
+      profit_overhead_hint: "နေ့စဉ်ကုန်ကျစရိတ် (ငှားရမ်းခ၊ အင်တာနက်၊ အခြား)"
+      profit_units_hint: "တစ်ရက်ရောင်းချသည့်ယူနစ်"
+      profit_button: "အမြတ်တွက်ချက်ရန်"
+      promo_title: "ပရိုမိုးရှင်းစီစဉ်ရန်"
+      promo_type_hint: "ဆိုင်အမျိုးအစား"
+      promo_budget_hint: "ပရိုမိုးရှင်းဘတ်ဂျက် (ဘတ်)"
+      promo_goal_hint: "ရည်မှန်းချက် (ဥပမာ - ဖောက်သည်တိုးပွားရန်၊ စတော့ကုန်ဆုံးရန်)"
+      promo_button: "ပရိုမိုးရှင်းစီစဉ်ရန်"
+      ask_title: "ကူညီသူကို မေးရန်"
+      ask_voice_hint: "ပြောဆိုရန် နှိပ်ပါ..."
+      ask_text_hint: "...သို့မဟုတ် သင့်ဆိုင်နှင့်ပတ်သတ်သော မေးခွန်းကို ရိုက်ထည့်ပါ"
+      ask_button: "မေးရန်"
+    ta:
+      recipe_name: "கடை உதவியாளர்"
+      recipe_desc: "தாய்லாந்து சிறு சில்லறை வணிகர்களுக்கான கடை மேலாண்மை உதவியாளர்"
+      greeting: "வணக்கம்! நான் {{l10n.recipe_name}}. நான் எப்படி உதவ முடியும்?"
+      home_heading: "உங்கள் கடை உதவியாளர்"
+      grid_inventory: "சரக்கு சரிபார்ப்பு"
+      grid_profit: "லாப கணக்கீடு"
+      grid_promo: "விளம்பரங்கள்"
+      grid_ask: "உதவியாளரிடம் கேளுங்கள்"
+      inventory_title: "சரக்கு மேலாண்மை"
+      inventory_heading: "சரக்கு சரிபார்த்து ஆர்டர் திட்டமிடுங்கள்"
+      inventory_product_hint: "பொருளின் பெயர் அல்லது வகை..."
+      inventory_qty_hint: "மீதமுள்ள அளவு (அலகு)"
+      inventory_button: "சரக்கு பகுப்பாய்வு"
+      profit_title: "லாப கணக்கீடு"
+      profit_heading: "லாப-நஷ்ட பகுப்பாய்வு"
+      profit_cost_hint: "பொருள் விலை (பாட்)"
+      profit_price_hint: "விற்பனை விலை (பாட்)"
+      profit_overhead_hint: "தினசரி செலவுகள் (வாடகை, இணையம், போன்றவை)"
+      profit_units_hint: "தினசரி விற்கப்படும் அலகுகள்"
+      profit_button: "லாபம் கணக்கிடு"
+      promo_title: "விளம்பரத் திட்டம்"
+      promo_type_hint: "கடை வகை"
+      promo_budget_hint: "விளம்பர பட்ஜெட் (பாட்)"
+      promo_goal_hint: "இலக்கு (எ.கா. அதிக வாடிக்கையாளர்கள், சரக்கு தீர்க்க)"
+      promo_button: "விளம்பரம் திட்டமிடு"
+      ask_title: "உதவியாளரிடம் கேளுங்கள்"
+      ask_voice_hint: "பேசுவதற்கு தட்டவும்..."
+      ask_text_hint: "...அல்லது உங்கள் கடையைப் பற்றி கேள்வி தட்டச்சு செய்யுங்கள்"
+      ask_button: "கேளுங்கள்"
+    zh:
+      recipe_name: "店铺助手"
+      recipe_desc: "泰国小型零售商的店铺管理助手"
+      greeting: "你好！我是{{l10n.recipe_name}}。我能帮你什么？"
+      home_heading: "您的店铺助手"
+      grid_inventory: "库存查询"
+      grid_profit: "利润计算"
+      grid_promo: "促销活动"
+      grid_ask: "咨询助手"
+      inventory_title: "库存管理"
+      inventory_heading: "查看库存并规划订货"
+      inventory_product_hint: "产品名称或类别..."
+      inventory_qty_hint: "剩余库存（件）"
+      inventory_button: "分析库存"
+      profit_title: "利润计算"
+      profit_heading: "盈亏分析"
+      profit_cost_hint: "产品成本（泰铢）"
+      profit_price_hint: "销售价格（泰铢）"
+      profit_overhead_hint: "每日固定支出（租金、网络等）"
+      profit_units_hint: "每日销售数量"
+      profit_button: "计算利润"
+      promo_title: "规划促销"
+      promo_type_hint: "店铺类型"
+      promo_budget_hint: "促销预算（泰铢）"
+      promo_goal_hint: "目标（如吸引更多顾客、清理库存）"
+      promo_button: "制定促销计划"
+      ask_title: "咨询助手"
+      ask_voice_hint: "点击说话..."
+      ask_text_hint: "...或输入关于您店铺的问题"
+      ask_button: "提问"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are a shop management assistant for small Thai retailers (ร้านค้า). You help small shop owners in Thailand with inventory management, profit/loss calculation, pricing strategy, promotion planning, and customer service tips.
+
+    You understand the context of:
+    - Thai small retail shops: convenience stores (ร้านโชห่วย), food stalls, market vendors
+    - Thai currency (Baht / ฿) and typical Thai product margins
+    - Common Thai retail challenges: competition from 7-Eleven/Lotus's, supplier terms, seasonal sales
+    - LINE OA (LINE Official Account) as primary marketing channel for Thai SMEs
+    - Thai payment methods: PromptPay QR, cash
+
+    Always:
+    - Be practical and actionable
+    - Use both Thai and English terms where helpful
+    - Give specific numbers and calculations when asked
+    - Suggest low-cost, high-impact solutions suitable for micro-retailers
+
+    Never:
+    - Give tax or legal advice beyond general awareness
+    - Recommend strategies that require large capital investment without offering alternatives
+safety:
+  blocked_keywords:
+    - harmful
+  disclaimer: "This tool provides general business guidance and is not a substitute for professional financial or legal advice."
+setup:
+  intro_page:
+    accept_label: "เข้าใจแล้ว — เริ่มเลย"
+    disclaimer: "ผู้ช่วยร้านค้าให้คำแนะนำทางธุรกิจทั่วไป ไม่ใช่คำแนะนำทางการเงินหรือกฎหมายอย่างเป็นทางการ"
+    author:
+      name: "Bangkok SME Network"
+      organisation: "Bangkok SME Network"
+      verified: true
+    links:
+      - label: "SME D Bank Thailand"
+        url: "https://www.smebank.co.th"
+      - label: "กรมพัฒนาธุรกิจการค้า"
+        url: "https://www.dbd.go.th"
+screen_catalog:
+  - id: home
+    title: "Home"
+    icon: "\U0001F3E0"
+  - id: inventory
+    title: "สต็อก"
+    icon: "\U0001F4E6"
+  - id: profit
+    title: "กำไร"
+    icon: "\U0001F4B0"
+  - id: promo
+    title: "โปรโมชั่น"
+    icon: "\U0001F3AF"
+  - id: ask_assistant
+    title: "ถาม"
+    icon: "\U0001F4AC"
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  product_name: { type: string, default: "" }
+  stock_qty: { type: string, default: "" }
+  cost_price: { type: string, default: "" }
+  sell_price: { type: string, default: "" }
+  daily_overhead: { type: string, default: "" }
+  daily_units: { type: string, default: "" }
+  shop_type: { type: string, default: "" }
+  promo_budget: { type: string, default: "" }
+  promo_goal: { type: string, default: "" }
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_inventory}}"
+              icon: "\U0001F4E6"
+              action: "go:inventory"
+            - label: "{{l10n.grid_profit}}"
+              icon: "\U0001F4B0"
+              action: "go:profit"
+            - label: "{{l10n.grid_promo}}"
+              icon: "\U0001F3AF"
+              action: "go:promo"
+            - label: "{{l10n.grid_ask}}"
+              icon: "\U0001F4AC"
+              action: "go:ask_assistant"
+  - id: inventory
+    title: "{{l10n.inventory_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.inventory_heading}}"
+          style: subheading
+      - text_input:
+          bind: product_name
+          hint: "{{l10n.inventory_product_hint}}"
+          input_type: dropdown
+          options:
+            - "เครื่องดื่ม / Beverages"
+            - "ขนมขบเคี้ยว / Snacks"
+            - "ของชำ / Grocery"
+            - "ของใช้ในบ้าน / Household"
+            - "เครื่องสำอาง / Cosmetics"
+            - "อาหารแช่แข็ง / Frozen Food"
+            - "สินค้าอื่น / Other"
+      - text_input:
+          bind: stock_qty
+          hint: "{{l10n.inventory_qty_hint}}"
+      - action_button:
+          label: "{{l10n.inventory_button}}"
+          action: "ask:You are an inventory advisor for a small Thai shop. Product category: {{product_name}}, Current stock: {{stock_qty}} units. Provide: 1) Whether to reorder now (typical reorder point for this category), 2) Suggested reorder quantity (Economic Order Quantity principle, simplified), 3) Typical shelf life / expiry risk for this category, 4) Storage tips, 5) Whether this category is worth continuing to stock based on typical margins. Give practical advice in simple terms."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: profit
+    title: "{{l10n.profit_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.profit_heading}}"
+          style: subheading
+      - text_input:
+          bind: cost_price
+          hint: "{{l10n.profit_cost_hint}}"
+      - text_input:
+          bind: sell_price
+          hint: "{{l10n.profit_price_hint}}"
+      - text_input:
+          bind: daily_overhead
+          hint: "{{l10n.profit_overhead_hint}}"
+      - text_input:
+          bind: daily_units
+          hint: "{{l10n.profit_units_hint}}"
+      - action_button:
+          label: "{{l10n.profit_button}}"
+          action: "ask:Calculate profit for a small Thai shop. Cost price: {{cost_price}} Baht, Selling price: {{sell_price}} Baht, Daily overhead: {{daily_overhead}} Baht, Units sold per day: {{daily_units}}. Calculate: 1) Gross profit per unit (Baht and %), 2) Daily gross profit, 3) Daily net profit after overhead, 4) Monthly net profit estimate, 5) Break-even units per day, 6) Is this margin sustainable for a Thai small shop? (Compare to typical 10-30% retail margin). Give clear numbers."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: promo
+    title: "{{l10n.promo_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.promo_title}}"
+          style: subheading
+      - text_input:
+          bind: shop_type
+          hint: "{{l10n.promo_type_hint}}"
+          input_type: dropdown
+          options:
+            - "ร้านโชห่วย (Convenience store)"
+            - "ร้านอาหาร (Food stall)"
+            - "ร้านตลาด (Market stall)"
+            - "ร้านออนไลน์ (Online shop)"
+            - "ร้านค้าปลีกอื่น (Other retail)"
+      - text_input:
+          bind: promo_budget
+          hint: "{{l10n.promo_budget_hint}}"
+      - text_input:
+          bind: promo_goal
+          hint: "{{l10n.promo_goal_hint}}"
+      - action_button:
+          label: "{{l10n.promo_button}}"
+          action: "ask:You are a Thai retail marketing advisor. Shop type: {{shop_type}}, Promotion budget: {{promo_budget}} Baht, Goal: {{promo_goal}}. Design a practical promotion plan: 1) Top 2-3 promotion ideas within budget (e.g. LINE OA promotion, buy-1-get-1, loyalty card, seasonal discount), 2) How to execute each idea step-by-step, 3) Expected customer response, 4) How to measure success, 5) Common Thai promotion mistakes to avoid."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: ask_assistant
+    title: "{{l10n.ask_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.ask_title}}"
+          style: subheading
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.ask_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.ask_text_hint}}"
+      - action_button:
+          label: "{{l10n.ask_button}}"
+          action: "ask:{{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true

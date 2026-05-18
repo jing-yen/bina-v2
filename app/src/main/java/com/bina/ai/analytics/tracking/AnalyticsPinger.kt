@@ -24,6 +24,8 @@ class AnalyticsPinger(context: Context) {
     )
 
     suspend fun onRecipeLaunched(recipeId: String) = withContext(Dispatchers.IO) {
+        if (!prefs.getBoolean(OPT_IN_KEY, false)) return@withContext
+
         val pingedKey = "pinged_$recipeId"
         if (prefs.getBoolean(pingedKey, false)) return@withContext
 
@@ -58,6 +60,9 @@ class AnalyticsPinger(context: Context) {
         private const val PREFS_NAME = "bina_analytics_pings"
         private const val PINGS_COLLECTION = "pings"
         private const val RECIPES_COLLECTION = "recipes"
+
+        /** SharedPreferences key that must be set to `true` before any data is sent. Defaults to false. */
+        const val OPT_IN_KEY = "analytics_opt_in"
 
         private fun hashDeviceId(id: String): String {
             val digest = MessageDigest.getInstance("SHA-256")

@@ -24,8 +24,7 @@ import com.bina.ai.miniapp.model.Feature
 import com.bina.ai.ui.theme.BinaAccent
 
 /**
- * Read-only preview of features. Shows icon + name as small chips. Full toggling lives
- * in the Configurator.
+ * Read-only preview of features. Shows icon + name as small chips.
  */
 @Composable
 fun FeaturePreviewList(

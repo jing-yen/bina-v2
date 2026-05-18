@@ -1,0 +1,530 @@
+id: mock_myanmar
+name: "ရွာကျန်းမာရေး"
+description: "Village health guide for rural Myanmar communities"
+icon: "\U0001F3E5"
+version: "1.0.0"
+category: "Health"
+featured: false
+tags:
+  - health
+  - myanmar
+  - village
+  - rural
+author:
+  name: "Mandalay Health Dept"
+  organisation: "Mandalay Health Dept"
+  verified: true
+theme:
+  primary: "#C45A3A"
+  secondary: "#FFF5F0"
+localisation:
+  supported:
+    - my
+    - en
+    - ms
+    - id
+    - vi
+    - th
+    - km
+    - ta
+    - zh
+  default: my
+  labels:
+    my:
+      recipe_name: "ရွာကျန်းမာရေး"
+      recipe_desc: "မြန်မာကျေးရွာလူထုများအတွက် ကျန်းမာရေးလမ်းညွှန်"
+      greeting: "မင်္ဂလာပါ! ကျွန်တော်/ကျွန်မ {{l10n.recipe_name}} ပါ။ ဘာကူညီပေးရမလဲ?"
+      home_heading: "ကျေးရွာကျန်းမာရေး လမ်းညွှန်"
+      grid_symptoms: "ရောဂါလက္ခဏာ စစ်ဆေးရန်"
+      grid_first_aid: "ပဦးဆုံး အကူအညီ"
+      grid_child_health: "ကလေးကျန်းမာရေး"
+      grid_emergency: "အရေးပေါ်"
+      symptoms_title: "ရောဂါလက္ခဏာ စစ်ဆေးခြင်း"
+      symptoms_heading: "မည်သည့် ကျန်းမာရေးပြဿနာ ရှိသနည်း?"
+      symptoms_voice_hint: "ရောဂါလက္ခဏာများ ဖော်ပြပါ..."
+      symptoms_text_hint: "ဥပမာ - ဖျားနာ၊ ဗိုက်နာ၊ ဆုတ်နာ..."
+      symptoms_button: "စစ်ဆေးရန်"
+      first_aid_title: "ပဦးဆုံး အကူအညီ"
+      first_aid_heading: "ပဦးဆုံး အကူအညီ လမ်းညွှန်"
+      first_aid_condition_hint: "အရေးပေါ် အခြေအနေ ရွေးချယ်ပါ"
+      first_aid_button: "လမ်းညွှန် ကြည့်ရန်"
+      child_title: "ကလေးကျန်းမာရေး"
+      child_heading: "ကလေး ကျန်းမာရေး စစ်ဆေးခြင်း"
+      child_age_hint: "ကလေး အသက် (လ)"
+      child_age_left: "0 လ"
+      child_age_right: "60 လ"
+      child_symptom_hint: "ကလေး၏ ကျန်းမာရေးပြဿနာ..."
+      child_button: "စစ်ဆေးရန်"
+      emergency_title: "အရေးပေါ် ဆက်သွယ်ရေး"
+      emergency_subtext: "နီးဆုံး ကျန်းမာရေးဌာနကို ချက်ချင်း ဆက်သွယ်ပါ"
+      emergency_call: "📞 ဆေးရုံ ဖုန်းခေါ်ရန်"
+      emergency_ambulance: "🚑 လူနာတင်ယာဉ် ခေါ်ရန်"
+      emergency_sms: "📩 SMS ဆေးရုံ"
+      emergency_find_hospital: "📍 နီးဆုံး ဆေးရုံ ရှာရန်"
+    en:
+      recipe_name: "Village Health Guide"
+      recipe_desc: "Village health guide for rural Myanmar communities"
+      greeting: "Hi! I'm {{l10n.recipe_name}}. How can I help you today?"
+      home_heading: "Village Health Guide"
+      grid_symptoms: "Check Symptoms"
+      grid_first_aid: "First Aid"
+      grid_child_health: "Child Health"
+      grid_emergency: "Emergency"
+      symptoms_title: "Symptom Checker"
+      symptoms_heading: "What health problem do you have?"
+      symptoms_voice_hint: "Describe symptoms..."
+      symptoms_text_hint: "E.g.: fever, stomach pain, chest pain..."
+      symptoms_button: "Check Symptoms"
+      first_aid_title: "First Aid"
+      first_aid_heading: "First Aid Guide"
+      first_aid_condition_hint: "Select emergency condition"
+      first_aid_button: "View Guide"
+      child_title: "Child Health"
+      child_heading: "Child Health Assessment"
+      child_age_hint: "Child's age (months)"
+      child_age_left: "0 mo"
+      child_age_right: "60 mo"
+      child_symptom_hint: "Child's health problem..."
+      child_button: "Assess"
+      emergency_title: "Emergency Contact"
+      emergency_subtext: "Contact the nearest health facility immediately"
+      emergency_call: "📞 Call Hospital"
+      emergency_ambulance: "🚑 Call Ambulance"
+      emergency_sms: "📩 SMS Hospital"
+      emergency_find_hospital: "📍 Find Nearest Hospital"
+    ms:
+      recipe_name: "Panduan Kesihatan Kampung"
+      recipe_desc: "Panduan kesihatan kampung untuk komuniti luar bandar Myanmar"
+      greeting: "Hai! Saya {{l10n.recipe_name}}. Apa yang boleh saya bantu?"
+      home_heading: "Panduan Kesihatan Kampung"
+      grid_symptoms: "Semak Simptom"
+      grid_first_aid: "Pertolongan Cemas"
+      grid_child_health: "Kesihatan Kanak-Kanak"
+      grid_emergency: "Kecemasan"
+      symptoms_title: "Pemeriksa Simptom"
+      symptoms_heading: "Apakah masalah kesihatan anda?"
+      symptoms_voice_hint: "Huraikan simptom..."
+      symptoms_text_hint: "Contoh: demam, sakit perut, sakit dada..."
+      symptoms_button: "Semak Simptom"
+      first_aid_title: "Pertolongan Cemas"
+      first_aid_heading: "Panduan Pertolongan Cemas"
+      first_aid_condition_hint: "Pilih keadaan kecemasan"
+      first_aid_button: "Lihat Panduan"
+      child_title: "Kesihatan Kanak-Kanak"
+      child_heading: "Penilaian Kesihatan Kanak-Kanak"
+      child_age_hint: "Umur kanak-kanak (bulan)"
+      child_age_left: "0 bln"
+      child_age_right: "60 bln"
+      child_symptom_hint: "Masalah kesihatan kanak-kanak..."
+      child_button: "Nilai"
+      emergency_title: "Hubungan Kecemasan"
+      emergency_subtext: "Hubungi kemudahan kesihatan terdekat dengan segera"
+      emergency_call: "📞 Hubungi Hospital"
+      emergency_ambulance: "🚑 Panggil Ambulans"
+      emergency_sms: "📩 SMS Hospital"
+      emergency_find_hospital: "📍 Cari Hospital Terdekat"
+    id:
+      recipe_name: "Panduan Kesehatan Desa"
+      recipe_desc: "Panduan kesehatan desa untuk komunitas pedesaan Myanmar"
+      greeting: "Halo! Saya {{l10n.recipe_name}}. Apa yang bisa saya bantu?"
+      home_heading: "Panduan Kesehatan Desa"
+      grid_symptoms: "Cek Gejala"
+      grid_first_aid: "Pertolongan Pertama"
+      grid_child_health: "Kesehatan Anak"
+      grid_emergency: "Darurat"
+      symptoms_title: "Pemeriksa Gejala"
+      symptoms_heading: "Apa masalah kesehatan Anda?"
+      symptoms_voice_hint: "Jelaskan gejala..."
+      symptoms_text_hint: "Contoh: demam, sakit perut, nyeri dada..."
+      symptoms_button: "Cek Gejala"
+      first_aid_title: "Pertolongan Pertama"
+      first_aid_heading: "Panduan Pertolongan Pertama"
+      first_aid_condition_hint: "Pilih kondisi darurat"
+      first_aid_button: "Lihat Panduan"
+      child_title: "Kesehatan Anak"
+      child_heading: "Penilaian Kesehatan Anak"
+      child_age_hint: "Usia anak (bulan)"
+      child_age_left: "0 bln"
+      child_age_right: "60 bln"
+      child_symptom_hint: "Masalah kesehatan anak..."
+      child_button: "Nilai"
+      emergency_title: "Kontak Darurat"
+      emergency_subtext: "Hubungi fasilitas kesehatan terdekat segera"
+      emergency_call: "📞 Hubungi Rumah Sakit"
+      emergency_ambulance: "🚑 Panggil Ambulans"
+      emergency_sms: "📩 SMS Rumah Sakit"
+      emergency_find_hospital: "📍 Cari Rumah Sakit Terdekat"
+    vi:
+      recipe_name: "Hướng Dẫn Sức Khỏe Làng Xã"
+      recipe_desc: "Hướng dẫn sức khỏe cho cộng đồng nông thôn Myanmar"
+      greeting: "Xin chào! Tôi là {{l10n.recipe_name}}. Tôi có thể giúp gì cho bạn?"
+      home_heading: "Hướng dẫn sức khỏe làng xã"
+      grid_symptoms: "Kiểm tra triệu chứng"
+      grid_first_aid: "Sơ cứu"
+      grid_child_health: "Sức khỏe trẻ em"
+      grid_emergency: "Khẩn cấp"
+      symptoms_title: "Kiểm tra triệu chứng"
+      symptoms_heading: "Bạn gặp vấn đề sức khỏe gì?"
+      symptoms_voice_hint: "Mô tả triệu chứng..."
+      symptoms_text_hint: "Ví dụ: sốt, đau bụng, đau ngực..."
+      symptoms_button: "Kiểm tra triệu chứng"
+      first_aid_title: "Sơ cứu"
+      first_aid_heading: "Hướng dẫn sơ cứu"
+      first_aid_condition_hint: "Chọn tình huống khẩn cấp"
+      first_aid_button: "Xem hướng dẫn"
+      child_title: "Sức khỏe trẻ em"
+      child_heading: "Đánh giá sức khỏe trẻ em"
+      child_age_hint: "Tuổi của trẻ (tháng)"
+      child_age_left: "0 tháng"
+      child_age_right: "60 tháng"
+      child_symptom_hint: "Vấn đề sức khỏe của trẻ..."
+      child_button: "Đánh giá"
+      emergency_title: "Liên hệ khẩn cấp"
+      emergency_subtext: "Liên hệ cơ sở y tế gần nhất ngay lập tức"
+      emergency_call: "📞 Gọi bệnh viện"
+      emergency_ambulance: "🚑 Gọi xe cứu thương"
+      emergency_sms: "📩 SMS bệnh viện"
+      emergency_find_hospital: "📍 Tìm bệnh viện gần nhất"
+    th:
+      recipe_name: "คู่มือสุขภาพชุมชน"
+      recipe_desc: "คู่มือสุขภาพหมู่บ้านสำหรับชุมชนชนบทเมียนมา"
+      greeting: "สวัสดี! ฉันคือ {{l10n.recipe_name}} ฉันช่วยอะไรได้บ้าง?"
+      home_heading: "คู่มือสุขภาพชุมชน"
+      grid_symptoms: "ตรวจสอบอาการ"
+      grid_first_aid: "ปฐมพยาบาล"
+      grid_child_health: "สุขภาพเด็ก"
+      grid_emergency: "ฉุกเฉิน"
+      symptoms_title: "ตรวจสอบอาการ"
+      symptoms_heading: "คุณมีปัญหาสุขภาพอะไร?"
+      symptoms_voice_hint: "อธิบายอาการ..."
+      symptoms_text_hint: "เช่น ไข้ ปวดท้อง ปวดอก..."
+      symptoms_button: "ตรวจสอบอาการ"
+      first_aid_title: "ปฐมพยาบาล"
+      first_aid_heading: "คู่มือปฐมพยาบาล"
+      first_aid_condition_hint: "เลือกสภาวะฉุกเฉิน"
+      first_aid_button: "ดูคู่มือ"
+      child_title: "สุขภาพเด็ก"
+      child_heading: "การประเมินสุขภาพเด็ก"
+      child_age_hint: "อายุเด็ก (เดือน)"
+      child_age_left: "0 เดือน"
+      child_age_right: "60 เดือน"
+      child_symptom_hint: "ปัญหาสุขภาพของเด็ก..."
+      child_button: "ประเมิน"
+      emergency_title: "ติดต่อฉุกเฉิน"
+      emergency_subtext: "ติดต่อสถานพยาบาลใกล้เคียงทันที"
+      emergency_call: "📞 โทรหาโรงพยาบาล"
+      emergency_ambulance: "🚑 เรียกรถพยาบาล"
+      emergency_sms: "📩 SMS โรงพยาบาล"
+      emergency_find_hospital: "📍 ค้นหาโรงพยาบาลใกล้เคียง"
+    km:
+      recipe_name: "មគ្គុទ្ទេសក៍សុខភាពភូមិ"
+      recipe_desc: "មគ្គុទ្ទេសក៍សុខភាពសម្រាប់សហគមន៍ជនបទមីយ៉ាន់ម៉ា"
+      greeting: "សួស្តី! ខ្ញុំជា {{l10n.recipe_name}}។ តើខ្ញុំអាចជួយអ្វីបាន?"
+      home_heading: "មគ្គុទ្ទេសក៍សុខភាពភូមិ"
+      grid_symptoms: "ពិនិត្យរោគសញ្ញា"
+      grid_first_aid: "ការបំបាត់ជំងឺបឋម"
+      grid_child_health: "សុខភាពកុមារ"
+      grid_emergency: "អាសន្ន"
+      symptoms_title: "ពិនិត្យរោគសញ្ញា"
+      symptoms_heading: "អ្នកមានបញ្ហាសុខភាពអ្វី?"
+      symptoms_voice_hint: "ពិពណ៌នារោគសញ្ញា..."
+      symptoms_text_hint: "ឧ. គ្រុនក្តៅ ចុកពោះ ឈឺទ្រូង..."
+      symptoms_button: "ពិនិត្យរោគសញ្ញា"
+      first_aid_title: "ការបំបាត់ជំងឺបឋម"
+      first_aid_heading: "មគ្គុទ្ទេសក៍ការបំបាត់ជំងឺបឋម"
+      first_aid_condition_hint: "ជ្រើសរើសសភាពអាសន្ន"
+      first_aid_button: "មើលមគ្គុទ្ទេសក៍"
+      child_title: "សុខភាពកុមារ"
+      child_heading: "ការវាយតម្លៃសុខភាពកុមារ"
+      child_age_hint: "អាយុកុមារ (ខែ)"
+      child_age_left: "0 ខែ"
+      child_age_right: "60 ខែ"
+      child_symptom_hint: "បញ្ហាសុខភាពរបស់កុមារ..."
+      child_button: "វាយតម្លៃ"
+      emergency_title: "ទំនាក់ទំនងអាសន្ន"
+      emergency_subtext: "ទំនាក់ទំនងមន្ទីរពេទ្យដែលនៅជិតបំផុតភ្លាមៗ"
+      emergency_call: "📞 ហៅមន្ទីរពេទ្យ"
+      emergency_ambulance: "🚑 ហៅរថយន្តស្រង់"
+      emergency_sms: "📩 SMS មន្ទីរពេទ្យ"
+      emergency_find_hospital: "📍 រកមន្ទីរពេទ្យដែលនៅជិតបំផុត"
+    ta:
+      recipe_name: "கிராம சுகாதார வழிகாட்டி"
+      recipe_desc: "மியான்மார் கிராமப்புற சமூகங்களுக்கான சுகாதார வழிகாட்டி"
+      greeting: "வணக்கம்! நான் {{l10n.recipe_name}}. நான் எப்படி உதவ முடியும்?"
+      home_heading: "கிராம சுகாதார வழிகாட்டி"
+      grid_symptoms: "அறிகுறிகள் சரிபார்க்க"
+      grid_first_aid: "முதலுதவி"
+      grid_child_health: "குழந்தை சுகாதாரம்"
+      grid_emergency: "அவசரநிலை"
+      symptoms_title: "அறிகுறி சரிபார்ப்பு"
+      symptoms_heading: "உங்களுக்கு என்ன உடல்நல பிரச்சினை உள்ளது?"
+      symptoms_voice_hint: "அறிகுறிகளை விவரிக்கவும்..."
+      symptoms_text_hint: "எ.கா.: காய்ச்சல், வயிற்று வலி, மார்பு வலி..."
+      symptoms_button: "அறிகுறிகள் சரிபார்க்க"
+      first_aid_title: "முதலுதவி"
+      first_aid_heading: "முதலுதவி வழிகாட்டி"
+      first_aid_condition_hint: "அவசர நிலையை தேர்ந்தெடுக்கவும்"
+      first_aid_button: "வழிகாட்டி பார்க்க"
+      child_title: "குழந்தை சுகாதாரம்"
+      child_heading: "குழந்தை சுகாதார மதிப்பீடு"
+      child_age_hint: "குழந்தையின் வயது (மாதங்கள்)"
+      child_age_left: "0 மா"
+      child_age_right: "60 மா"
+      child_symptom_hint: "குழந்தையின் உடல்நல பிரச்சினை..."
+      child_button: "மதிப்பிடு"
+      emergency_title: "அவசர தொடர்பு"
+      emergency_subtext: "உடனடியாக அருகிலுள்ள சுகாதார நிறுவனத்தை தொடர்பு கொள்ளுங்கள்"
+      emergency_call: "📞 மருத்துவமனை அழைக்க"
+      emergency_ambulance: "🚑 ஆம்புலன்ஸ் அழைக்க"
+      emergency_sms: "📩 மருத்துவமனைக்கு SMS"
+      emergency_find_hospital: "📍 அருகிலுள்ள மருத்துவமனை கண்டுபிடிக்க"
+    zh:
+      recipe_name: "乡村健康指南"
+      recipe_desc: "缅甸农村社区的乡村健康指南"
+      greeting: "你好！我是{{l10n.recipe_name}}。我能帮你什么？"
+      home_heading: "乡村健康指南"
+      grid_symptoms: "检查症状"
+      grid_first_aid: "急救"
+      grid_child_health: "儿童健康"
+      grid_emergency: "紧急情况"
+      symptoms_title: "症状检查"
+      symptoms_heading: "您有什么健康问题？"
+      symptoms_voice_hint: "描述症状..."
+      symptoms_text_hint: "例如：发烧、腹痛、胸痛..."
+      symptoms_button: "检查症状"
+      first_aid_title: "急救"
+      first_aid_heading: "急救指南"
+      first_aid_condition_hint: "选择紧急情况"
+      first_aid_button: "查看指南"
+      child_title: "儿童健康"
+      child_heading: "儿童健康评估"
+      child_age_hint: "儿童年龄（月）"
+      child_age_left: "0 月"
+      child_age_right: "60 月"
+      child_symptom_hint: "儿童健康问题..."
+      child_button: "评估"
+      emergency_title: "紧急联系"
+      emergency_subtext: "立即联系最近的医疗机构"
+      emergency_call: "📞 拨打医院电话"
+      emergency_ambulance: "🚑 呼叫救护车"
+      emergency_sms: "📩 短信联系医院"
+      emergency_find_hospital: "📍 查找最近医院"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are Ywar Kyaing Ma Ye (ရွာကျန်းမာရေး — Village Health Guide), an AI assistant for rural health workers and community members in Myanmar. You provide basic health triage, first aid guidance, and child health assessment for village-level healthcare in resource-limited settings.
+
+    Your knowledge includes:
+    - Common illnesses in rural Myanmar: malaria, dengue, diarrhoea, acute respiratory infections, TB, snake bite, trauma
+    - WHO integrated community case management (iCCM) protocols for under-5 children
+    - Basic first aid: wound care, fracture management, choking, burns, snake bite protocol
+    - IMCI (Integrated Management of Childhood Illness) — danger signs in children
+    - Myanmar health system: Township Health Department, Rural Health Centers, Station Hospitals
+    - Common traditional medicine interactions to flag
+    - Sanitation and water safety for cholera/diarrhoea prevention
+
+    Always:
+    - Respond in Burmese (my) when the user writes in Burmese or Burmese script
+    - Be simple, clear, and actionable — rural health workers may have limited training
+    - Always identify danger signs that require urgent hospital referral
+    - For any chest pain, difficulty breathing, unconsciousness, or severe bleeding — advise hospital immediately
+    - For children under 5 with any of: unable to drink/breastfeed, vomits everything, convulsions, very sleepy/difficult to wake, chest in-drawing — advise URGENT referral
+
+    Never:
+    - Attempt to diagnose malaria without rapid diagnostic test (RDT) results
+    - Recommend prescription medicines — refer to the nearest health facility
+    - Minimize chest pain or neurological symptoms
+safety:
+  blocked_keywords:
+    - harmful
+  escalation_message: "ဤ app သည် ဆေးပညာ စစ်ဆေး ရန် မဟုတ်ပါ။ ဆေးရုံ သို့ ချက်ချင်း သွားပါ။"
+  disclaimer: "This tool provides basic health guidance for community use. It does not replace professional medical care. Always refer serious cases to the nearest health facility."
+setup:
+  intro_page:
+    accept_label: "နားလည်သည် — စတင်ရန်"
+    disclaimer: "ရွာကျန်းမာရေး app သည် မြေပြင် ကျန်းမာရေး အကူအညီ ပေးသည်။ ဆေးရောဂါ ဖြေဆိုခြင်း မဟုတ်ပါ။ ဆေးရုံ သို့ ဆက်သွယ်ရမည်ဆိုပါ ချက်ချင်း သွားပါ။"
+    author:
+      name: "Mandalay Health Dept"
+      organisation: "Mandalay Health Dept"
+      verified: true
+    links:
+      - label: "Myanmar Ministry of Health"
+        url: "https://www.mohs.gov.mm"
+      - label: "WHO Myanmar"
+        url: "https://www.who.int/myanmar"
+screen_catalog:
+  - id: home
+    title: "Home"
+    icon: "\U0001F3E0"
+  - id: symptoms
+    title: "ရောဂါ"
+    icon: "\U0001FA7A"
+  - id: first_aid
+    title: "အကူ"
+    icon: "\U0001F691"
+  - id: child_health
+    title: "ကလေး"
+    icon: "\U0001F476"
+  - id: emergency
+    title: "အရေးပေါ်"
+    icon: "\U0001F6A8"
+data:
+  hospitals:
+    items:
+      - name: "Mandalay General Hospital"
+        lat: 21.9588
+        lng: 96.0891
+        info: "Regional Hospital, Mandalay"
+        phone: "+9502058888"
+      - name: "Pyin Oo Lwin Station Hospital"
+        lat: 22.0333
+        lng: 96.4667
+        info: "Station Hospital"
+        phone: "+95085211234"
+      - name: "Mogok Township Hospital"
+        lat: 22.9167
+        lng: 96.5000
+        info: "Township Hospital"
+        phone: "+95085441234"
+      - name: "Kyaukse District Hospital"
+        lat: 21.6014
+        lng: 96.1339
+        info: "District Hospital"
+        phone: "+95085401234"
+      - name: "Meiktila General Hospital"
+        lat: 20.8800
+        lng: 95.8588
+        info: "General Hospital"
+        phone: "+9506491234"
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  first_aid_condition: { type: string, default: "" }
+  child_age_months: { type: number, default: "12" }
+  child_symptom: { type: string, default: "" }
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_symptoms}}"
+              icon: "\U0001FA7A"
+              action: "go:symptoms"
+            - label: "{{l10n.grid_first_aid}}"
+              icon: "\U0001F691"
+              action: "go:first_aid"
+            - label: "{{l10n.grid_child_health}}"
+              icon: "\U0001F476"
+              action: "go:child_health"
+            - label: "{{l10n.grid_emergency}}"
+              icon: "\U0001F6A8"
+              action: "go:emergency"
+  - id: symptoms
+    title: "{{l10n.symptoms_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.symptoms_heading}}"
+          style: subheading
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.symptoms_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.symptoms_text_hint}}"
+      - action_button:
+          label: "{{l10n.symptoms_button}}"
+          action: "ask:You are a community health triage assistant for rural Myanmar. Assess the following symptoms and determine urgency. Check for danger signs requiring IMMEDIATE hospital referral: chest pain, difficulty breathing, unconsciousness, convulsions, heavy bleeding, signs of stroke (sudden one-sided weakness/facial droop/speech difficulty), suspected poisoning or snake bite. Classify as: EMERGENCY (go to hospital now), URGENT (see health worker today), or HOME CARE (manage with guidance). For home care, give specific steps. Symptoms: {{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: first_aid
+    title: "{{l10n.first_aid_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.first_aid_heading}}"
+          style: subheading
+      - text_input:
+          bind: first_aid_condition
+          hint: "{{l10n.first_aid_condition_hint}}"
+          input_type: dropdown
+          options:
+            - "Snake bite (မြွေကိုက်)"
+            - "Burns (မီးလောင်)"
+            - "Choking (လည်ချောင်းပိတ်)"
+            - "Unconscious / Fainting (သတိမဲ့)"
+            - "Fracture / Broken bone (အရိုးကျိုး)"
+            - "Wound / Bleeding (ဒဏ်ရာ / သွေးထွက်)"
+            - "Diarrhoea / Dehydration (ဝမ်းလျှောဝမ်းပျက်)"
+            - "Fever (ဖျားနာ)"
+            - "Drowning (ရေနစ်)"
+            - "Eye injury (မျက်စိထိခိုက်)"
+      - action_button:
+          label: "{{l10n.first_aid_button}}"
+          action: "ask:You are a first aid guide for rural Myanmar community health workers with basic supplies only. Condition: {{first_aid_condition}}. Provide: 1) Immediate steps to take right now (numbered, simple), 2) What NOT to do (common harmful traditional practices to avoid), 3) Warning signs that require urgent hospital referral, 4) How to transport the patient safely if referral needed, 5) Follow-up care if home management is appropriate. Use simple clear language."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: child_health
+    title: "{{l10n.child_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.child_heading}}"
+          style: subheading
+      - slider:
+          bind: child_age_months
+          min: 0
+          max: 60
+          step: 1
+          label: "{{l10n.child_age_hint}}"
+          left_label: "{{l10n.child_age_left}}"
+          right_label: "{{l10n.child_age_right}}"
+          show_value: true
+      - text_input:
+          bind: child_symptom
+          hint: "{{l10n.child_symptom_hint}}"
+      - action_button:
+          label: "{{l10n.child_button}}"
+          action: "ask:You are a child health triage worker using WHO IMCI guidelines for Myanmar. Child age: {{child_age_months}} months. Problem reported: {{child_symptom}}. Assess using IMCI: 1) Check for GENERAL DANGER SIGNS (unable to drink/breastfeed, vomits everything, convulsions, very sleepy/lethargic, chest in-drawing, stridor) — if any present: URGENT hospital referral; 2) Assess for the main symptom (fever=malaria/dengue assessment, diarrhoea=dehydration, cough=ARI, ear problem); 3) Check nutritional status if applicable; 4) Classify severity (Severe/Moderate/Mild); 5) Advise: hospital now / health center today / home care with instructions."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: emergency
+    title: "{{l10n.emergency_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.emergency_title}}"
+          style: subheading
+      - text_label:
+          text: "{{l10n.emergency_subtext}}"
+          style: body
+      - action_button:
+          label: "{{l10n.emergency_ambulance}}"
+          action: "tel:192"
+          style: danger
+      - action_button:
+          label: "{{l10n.emergency_call}}"
+          action: "tel:+9502058888"
+          style: danger
+      - action_button:
+          label: "{{l10n.emergency_sms}}"
+          action: "sms:+9502058888:Medical emergency. Patient needs urgent assistance. Location: {{user_location}}."
+          style: primary
+      - action_button:
+          label: "{{l10n.emergency_find_hospital}}"
+          action: "geolocate"
+          style: secondary
+      - geo_display:
+          data: "hospitals"
+          limit: 5
+          show_distance: true
+permissions:
+  - location

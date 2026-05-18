@@ -109,7 +109,7 @@ class SyncViewModel(
         )
     }
 
-    /** Returns the recipeId of the imported recipe so the caller can navigate to Configurator. */
+    /** Returns the recipeId of the imported recipe. */
     fun confirmInstall(): String? {
         val ready = _incoming.value as? IncomingState.Ready ?: return null
         recipeImporter.commit(ready.miniApp, ready.yaml)

@@ -45,7 +45,6 @@ fun HubScreen(
     miniAppRepository: MiniAppRepository,
     installStore: InstallStore,
     firestoreRecipeSource: FirestoreRecipeSource? = null,
-    onConfigureRecipe: (recipeId: String) -> Unit,
     onOpenRecipe: (recipeId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -114,8 +113,10 @@ fun HubScreen(
                             }
                         }
                         items(s.rails, key = { it.title }) { rail ->
+                            val railTitle = if (rail.title == "All Recipes") stringResource(R.string.hub_all_recipes)
+                                else com.bina.ai.ui.localizedCategory(rail.title)
                             CategoryRail(
-                                title = rail.title,
+                                title = railTitle,
                                 recipes = rail.recipes,
                                 installedIds = s.installedIds,
                                 onRecipeClick = { sheetRecipe = it }
@@ -155,22 +156,18 @@ fun HubScreen(
                 miniApp = recipe,
                 isInstalled = recipe.id in (state as? HubUiState.Loaded)?.installedIds.orEmpty(),
                 sizeKb = baseSizeKb,
-                onConfigureInstall = {
+                onInstall = {
                     sheetRecipe = null
-                    if (recipe.features.isEmpty()) {
-                        scope.launch {
-                            try {
-                                miniAppRepository.persistRecipeLocally(recipe.id)
-                                installStore.install(InstallRecord(
-                                    recipeId = recipe.id,
-                                    installedAt = System.currentTimeMillis(),
-                                    enabledFeatureIds = emptySet()
-                                ))
-                            } catch (_: Exception) { }
-                            onOpenRecipe(recipe.id)
-                        }
-                    } else {
-                        onConfigureRecipe(recipe.id)
+                    scope.launch {
+                        try {
+                            miniAppRepository.persistRecipeLocally(recipe.id)
+                            installStore.install(InstallRecord(
+                                recipeId = recipe.id,
+                                installedAt = System.currentTimeMillis(),
+                                enabledFeatureIds = recipe.features.map { it.id }.toSet()
+                            ))
+                        } catch (_: Exception) { }
+                        onOpenRecipe(recipe.id)
                     }
                 },
                 onOpen = {

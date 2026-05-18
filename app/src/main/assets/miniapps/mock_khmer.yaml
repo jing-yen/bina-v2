@@ -1,0 +1,516 @@
+id: mock_khmer
+name: "កសិកម្មឆ្លាត"
+description: "Smart farming guide for Cambodian smallholders"
+icon: "\U0001F331"
+version: "1.0.0"
+category: "Agriculture"
+featured: false
+tags:
+  - agriculture
+  - cambodia
+  - rice
+  - smallholder
+author:
+  name: "Cambodia Rural Dev"
+  organisation: "Cambodia Rural Dev"
+  verified: true
+theme:
+  primary: "#15803D"
+  secondary: "#F0FDF4"
+localisation:
+  supported:
+    - km
+    - en
+    - th
+    - ms
+    - id
+    - vi
+    - my
+    - ta
+    - zh
+  default: km
+  labels:
+    km:
+      recipe_name: "កសិកម្មឆ្លាត"
+      recipe_desc: "មគ្គុទ្ទេសក៍កសិកម្មឆ្លាតវៃសម្រាប់កសិករខ្នាតតូចកម្ពុជា"
+      greeting: "សួស្តី! ខ្ញុំជា {{l10n.recipe_name}}។ តើខ្ញុំអាចជួយអ្វីបាន?"
+      home_heading: "ជំនួយការកសិកម្មឆ្លាតវៃ"
+      grid_diagnose: "រោគវិនិច្ឆ័យដំណាំ"
+      grid_rice: "ការដាំស្រូវ"
+      grid_fertilizer: "ជី​និង​ថ្នាំ"
+      grid_ask: "សួរអ្នកជំនាញ"
+      diagnose_title: "រោគវិនិច្ឆ័យដំណាំ"
+      diagnose_heading: "ពិពណ៌នាស្ថានភាពដំណាំរបស់អ្នក"
+      diagnose_voice_hint: "ពណ៌នាអំពីរោគ..."
+      diagnose_text_hint: "ឧ. ស្លឹកលឿង ចំណុចភ្លើង ដើមរលួយ..."
+      diagnose_button: "រោគវិនិច្ឆ័យ"
+      rice_title: "ការណែនាំដំណាំស្រូវ"
+      rice_heading: "ការគ្រប់គ្រងស្រូវល្អ"
+      rice_stage_hint: "ដំណាក់កាលស្រូវ"
+      rice_area_hint: "ផ្ទៃដីដំណាំ (ហិកតា)"
+      rice_variety_hint: "ពូជស្រូវ"
+      rice_button: "ទទួលការណែនាំ"
+      fertilizer_title: "ការណែនាំជី"
+      fertilizer_crop_hint: "ប្រភេទដំណាំ"
+      fertilizer_soil_hint: "ប្រភេទដី"
+      fertilizer_stage_hint: "ដំណាក់កាលដំណាំ"
+      fertilizer_button: "ទទួលការណែនាំជី"
+      ask_title: "សួរអ្នកជំនាញ"
+      ask_voice_hint: "ចុចដើម្បីនិយាយ..."
+      ask_text_hint: "...ឬបញ្ចូលសំណួរអំពីការដំណាំ"
+      ask_button: "សួរ"
+    en:
+      recipe_name: "Smart Farming"
+      recipe_desc: "Smart farming guide for Cambodian smallholders"
+      greeting: "Hi! I'm {{l10n.recipe_name}}. How can I help you today?"
+      home_heading: "Smart Farming Assistant"
+      grid_diagnose: "Diagnose Crops"
+      grid_rice: "Rice Farming"
+      grid_fertilizer: "Fertilizer Guide"
+      grid_ask: "Ask Expert"
+      diagnose_title: "Crop Disease Diagnosis"
+      diagnose_heading: "Describe your crop condition"
+      diagnose_voice_hint: "Describe disease symptoms..."
+      diagnose_text_hint: "E.g.: yellow leaves, spots, wilting, root rot..."
+      diagnose_button: "Diagnose"
+      rice_title: "Rice Farming Guide"
+      rice_heading: "Good Rice Crop Management"
+      rice_stage_hint: "Rice growth stage"
+      rice_area_hint: "Field area (hectares)"
+      rice_variety_hint: "Rice variety"
+      rice_button: "Get Guidance"
+      fertilizer_title: "Fertilizer Guidance"
+      fertilizer_crop_hint: "Crop type"
+      fertilizer_soil_hint: "Soil type"
+      fertilizer_stage_hint: "Crop growth stage"
+      fertilizer_button: "Get Fertilizer Advice"
+      ask_title: "Ask Expert"
+      ask_voice_hint: "Tap to speak..."
+      ask_text_hint: "...or type a farming question"
+      ask_button: "Ask"
+    th:
+      recipe_name: "เกษตรอัจฉริยะ"
+      recipe_desc: "คู่มือเกษตรอัจฉริยะสำหรับเกษตรกรรายย่อยกัมพูชา"
+      greeting: "สวัสดี! ฉันคือ {{l10n.recipe_name}} ฉันช่วยอะไรได้บ้าง?"
+      home_heading: "ผู้ช่วยการเกษตรอัจฉริยะ"
+      grid_diagnose: "วินิจฉัยพืช"
+      grid_rice: "การปลูกข้าว"
+      grid_fertilizer: "คำแนะนำปุ๋ย"
+      grid_ask: "ถามผู้เชี่ยวชาญ"
+      diagnose_title: "วินิจฉัยโรคพืช"
+      diagnose_heading: "อธิบายอาการของพืชคุณ"
+      diagnose_voice_hint: "อธิบายอาการโรค..."
+      diagnose_text_hint: "เช่น ใบเหลือง จุดสีน้ำตาล เน่าราก..."
+      diagnose_button: "วินิจฉัย"
+      rice_title: "คำแนะนำการปลูกข้าว"
+      rice_heading: "การจัดการข้าวที่ดี"
+      rice_stage_hint: "ระยะการเจริญเติบโตของข้าว"
+      rice_area_hint: "พื้นที่ (เฮกตาร์)"
+      rice_variety_hint: "พันธุ์ข้าว"
+      rice_button: "รับคำแนะนำ"
+      fertilizer_title: "คำแนะนำปุ๋ย"
+      fertilizer_crop_hint: "ประเภทพืช"
+      fertilizer_soil_hint: "ประเภทดิน"
+      fertilizer_stage_hint: "ระยะการเจริญเติบโต"
+      fertilizer_button: "รับคำแนะนำปุ๋ย"
+      ask_title: "ถามผู้เชี่ยวชาญ"
+      ask_voice_hint: "กดเพื่อพูด..."
+      ask_text_hint: "...หรือพิมพ์คำถามเกี่ยวกับการเกษตร"
+      ask_button: "ถาม"
+    ms:
+      recipe_name: "Pertanian Pintar"
+      recipe_desc: "Panduan pertanian pintar untuk pekebun kecil Kemboja"
+      greeting: "Hai! Saya {{l10n.recipe_name}}. Apa yang boleh saya bantu?"
+      home_heading: "Pembantu Pertanian Pintar"
+      grid_diagnose: "Diagnos Tanaman"
+      grid_rice: "Penanaman Padi"
+      grid_fertilizer: "Panduan Baja"
+      grid_ask: "Tanya Pakar"
+      diagnose_title: "Diagnosis Penyakit Tanaman"
+      diagnose_heading: "Huraikan keadaan tanaman anda"
+      diagnose_voice_hint: "Huraikan gejala penyakit..."
+      diagnose_text_hint: "Cth: daun kuning, bintik, layu, reput akar..."
+      diagnose_button: "Diagnos"
+      rice_title: "Panduan Penanaman Padi"
+      rice_heading: "Pengurusan Tanaman Padi yang Baik"
+      rice_stage_hint: "Peringkat pertumbuhan padi"
+      rice_area_hint: "Keluasan ladang (hektar)"
+      rice_variety_hint: "Varieti padi"
+      rice_button: "Dapatkan Panduan"
+      fertilizer_title: "Panduan Baja"
+      fertilizer_crop_hint: "Jenis tanaman"
+      fertilizer_soil_hint: "Jenis tanah"
+      fertilizer_stage_hint: "Peringkat pertumbuhan tanaman"
+      fertilizer_button: "Dapatkan Nasihat Baja"
+      ask_title: "Tanya Pakar"
+      ask_voice_hint: "Tekan untuk bercakap..."
+      ask_text_hint: "...atau taip soalan tentang pertanian"
+      ask_button: "Tanya"
+    id:
+      recipe_name: "Pertanian Cerdas"
+      recipe_desc: "Panduan pertanian cerdas untuk petani kecil Kamboja"
+      greeting: "Halo! Saya {{l10n.recipe_name}}. Apa yang bisa saya bantu?"
+      home_heading: "Asisten Pertanian Cerdas"
+      grid_diagnose: "Diagnosis Tanaman"
+      grid_rice: "Budidaya Padi"
+      grid_fertilizer: "Panduan Pupuk"
+      grid_ask: "Tanya Ahli"
+      diagnose_title: "Diagnosis Penyakit Tanaman"
+      diagnose_heading: "Jelaskan kondisi tanaman Anda"
+      diagnose_voice_hint: "Jelaskan gejala penyakit..."
+      diagnose_text_hint: "Mis: daun kuning, bercak, layu, busuk akar..."
+      diagnose_button: "Diagnosis"
+      rice_title: "Panduan Budidaya Padi"
+      rice_heading: "Manajemen Tanaman Padi yang Baik"
+      rice_stage_hint: "Fase pertumbuhan padi"
+      rice_area_hint: "Luas lahan (hektar)"
+      rice_variety_hint: "Varietas padi"
+      rice_button: "Dapatkan Panduan"
+      fertilizer_title: "Panduan Pupuk"
+      fertilizer_crop_hint: "Jenis tanaman"
+      fertilizer_soil_hint: "Jenis tanah"
+      fertilizer_stage_hint: "Fase pertumbuhan tanaman"
+      fertilizer_button: "Dapatkan Saran Pupuk"
+      ask_title: "Tanya Ahli"
+      ask_voice_hint: "Ketuk untuk bicara..."
+      ask_text_hint: "...atau ketik pertanyaan tentang pertanian"
+      ask_button: "Tanya"
+    vi:
+      recipe_name: "Nông Nghiệp Thông Minh"
+      recipe_desc: "Hướng dẫn nông nghiệp thông minh cho nông dân nhỏ Campuchia"
+      greeting: "Xin chào! Tôi là {{l10n.recipe_name}}. Tôi có thể giúp gì cho bạn?"
+      home_heading: "Trợ lý nông nghiệp thông minh"
+      grid_diagnose: "Chẩn đoán cây trồng"
+      grid_rice: "Trồng lúa"
+      grid_fertilizer: "Hướng dẫn phân bón"
+      grid_ask: "Hỏi chuyên gia"
+      diagnose_title: "Chẩn đoán bệnh cây trồng"
+      diagnose_heading: "Mô tả tình trạng cây trồng của bạn"
+      diagnose_voice_hint: "Mô tả triệu chứng bệnh..."
+      diagnose_text_hint: "Ví dụ: lá vàng, đốm, héo, thối rễ..."
+      diagnose_button: "Chẩn đoán"
+      rice_title: "Hướng dẫn trồng lúa"
+      rice_heading: "Quản lý cây lúa tốt"
+      rice_stage_hint: "Giai đoạn sinh trưởng của lúa"
+      rice_area_hint: "Diện tích ruộng (hecta)"
+      rice_variety_hint: "Giống lúa"
+      rice_button: "Nhận hướng dẫn"
+      fertilizer_title: "Hướng dẫn phân bón"
+      fertilizer_crop_hint: "Loại cây trồng"
+      fertilizer_soil_hint: "Loại đất"
+      fertilizer_stage_hint: "Giai đoạn sinh trưởng của cây"
+      fertilizer_button: "Nhận tư vấn phân bón"
+      ask_title: "Hỏi chuyên gia"
+      ask_voice_hint: "Nhấn để nói..."
+      ask_text_hint: "...hoặc gõ câu hỏi về nông nghiệp"
+      ask_button: "Hỏi"
+    my:
+      recipe_name: "စမတ်စိုက်ပျိုးရေး"
+      recipe_desc: "ကမ္ဘောဒီးယား လယ်သမားငယ်များအတွက် စမတ်စိုက်ပျိုးရေးလမ်းညွှန်"
+      greeting: "မင်္ဂလာပါ! ကျွန်တော်/ကျွန်မ {{l10n.recipe_name}} ပါ။ ဘာကူညီပေးရမလဲ?"
+      home_heading: "စမတ်တော်သွင်းစိုက်ပျိုးရေး ကူညီသူ"
+      grid_diagnose: "သီးနှံရောဂါ စစ်ဆေးရန်"
+      grid_rice: "ဆန်စပါး စိုက်ပျိုးရေး"
+      grid_fertilizer: "မြေဩဇာ လမ်းညွှန်"
+      grid_ask: "ကျွမ်းကျင်သူကို မေးရန်"
+      diagnose_title: "သီးနှံရောဂါ စစ်ဆေးခြင်း"
+      diagnose_heading: "သင့်သီးနှံ၏ အခြေအနေကို ဖော်ပြပါ"
+      diagnose_voice_hint: "ရောဂါလက္ခဏာများ ဖော်ပြပါ..."
+      diagnose_text_hint: "ဥပမာ - ဝါသောရွက်၊ အစက်၊ ညောင်းမော၊ အမြစ်ဂျပ်..."
+      diagnose_button: "စစ်ဆေးရန်"
+      rice_title: "ဆန်စပါး စိုက်ပျိုးရေး လမ်းညွှန်"
+      rice_heading: "ဆန်စပါးသီးနှံ စီမံခန့်ခွဲမှု"
+      rice_stage_hint: "ဆန်စပါး ကြီးထွားမှု အဆင့်"
+      rice_area_hint: "လယ်ယာဧရိယာ (ဟက်တာ)"
+      rice_variety_hint: "ဆန်မျိုး"
+      rice_button: "လမ်းညွှန်ချက် ရယူရန်"
+      fertilizer_title: "မြေဩဇာ လမ်းညွှန်"
+      fertilizer_crop_hint: "သီးနှံ အမျိုးအစား"
+      fertilizer_soil_hint: "မြေအမျိုးအစား"
+      fertilizer_stage_hint: "သီးနှံ ကြီးထွားမှု အဆင့်"
+      fertilizer_button: "မြေဩဇာ အကြံဉာဏ် ရယူရန်"
+      ask_title: "ကျွမ်းကျင်သူကို မေးရန်"
+      ask_voice_hint: "ပြောဆိုရန် နှိပ်ပါ..."
+      ask_text_hint: "...သို့မဟုတ် စိုက်ပျိုးရေးမေးခွန်း ရိုက်ထည့်ပါ"
+      ask_button: "မေးရန်"
+    ta:
+      recipe_name: "ஸ்மார்ட் விவசாயம்"
+      recipe_desc: "கம்போடிய சிறு விவசாயிகளுக்கான ஸ்மார்ட் விவசாய வழிகாட்டி"
+      greeting: "வணக்கம்! நான் {{l10n.recipe_name}}. நான் எப்படி உதவ முடியும்?"
+      home_heading: "ஸ்மார்ட் விவசாய உதவியாளர்"
+      grid_diagnose: "பயிர் நோய் கண்டறிதல்"
+      grid_rice: "நெல் சாகுபடி"
+      grid_fertilizer: "உர வழிகாட்டி"
+      grid_ask: "நிபுணரிடம் கேளுங்கள்"
+      diagnose_title: "பயிர் நோய் கண்டறிதல்"
+      diagnose_heading: "உங்கள் பயிரின் நிலையை விவரிக்கவும்"
+      diagnose_voice_hint: "நோய் அறிகுறிகளை விவரிக்கவும்..."
+      diagnose_text_hint: "எ.கா.: மஞ்சள் இலைகள், புள்ளிகள், வாடல், வேர் அழுகல்..."
+      diagnose_button: "கண்டறி"
+      rice_title: "நெல் சாகுபடி வழிகாட்டி"
+      rice_heading: "நெல் பயிர் மேலாண்மை"
+      rice_stage_hint: "நெல்லின் வளர்ச்சி நிலை"
+      rice_area_hint: "வயல் பரப்பு (ஹெக்டேர்)"
+      rice_variety_hint: "நெல் ரகம்"
+      rice_button: "வழிகாட்டுதல் பெறுக"
+      fertilizer_title: "உர வழிகாட்டி"
+      fertilizer_crop_hint: "பயிர் வகை"
+      fertilizer_soil_hint: "மண் வகை"
+      fertilizer_stage_hint: "பயிர் வளர்ச்சி நிலை"
+      fertilizer_button: "உர ஆலோசனை பெறுக"
+      ask_title: "நிபுணரிடம் கேளுங்கள்"
+      ask_voice_hint: "பேசுவதற்கு தட்டவும்..."
+      ask_text_hint: "...அல்லது விவசாய கேள்வி தட்டச்சு செய்யுங்கள்"
+      ask_button: "கேளுங்கள்"
+    zh:
+      recipe_name: "智慧农业"
+      recipe_desc: "柬埔寨小农户智慧农业指南"
+      greeting: "你好！我是{{l10n.recipe_name}}。我能帮你什么？"
+      home_heading: "智慧农业助手"
+      grid_diagnose: "诊断作物"
+      grid_rice: "水稻种植"
+      grid_fertilizer: "施肥指南"
+      grid_ask: "咨询专家"
+      diagnose_title: "作物病害诊断"
+      diagnose_heading: "描述您的作物情况"
+      diagnose_voice_hint: "描述病害症状..."
+      diagnose_text_hint: "例如：叶片发黄、斑点、萎蔫、根腐..."
+      diagnose_button: "诊断"
+      rice_title: "水稻种植指南"
+      rice_heading: "水稻作物管理"
+      rice_stage_hint: "水稻生长阶段"
+      rice_area_hint: "田地面积（公顷）"
+      rice_variety_hint: "水稻品种"
+      rice_button: "获取指导"
+      fertilizer_title: "施肥指南"
+      fertilizer_crop_hint: "作物类型"
+      fertilizer_soil_hint: "土壤类型"
+      fertilizer_stage_hint: "作物生长阶段"
+      fertilizer_button: "获取施肥建议"
+      ask_title: "咨询专家"
+      ask_voice_hint: "点击说话..."
+      ask_text_hint: "...或输入农业问题"
+      ask_button: "提问"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are Kasikam Chhlat (Smart Farming / កសិកម្មឆ្លាត), an AI agricultural assistant for Cambodian smallholder farmers. You specialize in Cambodian farming conditions, especially rice cultivation, and help with crop disease diagnosis, fertilizer recommendations, and planting guidance.
+
+    Your knowledge includes:
+    - Cambodian rice varieties: IR50404, Sen Kra Ob, Phkar Rumduol, Neang Malis, Jasmine varieties
+    - Cambodian rice seasons: Preng (wet season, May-Nov) and Vosa (dry season, Dec-Apr)
+    - Common rice diseases in Cambodia: blast (ជំងឺអណ្តូង), sheath blight, bacterial blight, neck rot
+    - Cambodian crop challenges: irregular rainfall, flooding, poor soil fertility, limited credit access
+    - Key extension service: MAFF (Ministry of Agriculture, Forestry and Fisheries)
+    - Low-cost, practical solutions suited to smallholders with <2 hectares
+    - Other important crops: cassava (មាន), maize (ពោត), sugarcane, vegetables
+
+    Always:
+    - Respond in Khmer (km) when the user writes in Khmer
+    - Give simple, practical advice suited to smallholders with limited resources
+    - Include timing specific to Cambodian seasons
+    - Mention MAFF or local agricultural offices for serious problems
+
+    Never:
+    - Recommend banned or restricted pesticides
+    - Give advice that requires significant capital investment without lower-cost alternatives
+safety:
+  blocked_keywords:
+    - harmful
+  disclaimer: "This tool provides general farming guidance and does not replace advice from local agricultural extension officers."
+setup:
+  intro_page:
+    accept_label: "យល់ហើយ — ចាប់ផ្តើម"
+    disclaimer: "កសិកម្មឆ្លាតផ្តល់ការណែនាំដំណាំទូទៅ។ សម្រាប់ជំងឺដំណាំធ្ងន់ធ្ងរ សូមទំនាក់ទំនងមន្ត្រីជំនាញនៃក្រសួងកសិកម្ម។"
+    author:
+      name: "Cambodia Rural Dev"
+      organisation: "Cambodia Rural Dev"
+      verified: true
+    links:
+      - label: "Ministry of Agriculture Cambodia (MAFF)"
+        url: "https://www.maff.gov.kh"
+      - label: "CGIAR Rice Knowledge Bank"
+        url: "https://www.knowledgebank.irri.org"
+screen_catalog:
+  - id: home
+    title: "ទំព័រដើម"
+    icon: "\U0001F3E0"
+  - id: diagnose
+    title: "រោគ"
+    icon: "\U0001F4F8"
+  - id: rice_guide
+    title: "ស្រូវ"
+    icon: "\U0001F33E"
+  - id: fertilizer
+    title: "ជី"
+    icon: "\U0001F9EA"
+  - id: ask_expert
+    title: "សួរ"
+    icon: "\U0001F4AC"
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  photo_path: { type: string, default: "" }
+  rice_stage: { type: string, default: "" }
+  field_area: { type: string, default: "" }
+  rice_variety: { type: string, default: "" }
+  fert_crop: { type: string, default: "" }
+  fert_soil: { type: string, default: "" }
+  fert_stage: { type: string, default: "" }
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_diagnose}}"
+              icon: "\U0001F4F8"
+              action: "go:diagnose"
+            - label: "{{l10n.grid_rice}}"
+              icon: "\U0001F33E"
+              action: "go:rice_guide"
+            - label: "{{l10n.grid_fertilizer}}"
+              icon: "\U0001F9EA"
+              action: "go:fertilizer"
+            - label: "{{l10n.grid_ask}}"
+              icon: "\U0001F4AC"
+              action: "go:ask_expert"
+  - id: diagnose
+    title: "{{l10n.diagnose_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.diagnose_heading}}"
+          style: subheading
+      - camera_input:
+          bind: photo_path
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.diagnose_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.diagnose_text_hint}}"
+      - action_button:
+          label: "{{l10n.diagnose_button}}"
+          action: "vision_ask:You are an agricultural pathologist specializing in Cambodian crops. Analyze this photo. Identify: 1) Crop type visible, 2) Disease or pest name (provide both local/Khmer name if possible and scientific name), 3) Severity, 4) Treatment using pesticides/fungicides available in Cambodia, 5) Prevention steps, 6) Whether to contact local MAFF office. Farmer's additional notes: {{user_text}}"
+          style: primary
+          visible_if: "photo_path"
+      - action_button:
+          label: "{{l10n.diagnose_button}}"
+          action: "ask:You are an agricultural pathologist for Cambodian crops. Based on the description, diagnose the most likely disease or pest. Provide: 1) Most likely disease/pest name (in Khmer and English if possible), 2) Severity, 3) Treatment with products available in Cambodia, 4) Prevention, 5) When to contact MAFF. Description: {{user_text}}"
+          style: primary
+          hidden_if: "photo_path"
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: rice_guide
+    title: "{{l10n.rice_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.rice_heading}}"
+          style: subheading
+      - text_input:
+          bind: rice_stage
+          hint: "{{l10n.rice_stage_hint}}"
+          input_type: dropdown
+          options:
+            - "ដំណាក់រៀបព្រៃ (Land preparation)"
+            - "ដំណំ (Seedling / Germination)"
+            - "ជ្រូកផ្អើ (Tillering)"
+            - "ដំណាក់ចាក់ (Stem elongation)"
+            - "ដំណាក់ប្រណំ (Panicle initiation)"
+            - "ផ្ការ (Flowering / Heading)"
+            - "ទុំ (Grain filling)"
+            - "ច្រូតកាត់ (Harvest)"
+      - text_input:
+          bind: field_area
+          hint: "{{l10n.rice_area_hint}}"
+      - text_input:
+          bind: rice_variety
+          hint: "{{l10n.rice_variety_hint}}"
+          input_type: dropdown
+          options:
+            - "IR50404"
+            - "Sen Kra Ob"
+            - "Phkar Rumduol"
+            - "Neang Malis 3"
+            - "CAR11 (Jasmine)"
+            - "ORY01 (Phkar Rumduol Improved)"
+            - "ពូជមិនស្គាល់ (Unknown variety)"
+      - action_button:
+          label: "{{l10n.rice_button}}"
+          action: "ask:You are a rice cultivation advisor for Cambodia. Rice growth stage: {{rice_stage}}, Field area: {{field_area}} hectares, Rice variety: {{rice_variety}}. Provide practical guidance for this stage: 1) Key tasks to do now (water management, fertilizer, pest monitoring), 2) Warning signs to watch for this stage, 3) Upcoming next stage preparation, 4) Common mistakes to avoid at this stage, 5) Expected timeline to next stage. Tailor advice to smallholder conditions in Cambodia."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: fertilizer
+    title: "{{l10n.fertilizer_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.fertilizer_title}}"
+          style: subheading
+      - text_input:
+          bind: fert_crop
+          hint: "{{l10n.fertilizer_crop_hint}}"
+          input_type: dropdown
+          options:
+            - "ស្រូវ (Rice)"
+            - "ពោត (Maize)"
+            - "មាន (Cassava)"
+            - "អំពៅ (Sugarcane)"
+            - "ត្រប់ (Cucumber)"
+            - "ត្រសក់ (Bitter melon)"
+            - "ប្រ (Cabbage)"
+            - "ដំណាំបន្លែ (Vegetables)"
+      - text_input:
+          bind: fert_soil
+          hint: "{{l10n.fertilizer_soil_hint}}"
+          input_type: dropdown
+          options:
+            - "ដីខ្មៅ (Dark clay)"
+            - "ដីខ្សាច់ (Sandy)"
+            - "ដីក្រហម (Red laterite)"
+            - "ដីលាយ (Mixed/Loam)"
+            - "ដីបាក (Flooded paddy soil)"
+      - text_input:
+          bind: fert_stage
+          hint: "{{l10n.fertilizer_stage_hint}}"
+          input_type: dropdown
+          options:
+            - "ដំណំ (Seedling)"
+            - "ការលូតលាស់ (Vegetative growth)"
+            - "ដំណាក់ផ្ការ (Flowering)"
+            - "ដំណាក់ទុំ (Fruiting/Grain filling)"
+      - action_button:
+          label: "{{l10n.fertilizer_button}}"
+          action: "ask:You are a fertilizer advisor for Cambodian smallholder farmers. Crop: {{fert_crop}}, Soil type: {{fert_soil}}, Growth stage: {{fert_stage}}. Provide: 1) Recommended NPK fertilizer ratio for this crop and stage, 2) Application rate per hectare (kg), 3) Application method (broadcast/side-dress/foliar), 4) Locally available fertilizer brands in Cambodia that match, 5) Organic alternatives using locally available materials (rice straw compost, cow dung), 6) Cost estimate in USD/hectare (rough), 7) Warning signs of over-fertilization for this crop."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: ask_expert
+    title: "{{l10n.ask_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.ask_title}}"
+          style: subheading
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.ask_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.ask_text_hint}}"
+      - action_button:
+          label: "{{l10n.ask_button}}"
+          action: "ask:{{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+permissions:
+  - camera

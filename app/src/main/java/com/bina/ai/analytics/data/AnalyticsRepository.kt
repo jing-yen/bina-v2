@@ -6,6 +6,7 @@ import com.bina.ai.analytics.ui.model.DailyBucket
 import com.bina.ai.analytics.ui.model.MetricsSnapshot
 import com.bina.ai.analytics.ui.model.RecipeStats
 import com.bina.ai.analytics.ui.model.TimeWindow
+import com.bina.ai.R
 import com.bina.ai.install.InstallStore
 import com.bina.ai.miniapp.MiniAppRepository
 import kotlinx.coroutines.flow.Flow
@@ -100,32 +101,32 @@ class AnalyticsRepository(
                 listOf(
                     Achievement(
                         id = AchievementId.COLLECTOR,
-                        title = "Recipe Collector",
-                        description = "Install 3 recipes from the Hub",
+                        titleResId = R.string.achievement_collector_title,
+                        descriptionResId = R.string.achievement_collector_desc,
                         emoji = "📦",
                         unlocked = installedCount >= 3,
                         progress = (installedCount / 3f).coerceIn(0f, 1f)
                     ),
                     Achievement(
                         id = AchievementId.CURIOUS,
-                        title = "Test Driver",
-                        description = "Ask 10 questions across your recipes",
+                        titleResId = R.string.achievement_curious_title,
+                        descriptionResId = R.string.achievement_curious_desc,
                         emoji = "💬",
                         unlocked = totalAsks >= 10,
                         progress = (totalAsks / 10f).coerceIn(0f, 1f)
                     ),
                     Achievement(
                         id = AchievementId.STREAK,
-                        title = "Streak",
-                        description = "Use Bina 3 consecutive days",
+                        titleResId = R.string.achievement_streak_title,
+                        descriptionResId = R.string.achievement_streak_desc,
                         emoji = "🔥",
                         unlocked = streak >= 3,
                         progress = (streak / 3f).coerceIn(0f, 1f)
                     ),
                     Achievement(
                         id = AchievementId.EXPLORER,
-                        title = "Explorer",
-                        description = "Use 3 different recipes",
+                        titleResId = R.string.achievement_explorer_title,
+                        descriptionResId = R.string.achievement_explorer_desc,
                         emoji = "🧭",
                         unlocked = distinctRecipes >= 3,
                         progress = (distinctRecipes / 3f).coerceIn(0f, 1f)

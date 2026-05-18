@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // recipes — public read; anyone can create or update, but documents
+    // must include a recipeName field to prevent garbage writes.
+    // Deletes are denied.
+    match /recipes/{recipeId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['recipeName'])
+                    && request.resource.data.recipeName is string
+                    && request.resource.data.recipeName.size() > 0
+                    && request.resource.size() <= 50;
+      allow update: if request.resource.data.keys().hasAll(['recipeName'])
+                    && request.resource.data.recipeName is string
+                    && request.resource.data.recipeName.size() > 0
+                    && request.resource.size() <= 50;
+      allow delete: if false;
+    }
+
+    // pings — analytics events. Public read and create; no updates or deletes.
+    match /pings/{pingId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['recipeId', 'ts'])
+                    && request.resource.size() <= 20;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

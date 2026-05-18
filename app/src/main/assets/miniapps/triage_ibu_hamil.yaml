@@ -1,0 +1,617 @@
+id: triage_ibu_hamil
+name: "Triage Ibu Hamil"
+description: "Saringan kehamilan berisiko tinggi untuk bidan desa — triase gejala, senarai semak kecemasan, panggilan ambulans"
+icon: "\U0001F6A8"
+version: "1.0.0"
+category: "Health"
+featured: true
+emergency: true
+tags:
+  - maternal
+  - triage
+  - emergency
+  - pregnancy
+  - midwife
+author:
+  name: "Dr. Aminah Zainal"
+  organisation: "Klinik Desa Pahang"
+  verified: true
+theme:
+  primary: "#DC2626"
+  secondary: "#FEF2F2"
+localisation:
+  supported:
+    - ms
+    - en
+    - id
+    - vi
+    - th
+    - km
+    - my
+    - ta
+    - zh
+  default: ms
+  labels:
+    ms:
+      recipe_name: "Triage Ibu Hamil"
+      recipe_desc: "Saringan kehamilan berisiko tinggi untuk bidan desa — triase gejala, senarai semak kecemasan, panggilan ambulans"
+      greeting: "Hai! Saya {{l10n.recipe_name}}. Apa yang boleh saya bantu?"
+      home_heading: "Apa yang boleh saya bantu?"
+      grid_saringan: "Saringan Gejala"
+      grid_checklist: "Senarai Semak"
+      grid_ambulans: "Panggil Ambulans"
+      grid_rujukan: "Rujukan Cepat"
+      saringan_title: "Saringan Gejala Kehamilan"
+      bp_label: "Tekanan Darah Sistolik (mmHg)"
+      gest_weeks_hint: "Umur kandungan (minggu)"
+      edema_label: "Bengkak pada muka/tangan"
+      headache_label: "Sakit kepala teruk"
+      movement_label: "Pergerakan janin berkurang"
+      bleeding_label: "Pendarahan faraj"
+      triage_button: "Triase Sekarang"
+      checklist_title: "Senarai Semak Kecemasan"
+      check_airway: "Periksa saluran pernafasan dan pernafasan"
+      check_bp: "Ukur tekanan darah dan nadi"
+      check_bleeding: "Nilai jumlah pendarahan"
+      check_iv: "Sediakan talian IV jika boleh"
+      check_contact: "Hubungi hospital dan ambulans"
+      check_transport: "Sediakan pengangkutan kecemasan"
+      ambulans_title: "Panggil Ambulans"
+      ambulans_desc: "Hubungi perkhidmatan kecemasan terdekat dengan segera. Nyatakan lokasi, keadaan pesakit, dan umur kandungan."
+      call_999: "Hubungi 999"
+      call_hospital: "Hospital Tengku Ampuan Afzan"
+      sms_emergency: "Hantar SMS Kecemasan"
+      rujukan_title: "Rujukan Cepat"
+      rujukan_voice_hint: "Tekan untuk bercakap..."
+      rujukan_text_hint: "Taipkan soalan klinikal..."
+      rujukan_button: "Dapatkan Rujukan"
+    en:
+      recipe_name: "Maternal Triage"
+      recipe_desc: "High-risk pregnancy screening for rural midwives — symptom triage, emergency checklist, ambulance dispatch"
+      greeting: "Hi! I'm {{l10n.recipe_name}}. How can I help you today?"
+      home_heading: "How can I help you?"
+      grid_saringan: "Symptom Screening"
+      grid_checklist: "Emergency Checklist"
+      grid_ambulans: "Call Ambulance"
+      grid_rujukan: "Quick Reference"
+      saringan_title: "Pregnancy Symptom Screening"
+      bp_label: "Systolic Blood Pressure (mmHg)"
+      gest_weeks_hint: "Gestational age (weeks)"
+      edema_label: "Swelling of face/hands"
+      headache_label: "Severe headache"
+      movement_label: "Reduced fetal movement"
+      bleeding_label: "Vaginal bleeding"
+      triage_button: "Triage Now"
+      checklist_title: "Emergency Checklist"
+      check_airway: "Check airway and breathing"
+      check_bp: "Measure blood pressure and pulse"
+      check_bleeding: "Assess amount of bleeding"
+      check_iv: "Prepare IV line if possible"
+      check_contact: "Contact hospital and ambulance"
+      check_transport: "Prepare emergency transport"
+      ambulans_title: "Call Ambulance"
+      ambulans_desc: "Contact the nearest emergency service immediately. State location, patient condition, and gestational age."
+      call_999: "Call 999"
+      call_hospital: "Tengku Ampuan Afzan Hospital"
+      sms_emergency: "Send Emergency SMS"
+      rujukan_title: "Quick Reference"
+      rujukan_voice_hint: "Tap to speak..."
+      rujukan_text_hint: "Type a clinical question..."
+      rujukan_button: "Get Reference"
+    id:
+      recipe_name: "Triase Ibu Hamil"
+      recipe_desc: "Skrining kehamilan berisiko tinggi untuk bidan desa — triase gejala, daftar periksa darurat, panggilan ambulans"
+      greeting: "Halo! Saya {{l10n.recipe_name}}. Apa yang bisa saya bantu?"
+      home_heading: "Apa yang bisa saya bantu?"
+      grid_saringan: "Skrining Gejala"
+      grid_checklist: "Daftar Periksa"
+      grid_ambulans: "Panggil Ambulans"
+      grid_rujukan: "Rujukan Cepat"
+      saringan_title: "Skrining Gejala Kehamilan"
+      bp_label: "Tekanan Darah Sistolik (mmHg)"
+      gest_weeks_hint: "Usia kehamilan (minggu)"
+      edema_label: "Bengkak pada wajah/tangan"
+      headache_label: "Sakit kepala berat"
+      movement_label: "Gerakan janin berkurang"
+      bleeding_label: "Perdarahan pervaginam"
+      triage_button: "Triase Sekarang"
+      checklist_title: "Daftar Periksa Darurat"
+      check_airway: "Periksa jalan napas dan pernapasan"
+      check_bp: "Ukur tekanan darah dan denyut nadi"
+      check_bleeding: "Nilai jumlah perdarahan"
+      check_iv: "Siapkan jalur infus jika memungkinkan"
+      check_contact: "Hubungi rumah sakit dan ambulans"
+      check_transport: "Siapkan transportasi darurat"
+      ambulans_title: "Panggil Ambulans"
+      ambulans_desc: "Hubungi layanan darurat terdekat segera. Sebutkan lokasi, kondisi pasien, dan usia kehamilan."
+      call_999: "Hubungi 118"
+      call_hospital: "Rumah Sakit Terdekat"
+      sms_emergency: "Kirim SMS Darurat"
+      rujukan_title: "Rujukan Cepat"
+      rujukan_voice_hint: "Ketuk untuk bicara..."
+      rujukan_text_hint: "Ketik pertanyaan klinis..."
+      rujukan_button: "Dapatkan Rujukan"
+    vi:
+      recipe_name: "Phân Loại Thai Phụ"
+      recipe_desc: "Sàng lọc thai kỳ nguy cơ cao cho nữ hộ sinh nông thôn — phân loại triệu chứng, danh sách kiểm tra khẩn cấp, gọi xe cứu thương"
+      greeting: "Xin chào! Tôi là {{l10n.recipe_name}}. Tôi có thể giúp gì cho bạn?"
+      home_heading: "Tôi có thể giúp gì cho bạn?"
+      grid_saringan: "Sàng Lọc Triệu Chứng"
+      grid_checklist: "Danh Sách Kiểm Tra"
+      grid_ambulans: "Gọi Xe Cứu Thương"
+      grid_rujukan: "Tra Cứu Nhanh"
+      saringan_title: "Sàng Lọc Triệu Chứng Thai Kỳ"
+      bp_label: "Huyết áp tâm thu (mmHg)"
+      gest_weeks_hint: "Tuổi thai (tuần)"
+      edema_label: "Phù mặt/tay"
+      headache_label: "Đau đầu dữ dội"
+      movement_label: "Giảm cử động thai"
+      bleeding_label: "Xuất huyết âm đạo"
+      triage_button: "Phân Loại Ngay"
+      checklist_title: "Danh Sách Kiểm Tra Khẩn Cấp"
+      check_airway: "Kiểm tra đường thở và hô hấp"
+      check_bp: "Đo huyết áp và mạch"
+      check_bleeding: "Đánh giá lượng máu mất"
+      check_iv: "Chuẩn bị đường truyền tĩnh mạch nếu có thể"
+      check_contact: "Liên hệ bệnh viện và xe cứu thương"
+      check_transport: "Chuẩn bị vận chuyển cấp cứu"
+      ambulans_title: "Gọi Xe Cứu Thương"
+      ambulans_desc: "Liên hệ dịch vụ cấp cứu gần nhất ngay lập tức. Nêu vị trí, tình trạng bệnh nhân, và tuổi thai."
+      call_999: "Gọi 115"
+      call_hospital: "Bệnh Viện Gần Nhất"
+      sms_emergency: "Gửi SMS Khẩn Cấp"
+      rujukan_title: "Tra Cứu Nhanh"
+      rujukan_voice_hint: "Nhấn để nói..."
+      rujukan_text_hint: "Gõ câu hỏi lâm sàng..."
+      rujukan_button: "Tra Cứu"
+    th:
+      recipe_name: "คัดกรองหญิงตั้งครรภ์"
+      recipe_desc: "คัดกรองครรภ์เสี่ยงสูงสำหรับผดุงครรภ์ชนบท — คัดแยกอาการ รายการตรวจฉุกเฉิน เรียกรถพยาบาล"
+      greeting: "สวัสดี! ฉันคือ {{l10n.recipe_name}} ฉันช่วยอะไรได้บ้าง?"
+      home_heading: "ฉันช่วยคุณได้อย่างไร?"
+      grid_saringan: "คัดกรองอาการ"
+      grid_checklist: "รายการตรวจ"
+      grid_ambulans: "เรียกรถพยาบาล"
+      grid_rujukan: "อ้างอิงด่วน"
+      saringan_title: "คัดกรองอาการครรภ์"
+      bp_label: "ความดันโลหิตซิสโตลิก (mmHg)"
+      gest_weeks_hint: "อายุครรภ์ (สัปดาห์)"
+      edema_label: "บวมที่ใบหน้า/มือ"
+      headache_label: "ปวดศีรษะรุนแรง"
+      movement_label: "ทารกดิ้นน้อยลง"
+      bleeding_label: "เลือดออกทางช่องคลอด"
+      triage_button: "คัดแยกทันที"
+      checklist_title: "รายการตรวจฉุกเฉิน"
+      check_airway: "ตรวจทางเดินหายใจและการหายใจ"
+      check_bp: "วัดความดันโลหิตและชีพจร"
+      check_bleeding: "ประเมินปริมาณเลือดที่เสีย"
+      check_iv: "เตรียมสายน้ำเกลือถ้าทำได้"
+      check_contact: "ติดต่อโรงพยาบาลและรถพยาบาล"
+      check_transport: "เตรียมการขนส่งฉุกเฉิน"
+      ambulans_title: "เรียกรถพยาบาล"
+      ambulans_desc: "ติดต่อบริการฉุกเฉินที่ใกล้ที่สุดทันที ระบุตำแหน่ง สภาพผู้ป่วย และอายุครรภ์"
+      call_999: "โทร 1669"
+      call_hospital: "โรงพยาบาลใกล้เคียง"
+      sms_emergency: "ส่ง SMS ฉุกเฉิน"
+      rujukan_title: "อ้างอิงด่วน"
+      rujukan_voice_hint: "กดเพื่อพูด..."
+      rujukan_text_hint: "พิมพ์คำถามทางคลินิก..."
+      rujukan_button: "ค้นหาข้อมูล"
+    km:
+      recipe_name: "ពិនិត្យស្រ្តីមានផ្ទៃពោះ"
+      recipe_desc: "ការពិនិត្យផ្ទៃពោះប្រឈមខ្ពស់សម្រាប់ឆ្មបជនបទ — វាយតម្លៃរោគសញ្ញា បញ្ជីត្រួតពិនិត្យអាសន្ន ហៅឡានពេទ្យ"
+      greeting: "សួស្តី! ខ្ញុំជា {{l10n.recipe_name}}។ តើខ្ញុំអាចជួយអ្វីបាន?"
+      home_heading: "ខ្ញុំអាចជួយអ្នកដោយរបៀបណា?"
+      grid_saringan: "ពិនិត្យរោគសញ្ញា"
+      grid_checklist: "បញ្ជីត្រួតពិនិត្យ"
+      grid_ambulans: "ហៅឡានពេទ្យ"
+      grid_rujukan: "ឯកសារយោង"
+      saringan_title: "ពិនិត្យរោគសញ្ញាផ្ទៃពោះ"
+      bp_label: "សម្ពាធឈាមស៊ីស្តូលិក (mmHg)"
+      gest_weeks_hint: "អាយុផ្ទៃពោះ (សប្ដាហ៍)"
+      edema_label: "ហើមនៅមុខ/ដៃ"
+      headache_label: "ឈឺក្បាលខ្លាំង"
+      movement_label: "ទារកក្នុងផ្ទៃផ្លាស់ទីតិច"
+      bleeding_label: "ហូរឈាមតាមទ្វារមាស"
+      triage_button: "វាយតម្លៃភ្លាម"
+      checklist_title: "បញ្ជីត្រួតពិនិត្យអាសន្ន"
+      check_airway: "ពិនិត្យផ្លូវដង្ហើមនិងការដកដង្ហើម"
+      check_bp: "វាស់សម្ពាធឈាមនិងចង្វាក់បេះដូង"
+      check_bleeding: "វាយតម្លៃបរិមាណឈាមបាត់បង់"
+      check_iv: "រៀបចំខ្សែសេរ៉ូមប្រសិនបើអាច"
+      check_contact: "ទំនាក់ទំនងមន្ទីរពេទ្យនិងឡានពេទ្យ"
+      check_transport: "រៀបចំការដឹកជញ្ជូនអាសន្ន"
+      ambulans_title: "ហៅឡានពេទ្យ"
+      ambulans_desc: "ទំនាក់ទំនងសេវាអាសន្នដែលនៅជិតបំផុតភ្លាមៗ។ ប្រាប់ទីតាំង ស្ថានភាពអ្នកជំងឺ និងអាយុផ្ទៃពោះ។"
+      call_999: "ហៅ 119"
+      call_hospital: "មន្ទីរពេទ្យដែលនៅជិតបំផុត"
+      sms_emergency: "ផ្ញើ SMS អាសន្ន"
+      rujukan_title: "ឯកសារយោងរហ័ស"
+      rujukan_voice_hint: "ចុចដើម្បីនិយាយ..."
+      rujukan_text_hint: "បញ្ចូលសំណួរវេជ្ជសាស្ត្រ..."
+      rujukan_button: "ស្វែងរកឯកសារ"
+    my:
+      recipe_name: "ကိုယ်ဝန်ဆောင် အရေးပေါ်စစ်ဆေးခြင်း"
+      recipe_desc: "ကျေးလက်သားဖွားဆရာမများအတွက် ဘေးအန္တရာယ်မြင့်ကိုယ်ဝန်စစ်ဆေးခြင်း — လက္ခဏာခွဲခြားခြင်း၊ အရေးပေါ်စာရင်း၊ လူနာတင်ကားခေါ်ခြင်း"
+      greeting: "မင်္ဂလာပါ! ကျွန်တော်/ကျွန်မ {{l10n.recipe_name}} ပါ။ ဘာကူညီပေးရမလဲ?"
+      home_heading: "ကျွန်ုပ် ဘာကူညီနိုင်မည်နည်း?"
+      grid_saringan: "လက္ခဏာ စစ်ဆေးရန်"
+      grid_checklist: "စာရင်း စစ်ဆေးရန်"
+      grid_ambulans: "လူနာတင်ကား ခေါ်ရန်"
+      grid_rujukan: "အမြန် ရည်ညွှန်း"
+      saringan_title: "ကိုယ်ဝန်လက္ခဏာ စစ်ဆေးခြင်း"
+      bp_label: "သွေးပေါင်ချိန် ဆစ်စတိုးလစ် (mmHg)"
+      gest_weeks_hint: "ကိုယ်ဝန် အသက် (သီတင်းပတ်)"
+      edema_label: "မျက်နှာ/လက်တွင် ရောင်ရမ်းခြင်း"
+      headache_label: "ပြင်းထန်သော ခေါင်းကိုက်ခြင်း"
+      movement_label: "သန္ဓေသား လှုပ်ရှားမှု နည်းခြင်း"
+      bleeding_label: "မီးယပ်မှ သွေးထွက်ခြင်း"
+      triage_button: "ယခု စစ်ဆေးပါ"
+      checklist_title: "အရေးပေါ် စစ်ဆေးစာရင်း"
+      check_airway: "လေလမ်းကြောင်းနှင့် အသက်ရှူခြင်း စစ်ဆေးပါ"
+      check_bp: "သွေးပေါင်ချိန်နှင့် နှလုံးခုန်နှုန်း တိုင်းပါ"
+      check_bleeding: "သွေးထွက်ပမာဏ ဆန်းစစ်ပါ"
+      check_iv: "ဖြစ်နိုင်ပါက IV လိုင်း ပြင်ဆင်ပါ"
+      check_contact: "ဆေးရုံနှင့် လူနာတင်ကား ဆက်သွယ်ပါ"
+      check_transport: "အရေးပေါ် သယ်ယူပို့ဆောင်ရေး ပြင်ဆင်ပါ"
+      ambulans_title: "လူနာတင်ကား ခေါ်ပါ"
+      ambulans_desc: "အနီးဆုံး အရေးပေါ်ဝန်ဆောင်မှုကို ချက်ချင်း ဆက်သွယ်ပါ။ တည်နေရာ၊ လူနာအခြေအနေ၊ ကိုယ်ဝန်အသက် ပြောပါ။"
+      call_999: "192 ဖုန်းခေါ်ရန်"
+      call_hospital: "နီးဆုံး ဆေးရုံ"
+      sms_emergency: "အရေးပေါ် SMS ပို့ရန်"
+      rujukan_title: "အမြန် ရည်ညွှန်း"
+      rujukan_voice_hint: "ပြောဆိုရန် နှိပ်ပါ..."
+      rujukan_text_hint: "ဆေးပညာ မေးခွန်း ရိုက်ထည့်ပါ..."
+      rujukan_button: "ရည်ညွှန်းချက် ရယူရန်"
+    ta:
+      recipe_name: "கர்ப்பிணி பிரிவு மதிப்பீடு"
+      recipe_desc: "கிராமப்புற மருத்துவச்சிகளுக்கான உயர் ஆபத்து கர்ப்ப பரிசோதனை — அறிகுறி பிரிவு, அவசர சரிபார்ப்பு, ஆம்புலன்ஸ் அழைப்பு"
+      greeting: "வணக்கம்! நான் {{l10n.recipe_name}}. நான் எப்படி உதவ முடியும்?"
+      home_heading: "நான் உங்களுக்கு எவ்வாறு உதவலாம்?"
+      grid_saringan: "அறிகுறி பரிசோதனை"
+      grid_checklist: "அவசர சரிபார்ப்பு"
+      grid_ambulans: "ஆம்புலன்ஸ் அழை"
+      grid_rujukan: "விரைவு குறிப்பு"
+      saringan_title: "கர்ப்ப அறிகுறி பரிசோதனை"
+      bp_label: "சிஸ்டோலிக் இரத்த அழுத்தம் (mmHg)"
+      gest_weeks_hint: "கர்ப்ப வயது (வாரங்கள்)"
+      edema_label: "முகம்/கைகளில் வீக்கம்"
+      headache_label: "கடுமையான தலைவலி"
+      movement_label: "குழந்தை அசைவு குறைவு"
+      bleeding_label: "யோனி இரத்தப்போக்கு"
+      triage_button: "இப்போது பிரிவிடு"
+      checklist_title: "அவசர சரிபார்ப்பு பட்டியல்"
+      check_airway: "சுவாசப்பாதை மற்றும் சுவாசத்தை சரிபார்க்கவும்"
+      check_bp: "இரத்த அழுத்தம் மற்றும் நாடித்துடிப்பை அளவிடவும்"
+      check_bleeding: "இரத்தப்போக்கின் அளவை மதிப்பிடவும்"
+      check_iv: "முடிந்தால் IV வழி தயாரிக்கவும்"
+      check_contact: "மருத்துவமனை மற்றும் ஆம்புலன்ஸை தொடர்பு கொள்ளவும்"
+      check_transport: "அவசர போக்குவரத்தை ஏற்பாடு செய்யவும்"
+      ambulans_title: "ஆம்புலன்ஸ் அழைக்கவும்"
+      ambulans_desc: "அருகிலுள்ள அவசர சேவையை உடனடியாக தொடர்பு கொள்ளுங்கள். இடம், நோயாளி நிலை, கர்ப்ப வயது தெரிவிக்கவும்."
+      call_999: "999 அழைக்க"
+      call_hospital: "அருகிலுள்ள மருத்துவமனை"
+      sms_emergency: "அவசர SMS அனுப்பவும்"
+      rujukan_title: "விரைவு குறிப்பு"
+      rujukan_voice_hint: "பேசுவதற்கு தட்டவும்..."
+      rujukan_text_hint: "மருத்துவ கேள்வியை தட்டச்சு செய்யுங்கள்..."
+      rujukan_button: "குறிப்பு பெறுக"
+    zh:
+      recipe_name: "孕妇分诊"
+      recipe_desc: "乡村助产士高危妊娠筛查 — 症状分诊、急救清单、呼叫救护车"
+      greeting: "你好！我是{{l10n.recipe_name}}。我能帮你什么？"
+      home_heading: "我能为您做什么？"
+      grid_saringan: "症状筛查"
+      grid_checklist: "急救清单"
+      grid_ambulans: "呼叫救护车"
+      grid_rujukan: "快速参考"
+      saringan_title: "妊娠症状筛查"
+      bp_label: "收缩压 (mmHg)"
+      gest_weeks_hint: "孕龄（周）"
+      edema_label: "面部/手部水肿"
+      headache_label: "严重头痛"
+      movement_label: "胎动减少"
+      bleeding_label: "阴道出血"
+      triage_button: "立即分诊"
+      checklist_title: "急救检查清单"
+      check_airway: "检查气道和呼吸"
+      check_bp: "测量血压和脉搏"
+      check_bleeding: "评估出血量"
+      check_iv: "如有条件准备静脉通路"
+      check_contact: "联系医院和救护车"
+      check_transport: "准备紧急转运"
+      ambulans_title: "呼叫救护车"
+      ambulans_desc: "立即联系最近的急救服务。说明位置、患者状况和孕龄。"
+      call_999: "拨打 999"
+      call_hospital: "最近的医院"
+      sms_emergency: "发送紧急短信"
+      rujukan_title: "快速参考"
+      rujukan_voice_hint: "点击说话..."
+      rujukan_text_hint: "输入临床问题..."
+      rujukan_button: "获取参考"
+model:
+  model_id: "gemma-4-e2b-it"
+  backend: "cpu"
+  system_prompt: |
+    You are Triage Ibu Hamil (Maternal Triage), an AI emergency triage assistant for community midwives and healthcare workers in rural Malaysia and Indonesia. You help with rapid assessment of high-risk pregnancies, danger sign identification, and emergency decision-making.
+
+    Context: You operate in areas with limited hospital access. The user is a trained midwife or community health worker (bidan desa/kader kesihatan) who needs quick, actionable triage guidance.
+
+    Always:
+    - Err on the side of caution — when in doubt, recommend hospital referral
+    - Classify risk as LOW / MEDIUM / HIGH / EMERGENCY with clear criteria
+    - For HIGH or EMERGENCY: list immediate actions in numbered steps
+    - Flag danger signs immediately: eclampsia, severe pre-eclampsia, antepartum haemorrhage, cord prolapse, obstructed labour, sepsis
+    - Use BP thresholds: systolic >= 160 or diastolic >= 110 = severe pre-eclampsia risk
+    - Reference KKM (Malaysia) and Kemenkes (Indonesia) maternal health protocols
+    - Be concise — field workers need answers in seconds, not paragraphs
+    - Use bullet points and bold for critical information
+    - Always state whether hospital referral is needed (YES/NO) with urgency level
+
+    Danger signs requiring IMMEDIATE referral:
+    - Vaginal bleeding in 2nd/3rd trimester
+    - Severe headache + high BP + edema (pre-eclampsia triad)
+    - Seizures (eclampsia)
+    - Absent fetal movement > 12 hours
+    - Fever > 38°C with foul-smelling discharge (sepsis)
+    - Cord prolapse or limb presentation
+
+    Never:
+    - Recommend self-medication or herbal remedies for emergencies
+    - Advise skipping hospital visits for high-risk cases
+    - Provide specific drug dosages beyond basic first aid
+    - Diagnose conditions — classify risk and recommend referral
+    - Downplay any symptom that could indicate a complication
+safety:
+  blocked_keywords:
+    - ubat sendiri
+    - abaikan simptom
+    - self medicate
+    - ignore symptoms
+    - skip hospital
+    - jangan pergi hospital
+  escalation_message: "Ini mungkin kecemasan. Hubungi ambulans segera di 999."
+  disclaimer: "Alat bantuan triase untuk bidan dan petugas kesihatan komuniti. Bukan pengganti diagnosis doktor. Sentiasa rujuk ke hospital untuk kes berisiko tinggi."
+setup:
+  intro_page:
+    accept_label: "Saya Faham"
+    disclaimer: "Alat bantuan triase untuk bidan dan petugas kesihatan komuniti. Bukan pengganti diagnosis doktor. Sentiasa rujuk ke hospital untuk kes berisiko tinggi."
+    author:
+      name: "Dr. Aminah Zainal"
+      organisation: "Klinik Desa Pahang"
+      verified: true
+    links:
+      - label: "Portal KKM"
+        url: "https://www.moh.gov.my"
+permissions:
+  - location
+triage:
+  home_mode: chat
+  max_clarifications: 2
+  fallback: saringan
+
+questions:
+  saringan:
+    - "Berapa tekanan darah sistolik pesakit?"
+    - "Ada pendarahan, bengkak pada muka atau tangan, atau sakit kepala teruk?"
+  senarai_semak:
+    - "Pesakit sedar atau tidak? Ada pendarahan aktif?"
+  panggil_ambulans:
+    - "Di mana lokasi pesakit sekarang?"
+    - "Berapa umur kandungan pesakit?"
+  rujukan_cepat:
+    - "Apakah soalan klinikal anda?"
+
+screen_catalog:
+  - id: home
+    title: "Home"
+    icon: "\U0001F3E0"
+    description: "Skrin utama — navigasi pantas ke saringan, senarai semak, ambulans, dan rujukan"
+  - id: saringan
+    title: "Saringan"
+    icon: "\U0001FA7A"
+    description: "Saringan gejala kehamilan berisiko tinggi — tekanan darah, bengkak, sakit kepala, pergerakan janin, pendarahan"
+    accepted_inputs:
+      - "simptom"
+      - "gejala"
+      - "saringan"
+      - "symptom"
+      - "screening"
+      - "tekanan darah"
+      - "blood pressure"
+      - "bengkak"
+      - "swelling"
+      - "pendarahan"
+      - "bleeding"
+      - "sakit kepala"
+      - "headache"
+      - "gerakan janin"
+      - "fetal movement"
+  - id: senarai_semak
+    title: "Semak"
+    icon: "✅"
+    description: "Senarai semak kecemasan obstetrik — langkah demi langkah pengurusan kecemasan ibu hamil"
+    accepted_inputs:
+      - "senarai semak"
+      - "checklist"
+      - "kecemasan"
+      - "emergency"
+      - "langkah"
+      - "steps"
+      - "prosedur"
+      - "procedure"
+  - id: panggil_ambulans
+    title: "Ambulans"
+    icon: "\U0001F691"
+    description: "Panggil ambulans dan hubungi hospital — nombor kecemasan, SMS automatik dengan lokasi dan maklumat pesakit"
+    accepted_inputs:
+      - "ambulans"
+      - "ambulance"
+      - "panggil"
+      - "call"
+      - "hospital"
+      - "999"
+      - "kecemasan"
+      - "emergency"
+      - "telefon"
+      - "phone"
+  - id: rujukan_cepat
+    title: "Rujukan"
+    icon: "\U0001F4CB"
+    description: "Rujukan cepat AI — tanya soalan klinikal tentang kesihatan ibu mengandung, tanda bahaya, protokol rawatan"
+    accepted_inputs:
+      - "rujukan"
+      - "reference"
+      - "soalan"
+      - "question"
+      - "panduan"
+      - "guide"
+      - "protokol"
+      - "protocol"
+      - "tanya"
+      - "ask"
+
+variables:
+  user_text: { type: string, default: "" }
+  ai_response: { type: string, default: "" }
+  bp_systolic: { type: number, default: "120" }
+  gestational_weeks: { type: number, default: "28" }
+  has_edema: { type: string, default: "false" }
+  has_headache: { type: string, default: "false" }
+  reduced_movement: { type: string, default: "false" }
+  vaginal_bleeding: { type: string, default: "false" }
+  user_location: { type: string, default: "" }
+  checklist_step: { type: number, default: "0" }
+
+screens:
+  - id: home
+    title: ""
+    body:
+      - text_label:
+          text: "{{l10n.home_heading}}"
+          style: subheading
+      - macro_grid:
+          columns: 2
+          buttons:
+            - label: "{{l10n.grid_saringan}}"
+              icon: "\U0001FA7A"
+              action: "go:saringan"
+            - label: "{{l10n.grid_checklist}}"
+              icon: "✅"
+              action: "go:senarai_semak"
+            - label: "{{l10n.grid_ambulans}}"
+              icon: "\U0001F691"
+              action: "go:panggil_ambulans"
+            - label: "{{l10n.grid_rujukan}}"
+              icon: "\U0001F4CB"
+              action: "go:rujukan_cepat"
+  - id: saringan
+    title: "{{l10n.saringan_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.saringan_title}}"
+          style: subheading
+      - slider:
+          bind: bp_systolic
+          min: 60
+          max: 200
+          step: 5
+          label: "{{l10n.bp_label}}"
+          left_label: "60"
+          right_label: "200"
+          show_value: true
+      - text_input:
+          bind: gestational_weeks
+          hint: "{{l10n.gest_weeks_hint}}"
+          input_type: number
+      - text_input:
+          bind: has_edema
+          label: "{{l10n.edema_label}}"
+          input_type: toggle
+      - text_input:
+          bind: has_headache
+          label: "{{l10n.headache_label}}"
+          input_type: toggle
+      - text_input:
+          bind: reduced_movement
+          label: "{{l10n.movement_label}}"
+          input_type: toggle
+      - text_input:
+          bind: vaginal_bleeding
+          label: "{{l10n.bleeding_label}}"
+          input_type: toggle
+      - action_button:
+          label: "{{l10n.triage_button}}"
+          action: "ask:Triage maternal patient. BP systolic: {{bp_systolic}} mmHg. Gestational age: {{gestational_weeks}} weeks. Edema: {{has_edema}}. Severe headache: {{has_headache}}. Reduced fetal movement: {{reduced_movement}}. Vaginal bleeding: {{vaginal_bleeding}}. Assess risk level (LOW/MEDIUM/HIGH/EMERGENCY). If HIGH or EMERGENCY, list immediate actions. Always state whether referral to hospital is needed."
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true
+  - id: senarai_semak
+    title: "{{l10n.checklist_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.checklist_title}}"
+          style: subheading
+      - checklist_items:
+          bind: checklist_step
+          items:
+            - label: "{{l10n.check_airway}}"
+              type: text
+            - label: "{{l10n.check_bp}}"
+              type: text
+            - label: "{{l10n.check_bleeding}}"
+              type: text
+            - label: "{{l10n.check_iv}}"
+              type: text
+            - label: "{{l10n.check_contact}}"
+              type: text
+            - label: "{{l10n.check_transport}}"
+              type: text
+      - progress_bar:
+          bind: checklist_step
+          total: 6
+      - action_button:
+          label: "{{l10n.checklist_title}}"
+          action: "increment:checklist_step"
+          style: primary
+  - id: panggil_ambulans
+    title: "{{l10n.ambulans_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.ambulans_title}}"
+          style: subheading
+      - text_label:
+          text: "{{l10n.ambulans_desc}}"
+          style: body
+      - action_button:
+          label: "{{l10n.call_999}}"
+          action: "tel:999"
+          style: danger
+      - action_button:
+          label: "{{l10n.call_hospital}}"
+          action: "tel:+6097482000"
+          style: danger
+      - action_button:
+          label: "{{l10n.sms_emergency}}"
+          action: "sms:999:KECEMASAN IBU HAMIL. Lokasi: {{user_location}}. BP: {{bp_systolic}} mmHg. Umur kandungan: {{gestational_weeks}} minggu."
+          style: secondary
+  - id: rujukan_cepat
+    title: "{{l10n.rujukan_title}}"
+    body:
+      - text_label:
+          text: "{{l10n.rujukan_title}}"
+          style: subheading
+      - voice_input:
+          bind: user_text
+          hint: "{{l10n.rujukan_voice_hint}}"
+      - text_input:
+          bind: user_text
+          hint: "{{l10n.rujukan_text_hint}}"
+      - action_button:
+          label: "{{l10n.rujukan_button}}"
+          action: "ask:{{user_text}}"
+          style: primary
+      - markdown_output:
+          source: ai_response
+          streaming: true

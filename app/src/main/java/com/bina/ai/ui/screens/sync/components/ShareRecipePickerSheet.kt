@@ -13,9 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bina.ai.R
 import com.bina.ai.miniapp.model.MiniApp
 import com.bina.ai.ui.theme.BinaGrayText
 import com.bina.ai.ui.theme.BinaStone950
@@ -31,16 +33,16 @@ fun ShareRecipePickerSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = BinaBgCard) {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp)) {
-            Text("Share a Recipe", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = BinaStone950)
+            Text(stringResource(R.string.sync_share_title), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = BinaStone950)
             Spacer(Modifier.height(4.dp))
             Text(
-                "Pick an installed recipe. The receiver scans the QR to install it.",
+                stringResource(R.string.sync_share_picker_subtitle),
                 fontSize = 12.sp, color = BinaGrayText
             )
             Spacer(Modifier.height(16.dp))
             if (recipes.isEmpty()) {
                 Text(
-                    "Install a recipe from the Hub first.",
+                    stringResource(R.string.sync_share_empty),
                     fontSize = 13.sp, color = BinaGrayText
                 )
             } else {
